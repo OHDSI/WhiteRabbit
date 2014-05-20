@@ -1,7 +1,7 @@
 WhiteRabbit
 ===========
 
-A small application that can be used to analyse the structure and contents of a database as preparation for designing an ETL.
+A small application to analyze the structure and contents of a database as preparation for designing an ETL.
 
 Getting Started
 ===============
