@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping;
+package org.ohdsi.rabbitInAHat;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -42,10 +42,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import org.ohdsi.rabbitInAHat.dataModel.Field;
+import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
+import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Field;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.ItemToItemMap;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Table;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
 	

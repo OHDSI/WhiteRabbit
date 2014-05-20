@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping;
+package org.ohdsi.rabbitInAHat;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -54,9 +54,9 @@ import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.ohdsi.rabbitInAHat.dataModel.Database;
+import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.whiteRabbit.ObjectExchange;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Database;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.ETL;
 
 public class RabbitInAHat implements ResizeListener, ActionListener {
 

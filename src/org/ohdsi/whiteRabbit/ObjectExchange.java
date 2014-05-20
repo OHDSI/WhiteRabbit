@@ -22,7 +22,7 @@ package org.ohdsi.whiteRabbit;
 
 import javax.swing.JFrame;
 
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.ETL;
+import org.ohdsi.rabbitInAHat.dataModel.ETL;
 
 public class ObjectExchange {
 	public static JFrame	frame;

@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping.dataModel;
+package org.ohdsi.rabbitInAHat.dataModel;
 
 import java.util.ArrayList;
 import java.util.List;

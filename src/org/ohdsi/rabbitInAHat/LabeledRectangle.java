@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping;
+package org.ohdsi.rabbitInAHat;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -34,7 +34,7 @@ import java.util.List;
 
 import javax.swing.event.ChangeListener;
 
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.MappableItem;
+import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 
 public class LabeledRectangle implements MappingComponent {
 	
