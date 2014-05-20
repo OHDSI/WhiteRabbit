@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping;
+package org.ohdsi.rabbitInAHat;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;

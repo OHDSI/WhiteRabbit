@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping;
+package org.ohdsi.rabbitInAHat;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -38,12 +38,12 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.ohdsi.ooxml.CustomXWPFDocument;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.ETL;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Field;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.ItemToItemMap;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.MappableItem;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Mapping;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Table;
+import org.ohdsi.rabbitInAHat.dataModel.ETL;
+import org.ohdsi.rabbitInAHat.dataModel.Field;
+import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
+import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
+import org.ohdsi.rabbitInAHat.dataModel.Mapping;
+import org.ohdsi.rabbitInAHat.dataModel.Table;
 
 public class ETLDocumentGenerator {
 	public static void main(String[] args) throws IOException, ClassNotFoundException {

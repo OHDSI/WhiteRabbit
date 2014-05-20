@@ -26,11 +26,11 @@ import java.util.Random;
 
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
+import org.ohdsi.rabbitInAHat.dataModel.Database;
+import org.ohdsi.rabbitInAHat.dataModel.Field;
+import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.whiteRabbit.DbSettings;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Database;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Field;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Table;
 import org.ohdsi.whiteRabbit.utilities.ETLUtils;
 
 public class FakeDataGenerator {

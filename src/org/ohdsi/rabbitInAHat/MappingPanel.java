@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping;
+package org.ohdsi.rabbitInAHat;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -43,12 +43,12 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
+import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
+import org.ohdsi.rabbitInAHat.dataModel.Mapping;
+import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.collections.IntegerComparator;
 import org.ohdsi.whiteRabbit.ObjectExchange;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.ItemToItemMap;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.MappableItem;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Mapping;
-import org.ohdsi.whiteRabbit.interactiveMapping.dataModel.Table;
 
 public class MappingPanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
 	

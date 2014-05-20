@@ -18,8 +18,11 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping;
+package org.ohdsi.rabbitInAHat;
 
-public interface DetailsListener {
-	public void showDetails(Object object);
+import java.awt.Graphics;
+
+public interface MappingComponent {
+	
+	public void paint(Graphics g);
 }

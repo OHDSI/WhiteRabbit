@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping.dataModel;
+package org.ohdsi.rabbitInAHat.dataModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class Database implements Serializable {
 				}
 				String fieldName = row.get(fieldName2ColumnIndex.get("Field"));
 				Field field = new Field(fieldName.toLowerCase(), table);
-				int index;
+				Integer index;
 				// Someone may have manually deleted data, so can't assume this
 				// is always there:
 				index = fieldName2ColumnIndex.get("Fraction empty");
@@ -102,7 +102,7 @@ public class Database implements Serializable {
 					field.setType(row.get(index));
 
 				index = fieldName2ColumnIndex.get("Max length");
-				if (index >= 0 && index < row.size())
+				if (index != null && index >= 0 && index < row.size())
 					field.setMaxLength((int)(Double.parseDouble(row.get(index))));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 				table.getFields().add(field);

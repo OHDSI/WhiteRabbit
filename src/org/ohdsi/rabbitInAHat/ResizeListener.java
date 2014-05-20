@@ -18,7 +18,7 @@
  * @author Observational Health Data Sciences and Informatics
  * @author Martijn Schuemie
  ******************************************************************************/
-package org.ohdsi.whiteRabbit.interactiveMapping;
+package org.ohdsi.rabbitInAHat;
 
 public interface ResizeListener {
 	public void notifyResized(int heigth, boolean minimized, boolean maximized);
