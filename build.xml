@@ -4,8 +4,15 @@
     </description>
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
+  <property name="lib" location="lib"/>
   <property name="build" location="build"/>
   <property name="dist"  location="dist"/>
+  
+  <property name="JDK_VERSION" value="1.6"/>
+  
+  <path id="classpath">
+    <fileset dir="${lib}" includes="**/*.jar"/>
+  </path>  
 
   <target name="init">
     <!-- Create the time stamp -->
@@ -17,7 +24,13 @@
   <target name="compile" depends="init"
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}"/>
+    <javac 
+      source="${JDK_VERSION}" 
+      target="${JDK_VERSION}" 
+      srcdir="${src}" 
+      classpathref="classpath"
+      destdir="${build}"
+    />
   </target>
 
   <target name="dist" depends="compile"
@@ -26,7 +39,28 @@
     <mkdir dir="${dist}/lib"/>
 
     <!-- Put everything in ${build} into the WhiteRabbit-${DSTAMP}.jar file -->
-    <jar jarfile="${dist}/lib/WhiteRabbit-${DSTAMP}.jar" basedir="${build}"/>
+    <jar jarfile="${dist}/lib/WhiteRabbit-${DSTAMP}.jar" basedir="${build}">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class" value="org.ohdsi.whiteRabbit.WhiteRabbitMain"/>
+      </manifest>
+      <fileset dir="${src}">
+      	<include name="org/ohdsi/whiteRabbit/**/*.png"/>
+      </fileset>      
+      <zipgroupfileset dir="${lib}" includes="dom4j-1.6.1.jar"/>
+      <zipgroupfileset dir="${lib}" includes="poi-3.9-20121203.jar"/>
+      <zipgroupfileset dir="${lib}" includes="sqljdbc4.jar"/>           
+ 	  <zipgroupfileset dir="${lib}" includes="jtds-1.3.0.jar"/>
+      <zipgroupfileset dir="${lib}" includes="poi-excelant-3.9-20121203.jar"/>
+      <zipgroupfileset dir="${lib}" includes="stax-api-1.0.1.jar"/>
+      <zipgroupfileset dir="${lib}" includes="mysql-connector-java-5.1.30-bin.jar"/>   
+      <zipgroupfileset dir="${lib}" includes="poi-ooxml-3.9-20121203.jar"/> 
+      <zipgroupfileset dir="${lib}" includes="xmlbeans-2.3.0.jar"/> 
+      <zipgroupfileset dir="${lib}" includes="ojdbc5.jar"/> 
+      <zipgroupfileset dir="${lib}" includes="ojdbc6.jar"/> 
+      <zipgroupfileset dir="${lib}" includes="poi-ooxml-schemas-3.9-20121203.jar"/>  
+      <zipgroupfileset dir="${lib}" includes="postgresql-9.3-1101.jdbc41.jar"/>                                             
+    </jar>                                                                                                                                                       
   </target>
 
   <target name="clean"
