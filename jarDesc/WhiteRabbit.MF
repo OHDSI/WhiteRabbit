@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Class-Path: . WhiteRabbit_lib/jtds-1.3.0.jar WhiteRabbit_lib/ojdbc5.ja
+ r WhiteRabbit_lib/ojdbc6.jar WhiteRabbit_lib/postgresql-9.3-1101.jdbc
+ 41.jar WhiteRabbit_lib/sqljdbc4.jar WhiteRabbit_lib/mysql-connector-j
+ ava-5.1.30-bin.jar WhiteRabbit_lib/dom4j-1.6.1.jar WhiteRabbit_lib/po
+ i-3.9-20121203.jar WhiteRabbit_lib/poi-excelant-3.9-20121203.jar Whit
+ eRabbit_lib/poi-ooxml-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-sche
+ mas-3.9-20121203.jar WhiteRabbit_lib/stax-api-1.0.1.jar WhiteRabbit_l
+ ib/xmlbeans-2.3.0.jar
+Main-Class: org.ohdsi.whiteRabbit.interactiveMapping.RabbitInAHat
+
