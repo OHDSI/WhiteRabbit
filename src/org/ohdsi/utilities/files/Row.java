@@ -145,4 +145,11 @@ public class Row {
 			else
 				tempMap.put(entry.getKey(), entry.getValue());
 	}
+	
+	public void upperCaseFieldNames() {
+		Map<String, Integer> tempMap = new HashMap<String, Integer>();
+		for (Map.Entry<String, Integer> entry : fieldName2ColumnIndex.entrySet())
+			tempMap.put(entry.getKey().toUpperCase(), entry.getValue());
+		fieldName2ColumnIndex = tempMap;
+	}
 }
