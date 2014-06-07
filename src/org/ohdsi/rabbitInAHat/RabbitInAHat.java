@@ -97,8 +97,7 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 		scrollPane1.setAutoscrolls(true);
 		frame.addKeyListener(tableMappingPanel);
 
-		MappingPanel fieldMappingPanel = new MappingPanel(
-				etl.getTableToTableMapping());
+		MappingPanel fieldMappingPanel = new MappingPanel(etl.getTableToTableMapping());
 		tableMappingPanel.setSlaveMappingPanel(fieldMappingPanel);
 		fieldMappingPanel.addResizeListener(this);
 		scrollPane2 = new JScrollPane(fieldMappingPanel);
@@ -106,8 +105,7 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 		scrollPane2.setVisible(false);
 		scrollPane2.setBorder(new TitledBorder("Fields"));
 		frame.addKeyListener(fieldMappingPanel);
-		tableFieldSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				scrollPane1, scrollPane2);
+		tableFieldSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane1, scrollPane2);
 		tableFieldSplitPane.setDividerLocation(600);
 		tableFieldSplitPane.setDividerSize(0);
 
@@ -116,8 +114,7 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 		detailsPanel.setPreferredSize(new Dimension(200, 500));
 		tableMappingPanel.setDetailsListener(detailsPanel);
 		fieldMappingPanel.setDetailsListener(detailsPanel);
-		JSplitPane leftRightSplinePane = new JSplitPane(
-				JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, detailsPanel);
+		JSplitPane leftRightSplinePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, detailsPanel);
 		leftRightSplinePane.setDividerLocation(700);
 		frame.add(leftRightSplinePane);
 
@@ -139,8 +136,7 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 	}
 
 	private Image loadIcon(String name, JFrame f) {
-		Image icon = Toolkit.getDefaultToolkit().getImage(
-				RabbitInAHat.class.getResource(name));
+		Image icon = Toolkit.getDefaultToolkit().getImage(RabbitInAHat.class.getResource(name));
 		MediaTracker mediaTracker = new MediaTracker(f);
 		mediaTracker.addImage(icon, 0);
 		try {
@@ -160,8 +156,7 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 		JMenuItem openItem = new JMenuItem("Open ETL specs");
 		openItem.addActionListener(this);
 		openItem.setActionCommand("Open ETL specs");
-		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-				InputEvent.CTRL_MASK));
+		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
 		fileMenu.add(openItem);
 
 		JMenuItem openScanReportItem = new JMenuItem("Open scan report");
@@ -172,8 +167,7 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 		JMenuItem saveItem = new JMenuItem("Save");
 		saveItem.addActionListener(this);
 		saveItem.setActionCommand("Save");
-		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				InputEvent.CTRL_MASK));
+		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 		fileMenu.add(saveItem);
 
 		JMenuItem saveAsItem = new JMenuItem("Save as");
@@ -203,51 +197,77 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 			scrollPane2.setVisible(!maximized);
 
 		if (!maximized)
-			scrollPane1
-					.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+			scrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		else
-			scrollPane1
-					.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			scrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		if (!minimized)
-			scrollPane2
-					.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+			scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		else
-			scrollPane2
-					.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		tableFieldSplitPane.setDividerLocation(height);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		if (event.getActionCommand().equals("Save")
-				|| event.getActionCommand().equals("Save as")) {
+		if (event.getActionCommand().equals("Save") || event.getActionCommand().equals("Save as")) {
 			if (filename == null || event.getActionCommand().equals("Save as")) {
 				JFileChooser fileChooser = new JFileChooser();
 				if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
 					File file = fileChooser.getSelectedFile();
 					filename = file.getAbsolutePath();
-
 				}
 			}
 			if (filename != null) {
+				frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				FileOutputStream fileOutputStream = null;
 				try {
-					frame.setCursor(Cursor
-							.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					FileOutputStream fileOutputStream = new FileOutputStream(
-							filename);
-					GZIPOutputStream gzipOutputStream = new GZIPOutputStream(
-							fileOutputStream);
-					ObjectOutputStream out = new ObjectOutputStream(
-							gzipOutputStream);
-					out.writeObject(ObjectExchange.etl);
-					out.close();
-					frame.setCursor(Cursor
-							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					fileOutputStream = new FileOutputStream(filename);
 				} catch (IOException e) {
 					e.printStackTrace();
+					fileOutputStream = null;
 				}
+				GZIPOutputStream gzipOutputStream = null;
+				if (fileOutputStream != null)
+					try {
+						gzipOutputStream = new GZIPOutputStream(fileOutputStream);
+					} catch (IOException e) {
+						e.printStackTrace();
+						gzipOutputStream = null;
+						try {
+							fileOutputStream.close();
+						} catch (IOException e2) {
+							e2.printStackTrace();
+						}
+					}
+				ObjectOutputStream out = null;
+				if (gzipOutputStream != null)
+					try {
+						out = new ObjectOutputStream(gzipOutputStream);
+					} catch (IOException e) {
+						e.printStackTrace();
+						out = null;
+						try {
+							gzipOutputStream.close();
+						} catch (IOException e2) {
+							e2.printStackTrace();
+						}
+					}
+
+				try {
+					out.writeObject(ObjectExchange.etl);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						out.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
 			}
 		} else if (event.getActionCommand().equals("Open ETL specs")) {
 			JFileChooser fileChooser = new JFileChooser();
@@ -255,20 +275,14 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 				File file = fileChooser.getSelectedFile();
 				filename = file.getAbsolutePath();
 				try {
-					frame.setCursor(Cursor
-							.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					FileInputStream fileOutputStream = new FileInputStream(
-							filename);
-					GZIPInputStream gzipOutputStream = new GZIPInputStream(
-							fileOutputStream);
-					ObjectInputStream out = new ObjectInputStream(
-							gzipOutputStream);
+					frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					FileInputStream fileOutputStream = new FileInputStream(filename);
+					GZIPInputStream gzipOutputStream = new GZIPInputStream(fileOutputStream);
+					ObjectInputStream out = new ObjectInputStream(gzipOutputStream);
 					ObjectExchange.etl = (ETL) out.readObject();
 					out.close();
-					tableMappingPanel.setMapping(ObjectExchange.etl
-							.getTableToTableMapping());
-					frame.setCursor(Cursor
-							.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+					frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -279,19 +293,16 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 				frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				File file = fileChooser.getSelectedFile();
 				ETL etl = new ETL();
-				etl.setSourceDatabase(Database.generateModelFromScanReport(file
-						.getAbsolutePath()));
+				etl.setSourceDatabase(Database.generateModelFromScanReport(file.getAbsolutePath()));
 				etl.setCDMDatabase(Database.generateCDMModel());
 				ObjectExchange.etl = etl;
 				tableMappingPanel.setMapping(etl.getTableToTableMapping());
-				frame.setCursor(Cursor
-						.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}
 
 		} else if (event.getActionCommand().equals("Generate ETL document")) {
 			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setFileFilter(new FileNameExtensionFilter("DocX Files",
-					"docX"));
+			fileChooser.setFileFilter(new FileNameExtensionFilter("DocX Files", "docX"));
 			if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
 				File file = fileChooser.getSelectedFile();
 				filename = file.getAbsolutePath();

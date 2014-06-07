@@ -44,6 +44,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -55,29 +56,32 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.DirectoryUtilities;
 import org.ohdsi.utilities.StringUtilities;
-import org.ohdsi.whiteRabbit.etls.ars.ARSETL;
-import org.ohdsi.whiteRabbit.etls.hcup.HCUPETL;
+import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
-import org.ohdsi.whiteRabbit.utilities.SqlDump;
-import org.ohdsi.whiteRabbit.vocabulary.InsertVocabularyInServer;
 
 public class WhiteRabbitMain {
-	
+
 	private JFrame				frame;
 	private JTextField			folderField;
-	private JTextField			vocabFileField;
-	
-	private JComboBox			etlType;
+	private JTextField			scanReportFileField;
+
+	private JComboBox			scanRowCount;
+	private JCheckBox			scanValueScan;
+	private JSpinner			scanMinCellCount;
+	private JSpinner			generateRowCount;
 	private JComboBox			sourceType;
 	private JComboBox			targetType;
 	private JTextField			targetUserField;
@@ -85,6 +89,7 @@ public class WhiteRabbitMain {
 	private JTextField			targetServerField;
 	private JTextField			targetDatabaseField;
 	private JTextField			sourceDelimiterField;
+	private JTextField			targetDelimiterField;
 	private JTextField			sourceServerField;
 	private JTextField			sourceUserField;
 	private JTextField			sourcePasswordField;
@@ -92,69 +97,61 @@ public class WhiteRabbitMain {
 	private JButton				addAllButton;
 	private JList				tableList;
 	private List<String>		tables							= new ArrayList<String>();
-	private JTextArea			sqlArea;
-	private JTextField			sqlDumpFilenameField;
-	private JButton				dumpButton;
 	private boolean				sourceIsFiles					= true;
-	
+	private boolean				targetIsFiles					= false;
+
 	private List<JComponent>	componentsToDisableWhenRunning	= new ArrayList<JComponent>();
-	
+
 	public static void main(String[] args) {
 		new WhiteRabbitMain(args);
 	}
-	
+
 	public WhiteRabbitMain(String[] args) {
 		frame = new JFrame("White Rabbit");
-		
+
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				System.exit(0);
 			}
 		});
 		frame.setLayout(new BorderLayout());
-		
+
 		JComponent tabsPanel = createTabsPanel();
 		JComponent consolePanel = createConsolePanel();
-		
+
 		frame.add(consolePanel, BorderLayout.CENTER);
 		frame.add(tabsPanel, BorderLayout.NORTH);
-		
+
 		loadIcons(frame);
 		frame.pack();
 		frame.setVisible(true);
 		ObjectExchange.frame = frame;
 		executeParameters(args);
 	}
-	
+
 	private JComponent createTabsPanel() {
 		JTabbedPane tabbedPane = new JTabbedPane();
-		
+
 		JPanel locationPanel = createLocationsPanel();
-		tabbedPane.addTab("Locations", null, locationPanel, "Specify the location of the source data, the CDM, and the working folder");
-		
-		JPanel dumpPanel = createSqlDumpPanel();
-		tabbedPane.addTab("Bulk SQL dump", null, dumpPanel, "Write the results of a SQL query to a CSV file");
-		
+		tabbedPane.addTab("Locations", null, locationPanel, "Specify the location of the source data and the working folder");
+
 		JPanel scanPanel = createScanPanel();
 		tabbedPane.addTab("Scan", null, scanPanel, "Create a scan of the source data");
-		
-		JPanel vocabPanel = createVocabPanel();
-		tabbedPane.addTab("Vocabulary", null, vocabPanel, "Upload the vocabulary to the server");
-		
-		JPanel etlPanel = createEtlPanel();
-		tabbedPane.addTab("ETL", null, etlPanel, "Extract, Transform and Load the data into the OMOP CDM");
-		
+
+		JPanel fakeDataPanel = createFakeDataPanel();
+		tabbedPane.addTab("Fake data generation", null, fakeDataPanel, "Create fake data based on a scan report for development purposes");
+
 		return tabbedPane;
 	}
-	
+
 	private JPanel createLocationsPanel() {
 		JPanel panel = new JPanel();
-		
+
 		panel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 0.5;
-		
+
 		JPanel folderPanel = new JPanel();
 		folderPanel.setLayout(new BoxLayout(folderPanel, BoxLayout.X_AXIS));
 		folderPanel.setBorder(BorderFactory.createTitledBorder("Working folder"));
@@ -167,15 +164,15 @@ public class WhiteRabbitMain {
 		folderPanel.add(pickButton);
 		pickButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				pickFile();
+				pickFolder();
 			}
 		});
 		componentsToDisableWhenRunning.add(pickButton);
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = 2;
+		c.gridwidth = 1;
 		panel.add(folderPanel, c);
-		
+
 		JPanel sourcePanel = new JPanel();
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
@@ -183,7 +180,7 @@ public class WhiteRabbitMain {
 		sourceType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(new ItemListener() {
-			
+
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
 				sourceIsFiles = arg0.getItem().toString().equals("Delimited text files");
@@ -193,8 +190,7 @@ public class WhiteRabbitMain {
 				sourceDatabaseField.setEnabled(!sourceIsFiles);
 				sourceDelimiterField.setEnabled(sourceIsFiles);
 				addAllButton.setEnabled(!sourceIsFiles);
-				dumpButton.setEnabled(!sourceIsFiles);
-				
+
 				if (!sourceIsFiles && arg0.getItem().toString().equals("Oracle")) {
 					sourceServerField
 							.setToolTipText("For Oracle servers this field contains the SID, servicename, and optionally the port: '<host>/<sid>', '<host>:<port>/<sid>', '<host>/<service name>', or '<host>:<port>/<service name>'");
@@ -220,7 +216,7 @@ public class WhiteRabbitMain {
 			}
 		});
 		sourcePanel.add(sourceType);
-		
+
 		sourcePanel.add(new JLabel("Server location"));
 		sourceServerField = new JTextField("127.0.0.1");
 		sourceServerField.setEnabled(false);
@@ -237,99 +233,51 @@ public class WhiteRabbitMain {
 		sourceDatabaseField = new JTextField("");
 		sourceDatabaseField.setEnabled(false);
 		sourcePanel.add(sourceDatabaseField);
-		
+
 		sourcePanel.add(new JLabel("Delimiter"));
 		sourceDelimiterField = new JTextField(",");
 		sourceDelimiterField.setToolTipText("The delimiter that separates values. Enter 'tab' for tab.");
 		sourcePanel.add(sourceDelimiterField);
-		
+
 		c.gridx = 0;
 		c.gridy = 1;
 		c.gridwidth = 1;
 		panel.add(sourcePanel, c);
-		
-		JPanel targetPanel = new JPanel();
-		targetPanel.setLayout(new GridLayout(0, 2));
-		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
-		targetPanel.add(new JLabel("Data type"));
-		targetType = new JComboBox(new String[] { "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
-		targetType.setToolTipText("Select the type of server where the CDM and vocabulary will be stored");
-		targetPanel.add(targetType);
-		targetPanel.add(new JLabel("Server location"));
-		targetServerField = new JTextField("127.0.0.1");
-		targetPanel.add(targetServerField);
-		targetPanel.add(new JLabel("User name"));
-		targetUserField = new JTextField("root");
-		targetPanel.add(targetUserField);
-		targetPanel.add(new JLabel("Password"));
-		targetPasswordField = new JPasswordField("");
-		targetPanel.add(targetPasswordField);
-		targetPanel.add(new JLabel("CDM database name"));
-		targetDatabaseField = new JTextField("CDM_v4");
-		targetPanel.add(targetDatabaseField);
-		targetPanel.add(new JLabel(""));
-		targetPanel.add(new JLabel(""));
-		
-		c.gridx = 1;
-		c.gridy = 1;
-		c.gridwidth = 1;
-		panel.add(targetPanel, c);
-		
-		return panel;
-	}
-	
-	private JPanel createSqlDumpPanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		
-		JPanel inputPanel = new JPanel();
-		inputPanel.setLayout(new BorderLayout());
-		
-		sqlArea = new JTextArea();
-		sqlArea.setToolTipText("Enter the SQL statement to retrieve the date here");
-		JScrollPane sqlPane = new JScrollPane(sqlArea);
-		sqlPane.setBorder(BorderFactory.createTitledBorder("SQL"));
-		sqlPane.setAutoscrolls(true);
-		inputPanel.add(sqlPane, BorderLayout.CENTER);
-		
-		sqlDumpFilenameField = new JTextField("Dump.csv");
-		sqlDumpFilenameField.setBorder(BorderFactory.createTitledBorder("Output filename"));
-		sqlDumpFilenameField.setToolTipText("The name of the CSV file where the result of the SQL query will be written");
-		inputPanel.add(sqlDumpFilenameField, BorderLayout.SOUTH);
-		
-		panel.add(inputPanel, BorderLayout.CENTER);
-		
-		JPanel dumpButtonPanel = new JPanel();
-		dumpButtonPanel.setLayout(new BoxLayout(dumpButtonPanel, BoxLayout.X_AXIS));
-		dumpButtonPanel.add(Box.createHorizontalGlue());
-		
-		dumpButton = new JButton("Dump SQL results to file");
-		dumpButton.setBackground(new Color(151, 220, 141));
-		dumpButton.setToolTipText("Execute the SQL statement, and write the output to the file");
-		dumpButton.addActionListener(new ActionListener() {
+
+		JPanel testConnectionButtonPanel = new JPanel();
+		testConnectionButtonPanel.setLayout(new BoxLayout(testConnectionButtonPanel, BoxLayout.X_AXIS));
+		testConnectionButtonPanel.add(Box.createHorizontalGlue());
+
+		JButton testConnectionButton = new JButton("Test connection");
+		testConnectionButton.setBackground(new Color(151, 220, 141));
+		testConnectionButton.setToolTipText("Test the connection");
+		testConnectionButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sqlDumpRun();
+				testConnection(getSourceDbSettings());
 			}
 		});
-		dumpButton.setEnabled(false);
-		componentsToDisableWhenRunning.add(dumpButton);
-		dumpButtonPanel.add(dumpButton);
-		panel.add(dumpButtonPanel, BorderLayout.SOUTH);
-		
+		componentsToDisableWhenRunning.add(testConnectionButton);
+		testConnectionButtonPanel.add(testConnectionButton);
+
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 1;
+		panel.add(testConnectionButtonPanel, c);
+
 		return panel;
 	}
-	
+
 	private JPanel createScanPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		
+
 		JPanel tablePanel = new JPanel();
 		tablePanel.setLayout(new BorderLayout());
-		tablePanel.setBorder(new TitledBorder("Tables"));
+		tablePanel.setBorder(new TitledBorder("Tables to scan"));
 		tableList = new JList();
 		tableList.setToolTipText("Specify the tables (or CSV files) to be scanned here");
 		tablePanel.add(new JScrollPane(tableList), BorderLayout.CENTER);
-		
+
 		JPanel tableButtonPanel = new JPanel();
 		tableButtonPanel.setLayout(new GridLayout(3, 1));
 		addAllButton = new JButton("Add all in DB");
@@ -358,142 +306,202 @@ public class WhiteRabbitMain {
 		});
 		tableButtonPanel.add(removeButton);
 		tablePanel.add(tableButtonPanel, BorderLayout.EAST);
-		
+
 		panel.add(tablePanel, BorderLayout.CENTER);
-		
+
+		JPanel southPanel = new JPanel();
+		southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
+
+		JPanel scanOptionsPanel = new JPanel();
+		scanOptionsPanel.setLayout(new BoxLayout(scanOptionsPanel, BoxLayout.X_AXIS));
+
+		scanValueScan = new JCheckBox("Scan field values", true);
+		scanValueScan.setToolTipText("Include a frequency count of field values in the scan report");
+		scanValueScan.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				scanMinCellCount.setEnabled(((JCheckBox) arg0.getSource()).isSelected());
+				scanRowCount.setEnabled(((JCheckBox) arg0.getSource()).isSelected());
+			}
+		});
+		scanOptionsPanel.add(scanValueScan);
+		scanOptionsPanel.add(Box.createHorizontalGlue());
+
+		scanOptionsPanel.add(new JLabel("Min cell count "));
+		scanMinCellCount = new JSpinner();
+		scanMinCellCount.setValue(25);
+		scanMinCellCount.setToolTipText("Minimum frequency for a field value to be included in the report");
+		scanOptionsPanel.add(scanMinCellCount);
+		scanOptionsPanel.add(Box.createHorizontalGlue());
+
+		scanOptionsPanel.add(new JLabel("Rows per table "));
+		scanRowCount = new JComboBox(new String[] { "100,000", "1 million", "all" });
+		scanRowCount.setSelectedIndex(1);
+		scanRowCount.setToolTipText("Maximum number of rows per table to be scanned for field values");
+		scanOptionsPanel.add(scanRowCount);
+
+		southPanel.add(scanOptionsPanel);
+
+		southPanel.add(Box.createVerticalStrut(3));
+
 		JPanel scanButtonPanel = new JPanel();
 		scanButtonPanel.setLayout(new BoxLayout(scanButtonPanel, BoxLayout.X_AXIS));
 		scanButtonPanel.add(Box.createHorizontalGlue());
-		
-		JButton scan100kButton = new JButton("Scan 100k rows per table");
-		scan100kButton.setBackground(new Color(151, 220, 141));
-		scan100kButton.setToolTipText("Perform the scan on a random sample of 100,000 rows per table");
-		scan100kButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				scanRun(100000);
-			}
-		});
-		componentsToDisableWhenRunning.add(scan100kButton);
-		scanButtonPanel.add(scan100kButton);
-		
-		JButton scan1mButton = new JButton("Scan 1m rows per table");
-		scan1mButton.setBackground(new Color(151, 220, 141));
-		scan1mButton.setToolTipText("Perform the scan on a random sample of 1 million rows per table");
-		scan1mButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				scanRun(1000000);
-			}
-		});
-		componentsToDisableWhenRunning.add(scan1mButton);
-		scanButtonPanel.add(scan1mButton);
-		
-		JButton scanButton = new JButton("Scan full tables");
+
+		JButton scanButton = new JButton("Scan tables");
 		scanButton.setBackground(new Color(151, 220, 141));
-		scanButton.setToolTipText("Perform the scan on the full tables");
+		scanButton.setToolTipText("Scan the selected tables");
 		scanButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				scanRun(-1);
+				scanRun();
 			}
 		});
 		componentsToDisableWhenRunning.add(scanButton);
 		scanButtonPanel.add(scanButton);
-		panel.add(scanButtonPanel, BorderLayout.SOUTH);
-		
+		southPanel.add(scanButtonPanel);
+
+		panel.add(southPanel, BorderLayout.SOUTH);
+
 		return panel;
 	}
-	
-	private JPanel createVocabPanel() {
+
+	private JPanel createFakeDataPanel() {
 		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		
-		JPanel vocabFilePanel = new JPanel();
-		vocabFilePanel.setLayout(new BoxLayout(vocabFilePanel, BoxLayout.X_AXIS));
-		vocabFilePanel.setBorder(BorderFactory.createTitledBorder("Vocabulary data file"));
-		
-		vocabFileField = new JTextField();
-		vocabFileField.setText("Vocabulary.dat");
-		vocabFileField.setToolTipText("Specify the name of the file containing the vocabulary here");
-		vocabFilePanel.add(vocabFileField);
+
+		panel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 0.5;
+
+		JPanel folderPanel = new JPanel();
+		folderPanel.setLayout(new BoxLayout(folderPanel, BoxLayout.X_AXIS));
+		folderPanel.setBorder(BorderFactory.createTitledBorder("Scan report file"));
+		scanReportFileField = new JTextField();
+		scanReportFileField.setText((new File("ScanReport.xlsx").getAbsolutePath()));
+		scanReportFileField.setToolTipText("The path to the scan report that will be used as a template to generate the fake data");
+		folderPanel.add(scanReportFileField);
 		JButton pickButton = new JButton("Pick file");
-		pickButton.setToolTipText("Select a different vocabulary file");
-		vocabFilePanel.add(pickButton);
+		pickButton.setToolTipText("Pick a scan report file");
+		folderPanel.add(pickButton);
 		pickButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				pickVocabFile();
+				pickScanReportFile();
 			}
 		});
-		vocabFilePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, vocabFilePanel.getPreferredSize().height));
-		panel.add(vocabFilePanel);
-		
-		panel.add(Box.createVerticalGlue());
-		
-		JPanel vocabButtonPanel = new JPanel();
-		vocabButtonPanel.setLayout(new BoxLayout(vocabButtonPanel, BoxLayout.X_AXIS));
-		
-		vocabButtonPanel.add(Box.createHorizontalGlue());
-		JButton vocabButton = new JButton("Insert vocabulary");
-		vocabButton.setBackground(new Color(151, 220, 141));
-		vocabButton.setToolTipText("Insert the vocabulary database into the server");
-		vocabButton.addActionListener(new ActionListener() {
+		componentsToDisableWhenRunning.add(pickButton);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		panel.add(folderPanel, c);
+
+		JPanel targetPanel = new JPanel();
+		targetPanel.setLayout(new GridLayout(0, 2));
+		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
+		targetPanel.add(new JLabel("Data type"));
+		// targetType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
+		targetType = new JComboBox(new String[] { "MySQL" });
+		targetType.setToolTipText("Select the type of source data available");
+		targetType.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				targetIsFiles = arg0.getItem().toString().equals("Delimited text files");
+				targetServerField.setEnabled(!targetIsFiles);
+				targetUserField.setEnabled(!targetIsFiles);
+				targetPasswordField.setEnabled(!targetIsFiles);
+				targetDatabaseField.setEnabled(!targetIsFiles);
+				targetDelimiterField.setEnabled(targetIsFiles);
+
+				if (!targetIsFiles && arg0.getItem().toString().equals("Oracle")) {
+					targetServerField
+							.setToolTipText("For Oracle servers this field contains the SID, servicename, and optionally the port: '<host>/<sid>', '<host>:<port>/<sid>', '<host>/<service name>', or '<host>:<port>/<service name>'");
+					targetUserField.setToolTipText("For Oracle servers this field contains the name of the user used to log in");
+					targetPasswordField.setToolTipText("For Oracle servers this field contains the password corresponding to the user");
+					targetDatabaseField
+							.setToolTipText("For Oracle servers this field contains the schema (i.e. 'user' in Oracle terms) containing the source tables");
+				} else if (!targetIsFiles && arg0.getItem().toString().equals("PostgreSQL")) {
+					targetServerField.setToolTipText("For PostgreSQL servers this field contains the host name and database name (<host>/<database>)");
+					targetUserField.setToolTipText("The user used to log in to the server");
+					targetPasswordField.setToolTipText("The password used to log in to the server");
+					targetDatabaseField.setToolTipText("For PostgreSQL servers this field contains the schema containing the source tables");
+				} else if (!targetIsFiles) {
+					targetServerField.setToolTipText("This field contains the name or IP address of the database server");
+					if (arg0.getItem().toString().equals("SQL Server"))
+						targetUserField
+								.setToolTipText("The user used to log in to the server. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')");
+					else
+						targetUserField.setToolTipText("The user used to log in to the server");
+					targetPasswordField.setToolTipText("The password used to log in to the server");
+					targetDatabaseField.setToolTipText("The name of the database containing the source tables");
+				}
+			}
+		});
+		targetPanel.add(targetType);
+
+		targetPanel.add(new JLabel("Server location"));
+		targetServerField = new JTextField("127.0.0.1");
+		targetPanel.add(targetServerField);
+		targetPanel.add(new JLabel("User name"));
+		targetUserField = new JTextField("");
+		targetPanel.add(targetUserField);
+		targetPanel.add(new JLabel("Password"));
+		targetPasswordField = new JPasswordField("");
+		targetPanel.add(targetPasswordField);
+		targetPanel.add(new JLabel("Database name"));
+		targetDatabaseField = new JTextField("");
+		targetPanel.add(targetDatabaseField);
+
+		targetPanel.add(new JLabel("Delimiter"));
+		targetDelimiterField = new JTextField(",");
+		targetDelimiterField.setToolTipText("The delimiter that separates values. Enter 'tab' for tab.");
+		targetDelimiterField.setEnabled(false);
+		targetPanel.add(targetDelimiterField);
+
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		panel.add(targetPanel, c);
+
+		JPanel fakeDataButtonPanel = new JPanel();
+		fakeDataButtonPanel.setLayout(new BoxLayout(fakeDataButtonPanel, BoxLayout.X_AXIS));
+
+		fakeDataButtonPanel.add(new JLabel("Max rows per table"));
+		generateRowCount = new JSpinner();
+		generateRowCount.setValue(10000);
+		fakeDataButtonPanel.add(generateRowCount);
+		fakeDataButtonPanel.add(Box.createHorizontalGlue());
+
+		JButton testConnectionButton = new JButton("Test connection");
+		testConnectionButton.setBackground(new Color(151, 220, 141));
+		testConnectionButton.setToolTipText("Test the connection");
+		testConnectionButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				vocabRun();
+				testConnection(getTargetDbSettings());
 			}
 		});
-		componentsToDisableWhenRunning.add(vocabButton);
-		vocabButtonPanel.add(vocabButton);
-		
-		panel.add(vocabButtonPanel);
-		
+		componentsToDisableWhenRunning.add(testConnectionButton);
+		fakeDataButtonPanel.add(testConnectionButton);
+
+		JButton fakeDataButton = new JButton("Generate fake data");
+		fakeDataButton.setBackground(new Color(151, 220, 141));
+		fakeDataButton.setToolTipText("Generate fake data based on the scan report");
+		fakeDataButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				fakeDataRun();
+			}
+		});
+		componentsToDisableWhenRunning.add(fakeDataButton);
+		fakeDataButtonPanel.add(fakeDataButton);
+
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 1;
+		panel.add(fakeDataButtonPanel, c);
+
 		return panel;
 	}
-	
-	private JPanel createEtlPanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		
-		JPanel etlTypePanel = new JPanel();
-		etlTypePanel.setLayout(new BoxLayout(etlTypePanel, BoxLayout.X_AXIS));
-		etlTypePanel.setBorder(BorderFactory.createTitledBorder("ETL type"));
-		etlType = new JComboBox(new String[] { "ARS -> OMOP CDM V4", "HCUP -> OMOP CDM V4" });
-		etlType.setToolTipText("Select the appropriate ETL process");
-		etlTypePanel.add(etlType);
-		etlTypePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, etlTypePanel.getPreferredSize().height));
-		panel.add(etlTypePanel);
-		
-		panel.add(Box.createVerticalGlue());
-		
-		JPanel etlButtonPanel = new JPanel();
-		etlButtonPanel.setLayout(new BoxLayout(etlButtonPanel, BoxLayout.X_AXIS));
-		etlButtonPanel.add(Box.createHorizontalGlue());
-		
-		JButton etl10kButton = new JButton("Perform 10k persons ETL");
-		etl10kButton.setBackground(new Color(151, 220, 141));
-		etl10kButton.setToolTipText("Perform the ETL for the first 10,000 persons");
-		etl10kButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				etlRun(10000);
-			}
-		});
-		componentsToDisableWhenRunning.add(etl10kButton);
-		etlButtonPanel.add(etl10kButton);
-		
-		// etlButtonPanel.add(Box.createHorizontalStrut(10));
-		
-		JButton etlButton = new JButton("Perform ETL");
-		etlButton.setBackground(new Color(151, 220, 141));
-		etlButton.setToolTipText("Extract, Transform and Load the data into the OMOP CDM");
-		etlButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				etlRun(Integer.MAX_VALUE);
-			}
-		});
-		componentsToDisableWhenRunning.add(etlButton);
-		etlButtonPanel.add(etlButton);
-		panel.add(etlButtonPanel);
-		
-		return panel;
-	}
-	
+
 	private JComponent createConsolePanel() {
 		JTextArea consoleArea = new JTextArea();
 		consoleArea.setToolTipText("General progress information");
@@ -510,7 +518,7 @@ public class WhiteRabbitMain {
 		ObjectExchange.console = console;
 		return consoleScrollPane;
 	}
-	
+
 	private void loadIcons(JFrame f) {
 		List<Image> icons = new ArrayList<Image>();
 		icons.add(loadIcon("WhiteRabbit16.png", f));
@@ -521,7 +529,7 @@ public class WhiteRabbitMain {
 		icons.add(loadIcon("WhiteRabbit256.png", f));
 		f.setIconImages(icons);
 	}
-	
+
 	private Image loadIcon(String name, JFrame f) {
 		Image icon = Toolkit.getDefaultToolkit().getImage(WhiteRabbitMain.class.getResource(name));
 		MediaTracker mediaTracker = new MediaTracker(f);
@@ -534,7 +542,7 @@ public class WhiteRabbitMain {
 		}
 		return null;
 	}
-	
+
 	private void executeParameters(String[] args) {
 		String mode = null;
 		for (String arg : args) {
@@ -561,26 +569,36 @@ public class WhiteRabbitMain {
 					sourceDatabaseField.setText(arg);
 				if (mode.equals("-sourceuser"))
 					sourceUserField.setText(arg);
+				if (mode.equals("-sourcepassword"))
+					sourcePasswordField.setText(arg);
 				mode = null;
 			}
 		}
 	}
-	
-	private void pickFile() {
+
+	private void pickFolder() {
 		JFileChooser fileChooser = new JFileChooser(new File(folderField.getText()));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		int returnVal = fileChooser.showDialog(frame, "Select folder");
 		if (returnVal == JFileChooser.APPROVE_OPTION)
 			folderField.setText(fileChooser.getSelectedFile().getAbsolutePath());
 	}
-	
+
+	private void pickScanReportFile() {
+		JFileChooser fileChooser = new JFileChooser(new File(folderField.getText()));
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int returnVal = fileChooser.showDialog(frame, "Select scan report file");
+		if (returnVal == JFileChooser.APPROVE_OPTION)
+			scanReportFileField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+	}
+
 	private void removeTables() {
 		for (Object item : tableList.getSelectedValues()) {
 			tables.remove(item);
 			tableList.setListData(tables.toArray());
 		}
 	}
-	
+
 	private void addAllTables() {
 		DbSettings sourceDbSettings = getSourceDbSettings();
 		if (sourceDbSettings != null) {
@@ -594,7 +612,7 @@ public class WhiteRabbitMain {
 			connection.close();
 		}
 	}
-	
+
 	private void pickTables() {
 		DbSettings sourceDbSettings = getSourceDbSettings();
 		if (sourceDbSettings != null) {
@@ -604,7 +622,7 @@ public class WhiteRabbitMain {
 				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("Delimited text files", "csv", "txt");
 				fileChooser.setFileFilter(filter);
-				
+
 				int returnVal = fileChooser.showDialog(frame, "Select tables");
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					for (File table : fileChooser.getSelectedFiles()) {
@@ -613,7 +631,7 @@ public class WhiteRabbitMain {
 							tables.add(tableName);
 						tableList.setListData(tables.toArray());
 					}
-					
+
 				}
 			} else if (sourceDbSettings.dataType == DbSettings.DATABASE) {
 				RichConnection connection = new RichConnection(sourceDbSettings.server, sourceDbSettings.domain, sourceDbSettings.user,
@@ -631,15 +649,7 @@ public class WhiteRabbitMain {
 			}
 		}
 	}
-	
-	private void pickVocabFile() {
-		JFileChooser fileChooser = new JFileChooser(new File(folderField.getText()));
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		int returnVal = fileChooser.showDialog(frame, "Select vocabulary file");
-		if (returnVal == JFileChooser.APPROVE_OPTION)
-			vocabFileField.setText(DirectoryUtilities.getRelativePath(new File(folderField.getText()), fileChooser.getSelectedFile()));
-	}
-	
+
 	private DbSettings getSourceDbSettings() {
 		DbSettings dbSettings = new DbSettings();
 		if (sourceType.getSelectedItem().equals("Delimited text files")) {
@@ -669,37 +679,46 @@ public class WhiteRabbitMain {
 				dbSettings.dbType = DbType.MSSQL;
 				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
 					String[] parts = sourceUserField.getText().split("/");
-					if (parts.length < 2) {
-						throw new RuntimeException("For SQL server you need to specify the domain in the user name field (e.g. Mydomain/Joe)");
-					} else {
+					if (parts.length == 2) {
 						dbSettings.user = parts[1];
 						dbSettings.domain = parts[0];
 					}
 				}
-				
 			}
-			
-			if (dbSettings.database == null) {
-				String message = "Please specify a name for the source database";
-				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Database error", JOptionPane.ERROR_MESSAGE);
-				return null;
-			}
-			
 		}
 		return dbSettings;
 	}
-	
-	private void testConnection(DbSettings dbSettings, boolean testConnectionToDb) {
-		RichConnection connection;
-		try {
-			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
-		} catch (Exception e) {
-			String message = "Could not connect to source server: " + e.getMessage();
-			JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		
-		if (testConnectionToDb)
+
+	private void testConnection(DbSettings dbSettings) {
+		if (dbSettings.dataType == DbSettings.CSVFILES) {
+			if (new File(folderField.getText()).exists()) {
+				String message = "Folder " + folderField.getText() + " found";
+				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Working folder found", JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				String message = "Folder " + folderField.getText() + " not found";
+				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Working folder not found", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			if (dbSettings.database == null || dbSettings.database.equals("")) {
+				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap("Please specify database name", 80), "Error connecting to server",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			if (dbSettings.server == null || dbSettings.server.equals("")) {
+				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap("Please specify the server", 80), "Error connecting to server",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			RichConnection connection;
+			try {
+				connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
+			} catch (Exception e) {
+				String message = "Could not connect: " + e.getMessage();
+				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
 			try {
 				connection.getTableNames(dbSettings.database);
 			} catch (Exception e) {
@@ -707,10 +726,14 @@ public class WhiteRabbitMain {
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-		
-		connection.close();
+
+			connection.close();
+			String message = "Succesfully connected to " + dbSettings.database + " on server " + dbSettings.server;
+			JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Connection succesful", JOptionPane.INFORMATION_MESSAGE);
+
+		}
 	}
-	
+
 	private DbSettings getTargetDbSettings() {
 		DbSettings dbSettings = new DbSettings();
 		dbSettings.dataType = DbSettings.DATABASE;
@@ -728,118 +751,73 @@ public class WhiteRabbitMain {
 			dbSettings.dbType = DbType.MSSQL;
 			if (sourceUserField.getText().length() != 0) { // Not using windows authentication
 				String[] parts = sourceUserField.getText().split("/");
-				if (parts.length < 2) {
-					throw new RuntimeException("For SQL server you need to specify the domain in the user name field (e.g. Mydomain/Joe)");
-				} else {
+				if (parts.length == 2) {
 					dbSettings.user = parts[1];
 					dbSettings.domain = parts[0];
 				}
 			}
 		}
-		
+
 		if (dbSettings.database.trim().length() == 0) {
 			String message = "Please specify a name for the target database";
 			JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Database error", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
-		
+
 		return dbSettings;
 	}
-	
-	private void etlRun(int maxPersons) {
-		EtlThread etlThread = new EtlThread(maxPersons);
-		etlThread.start();
-	}
-	
-	private void scanRun(int maxRows) {
-		ScanThread scanThread = new ScanThread(maxRows);
+
+	private void scanRun() {
+		if (tables.size() == 0) {
+			if (sourceIsFiles) {
+				String message = "No files selected for scanning";
+				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "No files selected", JOptionPane.ERROR_MESSAGE);
+				return;
+			} else {
+				String message = "No tables were selected for scanning. Do you want to select all tables in the database for scanning?";
+				String title = "No tables selected";
+				int answer = JOptionPane.showConfirmDialog(ObjectExchange.frame, message, title, JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.YES_OPTION) {
+					addAllTables();
+				} else
+					return;
+			}
+		}
+		int rowCount = 0;
+		if (scanRowCount.getSelectedItem().toString().equals("100,000"))
+			rowCount = 100000;
+		else if (scanRowCount.getSelectedItem().toString().equals("1 million"))
+			rowCount = 1000000;
+		if (scanRowCount.getSelectedItem().toString().equals("all"))
+			rowCount = -1;
+
+		ScanThread scanThread = new ScanThread(rowCount, scanValueScan.isSelected(), Integer.parseInt(scanMinCellCount.getValue().toString()));
 		scanThread.start();
 	}
-	
-	private void sqlDumpRun() {
-		SqlDumpThread sqlDumpThread = new SqlDumpThread();
-		sqlDumpThread.start();
-	}
-	
-	private void vocabRun() {
-		VocabRunThread thread = new VocabRunThread();
-		thread.start();
-	}
-	
-	private class SqlDumpThread extends Thread {
-		
-		public void run() {
-			for (JComponent component : componentsToDisableWhenRunning)
-				component.setEnabled(false);
-			try {
-				DbSettings dbSettings = getSourceDbSettings();
-				testConnection(dbSettings, true);
-				if (dbSettings != null) {
-					SqlDump sqlDump = new SqlDump();
-					sqlDump.process(dbSettings, sqlArea.getText(), folderField.getText() + "/" + sqlDumpFilenameField.getText());
-				}
-				
-			} catch (Exception e) {
-				handleError(e);
-			} finally {
-				for (JComponent component : componentsToDisableWhenRunning)
-					component.setEnabled(true);
-				dumpButton.setEnabled(!sourceIsFiles);
-			}
+
+	private void fakeDataRun() {
+		String filename = scanReportFileField.getText();
+		if (!new File(filename).exists()) {
+			String message = "File " + filename + " not found";
+			JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "File not found", JOptionPane.ERROR_MESSAGE);
+		} else {
+			FakeDataThread thread = new FakeDataThread(Integer.parseInt(scanMinCellCount.getValue().toString()), filename);
+			thread.start();
 		}
-		
 	}
-	
-	private class EtlThread extends Thread {
-		
-		private int	maxPersons;
-		
-		public EtlThread(int maxPersons) {
-			this.maxPersons = maxPersons;
-		}
-		
-		public void run() {
-			for (JComponent component : componentsToDisableWhenRunning)
-				component.setEnabled(false);
-			
-			try {
-				if (etlType.getSelectedItem().equals("ARS -> OMOP CDM V4")) {
-					ARSETL etl = new ARSETL();
-					DbSettings dbSettings = getTargetDbSettings();
-					testConnection(dbSettings, false);
-					if (dbSettings != null)
-						etl.process(folderField.getText(), dbSettings, maxPersons);
-				}
-				if (etlType.getSelectedItem().equals("HCUP -> OMOP CDM V4")) {
-					HCUPETL etl = new HCUPETL();
-					DbSettings sourceDbSettings = getSourceDbSettings();
-					DbSettings targetDbSettings = getTargetDbSettings();
-					if (sourceDbSettings != null && targetDbSettings != null) {
-						testConnection(sourceDbSettings, true);
-						testConnection(targetDbSettings, false);
-						etl.process(folderField.getText(), sourceDbSettings, targetDbSettings, maxPersons);
-					}
-				}
-				
-			} catch (Exception e) {
-				handleError(e);
-			} finally {
-				for (JComponent component : componentsToDisableWhenRunning)
-					component.setEnabled(true);
-				dumpButton.setEnabled(!sourceIsFiles);
-			}
-		}
-		
-	}
-	
+
 	private class ScanThread extends Thread {
-		
-		private int	maxRows;
-		
-		public ScanThread(int maxRows) {
+
+		private int		maxRows;
+		private boolean	scanValues;
+		private int		minCellCount;
+
+		public ScanThread(int maxRows, boolean scanValues, int minCellCount) {
 			this.maxRows = maxRows;
+			this.scanValues = scanValues;
+			this.minCellCount = minCellCount;
 		}
-		
+
 		public void run() {
 			for (JComponent component : componentsToDisableWhenRunning)
 				component.setEnabled(false);
@@ -852,67 +830,72 @@ public class WhiteRabbitMain {
 							table = folderField.getText() + "/" + table;
 						dbSettings.tables.add(table);
 					}
-					sourceDataScan.process(dbSettings, maxRows, folderField.getText() + "/ScanReport.xlsx");
+					sourceDataScan.process(dbSettings, maxRows, scanValues, minCellCount, folderField.getText() + "/ScanReport.xlsx");
 				}
 			} catch (Exception e) {
 				handleError(e);
 			} finally {
 				for (JComponent component : componentsToDisableWhenRunning)
 					component.setEnabled(true);
-				dumpButton.setEnabled(!sourceIsFiles);
 			}
 		}
-		
+
 	}
-	
-	private class VocabRunThread extends Thread {
-		
+
+	private class FakeDataThread extends Thread {
+		private int		maxRowCount;
+		private String	filename;
+
+		public FakeDataThread(int maxRowCount, String filename) {
+			this.maxRowCount = maxRowCount;
+			this.filename = filename;
+		}
+
 		public void run() {
 			for (JComponent component : componentsToDisableWhenRunning)
 				component.setEnabled(false);
 			try {
-				InsertVocabularyInServer process = new InsertVocabularyInServer();
+				FakeDataGenerator process = new FakeDataGenerator();
 				DbSettings dbSettings = getTargetDbSettings();
 				if (dbSettings != null)
-					process.process(folderField.getText() + "/" + vocabFileField.getText(), dbSettings);
+					process.generateData(dbSettings, maxRowCount, filename);
 			} catch (Exception e) {
 				handleError(e);
 			} finally {
 				for (JComponent component : componentsToDisableWhenRunning)
 					component.setEnabled(true);
-				dumpButton.setEnabled(!sourceIsFiles);
 			}
-			
+
 		}
 	}
-	
+
 	private class DBTableSelectionDialog extends JDialog implements ActionListener {
 		private static final long	serialVersionUID	= 4527207331482143091L;
 		private JButton				yesButton			= null;
 		private JButton				noButton			= null;
 		private boolean				answer				= false;
 		private JList				list;
-		
+
 		public boolean getAnswer() {
 			return answer;
 		}
-		
+
 		public DBTableSelectionDialog(JFrame frame, boolean modal, String tableNames) {
 			super(frame, modal);
-			
+
 			setTitle("Select tables");
 			JPanel panel = new JPanel();
 			panel.setPreferredSize(new Dimension(800, 500));
 			getContentPane().add(panel);
 			panel.setLayout(new BorderLayout());
-			
+
 			JLabel message = new JLabel("Select tables");
 			panel.add(message, BorderLayout.NORTH);
-			
+
 			list = new JList(tableNames.split("\t"));
 			JScrollPane scrollPane = new JScrollPane(list);
 			panel.add(scrollPane, BorderLayout.CENTER);
-			
+
 			JPanel buttonPanel = new JPanel();
 			yesButton = new JButton("Select tables");
 			yesButton.addActionListener(this);
@@ -921,12 +904,12 @@ public class WhiteRabbitMain {
 			noButton.addActionListener(this);
 			buttonPanel.add(noButton);
 			panel.add(buttonPanel, BorderLayout.SOUTH);
-			
+
 			pack();
 			setLocationRelativeTo(frame);
 			setVisible(true);
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 			if (yesButton == e.getSource()) {
 				answer = true;
@@ -936,13 +919,13 @@ public class WhiteRabbitMain {
 				setVisible(false);
 			}
 		}
-		
+
 		public Object[] getSelectedItems() {
 			return list.getSelectedValues();
 		}
-		
+
 	}
-	
+
 	private void handleError(Exception e) {
 		System.err.println("Error: " + e.getMessage());
 		String errorReportFilename = ErrorReport.generate(folderField.getText(), e);
@@ -951,5 +934,5 @@ public class WhiteRabbitMain {
 		System.out.println(message);
 		JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error", JOptionPane.ERROR_MESSAGE);
 	}
-	
+
 }

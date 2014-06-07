@@ -49,24 +49,28 @@ public class SourceDataScan {
 
 	public static int	MAX_VALUES_IN_MEMORY				= 100000;
 	public static int	MAX_VALUES_TO_REPORT				= 25000;
-	public static int	MIN_REPORTING_COUNT					= 25;
+	public static int	MIN_CELL_COUNT_FOR_CSV				= 1000000;
 	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
 	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
 
 	private char		delimiter							= ',';
 	private int			sampleSize;
+	private boolean		scanValues;
+	private int			minCellCount;
+	private DbType		dbType;
+	private String		database;
 
 	public static void main(String[] args) {
-		DbSettings dbSettings = new DbSettings();
-		dbSettings.dataType = DbSettings.DATABASE;
-		dbSettings.dbType = DbType.POSTGRESQL;
-		dbSettings.server = "127.0.0.1/test";
-		dbSettings.database = "test_schema";
-		dbSettings.tables.add("test_table");
-		dbSettings.user = "postgres";
-		dbSettings.password = "F1r3starter";
-		SourceDataScan scan = new SourceDataScan();
-		scan.process(dbSettings, 1000000, "s:/data/ScanReport.xlsx");
+		// DbSettings dbSettings = new DbSettings();
+		// dbSettings.dataType = DbSettings.DATABASE;
+		// dbSettings.dbType = DbType.POSTGRESQL;
+		// dbSettings.server = "127.0.0.1/test";
+		// dbSettings.database = "test_schema";
+		// dbSettings.tables.add("test_table");
+		// dbSettings.user = "postgres";
+		// dbSettings.password = "F1r3starter";
+		// SourceDataScan scan = new SourceDataScan();
+		// scan.process(dbSettings, 1000000, true, 25, "s:/data/ScanReport.xlsx");
 
 		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
@@ -100,17 +104,28 @@ public class SourceDataScan {
 		// dbSettings.password = "F1r3starter";
 		// dbSettings.tables.add("person");
 		// dbSettings.tables.add("provider");
-		//
 		// SourceDataScan scan = new SourceDataScan();
-		// scan.process(dbSettings, 1000000, "c:/temp/ScanReport.xlsx");
+		// scan.process(dbSettings, 100000, true, 25, "c:/temp/ScanReport.xlsx");
+
+		DbSettings dbSettings = new DbSettings();
+		dbSettings.dataType = DbSettings.CSVFILES;
+		dbSettings.delimiter = ',';
+		dbSettings.tables.add("S:/Data/ARS/Simulation/DDRUG.csv");
+		dbSettings.tables.add("S:/Data/ARS/Simulation/HOSP.csv");
+		SourceDataScan scan = new SourceDataScan();
+		scan.process(dbSettings, 100000, false, 25, "c:/temp/ScanReport.xlsx");
 	}
 
-	public void process(DbSettings dbSettings, int sampleSize, String filename) {
+	public void process(DbSettings dbSettings, int sampleSize, boolean scanValues, int minCellCount, String filename) {
 		this.sampleSize = sampleSize;
+		this.scanValues = scanValues;
+		this.minCellCount = minCellCount;
 		Map<String, List<FieldInfo>> tableToFieldInfos;
-		if (dbSettings.dataType == DbSettings.CSVFILES)
+		if (dbSettings.dataType == DbSettings.CSVFILES) {
+			if (!scanValues)
+				minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
 			tableToFieldInfos = processCsvFiles(dbSettings);
-		else
+		} else
 			tableToFieldInfos = processDatabase(dbSettings);
 		generateReport(tableToFieldInfos, filename);
 	}
@@ -121,8 +136,11 @@ public class SourceDataScan {
 		connection.setVerbose(false);
 		connection.use(dbSettings.database);
 
+		dbType = dbSettings.dbType;
+		database = dbSettings.database;
+
 		for (String table : dbSettings.tables) {
-			List<FieldInfo> fieldInfos = processDatabaseTable(table, connection, dbSettings.dbType);
+			List<FieldInfo> fieldInfos = processDatabaseTable(table, connection);
 			tableToFieldInfos.put(table, fieldInfos);
 		}
 
@@ -147,67 +165,63 @@ public class SourceDataScan {
 		List<String> tables = new ArrayList<String>(tableToFieldInfos.keySet());
 		Collections.sort(tables);
 
-		// XSSFWorkbook workbook = new XSSFWorkbook();
-		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in
-															// memory, exceeding
-															// rows will be
-															// flushed to disk
+		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 
 		// Create overview sheet
-		// XSSFSheet sheet = workbook.createSheet("Overview");
 		Sheet sheet = workbook.createSheet("Overview");
-		addRow(sheet, "Table", "Field", "Type", "N rows", "N rows checked", "Fraction empty", "Average length", "Max length", "Number of unique values", "Most common value",
-				"2nd common value", "3rd common value");
-		for (String table : tables) {
-			for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
-				List<Pair<String, Integer>> counts = fieldInfo.getSortedValuesWithoutSmallValues();
-				String value1 = counts.size() > 0 ? counts.get(0).getItem1() : "";
-				String value2 = counts.size() > 1 ? counts.get(1).getItem1() : "";
-				String value3 = counts.size() > 2 ? counts.get(2).getItem1() : "";
-				addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Long.valueOf(fieldInfo.rowCount), Long.valueOf(fieldInfo.nProcessed),
-						fieldInfo.getFractionEmpty(), fieldInfo.getAverageLength(), fieldInfo.maxLength, fieldInfo.tooManyValues ? "> " + MAX_VALUES_TO_REPORT
-								: fieldInfo.valueCounts.size(), value1, value2, value3);
+		if (!scanValues) {
+			addRow(sheet, "Table", "Field", "Type", "N rows");
+			for (String table : tables) {
+				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
+					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Long.valueOf(fieldInfo.rowCount));
+				addRow(sheet, "");
 			}
-			addRow(sheet, "");
-		}
+		} else {
+			addRow(sheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
+			for (String table : tables) {
+				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
+					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength),
+							Long.valueOf(fieldInfo.rowCount), Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
+				addRow(sheet, "");
+			}
 
-		// Create per table sheets
-		for (String table : tables) {
-			sheet = workbook.createSheet(table);
-			List<FieldInfo> fieldInfos = tableToFieldInfos.get(table);
-			List<List<Pair<String, Integer>>> valueCounts = new ArrayList<List<Pair<String, Integer>>>();
-			Object[] header = new Object[fieldInfos.size() * 2];
-			int maxCount = 0;
-			for (int i = 0; i < fieldInfos.size(); i++) {
-				FieldInfo fieldInfo = fieldInfos.get(i);
-				header[i * 2] = fieldInfo.name;
-				if (fieldInfo.isFreeText)
-					header[(i * 2) + 1] = "Word count";
-				else
-					header[(i * 2) + 1] = "Frequency";
-				List<Pair<String, Integer>> counts = fieldInfo.getSortedValuesWithoutSmallValues();
-				valueCounts.add(counts);
-				if (counts.size() > maxCount)
-					maxCount = counts.size();
-			}
-			addRow(sheet, header);
-			for (int i = 0; i < maxCount; i++) {
-				Object[] row = new Object[fieldInfos.size() * 2];
-				for (int j = 0; j < fieldInfos.size(); j++) {
-					List<Pair<String, Integer>> counts = valueCounts.get(j);
-					if (counts.size() > i) {
-						row[j * 2] = counts.get(i).getItem1();
-						row[(j * 2) + 1] = counts.get(i).getItem2() == -1 ? "" : counts.get(i).getItem2();
-					} else {
-						row[j * 2] = "";
-						row[(j * 2) + 1] = "";
-					}
+			// Create per table sheets
+			for (String table : tables) {
+				sheet = workbook.createSheet(table);
+				List<FieldInfo> fieldInfos = tableToFieldInfos.get(table);
+				List<List<Pair<String, Integer>>> valueCounts = new ArrayList<List<Pair<String, Integer>>>();
+				Object[] header = new Object[fieldInfos.size() * 2];
+				int maxCount = 0;
+				for (int i = 0; i < fieldInfos.size(); i++) {
+					FieldInfo fieldInfo = fieldInfos.get(i);
+					header[i * 2] = fieldInfo.name;
+					if (fieldInfo.isFreeText)
+						header[(i * 2) + 1] = "Word count";
+					else
+						header[(i * 2) + 1] = "Frequency";
+					List<Pair<String, Integer>> counts = fieldInfo.getSortedValuesWithoutSmallValues();
+					valueCounts.add(counts);
+					if (counts.size() > maxCount)
+						maxCount = counts.size();
 				}
-				addRow(sheet, row);
+				addRow(sheet, header);
+				for (int i = 0; i < maxCount; i++) {
+					Object[] row = new Object[fieldInfos.size() * 2];
+					for (int j = 0; j < fieldInfos.size(); j++) {
+						List<Pair<String, Integer>> counts = valueCounts.get(j);
+						if (counts.size() > i) {
+							row[j * 2] = counts.get(i).getItem1();
+							row[(j * 2) + 1] = counts.get(i).getItem2() == -1 ? "" : counts.get(i).getItem2();
+						} else {
+							row[j * 2] = "";
+							row[(j * 2) + 1] = "";
+						}
+					}
+					addRow(sheet, row);
+				}
+				// Save some memory by derefencing tables already included in the report:
+				tableToFieldInfos.remove(table);
 			}
-			// Save some memory by derefencing tables already included in the
-			// report:
-			tableToFieldInfos.remove(table);
 		}
 
 		try {
@@ -218,7 +232,6 @@ public class SourceDataScan {
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage());
 		}
-
 	}
 
 	private void removeEmptyTables(Map<String, List<FieldInfo>> tableToFieldInfos) {
@@ -229,14 +242,36 @@ public class SourceDataScan {
 		}
 	}
 
-	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection, DbType dbType) {
+	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) {
 		StringUtilities.outputWithTime("Scanning table " + table);
-		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
 
 		long rowCount = connection.getTableSize(table);
 		if (rowCount == 0)
 			return new ArrayList<SourceDataScan.FieldInfo>();
 
+		List<FieldInfo> fieldInfos = fetchTableStructure(connection, rowCount, table);
+
+		if (scanValues) {
+			int actualCount = 0;
+			QueryResult queryResult = fetchRowsFromTable(connection, table, rowCount);
+			for (org.ohdsi.utilities.files.Row row : queryResult) {
+				for (int i = 0; i < fieldInfos.size(); i++)
+					fieldInfos.get(i).processValue(row.getCells().get(i));
+				actualCount++;
+				if (sampleSize != -1 && actualCount >= sampleSize) {
+					System.out.println("Stopped after " + actualCount + " rows");
+					break;
+				}
+			}
+			queryResult.close(); // Not normally needed, but if we ended prematurely make sure its closed
+			for (FieldInfo fieldInfo : fieldInfos)
+				fieldInfo.trim();
+		}
+
+		return fieldInfos;
+	}
+
+	private QueryResult fetchRowsFromTable(RichConnection connection, String table, long rowCount) {
 		String query;
 		if (dbType == DbType.MSSQL)
 			query = "SELECT * FROM [" + table + "]";
@@ -257,33 +292,27 @@ public class SourceDataScan {
 			} else if (dbType == DbType.POSTGRESQL)
 				query += " ORDER BY RANDOM() LIMIT " + sampleSize;
 		}
-		System.out.println("SQL: " + query);
-		int actualCount = 0;
-		boolean first = true;
-		QueryResult queryResult = connection.query(query);
-		for (org.ohdsi.utilities.files.Row row : queryResult) {
-			if (first) {
-				for (String field : row.getFieldNames())
-					fieldInfos.add(new FieldInfo(field));
-				first = false;
-			}
-			for (int i = 0; i < fieldInfos.size(); i++)
-				fieldInfos.get(i).processValue(row.getCells().get(i));
-			actualCount++;
-			if (sampleSize != -1 && actualCount >= sampleSize) {
-				System.out.println("Stopped after " + actualCount + " rows");
-				break;
-			}
-		}
-		queryResult.close(); // Not normally needed, but if we ended prematurely
-								// make sure its closed
-		for (FieldInfo fieldInfo : fieldInfos) {
-			fieldInfo.trim();
+		// System.out.println("SQL: " + query);
+		return connection.query(query);
+
+	}
+
+	private List<FieldInfo> fetchTableStructure(RichConnection connection, long rowCount, String table) {
+		String query;
+		if (dbType == DbType.ORACLE || dbType == DbType.MSSQL)
+			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + database + "' AND TABLE_NAME='" + table + "';";
+		else
+			// mysql
+			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table + "';";
+
+		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
+		for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
+			FieldInfo fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
+			fieldInfo.type = row.get("DATA_TYPE");
 			fieldInfo.rowCount = rowCount;
+			fieldInfos.add(fieldInfo);
 		}
-
 		return fieldInfos;
-
 	}
 
 	private List<FieldInfo> processCsvFile(String filename) {
@@ -304,9 +333,7 @@ public class SourceDataScan {
 				for (String cell : row)
 					fieldInfos.add(new FieldInfo(cell));
 			} else {
-				if (row.size() == fieldInfos.size()) { // Else there appears to
-														// be a formatting
-														// error, so skip
+				if (row.size() == fieldInfos.size()) { // Else there appears to be a formatting error, so skip
 					for (int i = 0; i < row.size(); i++)
 						fieldInfos.get(i).processValue(row.get(i));
 				}
@@ -321,14 +348,14 @@ public class SourceDataScan {
 	}
 
 	private class FieldInfo {
+		public String				type;
 		public String				name;
 		public CountingSet<String>	valueCounts		= new CountingSet<String>();
 		public long					sumLength		= 0;
+		public int					maxLength		= 0;
 		public long					nProcessed		= 0;
 		public long					emptyCount		= 0;
 		public long					rowCount		= -1;
-		public int					maxLength		= 0;
-		// public String dataTypeAccordingToSchema = "";
 		public boolean				isInteger		= true;
 		public boolean				isReal			= true;
 		public boolean				isDate			= true;
@@ -348,36 +375,32 @@ public class SourceDataScan {
 			return emptyCount / (double) nProcessed;
 		}
 
-		public Double getAverageLength() {
-			if (nProcessed == emptyCount)
-				return 0d;
-			else
-				return sumLength / (double) (nProcessed - emptyCount);
-		}
-
 		public String getTypeDescription() {
-			if (nProcessed == emptyCount)
-				return "Empty";
+			if (type != null)
+				return type;
+			else if (nProcessed == emptyCount)
+				return "empty";
 			else if (isFreeText)
-				return "Free text";
+				return "text";
 			else if (isDate)
-				return "Date";
+				return "date";
 			else if (isInteger)
-				return "Integer";
+				return "int";
 			else if (isReal)
-				return "Real";
+				return "real";
 			else
-				return "VarChar";
+				return "varchar";
 		}
 
 		public void processValue(String value) {
 			String trimValue = value.trim();
 			nProcessed++;
 			sumLength += value.length();
-			if (trimValue.length() == 0)
-				emptyCount++;
 			if (value.length() > maxLength)
 				maxLength = value.length();
+
+			if (trimValue.length() == 0)
+				emptyCount++;
 
 			if (!isFreeText) {
 				valueCounts.add(value);
@@ -408,7 +431,7 @@ public class SourceDataScan {
 					valueCounts.add(word);
 			}
 
-			if (valueCounts.size() > MAX_VALUES_IN_MEMORY) {
+			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
 				tooManyValues = true;
 				valueCounts.keepTopN(MAX_VALUES_TO_REPORT);
 			}
@@ -419,7 +442,7 @@ public class SourceDataScan {
 			List<Pair<String, Integer>> result = new ArrayList<Pair<String, Integer>>();
 
 			for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet()) {
-				if (entry.getValue().count < MIN_REPORTING_COUNT)
+				if (entry.getValue().count < minCellCount)
 					truncated = true;
 				else {
 					result.add(new Pair<String, Integer>(entry.getKey(), entry.getValue().count));
