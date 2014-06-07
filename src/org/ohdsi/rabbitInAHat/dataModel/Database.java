@@ -35,7 +35,6 @@ import org.ohdsi.utilities.files.Row;
 public class Database implements Serializable {
 
 	private List<Table>			tables				= new ArrayList<Table>();
-	// private List<Table> defaultOrdering;
 	private static final long	serialVersionUID	= -3912166654601191039L;
 
 	public List<Table> getTables() {
@@ -94,16 +93,16 @@ public class Database implements Serializable {
 				// Someone may have manually deleted data, so can't assume this
 				// is always there:
 				index = fieldName2ColumnIndex.get("Fraction empty");
-				if (index < row.size())
+				if (index != null && index < row.size())
 					field.setNullable(!row.get(index).equals("0"));
 
 				index = fieldName2ColumnIndex.get("Type");
-				if (index < row.size())
+				if (index != null && index < row.size())
 					field.setType(row.get(index));
 
 				index = fieldName2ColumnIndex.get("Max length");
 				if (index != null && index >= 0 && index < row.size())
-					field.setMaxLength((int)(Double.parseDouble(row.get(index))));
+					field.setMaxLength((int) (Double.parseDouble(row.get(index))));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 				table.getFields().add(field);
 			}
@@ -119,6 +118,8 @@ public class Database implements Serializable {
 				tableSheet = sheet;
 				break;
 			}
+		if (tableSheet == null) // Sheet not found for table, return empty array
+			return new String[0][0];
 
 		Iterator<org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row> iterator = tableSheet.iterator();
 		org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row header = iterator.next();

@@ -32,12 +32,7 @@ public class Arrow implements MappingComponent {
 	public static float			thickness		= 5;
 	public static int			headThickness	= 15;
 	public static Color			color			= new Color(128, 128, 128, 128);
-	private static BasicStroke	dashed			= new BasicStroke(2.0f,
-														BasicStroke.CAP_BUTT,
-														BasicStroke.JOIN_MITER,
-														10.0f,
-														new float[] { 10.f },
-														0.0f);
+	private static BasicStroke	dashed			= new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 10.f }, 0.0f);
 
 	private int					x1;
 	private int					y1;
@@ -52,7 +47,7 @@ public class Arrow implements MappingComponent {
 	private Polygon				polygon;
 
 	private boolean				isSelected		= false;
-	private boolean				isVisible		= true;								;
+	private boolean				isVisible		= true;																										;
 
 	public Arrow(LabeledRectangle source) {
 		this.source = source;
@@ -120,8 +115,7 @@ public class Arrow implements MappingComponent {
 
 		for (int i = 0; i < nPoints; i++) {
 			float x = x1 + stepSize * i;
-			float y = (float) (y1 + (Math.cos(Math.PI * i / (float) nPoints) / 2d - 0.5)
-					* (y1 - y2));
+			float y = (float) (y1 + (Math.cos(Math.PI * i / (float) nPoints) / 2d - 0.5) * (y1 - y2));
 			xPoints[i] = Math.round(x);
 			yPoints[i] = Math.round(y - thickness);
 			xPoints[nPoints * 2 + 3 - i - 1] = Math.round(x);
