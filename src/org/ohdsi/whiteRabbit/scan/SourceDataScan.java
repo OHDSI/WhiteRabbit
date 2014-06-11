@@ -83,17 +83,17 @@ public class SourceDataScan {
 		// SourceDataScan scan = new SourceDataScan();
 		// scan.process(dbSettings, 1000000, "s:/data/ScanReport.xlsx");
 		
-		// DbSettings dbSettings = new DbSettings();
-		// dbSettings.dataType = DbSettings.DATABASE;
-		// dbSettings.dbType = DbType.MSSQL;
-		// dbSettings.server = "RNDUSRDHIT03.jnj.com";
-		// dbSettings.database = "[HCUP-NIS]";
-		// dbSettings.tables.add("hospital");
-		// dbSettings.tables.add("severity");
-		// dbSettings.tables.add("dx_pr_grps");
-		// dbSettings.tables.add("core");
-		// SourceDataScan scan = new SourceDataScan();
-		// scan.process(dbSettings, 1000000, "s:/data/ScanReport.xlsx");
+		 DbSettings dbSettings = new DbSettings();
+		 dbSettings.dataType = DbSettings.DATABASE;
+		 dbSettings.dbType = DbType.MSSQL;
+		 dbSettings.server = "RNDUSRDHIT04";
+		 dbSettings.database = "[HCUP-NIS]";
+		 dbSettings.tables.add("hospital");
+		 dbSettings.tables.add("severity");
+		 dbSettings.tables.add("dx_pr_grps");
+		 dbSettings.tables.add("core");
+		 SourceDataScan scan = new SourceDataScan();
+		 scan.process(dbSettings, 1000000, true, 25, "s:/data/ScanReport.xlsx");
 		
 		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
@@ -106,14 +106,14 @@ public class SourceDataScan {
 		// dbSettings.tables.add("provider");
 		// SourceDataScan scan = new SourceDataScan();
 		// scan.process(dbSettings, 100000, true, 25, "c:/temp/ScanReport.xlsx");
-		
-		DbSettings dbSettings = new DbSettings();
-		dbSettings.dataType = DbSettings.CSVFILES;
-		dbSettings.delimiter = ',';
-		dbSettings.tables.add("S:/Data/ARS/Simulation/DDRUG.csv");
-		dbSettings.tables.add("S:/Data/ARS/Simulation/HOSP.csv");
-		SourceDataScan scan = new SourceDataScan();
-		scan.process(dbSettings, 100000, false, 25, "c:/temp/ScanReport.xlsx");
+//		
+//		DbSettings dbSettings = new DbSettings();
+//		dbSettings.dataType = DbSettings.CSVFILES;
+//		dbSettings.delimiter = ',';
+//		dbSettings.tables.add("S:/Data/ARS/Simulation/DDRUG.csv");
+//		dbSettings.tables.add("S:/Data/ARS/Simulation/HOSP.csv");
+//		SourceDataScan scan = new SourceDataScan();
+//		scan.process(dbSettings, 100000, false, 25, "c:/temp/ScanReport.xlsx");
 	}
 	
 	public void process(DbSettings dbSettings, int sampleSize, boolean scanValues, int minCellCount, String filename) {
@@ -298,12 +298,15 @@ public class SourceDataScan {
 	}
 	
 	private List<FieldInfo> fetchTableStructure(RichConnection connection, long rowCount, String table) {
-		String query = null;
+		String query = null;		
 		if (dbType == DbType.ORACLE)
 			query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
-		else if (dbType == DbType.MSSQL)
-			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + database + "' AND TABLE_NAME='" + table + "';";
-		else if (dbType == DbType.MYSQL)
+		else if (dbType == DbType.MSSQL) {
+			String trimmedDatabase = database;
+			if (database.startsWith("[") && database.endsWith("]"))
+			trimmedDatabase = database.substring(1,database.length()-1);
+			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_NAME='" + table + "';";
+		} else if (dbType == DbType.MYSQL)
 			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table + "';";
 		else if (dbType == DbType.POSTGRESQL)
 			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table + "';";
