@@ -140,7 +140,7 @@ public class RichConnection {
 		} else if (dbType == DbType.ORACLE) {
 			query = "SELECT table_name FROM all_tables WHERE owner='" + database.toUpperCase() + "'";
 		} else if (dbType == DbType.POSTGRESQL) {
-			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database + "'";
+			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database.toLowerCase() + "'";
 		}
 
 		for (Row row : query(query))
