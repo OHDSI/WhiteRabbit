@@ -7,7 +7,7 @@ Getting Started
 ===============
 1. Under the "Releases" tab, download WhiteRabbit*.zip
 2. Unzip the download
-3. Open "WhiteRabbit.jar" through Jar Launcher (first time, since OHDSI remains an unidentified developer) on Mac OS X ... (well this still does not work)
+3. Click on WhiteRabbit1.5GB.cmd (Windows) or WhiteRabbit1.5GB.sh (Linux, Mac) to start White Rabbit.
 
 Documentation
 =============
