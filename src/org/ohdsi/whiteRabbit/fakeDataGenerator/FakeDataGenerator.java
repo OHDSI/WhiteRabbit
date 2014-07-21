@@ -34,61 +34,74 @@ import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.collections.OneToManySet;
 import org.ohdsi.utilities.files.Row;
+import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 import org.ohdsi.whiteRabbit.DbSettings;
 
 public class FakeDataGenerator {
-	
+
 	private RichConnection					connection;
 	private DbType							dbType;
+	private int								targetType;
 	private OneToManySet<String, String>	primaryKeyToValues;
 	private int								maxRowsPerTable	= 1000;
-	
+
 	private static int						REGULAR			= 0;
 	private static int						RANDOM			= 1;
 	private static int						PRIMARY_KEY		= 2;
-	
+
 	public static void main(String[] args) {
 		FakeDataGenerator fakeDataGenerator = new FakeDataGenerator();
-		
-		DbSettings dbSettings = new DbSettings();
-		dbSettings.dataType = DbSettings.DATABASE;
-		dbSettings.dbType = DbType.MYSQL;
-		dbSettings.server = "127.0.0.1";
-		dbSettings.database = "fake_data2";
-		dbSettings.user = "root";
-		dbSettings.password = "F1r3starter";
-		// fakeDataGenerator.generateData(dbSettings, "c:/temp/ScanReport.xlsx");
-		fakeDataGenerator.generateData(dbSettings, 1000, "S:/Data/THIN/ScanReport.xlsx");
+
+		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
-		// dbSettings.dbType = DbType.MSSQL;
-		// dbSettings.server = "RNDUSRDHIT03.jnj.com";
-		// dbSettings.database = "CDM_THIN";
-		// fakeDataGenerator.generateData(dbSettings, "S:/Data/THIN/ScanReport.xlsx");
+		// dbSettings.dbType = DbType.MYSQL;
+		// dbSettings.server = "127.0.0.1";
+		// dbSettings.database = "fake_data2";
+		// dbSettings.user = "root";
+		// dbSettings.password = "F1r3starter";
+		// fakeDataGenerator.generateData(dbSettings, 1000, "S:/Data/THIN/ScanReport.xlsx", "c:/temp");
+
+		DbSettings dbSettings = new DbSettings();
+		dbSettings.dataType = DbSettings.CSVFILES;
+		dbSettings.delimiter = ',';
+		// fakeDataGenerator.generateData(dbSettings, "c:/temp/ScanReport.xlsx");
+		fakeDataGenerator.generateData(dbSettings, 1000, "C:/home/Research/EMIF WP12/ARS CDM loading/ScanReport.xlsx", "c:/temp");
 	}
-	
-	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename) {
+
+	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder) {
+		this.maxRowsPerTable = maxRowsPerTable;
+		this.dbType = dbSettings.dbType;
+		this.targetType = dbSettings.dataType;
+
 		StringUtilities.outputWithTime("Starting creation of fake data");
 		System.out.println("Loading scan report from " + filename);
 		Database database = Database.generateModelFromScanReport(filename);
-		
-		dbType = dbSettings.dbType;
-		this.maxRowsPerTable = maxRowsPerTable;
-		
-		connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
-		connection.use(dbSettings.database);
-		
 		findValuesForPrimaryKeys(database);
-		
-		for (Table table : database.getTables()) {
-			System.out.println("Generating table " + table.getName());
-			createTable(table);
-			populateTable(table);
+
+		if (targetType == DbSettings.DATABASE) {
+			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
+			connection.use(dbSettings.database);
+			for (Table table : database.getTables()) {
+				System.out.println("Generating table " + table.getName());
+				createTable(table);
+				connection.insertIntoTable(generateRows(table).iterator(), table.getName(), false);
+			}
+			connection.close();
+		} else {
+			for (Table table : database.getTables()) {
+				String name = folder + "/" + table.getName();
+				if (!name.toLowerCase().endsWith(".csv"))
+					name = name + ".csv";
+				System.out.println("Generating table " + name);
+				WriteCSVFileWithHeader out = new WriteCSVFileWithHeader(name);
+				for (Row row : generateRows(table))
+					out.write(row);
+				out.close();
+			}
 		}
-		
-		connection.close();
 		StringUtilities.outputWithTime("Done");
 	}
-	
+
 	private void findValuesForPrimaryKeys(Database database) {
 		Set<String> primaryKeys = new HashSet<String>();
 		for (Table table : database.getTables()) {
@@ -98,7 +111,7 @@ public class FakeDataGenerator {
 				}
 			}
 		}
-		
+
 		primaryKeyToValues = new OneToManySet<String, String>();
 		for (Table table : database.getTables()) {
 			for (Field field : table.getFields()) {
@@ -110,8 +123,8 @@ public class FakeDataGenerator {
 			}
 		}
 	}
-	
-	private void populateTable(Table table) {
+
+	private List<Row> generateRows(Table table) {
 		String[] fieldNames = new String[table.getFields().size()];
 		ValueGenerator[] valueGenerators = new ValueGenerator[table.getFields().size()];
 		int size = maxRowsPerTable;
@@ -130,9 +143,9 @@ public class FakeDataGenerator {
 				row.add(fieldNames[j], valueGenerators[j].generate());
 			rows.add(row);
 		}
-		connection.insertIntoTable(rows.iterator(), table.getName(), false);
+		return rows;
 	}
-	
+
 	private void createTable(Table table) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("CREATE TABLE " + table.getName() + " (\n");
@@ -145,7 +158,7 @@ public class FakeDataGenerator {
 		sql.append("\n);");
 		connection.execute(sql.toString());
 	}
-	
+
 	private String correctType(Field field) {
 		String type = field.getType();
 		if (dbType == DbType.MYSQL) {
@@ -164,29 +177,29 @@ public class FakeDataGenerator {
 		}
 		return null;
 	}
-	
+
 	private boolean isVarChar(String type) {
 		type = type.toUpperCase();
 		return (type.equals("VARCHAR") || type.equals("VARCHAR2") || type.equals("CHARACTER VARYING"));
 	}
-	
+
 	private boolean isInt(String type) {
 		type = type.toUpperCase();
 		return (type.equals("INT") || type.equals("INTEGER") || type.equals("BIGINT"));
 	}
-	
+
 	private boolean isNumber(String type) {
 		type = type.toUpperCase();
 		return (type.equals("REAL") || type.equals("DOUBLE") || type.equals("NUMBER") || type.equals("FLOAT") || type.equals("DOUBLE PRECISION"));
 	}
-	
+
 	private boolean isText(String type) {
 		type = type.toUpperCase();
 		return (type.equals("TEXT") || type.equals("CLOB"));
 	}
-	
+
 	private class ValueGenerator {
-		
+
 		private String[]	values;
 		private int[]		cumulativeFrequency;
 		private int			totalFrequency;
@@ -195,7 +208,7 @@ public class FakeDataGenerator {
 		private int			cursor;
 		private int			generatorType	= REGULAR;
 		private Random		random			= new Random();
-		
+
 		public ValueGenerator(Field field) {
 			String[][] valueCounts = field.getValueCounts();
 			type = field.getType();
@@ -213,21 +226,21 @@ public class FakeDataGenerator {
 				int length = valueCounts.length;
 				if (valueCounts[length - 1][1].equals("")) // Last value could be "List truncated..."
 					length--;
-				
+
 				values = new String[length];
 				cumulativeFrequency = new int[length];
 				totalFrequency = 0;
 				for (int i = 0; i < length; i++) {
 					int frequency = (int) (Double.parseDouble(valueCounts[i][1]));
 					totalFrequency += frequency;
-					
+
 					values[i] = valueCounts[i][0];
 					cumulativeFrequency[i] = totalFrequency;
 				}
 				generatorType = REGULAR;
 			}
 		}
-		
+
 		private String[] convertToArray(Set<String> set) {
 			String[] array = new String[set.size()];
 			int i = 0;
@@ -235,7 +248,7 @@ public class FakeDataGenerator {
 				array[i++] = item;
 			return array;
 		}
-		
+
 		public String generate() {
 			if (generatorType == RANDOM) { // Random generate a string:
 				if (isVarChar(type)) {
@@ -273,5 +286,5 @@ public class FakeDataGenerator {
 			}
 		}
 	}
-	
+
 }
