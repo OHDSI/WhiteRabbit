@@ -48,6 +48,7 @@ public class Database implements Serializable {
 	public static Database generateCDMModel() {
 		Database database = new Database();
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
+		//for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream("CDMV5Model.csv"))) {
 		for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream("CDMV4Model.csv"))) {
 			Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
 			if (table == null) {
