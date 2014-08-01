@@ -16,7 +16,7 @@ Rabbit-In-A-Hat
 
 Documentation
 =============
-WhiteRabbit contains a <a href="https://github.com/OHDSI/WhiteRabbit/blob/master/man/WhiteRabbit%20and%20Rabbit-In-a-Hat%20User%20Manual.pdf">PDF manual</a> that describes how to use the software.
+WhiteRabbit contains a <a href="/man/WhiteRabbit%20and%20Rabbit-In-a-Hat%20User%20Manual.pdf">PDF manual</a> that describes how to use the software.
 
 License
 =======
