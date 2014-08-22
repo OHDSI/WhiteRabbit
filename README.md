@@ -1,4 +1,4 @@
-WhiteRabbit
+![alt text](https://github.com/OHDSI/WhiteRabbit/blob/master/src/org/ohdsi/whiteRabbit/WhiteRabbit64.png) WhiteRabbit
 ===========
 A small application to analyze the structure and contents of a database as preparation for designing an ETL.
 
