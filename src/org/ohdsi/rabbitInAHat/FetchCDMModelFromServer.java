@@ -28,11 +28,11 @@ import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 public class FetchCDMModelFromServer {
 	
 	public static void main(String[] args) {
-		RichConnection connection = new RichConnection("127.0.0.1", null, "root", "F1r3starter", DbType.MYSQL);
-		connection.use("cdm_v4");
+		RichConnection connection = new RichConnection("127.0.0.1/ohdsi", null, "postgres", "F1r3starter", DbType.POSTGRESQL);
+		connection.use("cdm5");
 		
-		WriteCSVFileWithHeader out = new WriteCSVFileWithHeader("c:/temp/CDMV4Model.csv");
-		String query = "SELECT table_name,column_name,is_nullable,column_type FROM information_schema.columns WHERE table_schema = 'cdm_v4';";
+		WriteCSVFileWithHeader out = new WriteCSVFileWithHeader("c:/temp/CDMV5Model.csv");
+		String query = "SELECT table_name,COLUMN_NAME,IS_NULLABLE,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'cdm5';";
 		for (Row row : connection.query(query))
 			out.write(row);
 		out.close();

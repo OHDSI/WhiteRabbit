@@ -52,20 +52,16 @@ public class FakeDataGenerator {
 	public static void main(String[] args) {
 		FakeDataGenerator fakeDataGenerator = new FakeDataGenerator();
 
-		// DbSettings dbSettings = new DbSettings();
-		// dbSettings.dataType = DbSettings.DATABASE;
-		// dbSettings.dbType = DbType.MYSQL;
-		// dbSettings.server = "127.0.0.1";
-		// dbSettings.database = "fake_data2";
-		// dbSettings.user = "root";
-		// dbSettings.password = "F1r3starter";
-		// fakeDataGenerator.generateData(dbSettings, 1000, "S:/Data/THIN/ScanReport.xlsx", "c:/temp");
-
 		DbSettings dbSettings = new DbSettings();
-		dbSettings.dataType = DbSettings.CSVFILES;
-		dbSettings.delimiter = ',';
-		// fakeDataGenerator.generateData(dbSettings, "c:/temp/ScanReport.xlsx");
-		fakeDataGenerator.generateData(dbSettings, 1000, "C:/home/Research/EMIF WP12/ARS CDM loading/ScanReport.xlsx", "c:/temp");
+		dbSettings.dataType = DbSettings.DATABASE;
+		dbSettings.dbType = DbType.POSTGRESQL;
+		dbSettings.server = "127.0.0.1/ohdsi";
+		dbSettings.database = "ars";
+		dbSettings.user = "postgres";
+		dbSettings.password = "F1r3starter";
+
+		fakeDataGenerator.generateData(dbSettings, 100000, "c:/temp/ScanReport.xlsx", "c:/temp");
+		// fakeDataGenerator.generateData(dbSettings, 1000, "C:/home/Research/EMIF WP12/ARS CDM loading/ScanReport.xlsx", "c:/temp");
 	}
 
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder) {
@@ -82,6 +78,8 @@ public class FakeDataGenerator {
 			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
 			connection.use(dbSettings.database);
 			for (Table table : database.getTables()) {
+				if (table.getName().toLowerCase().endsWith(".csv"))
+					table.setName(table.getName().substring(0, table.getName().length() - 4));
 				System.out.println("Generating table " + table.getName());
 				createTable(table);
 				connection.insertIntoTable(generateRows(table).iterator(), table.getName(), false);
@@ -160,8 +158,23 @@ public class FakeDataGenerator {
 	}
 
 	private String correctType(Field field) {
-		String type = field.getType();
+		String type = field.getType().toUpperCase();
+		if (field.getMaxLength() == 0)
+			field.setMaxLength(256);
 		if (dbType == DbType.MYSQL) {
+			if (isVarChar(type))
+				return "VARCHAR(" + field.getMaxLength() + ")";
+			else if (isInt(type))
+				return "BIGINT";
+			else if (isNumber(type))
+				return "DOUBLE";
+			else if (isText(type))
+				return "TEXT";
+			else if (type.equals("EMPTY"))
+				return "VARCHAR(255)";
+			else
+				return type;
+		} else if (dbType == DbType.POSTGRESQL) {
 			if (isVarChar(type))
 				return "VARCHAR(" + field.getMaxLength() + ")";
 			else if (isInt(type))
