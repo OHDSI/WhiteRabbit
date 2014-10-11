@@ -46,20 +46,20 @@ import org.ohdsi.utilities.files.ReadTextFile;
 import org.ohdsi.whiteRabbit.DbSettings;
 
 public class SourceDataScan {
-	
+
 	public static int	MAX_VALUES_IN_MEMORY				= 100000;
 	public static int	MAX_VALUES_TO_REPORT				= 25000;
 	public static int	MIN_CELL_COUNT_FOR_CSV				= 1000000;
 	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
 	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
-	
+
 	private char		delimiter							= ',';
 	private int			sampleSize;
 	private boolean		scanValues;
 	private int			minCellCount;
 	private DbType		dbType;
 	private String		database;
-	
+
 	public static void main(String[] args) {
 		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
@@ -71,7 +71,7 @@ public class SourceDataScan {
 		// dbSettings.password = "F1r3starter";
 		// SourceDataScan scan = new SourceDataScan();
 		// scan.process(dbSettings, 1000000, true, 25, "s:/data/ScanReport.xlsx");
-		
+
 		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
 		// dbSettings.dbType = DbType.ORACLE;
@@ -82,7 +82,7 @@ public class SourceDataScan {
 		// dbSettings.password = "F1r3starter";
 		// SourceDataScan scan = new SourceDataScan();
 		// scan.process(dbSettings, 1000000, "s:/data/ScanReport.xlsx");
-		
+
 		DbSettings dbSettings = new DbSettings();
 		dbSettings.dataType = DbSettings.DATABASE;
 		dbSettings.dbType = DbType.MSSQL;
@@ -94,7 +94,7 @@ public class SourceDataScan {
 		dbSettings.tables.add("core");
 		SourceDataScan scan = new SourceDataScan();
 		scan.process(dbSettings, 1000000, true, 25, "s:/data/ScanReport.xlsx");
-		
+
 		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
 		// dbSettings.dbType = DbType.MYSQL;
@@ -115,7 +115,7 @@ public class SourceDataScan {
 		// SourceDataScan scan = new SourceDataScan();
 		// scan.process(dbSettings, 100000, false, 25, "c:/temp/ScanReport.xlsx");
 	}
-	
+
 	public void process(DbSettings dbSettings, int sampleSize, boolean scanValues, int minCellCount, String filename) {
 		this.sampleSize = sampleSize;
 		this.scanValues = scanValues;
@@ -129,44 +129,49 @@ public class SourceDataScan {
 			tableToFieldInfos = processDatabase(dbSettings);
 		generateReport(tableToFieldInfos, filename);
 	}
-	
+
 	private Map<String, List<FieldInfo>> processDatabase(DbSettings dbSettings) {
 		Map<String, List<FieldInfo>> tableToFieldInfos = new HashMap<String, List<FieldInfo>>();
 		RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
 		connection.setVerbose(false);
 		connection.use(dbSettings.database);
-		
+
 		dbType = dbSettings.dbType;
 		database = dbSettings.database;
-		
+
 		for (String table : dbSettings.tables) {
 			List<FieldInfo> fieldInfos = processDatabaseTable(table, connection);
 			tableToFieldInfos.put(table, fieldInfos);
 		}
-		
+
 		connection.close();
 		return tableToFieldInfos;
 	}
-	
+
 	private Map<String, List<FieldInfo>> processCsvFiles(DbSettings dbSettings) {
 		delimiter = dbSettings.delimiter;
 		Map<String, List<FieldInfo>> tableToFieldInfos = new HashMap<String, List<FieldInfo>>();
 		for (String table : dbSettings.tables) {
 			List<FieldInfo> fieldInfos = processCsvFile(table);
 			String tableName = new File(table).getName();
-			tableToFieldInfos.put(tableName, fieldInfos);
+			if (!tableToFieldInfos.containsKey(tableName)) {
+				tableToFieldInfos.put(tableName, fieldInfos);
+			} else {
+				tableToFieldInfos.put(table, fieldInfos);
+			}
+
 		}
 		return tableToFieldInfos;
 	}
-	
+
 	private void generateReport(Map<String, List<FieldInfo>> tableToFieldInfos, String filename) {
 		System.out.println("Generating scan report");
 		removeEmptyTables(tableToFieldInfos);
 		List<String> tables = new ArrayList<String>(tableToFieldInfos.keySet());
 		Collections.sort(tables);
-		
+
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
-		
+
 		// Create overview sheet
 		Sheet sheet = workbook.createSheet("Overview");
 		if (!scanValues) {
@@ -184,7 +189,7 @@ public class SourceDataScan {
 							Long.valueOf(fieldInfo.rowCount), Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
 				addRow(sheet, "");
 			}
-			
+
 			// Create per table sheets
 			for (String table : tables) {
 				sheet = workbook.createSheet(table);
@@ -223,7 +228,7 @@ public class SourceDataScan {
 				tableToFieldInfos.remove(table);
 			}
 		}
-		
+
 		try {
 			FileOutputStream out = new FileOutputStream(new File(filename));
 			workbook.write(out);
@@ -233,7 +238,7 @@ public class SourceDataScan {
 			throw new RuntimeException(e.getMessage());
 		}
 	}
-	
+
 	private void removeEmptyTables(Map<String, List<FieldInfo>> tableToFieldInfos) {
 		Iterator<Map.Entry<String, List<FieldInfo>>> iterator = tableToFieldInfos.entrySet().iterator();
 		while (iterator.hasNext()) {
@@ -241,16 +246,16 @@ public class SourceDataScan {
 				iterator.remove();
 		}
 	}
-	
+
 	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) {
 		StringUtilities.outputWithTime("Scanning table " + table);
-		
+
 		long rowCount = connection.getTableSize(table);
 		if (rowCount == 0)
 			return new ArrayList<SourceDataScan.FieldInfo>();
-		
+
 		List<FieldInfo> fieldInfos = fetchTableStructure(connection, rowCount, table);
-		
+
 		if (scanValues) {
 			int actualCount = 0;
 			QueryResult queryResult = fetchRowsFromTable(connection, table, rowCount);
@@ -267,17 +272,17 @@ public class SourceDataScan {
 			for (FieldInfo fieldInfo : fieldInfos)
 				fieldInfo.trim();
 		}
-		
+
 		return fieldInfos;
 	}
-	
+
 	private QueryResult fetchRowsFromTable(RichConnection connection, String table, long rowCount) {
 		String query;
 		if (dbType == DbType.MSSQL)
 			query = "SELECT * FROM [" + table + "]";
 		else
 			query = "SELECT * FROM " + table;
-		
+
 		if (sampleSize != -1) {
 			if (dbType == DbType.MSSQL)
 				query += " TABLESAMPLE (" + sampleSize + " ROWS)";
@@ -294,9 +299,9 @@ public class SourceDataScan {
 		}
 		// System.out.println("SQL: " + query);
 		return connection.query(query);
-		
+
 	}
-	
+
 	private List<FieldInfo> fetchTableStructure(RichConnection connection, long rowCount, String table) {
 		String query = null;
 		if (dbType == DbType.ORACLE)
@@ -312,7 +317,7 @@ public class SourceDataScan {
 		else if (dbType == DbType.POSTGRESQL)
 			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
 					+ table.toLowerCase() + "' ORDER BY ordinal_position;";
-		
+
 		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
 		for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
 			row.upperCaseFieldNames();
@@ -323,7 +328,7 @@ public class SourceDataScan {
 		}
 		return fieldInfos;
 	}
-	
+
 	private List<FieldInfo> processCsvFile(String filename) {
 		StringUtilities.outputWithTime("Scanning table " + filename);
 		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
@@ -352,10 +357,10 @@ public class SourceDataScan {
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
 			fieldInfo.trim();
-		
+
 		return fieldInfos;
 	}
-	
+
 	private class FieldInfo {
 		public String				type;
 		public String				name;
@@ -370,20 +375,20 @@ public class SourceDataScan {
 		public boolean				isDate			= true;
 		public boolean				isFreeText		= false;
 		public boolean				tooManyValues	= false;
-		
+
 		public FieldInfo(String name) {
 			this.name = name;
 		}
-		
+
 		public void trim() {
 			if (valueCounts.size() > MAX_VALUES_TO_REPORT)
 				valueCounts.keepTopN(MAX_VALUES_TO_REPORT);
 		}
-		
+
 		public Double getFractionEmpty() {
 			return emptyCount / (double) nProcessed;
 		}
-		
+
 		public String getTypeDescription() {
 			if (type != null)
 				return type;
@@ -400,20 +405,20 @@ public class SourceDataScan {
 			else
 				return "varchar";
 		}
-		
+
 		public void processValue(String value) {
 			String trimValue = value.trim();
 			nProcessed++;
 			sumLength += value.length();
 			if (value.length() > maxLength)
 				maxLength = value.length();
-			
+
 			if (trimValue.length() == 0)
 				emptyCount++;
-			
+
 			if (!isFreeText) {
 				valueCounts.add(value);
-				
+
 				if (trimValue.length() != 0) {
 					if (isReal && !StringUtilities.isNumber(trimValue))
 						isReal = false;
@@ -439,17 +444,17 @@ public class SourceDataScan {
 				for (String word : StringUtilities.mapToWords(trimValue.toLowerCase()))
 					valueCounts.add(word);
 			}
-			
+
 			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
 				tooManyValues = true;
 				valueCounts.keepTopN(MAX_VALUES_TO_REPORT);
 			}
 		}
-		
+
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {
 			boolean truncated = false;
 			List<Pair<String, Integer>> result = new ArrayList<Pair<String, Integer>>();
-			
+
 			for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet()) {
 				if (entry.getValue().count < minCellCount)
 					truncated = true;
@@ -461,7 +466,7 @@ public class SourceDataScan {
 					}
 				}
 			}
-			
+
 			Collections.sort(result, new Comparator<Pair<String, Integer>>() {
 				public int compare(Pair<String, Integer> o1, Pair<String, Integer> o2) {
 					return o2.getItem2().compareTo(o1.getItem2());
@@ -472,17 +477,17 @@ public class SourceDataScan {
 			return result;
 		}
 	}
-	
+
 	private void addRow(Sheet sheet, Object... values) {
 		Row row = sheet.createRow(sheet.getPhysicalNumberOfRows());
 		for (Object value : values) {
 			Cell cell = row.createCell(row.getPhysicalNumberOfCells());
-			
+
 			if (value instanceof Integer || value instanceof Long || value instanceof Double)
 				cell.setCellValue(Double.parseDouble(value.toString()));
 			else
 				cell.setCellValue(value.toString());
-			
+
 		}
 	}
 }
