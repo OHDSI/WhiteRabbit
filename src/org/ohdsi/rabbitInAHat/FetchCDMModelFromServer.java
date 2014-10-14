@@ -25,6 +25,12 @@ import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 
+/**
+ * This class is used as a stand-alone to fetch the structure of the CDM from the server and format it for insertion into Rabbit-In-A-Hat.
+ * It is not intended to be used by non-developers.
+ * @author MSCHUEMI
+ *
+ */
 public class FetchCDMModelFromServer {
 	
 	public static void main(String[] args) {
@@ -32,9 +38,14 @@ public class FetchCDMModelFromServer {
 		connection.use("cdm5");
 		
 		WriteCSVFileWithHeader out = new WriteCSVFileWithHeader("c:/temp/CDMV5Model.csv");
-		String query = "SELECT table_name,COLUMN_NAME,IS_NULLABLE,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'cdm5';";
-		for (Row row : connection.query(query))
-			out.write(row);
+		String query = "SELECT table_name,column_name,is_nullable,data_type FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'cdm5';";
+		for (Row row : connection.query(query)){
+			row.upperCaseFieldNames();
+			Row newRow = new Row();
+			for (String field : row.getFieldNames())
+				newRow.add(field, row.get(field).toUpperCase());
+			out.write(newRow);
+		}
 		out.close();
 		
 	}
