@@ -48,8 +48,8 @@ public class Database implements Serializable {
 	public static Database generateCDMModel() {
 		Database database = new Database();
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
-		//for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream("CDMv5Model.csv"))) {
-		for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream("CDMV4Model.csv"))) {
+		for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream("CDMv5Model.csv"))) {
+		//for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream("CDMV4Model.csv"))) {
 			Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
 			if (table == null) {
 				table = new Table();
@@ -59,7 +59,7 @@ public class Database implements Serializable {
 			}
 			Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), table);
 			field.setNullable(row.get("IS_NULLABLE").equals("YES"));
-			field.setType(row.get("COLUMN_TYPE"));
+			field.setType(row.get("DATA_TYPE"));
 			table.getFields().add(field);
 		}
 		// database.defaultOrdering = new ArrayList<Table>(database.tables);

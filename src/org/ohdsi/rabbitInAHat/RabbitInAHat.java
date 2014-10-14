@@ -180,14 +180,14 @@ public class RabbitInAHat implements ResizeListener, ActionListener {
 		generateDocItem.setActionCommand("Generate ETL document");
 		fileMenu.add(generateDocItem);
 
-		JMenu editMenu = new JMenu("Edit");
-		menuBar.add(editMenu);
+//		JMenu editMenu = new JMenu("Edit");
+//		menuBar.add(editMenu);
 
-		JMenu viewMenu = new JMenu("View");
-		menuBar.add(viewMenu);
+//		JMenu viewMenu = new JMenu("View");
+//		menuBar.add(viewMenu);
 
-		JMenu helpMenu = new JMenu("Help");
-		menuBar.add(helpMenu);
+//		JMenu helpMenu = new JMenu("Help");
+//		menuBar.add(helpMenu);
 		return menuBar;
 	}
 
