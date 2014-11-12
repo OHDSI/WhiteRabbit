@@ -33,7 +33,7 @@ Getting Started
 ===============
 WhiteRabbit
 
-1. Under the "Releases" tab, download WhiteRabbit*.zip
+1. Under the [Releases](https://github.com/OHDSI/WhiteRabbit/releases) tab, download WhiteRabbit*.zip
 2. Unzip the download
 3. Click on WhiteRabbit1.5GB.cmd (Windows) or WhiteRabbit1.5GB.sh (Linux, Mac) to start White Rabbit.
 
@@ -54,6 +54,3 @@ Development
 White Rabbit and Rabbit in a Hat are being developed in Eclipse. Contributions are welcome.
 ###Development status
 Alpha testing - useable but some bugs are already known to exist
-
-Acknowledgements
-================
