@@ -27,7 +27,8 @@ Screenshots
 
 Requirements
 ============
-Requires Java 1.6 or higher, and read access to the database to be scanned.
+Requires Java 1.6 or higher, and read access to the database to be scanned.   Java can be downloaded from
+<a href="http://www.java.com" target="_blank">http://www.java.com</a>.
 
 Getting Started
 ===============
