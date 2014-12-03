@@ -57,8 +57,7 @@ Getting Involved
 =============
 * User guide and Help: <a href="http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit">WhiteRabbit Wiki</a>
 * Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
-* We use the <a href="/issues">GitHub issue tracker</a> for all bugs/issues/enhancements
-WhiteRabbit contains a <a href="/man/WhiteRabbit%20and%20Rabbit-In-a-Hat%20User%20Manual.pdf">PDF manual</a> that describes how to use the software.
+* We use the <a href="../../issues">GitHub issue tracker</a> for all bugs/issues/enhancements
 
 License
 =======
