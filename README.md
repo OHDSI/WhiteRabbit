@@ -30,7 +30,7 @@ Screenshots
 
 Technology
 ============
-TBD
+White Rabbit and Rabbit in a Hat are pure Java applications. Both applications use [Apache's POI Java libraries](http://poi.apache.org/) to read and write Word and Excel files. White Rabbit uses JDBC to connect to the respective databases.
 
 System Requirements
 ============
