@@ -69,6 +69,9 @@ import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 
+/**
+ * This is the WhiteRabbit main class
+ */
 public class WhiteRabbitMain {
 
 	private JFrame				frame;

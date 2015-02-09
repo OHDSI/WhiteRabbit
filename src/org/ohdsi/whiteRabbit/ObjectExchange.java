@@ -21,6 +21,9 @@ import javax.swing.JFrame;
 
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 
+/**
+ * This class is used to hold global variables
+ */
 public class ObjectExchange {
 	public static JFrame	frame;
 	public static Console	console;
