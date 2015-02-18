@@ -3,8 +3,26 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jars">
+      <property name="src" location="src" />
+      <property name="bin" location="bin" />
+      <property name="lib" location="lib" />
+      <property name="JDK_VERSION" value="1.6" />
+      <path id="classpath">
+        <fileset dir="${lib}" includes="**/*.jar" />
+      </path>
         <delete dir="dist"/>
         <mkdir dir="dist"/>
+        <delete dir="bin"/>
+        <mkdir dir="bin"/>
+        <javac
+          source="${JDK_VERSION}"
+          target="${JDK_VERSION}"
+          srcdir="${src}"
+          classpathref="classpath"
+          destdir="${bin}"
+          includeantruntime="false"
+          />
+
     	<jar destfile="dist/WhiteRabbit.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.ohdsi.whiteRabbit.WhiteRabbitMain"/>
