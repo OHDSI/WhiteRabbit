@@ -29,8 +29,8 @@ public class Arrow implements MappingComponent {
 	public static float			thickness		= 5;
 	public static int			headThickness	= 15;
 	public static Color			color	    	= new Color(128, 128, 128, 128);
-	public static Color			sourceColor		= new Color(255, 0, 255, 255);
-	public static Color			targetColor		= new Color(128, 255, 0, 255);
+	public static Color			sourceColor		= new Color(255, 128, 0, 192);
+	public static Color			targetColor		= new Color(0, 0, 255, 192);
 	private static BasicStroke	dashed			= new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 10.f }, 0.0f);
 
 	private int					x1;
