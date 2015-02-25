@@ -34,9 +34,9 @@ import javax.swing.event.ChangeListener;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 
 public class LabeledRectangle implements MappingComponent {
-	
+
 	public static int				FONT_SIZE		= 18;
-	
+
 	private static Stroke			stroke			= new BasicStroke(2);
 	private static BasicStroke		dashed			= new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 10.f }, 0.0f);
 	private List<ChangeListener>	changeListeners	= new ArrayList<ChangeListener>();
@@ -49,15 +49,15 @@ public class LabeledRectangle implements MappingComponent {
 	private Color					transparentColor;
 	private boolean					isVisible		= true;
 	private boolean					isSelected		= false;
-	
+
 	public void addChangeListener(ChangeListener x) {
 		changeListeners.add(x);
 	}
-	
+
 	public void removeChangeListener(ChangeListener x) {
 		changeListeners.remove(x);
 	}
-	
+
 	public LabeledRectangle(int x, int y, int width, int height, MappableItem item, Color baseColor) {
 		this.x = x;
 		this.y = y;
@@ -67,20 +67,20 @@ public class LabeledRectangle implements MappingComponent {
 		this.baseColor = baseColor;
 		this.transparentColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 128);
 	}
-	
+
 	public int getWidth() {
 		return width;
 	}
-	
+
 	public int getHeight() {
 		return height;
 	}
-	
+
 	public void setLocation(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	public void paint(Graphics g) {
 		if (!isVisible)
 			return;
@@ -96,19 +96,19 @@ public class LabeledRectangle implements MappingComponent {
 		}
 		g2d.drawRect(x, y, width, height);
 		g2d.setColor(Color.BLACK);
-		
+
 		g2d.setFont(new Font("default", Font.PLAIN, FONT_SIZE));
 		FontMetrics fm = g2d.getFontMetrics();
-		
+
 		Rectangle2D r = fm.getStringBounds(item.getName(), g2d);
 		if (r.getWidth() >= width) {
 			int breakPoint = 0;
-			int index = item.getName().indexOf('_');
+			int index = nextBreakPoint(item.getName(), 0);
 			double midPoint = item.getName().length() / 2d;
 			while (index != -1) {
 				if (Math.abs(index - midPoint) < Math.abs(breakPoint - midPoint))
 					breakPoint = index;
-				index = item.getName().indexOf('_', index + 1);
+				index = nextBreakPoint(item.getName(), index + 1);
 			}
 			if (breakPoint == 0) {
 				int textX = (this.getWidth() - (int) r.getWidth()) / 2;
@@ -132,33 +132,44 @@ public class LabeledRectangle implements MappingComponent {
 			g2d.drawString(item.getName(), x + textX, y + textY);
 		}
 	}
-	
+
+	private int nextBreakPoint(String string, int start) {
+		int index1 = string.indexOf(' ', start);
+		int index2 = string.indexOf('_', start);
+		if (index1 == -1)
+			return index2;
+		else if (index2 == -1)
+			return index1;
+		else
+			return Math.min(index1, index2);
+	}
+
 	public boolean contains(Point point) {
 		return (point.x >= x && point.x <= x + width && point.y >= y && point.y <= y + height);
 	}
-	
+
 	public int getX() {
 		return x;
 	}
-	
+
 	public int getY() {
 		return y;
 	}
-	
+
 	public MappableItem getItem() {
 		return item;
 	}
-	
+
 	public boolean isSelected() {
 		return isSelected;
 	}
-	
+
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
-	
+
 	public void setVisible(boolean value) {
 		isVisible = value;
 	}
-	
+
 }
