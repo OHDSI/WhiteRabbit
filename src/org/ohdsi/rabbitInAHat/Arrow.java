@@ -28,7 +28,9 @@ public class Arrow implements MappingComponent {
 
 	public static float			thickness		= 5;
 	public static int			headThickness	= 15;
-	public static Color			color			= new Color(128, 128, 128, 128);
+	public static Color			color	    	= new Color(128, 128, 128, 128);
+	public static Color			sourceColor		= new Color(255, 0, 255, 255);
+	public static Color			targetColor		= new Color(128, 255, 0, 255);
 	private static BasicStroke	dashed			= new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 10.f }, 0.0f);
 
 	private int					x1;
@@ -126,13 +128,23 @@ public class Arrow implements MappingComponent {
 		yPoints[nPoints + 2] = y2 + headThickness;
 		polygon = new Polygon(xPoints, yPoints, nPoints * 2 + 3);
 
-		g2d.setColor(color);
+		g2d.setColor(fillColor());
 		g2d.fillPolygon(polygon);
 
 		if (isSelected) {
 			g2d.setColor(Color.BLACK);
 			g2d.setStroke(dashed);
 			g2d.drawPolygon(polygon);
+		}
+	}
+
+	public Color fillColor() {
+		if (source != null && source.isSelected()) {
+			return sourceColor;
+		} else if (target != null && target.isSelected()) {
+			return targetColor;
+		} else {
+			return color;
 		}
 	}
 
