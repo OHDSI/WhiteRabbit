@@ -399,8 +399,8 @@ public class WhiteRabbitMain {
 		targetPanel.setLayout(new GridLayout(0, 2));
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
-		// targetType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
-		targetType = new JComboBox(new String[] { "Delimited text files", "MySQL" });
+		targetType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
+		//targetType = new JComboBox(new String[] { "Delimited text files", "MySQL" });
 		targetType.setToolTipText("Select the type of source data available");
 		targetType.addItemListener(new ItemListener() {
 
@@ -512,7 +512,7 @@ public class WhiteRabbitMain {
 		consoleArea.setEditable(false);
 		Console console = new Console();
 		console.setTextArea(consoleArea);
-		// console.setDebugFile("c:/temp/debug.txt");
+		console.setDebugFile("c:/temp/debug.txt");
 		System.setOut(new PrintStream(console));
 		System.setErr(new PrintStream(console));
 		JScrollPane consoleScrollPane = new JScrollPane(consoleArea);

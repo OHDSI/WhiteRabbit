@@ -37,7 +37,7 @@ import org.ohdsi.whiteRabbit.DbSettings;
 public class FakeDataGenerator {
 
 	private RichConnection					connection;
-	private DbType							dbType;
+	// private DbType dbType;
 	private int								targetType;
 	private OneToManySet<String, String>	primaryKeyToValues;
 	private int								maxRowsPerTable	= 1000;
@@ -63,7 +63,7 @@ public class FakeDataGenerator {
 
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder) {
 		this.maxRowsPerTable = maxRowsPerTable;
-		this.dbType = dbSettings.dbType;
+		// this.dbType = dbSettings.dbType;
 		this.targetType = dbSettings.dataType;
 
 		StringUtilities.outputWithTime("Starting creation of fake data");
@@ -146,7 +146,7 @@ public class FakeDataGenerator {
 		sql.append("CREATE TABLE " + table.getName() + " (\n");
 		for (int i = 0; i < table.getFields().size(); i++) {
 			Field field = table.getFields().get(i);
-			sql.append("  " + field.getName() + " " + correctType(field));
+			sql.append("  " + field.getName() + " " + field.getType().toUpperCase());
 			if (i < table.getFields().size() - 1)
 				sql.append(",\n");
 		}
@@ -154,39 +154,39 @@ public class FakeDataGenerator {
 		connection.execute(sql.toString());
 	}
 
-	private String correctType(Field field) {
-		String type = field.getType().toUpperCase();
-		if (field.getMaxLength() == 0)
-			field.setMaxLength(256);
-		if (dbType == DbType.MYSQL) {
-			if (isVarChar(type))
-				return "VARCHAR(" + field.getMaxLength() + ")";
-			else if (isInt(type))
-				return "BIGINT";
-			else if (isNumber(type))
-				return "DOUBLE";
-			else if (isText(type))
-				return "TEXT";
-			else if (type.equals("EMPTY"))
-				return "VARCHAR(255)";
-			else
-				return type;
-		} else if (dbType == DbType.POSTGRESQL) {
-			if (isVarChar(type))
-				return "VARCHAR(" + field.getMaxLength() + ")";
-			else if (isInt(type))
-				return "BIGINT";
-			else if (isNumber(type))
-				return "DOUBLE";
-			else if (isText(type))
-				return "TEXT";
-			else if (type.equals("EMPTY"))
-				return "VARCHAR(255)";
-			else
-				return type;
-		}
-		return null;
-	}
+	// private String correctType(Field field) {
+	// String type = field.getType().toUpperCase();
+	// if (field.getMaxLength() == 0)
+	// field.setMaxLength(256);
+	// if (dbType == DbType.MYSQL) {
+	// if (isVarChar(type))
+	// return "VARCHAR(" + field.getMaxLength() + ")";
+	// else if (isInt(type))
+	// return "BIGINT";
+	// else if (isNumber(type))
+	// return "DOUBLE";
+	// else if (isText(type))
+	// return "TEXT";
+	// else if (type.equals("EMPTY"))
+	// return "VARCHAR(255)";
+	// else
+	// return type;
+	// } else if (dbType == DbType.POSTGRESQL) {
+	// if (isVarChar(type))
+	// return "VARCHAR(" + field.getMaxLength() + ")";
+	// else if (isInt(type))
+	// return "BIGINT";
+	// else if (isNumber(type))
+	// return "DOUBLE";
+	// else if (isText(type))
+	// return "TEXT";
+	// else if (type.equals("EMPTY"))
+	// return "VARCHAR(255)";
+	// else
+	// return type;
+	// }
+	// return null;
+	// }
 
 	private boolean isVarChar(String type) {
 		type = type.toUpperCase();
@@ -198,15 +198,15 @@ public class FakeDataGenerator {
 		return (type.equals("INT") || type.equals("INTEGER") || type.equals("BIGINT"));
 	}
 
-	private boolean isNumber(String type) {
-		type = type.toUpperCase();
-		return (type.equals("REAL") || type.equals("DOUBLE") || type.equals("NUMBER") || type.equals("FLOAT") || type.equals("DOUBLE PRECISION"));
-	}
-
-	private boolean isText(String type) {
-		type = type.toUpperCase();
-		return (type.equals("TEXT") || type.equals("CLOB"));
-	}
+	// private boolean isNumber(String type) {
+	// type = type.toUpperCase();
+	// return (type.equals("REAL") || type.equals("DOUBLE") || type.equals("NUMBER") || type.equals("FLOAT") || type.equals("DOUBLE PRECISION"));
+	// }
+	//
+	// private boolean isText(String type) {
+	// type = type.toUpperCase();
+	// return (type.equals("TEXT") || type.equals("CLOB"));
+	// }
 
 	private class ValueGenerator {
 
