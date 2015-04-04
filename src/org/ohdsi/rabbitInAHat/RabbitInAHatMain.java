@@ -28,27 +28,12 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
-import javax.swing.BoxLayout;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.ohdsi.rabbitInAHat.dataModel.Database;
@@ -60,12 +45,19 @@ import org.ohdsi.whiteRabbit.ObjectExchange;
  */
 public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
+	public final static String ACTION_CMD_SAVE = "Save";
+	public final static String ACTION_CMD_SAVE_AS = "Save as";
+	public final static String ACTION_CMD_OPEN_ETL_SPECS = "Open ETL Specs";
+	public final static String ACTION_CMD_OPEN_SCAN_REPORT = "Open Scan Report";
+	public final static String ACTION_CMD_GENERATE_ETL_DOCUMENT = "Generate ETL Document";
+
+	private final static FileFilter FILE_FILTER_JSON = new FileNameExtensionFilter("JSON Files (*.json)", "json");
+	private final static FileFilter FILE_FILTER_DOCX = new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
 	private JFrame			frame;
 	private JScrollPane		scrollPane1;
 	private JScrollPane		scrollPane2;
 	private MappingPanel	tableMappingPanel;
 	private JSplitPane		tableFieldSplitPane;
-	private String			filename;
 
 	public static void main(String[] args) {
 		new RabbitInAHatMain();
@@ -73,16 +65,13 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	public RabbitInAHatMain() {
 		frame = new JFrame("Rabbit in a hat");
-
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				System.exit(0);
 			}
 		});
 		frame.setPreferredSize(new Dimension(700, 600));
-
 		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
-
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
@@ -155,29 +144,29 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 		JMenuItem openItem = new JMenuItem("Open ETL specs");
 		openItem.addActionListener(this);
-		openItem.setActionCommand("Open ETL specs");
+		openItem.setActionCommand(ACTION_CMD_OPEN_ETL_SPECS);
 		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
 		fileMenu.add(openItem);
 
 		JMenuItem openScanReportItem = new JMenuItem("Open scan report");
 		openScanReportItem.addActionListener(this);
-		openScanReportItem.setActionCommand("Open scan report");
+		openScanReportItem.setActionCommand(ACTION_CMD_OPEN_SCAN_REPORT);
 		fileMenu.add(openScanReportItem);
 
 		JMenuItem saveItem = new JMenuItem("Save");
 		saveItem.addActionListener(this);
-		saveItem.setActionCommand("Save");
+		saveItem.setActionCommand(ACTION_CMD_SAVE);
 		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 		fileMenu.add(saveItem);
 
 		JMenuItem saveAsItem = new JMenuItem("Save as");
 		saveAsItem.addActionListener(this);
-		saveAsItem.setActionCommand("Save as");
+		saveAsItem.setActionCommand(ACTION_CMD_SAVE_AS);
 		fileMenu.add(saveAsItem);
 
 		JMenuItem generateDocItem = new JMenuItem("Generate ETL document");
 		generateDocItem.addActionListener(this);
-		generateDocItem.setActionCommand("Generate ETL document");
+		generateDocItem.setActionCommand(ACTION_CMD_GENERATE_ETL_DOCUMENT);
 		fileMenu.add(generateDocItem);
 
 //		JMenu editMenu = new JMenu("Edit");
@@ -209,107 +198,91 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		tableFieldSplitPane.setDividerLocation(height);
 	}
 
+	/**
+	 * Display file chooser for a path to save or open to
+	 * @param saveMode true to display a save dialog, false for open
+	 * @param filter restrict files displayed
+	 * @return if file selected, absolute path of selected file otherwise null
+	 */
+	private String choosePath(boolean saveMode, FileFilter filter) {
+		String result = null;
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(filter);
+		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
+		if (dialogResult == JFileChooser.APPROVE_OPTION) result = chooser.getSelectedFile().getAbsolutePath();
+		return result;
+	}
+
+	private String chooseSavePath(FileFilter fileFilter) { return choosePath(true, fileFilter); }
+
+	private String chooseOpenPath(FileFilter fileFilter) { return choosePath(false, fileFilter); }
+
+	private String chooseSavePath() { return chooseSavePath(null); }
+
+	private String chooseOpenPath() { return chooseOpenPath(null); }
+
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		if (event.getActionCommand().equals("Save") || event.getActionCommand().equals("Save as")) {
-			if (filename == null || event.getActionCommand().equals("Save as")) {
-				JFileChooser fileChooser = new JFileChooser();
-				if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
-					File file = fileChooser.getSelectedFile();
-					filename = file.getAbsolutePath();
-				}
-			}
-			if (filename != null) {
-				frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				FileOutputStream fileOutputStream = null;
-				try {
-					fileOutputStream = new FileOutputStream(filename);
-				} catch (IOException e) {
-					e.printStackTrace();
-					fileOutputStream = null;
-				}
-				GZIPOutputStream gzipOutputStream = null;
-				if (fileOutputStream != null)
-					try {
-						gzipOutputStream = new GZIPOutputStream(fileOutputStream);
-					} catch (IOException e) {
-						e.printStackTrace();
-						gzipOutputStream = null;
-						try {
-							fileOutputStream.close();
-						} catch (IOException e2) {
-							e2.printStackTrace();
-						}
-					}
-				ObjectOutputStream out = null;
-				if (gzipOutputStream != null)
-					try {
-						out = new ObjectOutputStream(gzipOutputStream);
-					} catch (IOException e) {
-						e.printStackTrace();
-						out = null;
-						try {
-							gzipOutputStream.close();
-						} catch (IOException e2) {
-							e2.printStackTrace();
-						}
-					}
+		switch (event.getActionCommand()) {
+			case ACTION_CMD_SAVE:
+				String filename = ObjectExchange.etl.getFilename();
+				doSave(filename == null ? chooseSavePath(FILE_FILTER_JSON) : filename);
+				break;
+			case ACTION_CMD_SAVE_AS:
+				doSave(chooseSavePath(FILE_FILTER_JSON));
+				break;
+			case ACTION_CMD_OPEN_ETL_SPECS:
+				doOpenSpecs(chooseOpenPath(FILE_FILTER_JSON));
+				break;
+			case ACTION_CMD_OPEN_SCAN_REPORT:
+				doOpenScanReport(chooseOpenPath());
+				break;
+			case ACTION_CMD_GENERATE_ETL_DOCUMENT:
+				doGenerateEtlDoc(chooseSavePath(FILE_FILTER_DOCX));
+				break;
+		}
+	}
 
-				try {
-					out.writeObject(ObjectExchange.etl);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} finally {
-					try {
-						out.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	private void doSave(String filename) {
+		if (filename != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			ETL.FileFormat fileFormat = filename.endsWith("json") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
+			ObjectExchange.etl.save(filename, fileFormat);
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
 
+	private void doOpenSpecs(String filename) {
+		if (filename != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			ETL.FileFormat fileFormat = filename.endsWith("json") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
+			try {
+				ObjectExchange.etl = ETL.FromFile(filename, fileFormat);
+				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} else if (event.getActionCommand().equals("Open ETL specs")) {
-			JFileChooser fileChooser = new JFileChooser();
-			if (fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
-				File file = fileChooser.getSelectedFile();
-				filename = file.getAbsolutePath();
-				try {
-					frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					FileInputStream fileOutputStream = new FileInputStream(filename);
-					GZIPInputStream gzipOutputStream = new GZIPInputStream(fileOutputStream);
-					ObjectInputStream out = new ObjectInputStream(gzipOutputStream);
-					ObjectExchange.etl = (ETL) out.readObject();
-					out.close();
-					tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
-					frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		} else if (event.getActionCommand().equals("Open scan report")) {
-			JFileChooser fileChooser = new JFileChooser();
-			if (fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
-				frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				File file = fileChooser.getSelectedFile();
-				ETL etl = new ETL();
-				etl.setSourceDatabase(Database.generateModelFromScanReport(file.getAbsolutePath()));
-				etl.setCDMDatabase(Database.generateCDMModel());
-				ObjectExchange.etl = etl;
-				tableMappingPanel.setMapping(etl.getTableToTableMapping());
-				frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			}
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
 
-		} else if (event.getActionCommand().equals("Generate ETL document")) {
-			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setFileFilter(new FileNameExtensionFilter("DocX Files", "docX"));
-			if (fileChooser.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
-				File file = fileChooser.getSelectedFile();
-				filename = file.getAbsolutePath();
-				if (!filename.toLowerCase().endsWith(".docx"))
-					filename = filename + ".docx";
-				ETLDocumentGenerator.generate(ObjectExchange.etl, filename);
-			}
+	private void doOpenScanReport(String filename) {
+		if (filename != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			ETL etl = new ETL();
+			etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
+			etl.setCDMDatabase(Database.generateCDMModel());
+			ObjectExchange.etl = etl;
+			tableMappingPanel.setMapping(etl.getTableToTableMapping());
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+
+	private void doGenerateEtlDoc(String filename) {
+		if (filename != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			ETLDocumentGenerator.generate(ObjectExchange.etl, filename);
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
 }
