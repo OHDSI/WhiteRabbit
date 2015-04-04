@@ -58,12 +58,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private JScrollPane		scrollPane2;
 	private MappingPanel	tableMappingPanel;
 	private JSplitPane		tableFieldSplitPane;
+	private boolean 		includeCounts;
 
 	public static void main(String[] args) {
-		new RabbitInAHatMain();
+		boolean includeCounts = true;
+		for (String arg: args) {
+			if (arg.equals("--no-counts")) includeCounts = false;
+		}
+		new RabbitInAHatMain(includeCounts);
 	}
 
-	public RabbitInAHatMain() {
+	public RabbitInAHatMain(boolean includeCounts) {
+		this.includeCounts =  includeCounts;
+
 		frame = new JFrame("Rabbit in a hat");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -247,7 +254,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETL.FileFormat fileFormat = filename.endsWith("json") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
-			ObjectExchange.etl.save(filename, fileFormat);
+			ObjectExchange.etl.save(filename, fileFormat, includeCounts);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
@@ -281,7 +288,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doGenerateEtlDoc(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLDocumentGenerator.generate(ObjectExchange.etl, filename);
+			ETLDocumentGenerator.generate(ObjectExchange.etl, filename, includeCounts);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
