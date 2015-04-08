@@ -3,7 +3,7 @@
   <!--this file was created by Eclipse Runnable JAR Export Wizard-->
   <!--ANT 1.7 is required                                        -->
   <target name="create_run_jars">
-    <property name="JDK_VERSION" value="1.6" />
+    <property name="JDK_VERSION" value="1.7" />
     <path id="classpath">
       <fileset dir="lib" includes="**/*.jar" />
     </path>
