@@ -19,6 +19,7 @@ package org.ohdsi.rabbitInAHat.dataModel;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
+import com.cedarsoftware.util.io.MetaUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -95,13 +96,32 @@ public class ETL implements Serializable {
 
     /**
      * Convert into pretty-print JSON
+     * @param includeCounts if false, exclude the valueCounts field from result
      * @return JSON representation of object
      */
-    public String toJson() {
-        return JsonWriter.formatJson(JsonWriter.objectToJson(this));
+    public String toJson(boolean includeCounts) {
+        Map<String, Object> args = new HashMap<>();
+        if (!includeCounts) {
+            Map<Class, List<String>> fieldSpecifier = new HashMap<>();
+            ArrayList<java.lang.reflect.Field> fieldFields =
+                    new ArrayList<>(MetaUtils.getDeepDeclaredFields(Field.class).values());
+            ArrayList<String> fieldNames = new ArrayList<>();
+            for (java.lang.reflect.Field field : fieldFields) {
+                String fieldName = field.getName();
+                if (Objects.equals(fieldName, "valueCounts")) continue;
+                fieldNames.add(fieldName);
+            }
+            fieldSpecifier.put(Field.class, fieldNames);
+            args.put(JsonWriter.FIELD_SPECIFIERS, fieldSpecifier);
+        }
+        return JsonWriter.formatJson(JsonWriter.objectToJson(this, args));
     }
 
-    public void save(String filename, FileFormat format) {
+    public String toJson() {
+        return toJson(true);
+    }
+
+    public void save(String filename, FileFormat format, boolean includeCounts) {
         try {
             switch (format) {
                 case Binary:
@@ -113,7 +133,7 @@ public class ETL implements Serializable {
                     }
                     break;
                 case Json:
-                    String json = toJson();
+                    String json = toJson(includeCounts);
                     Files.write(Paths.get(filename), json.getBytes("utf-8"));
                     break;
             }
