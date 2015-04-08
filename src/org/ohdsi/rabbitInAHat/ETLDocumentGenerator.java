@@ -52,7 +52,7 @@ public class ETLDocumentGenerator {
 		generate(etl, "C:/Users/mschuemi/Desktop/test.docx");
 	}
 	
-	public static void generate(ETL etl, String filename) {
+	public static void generate(ETL etl, String filename, boolean includeCounts) {
 		try {
 			CustomXWPFDocument document = new CustomXWPFDocument();
 			
@@ -60,8 +60,8 @@ public class ETLDocumentGenerator {
 			
 			for (Table cdmTable : etl.getCDMDatabase().getTables())
 				addCDMTableSection(document, etl, cdmTable);
-			
-			addSourceTablesAppendix(document, etl);
+
+			if (includeCounts) addSourceTablesAppendix(document, etl);
 			
 			document.write(new FileOutputStream(new File(filename)));
 		} catch (FileNotFoundException e) {
@@ -71,6 +71,10 @@ public class ETLDocumentGenerator {
 		} catch (InvalidFormatException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void generate(ETL etl, String filename) {
+		generate(etl, filename, true);
 	}
 	
 	private static void addSourceTablesAppendix(CustomXWPFDocument document, ETL etl) {
