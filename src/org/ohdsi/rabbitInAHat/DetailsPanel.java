@@ -45,37 +45,39 @@ import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
-	
+
 	public static Font			font				= new Font("default", Font.PLAIN, 18);
-	
+
 	private static final long	serialVersionUID	= 4477553676983048468L;
+	private Object				object;
 	private TablePanel			tablePanel;
 	private FieldPanel			fieldPanel;
 	private ItemToItemMapPanel	itemToItemMapPanel;
 	private CardLayout			cardLayout			= new CardLayout();
-	
+
 	public DetailsPanel() {
 		UIManager.put("Label.font", font);
-		
+
 		setLayout(cardLayout);
-		
+
 		tablePanel = new TablePanel();
 		add(tablePanel, Table.class.getName());
-		
+
 		fieldPanel = new FieldPanel();
 		add(fieldPanel, Field.class.getName());
-		
+
 		itemToItemMapPanel = new ItemToItemMapPanel();
 		add(itemToItemMapPanel, ItemToItemMap.class.getName());
-		
+
 		JPanel nullPanel = new JPanel();
 		add(nullPanel, "");
-		
+
 		cardLayout.show(this, "");
 	}
-	
+
 	@Override
 	public void showDetails(Object object) {
+		this.object = object;
 		if (object instanceof Table) {
 			tablePanel.showTable((Table) object);
 			cardLayout.show(this, Table.class.getName());
@@ -88,37 +90,41 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		} else
 			cardLayout.show(this, "");
 	}
-	
+
+	public void refresh() {
+		showDetails(object);
+	}
+
 	private class TablePanel extends JPanel implements DocumentListener {
-		
+
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private Table				table;
 		private JLabel				nameLabel			= new JLabel("");
 		private JLabel				rowCountLabel		= new JLabel("");
 		private SimpleTableModel	fieldTable			= new SimpleTableModel("Field", "Type");
 		private JTextArea			commentsArea		= new JTextArea();
-		
+
 		public TablePanel() {
 			setLayout(new BorderLayout());
-			
+
 			JPanel generalInfoPanel = new JPanel();
 			generalInfoPanel.setLayout(new GridLayout(0, 2));
 			generalInfoPanel.setBorder(BorderFactory.createTitledBorder("General information"));
-			
+
 			generalInfoPanel.add(new JLabel("Table name: "));
 			generalInfoPanel.add(nameLabel);
-			
+
 			generalInfoPanel.add(new JLabel("Number of rows: "));
 			generalInfoPanel.add(rowCountLabel);
 			add(generalInfoPanel, BorderLayout.NORTH);
-			
+
 			JTable table = new JTable(fieldTable);
 			JScrollPane fieldListPanel = new JScrollPane(table);
 			table.setFont(font);
 			table.setRowHeight(24);
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder("Fields"));
 			add(fieldListPanel, BorderLayout.CENTER);
-			
+
 			// JScrollPane commentsPanel = new JScrollPane(commentsArea);
 			// commentsArea.setFont(font);
 			// commentsArea.getDocument().addDocumentListener(this);
@@ -128,9 +134,9 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			// commentsPanel.setBorder(BorderFactory.createTitledBorder("Comments"));
 			// commentsPanel.setPreferredSize(new Dimension(100, 200));
 			// add(commentsPanel, BorderLayout.SOUTH);
-			
+
 		}
-		
+
 		public void showTable(Table table) {
 			this.table = table;
 			nameLabel.setText(table.getName());
@@ -141,66 +147,66 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 				fieldTable.add(field.getName(), field.getType());
 			commentsArea.setText(table.getComment());
 		}
-		
+
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			table.setComment(commentsArea.getText());
 		}
-		
+
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			table.setComment(commentsArea.getText());
 		}
-		
+
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			table.setComment(commentsArea.getText());
 		}
 	}
-	
+
 	private class FieldPanel extends JPanel implements DocumentListener {
-		
+
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private JLabel				nameLabel			= new JLabel("");
 		private JLabel				rowCountLabel		= new JLabel("");
 		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency");
 		private JTextArea			commentsArea		= new JTextArea();
 		private Field				field;
-		
+
 		public FieldPanel() {
 			setLayout(new BorderLayout());
-			
+
 			JPanel generalInfoPanel = new JPanel();
 			generalInfoPanel.setLayout(new GridLayout(0, 2));
 			generalInfoPanel.setBorder(BorderFactory.createTitledBorder("General information"));
-			
+
 			generalInfoPanel.add(new JLabel("Field name: "));
 			generalInfoPanel.add(nameLabel);
-			
+
 			generalInfoPanel.add(new JLabel("Field type: "));
 			generalInfoPanel.add(rowCountLabel);
-			
+
 			add(generalInfoPanel, BorderLayout.NORTH);
-			
+
 			JTable table = new JTable(valueTable);
 			JScrollPane fieldListPanel = new JScrollPane(table);
 			table.setFont(font);
 			table.setRowHeight(24);
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder("Fields"));
 			add(fieldListPanel, BorderLayout.CENTER);
-			
+
 			JScrollPane commentsPanel = new JScrollPane(commentsArea);
 			commentsArea.setFont(font);
 			commentsArea.getDocument().addDocumentListener(this);
 			commentsArea.setWrapStyleWord(true);
 			commentsArea.setLineWrap(true);
-			
+
 			commentsPanel.setBorder(BorderFactory.createTitledBorder("Comments"));
 			commentsPanel.setPreferredSize(new Dimension(100, 200));
-			
+
 			add(commentsPanel, BorderLayout.SOUTH);
 		}
-		
+
 		public void showField(Field field) {
 			this.field = field;
 			nameLabel.setText(field.getName());
@@ -219,26 +225,26 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			}
 			commentsArea.setText(field.getComment());
 		}
-		
+
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			field.setComment(commentsArea.getText());
 		}
-		
+
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			field.setComment(commentsArea.getText());
 		}
-		
+
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			field.setComment(commentsArea.getText());
 		}
-		
+
 	}
-	
+
 	private class ItemToItemMapPanel extends JPanel implements DocumentListener {
-		
+
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private JLabel				sourceLabel			= new JLabel("");
 		private JLabel				targetLabel			= new JLabel("");
@@ -246,50 +252,50 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private JTextArea			commentsArea		= new JTextArea();
 		// private FlexTable testTable = new FlexTable();
 		private ItemToItemMap		itemToItemMap;
-		
+
 		public ItemToItemMapPanel() {
 			setLayout(new BorderLayout());
-			
+
 			JPanel generalInfoPanel = new JPanel();
 			generalInfoPanel.setLayout(new GridLayout(0, 2));
 			generalInfoPanel.setBorder(BorderFactory.createTitledBorder("General information"));
-			
+
 			generalInfoPanel.add(new JLabel("Source: "));
 			generalInfoPanel.add(sourceLabel);
-			
+
 			generalInfoPanel.add(new JLabel("Target: "));
 			generalInfoPanel.add(targetLabel);
-			
+
 			add(generalInfoPanel, BorderLayout.NORTH);
-			
+
 			JScrollPane logicPanel = new JScrollPane(logicArea);
 			logicArea.setFont(font);
 			logicArea.getDocument().addDocumentListener(this);
 			logicArea.setWrapStyleWord(true);
 			logicArea.setLineWrap(true);
-			
+
 			logicPanel.setBorder(BorderFactory.createTitledBorder("Logic"));
 			logicPanel.setPreferredSize(new Dimension(100, 200));
-			
+
 			add(logicPanel, BorderLayout.CENTER);
-			
+
 			JScrollPane commentsPanel = new JScrollPane(commentsArea);
 			commentsArea.setFont(font);
 			commentsArea.getDocument().addDocumentListener(this);
 			commentsArea.setWrapStyleWord(true);
 			commentsArea.setLineWrap(true);
-			
+
 			commentsPanel.setBorder(BorderFactory.createTitledBorder("Comments"));
 			commentsPanel.setPreferredSize(new Dimension(100, 200));
-			
+
 			add(commentsPanel, BorderLayout.SOUTH);
-			
+
 			// testTable.setMinimumSize(new Dimension(200, 200));
 			// JScrollPane testPanel = new JScrollPane(testTable);
 			// testPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 			// add(testPanel, BorderLayout.SOUTH);
 		}
-		
+
 		public void showItemToItemMap(ItemToItemMap itemToItemMap) {
 			this.itemToItemMap = itemToItemMap;
 			sourceLabel.setText(itemToItemMap.getSourceItem().toString());
@@ -297,7 +303,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			logicArea.setText(itemToItemMap.getLogic());
 			commentsArea.setText(itemToItemMap.getComment());
 		}
-		
+
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			if (e.getDocument() == logicArea.getDocument())
@@ -305,7 +311,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			else
 				itemToItemMap.setComment(commentsArea.getText());
 		}
-		
+
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			if (e.getDocument() == logicArea.getDocument())
@@ -313,7 +319,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			else
 				itemToItemMap.setComment(commentsArea.getText());
 		}
-		
+
 		@Override
 		public void removeUpdate(DocumentEvent e) {
 			if (e.getDocument() == logicArea.getDocument())
@@ -321,25 +327,25 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			else
 				itemToItemMap.setComment(commentsArea.getText());
 		}
-		
+
 	}
-	
+
 	private class SimpleTableModel implements TableModel {
-		
+
 		private List<TableModelListener>	listeners	= new ArrayList<TableModelListener>();
 		private List<List<String>>			data		= new ArrayList<List<String>>();
 		private String[]					columnNames;
-		
+
 		public void clear() {
 			data.clear();
 			notifyListeners();
 		}
-		
+
 		private void notifyListeners() {
 			for (TableModelListener listener : listeners)
 				listener.tableChanged(new TableModelEvent(this));
 		}
-		
+
 		public void add(String... values) {
 			List<String> row = new ArrayList<String>(values.length);
 			for (int i = 0; i < values.length; i++)
@@ -347,54 +353,54 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			data.add(row);
 			notifyListeners();
 		}
-		
+
 		public SimpleTableModel(String... columnNames) {
 			this.columnNames = columnNames;
 		}
-		
+
 		@Override
 		public void addTableModelListener(TableModelListener l) {
 			listeners.add(l);
 		}
-		
+
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
 			return String.class;
 		}
-		
+
 		@Override
 		public int getColumnCount() {
 			return columnNames.length;
 		}
-		
+
 		@Override
 		public String getColumnName(int columnIndex) {
 			return columnNames[columnIndex];
 		}
-		
+
 		@Override
 		public int getRowCount() {
 			return data.size();
 		}
-		
+
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			return data.get(rowIndex).get(columnIndex);
 		}
-		
+
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return false;
 		}
-		
+
 		@Override
 		public void removeTableModelListener(TableModelListener l) {
 			listeners.remove(l);
 		}
-		
+
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		}
-		
+
 	}
 }

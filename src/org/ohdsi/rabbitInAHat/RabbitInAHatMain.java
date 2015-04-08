@@ -45,32 +45,28 @@ import org.ohdsi.whiteRabbit.ObjectExchange;
  */
 public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
-	public final static String ACTION_CMD_SAVE = "Save";
-	public final static String ACTION_CMD_SAVE_AS = "Save as";
-	public final static String ACTION_CMD_OPEN_ETL_SPECS = "Open ETL Specs";
-	public final static String ACTION_CMD_OPEN_SCAN_REPORT = "Open Scan Report";
-	public final static String ACTION_CMD_GENERATE_ETL_DOCUMENT = "Generate ETL Document";
+	public final static String		ACTION_CMD_SAVE						= "Save";
+	public final static String		ACTION_CMD_SAVE_AS					= "Save as";
+	public final static String		ACTION_CMD_OPEN_ETL_SPECS			= "Open ETL Specs";
+	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
+	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
+	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard value counts";
 
-	private final static FileFilter FILE_FILTER_JSON = new FileNameExtensionFilter("JSON Files (*.json)", "json");
-	private final static FileFilter FILE_FILTER_DOCX = new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
-	private JFrame			frame;
-	private JScrollPane		scrollPane1;
-	private JScrollPane		scrollPane2;
-	private MappingPanel	tableMappingPanel;
-	private JSplitPane		tableFieldSplitPane;
-	private boolean 		includeCounts;
+	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
+	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
+	private JFrame					frame;
+	private JScrollPane				scrollPane1;
+	private JScrollPane				scrollPane2;
+	private MappingPanel			tableMappingPanel;
+	private MappingPanel			fieldMappingPanel;
+	private DetailsPanel			detailsPanel;
+	private JSplitPane				tableFieldSplitPane;
 
 	public static void main(String[] args) {
-		boolean includeCounts = true;
-		for (String arg: args) {
-			if (arg.equals("--no-counts")) includeCounts = false;
-		}
-		new RabbitInAHatMain(includeCounts);
+		new RabbitInAHatMain();
 	}
 
-	public RabbitInAHatMain(boolean includeCounts) {
-		this.includeCounts =  includeCounts;
-
+	public RabbitInAHatMain() {
 		frame = new JFrame("Rabbit in a hat");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -93,7 +89,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		scrollPane1.setAutoscrolls(true);
 		frame.addKeyListener(tableMappingPanel);
 
-		MappingPanel fieldMappingPanel = new MappingPanel(etl.getTableToTableMapping());
+		fieldMappingPanel = new MappingPanel(etl.getTableToTableMapping());
 		tableMappingPanel.setSlaveMappingPanel(fieldMappingPanel);
 		fieldMappingPanel.addResizeListener(this);
 		scrollPane2 = new JScrollPane(fieldMappingPanel);
@@ -105,7 +101,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		tableFieldSplitPane.setDividerLocation(600);
 		tableFieldSplitPane.setDividerSize(0);
 
-		DetailsPanel detailsPanel = new DetailsPanel();
+		detailsPanel = new DetailsPanel();
 		detailsPanel.setBorder(new TitledBorder("Details"));
 		detailsPanel.setPreferredSize(new Dimension(200, 500));
 		tableMappingPanel.setDetailsListener(detailsPanel);
@@ -176,14 +172,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateDocItem.setActionCommand(ACTION_CMD_GENERATE_ETL_DOCUMENT);
 		fileMenu.add(generateDocItem);
 
-//		JMenu editMenu = new JMenu("Edit");
-//		menuBar.add(editMenu);
+		JMenu editMenu = new JMenu("Edit");
+		menuBar.add(editMenu);
 
-//		JMenu viewMenu = new JMenu("View");
-//		menuBar.add(viewMenu);
+		JMenuItem discardCounts = new JMenuItem(ACTION_CMD_DISCARD_COUNTS);
+		discardCounts.addActionListener(this);
+		discardCounts.setActionCommand(ACTION_CMD_DISCARD_COUNTS);
+		editMenu.add(discardCounts);
 
-//		JMenu helpMenu = new JMenu("Help");
-//		menuBar.add(helpMenu);
+		// JMenu viewMenu = new JMenu("View");
+		// menuBar.add(viewMenu);
+
+		// JMenu helpMenu = new JMenu("Help");
+		// menuBar.add(helpMenu);
 		return menuBar;
 	}
 
@@ -207,8 +208,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	/**
 	 * Display file chooser for a path to save or open to
-	 * @param saveMode true to display a save dialog, false for open
-	 * @param filter restrict files displayed
+	 * 
+	 * @param saveMode
+	 *            true to display a save dialog, false for open
+	 * @param filter
+	 *            restrict files displayed
 	 * @return if file selected, absolute path of selected file otherwise null
 	 */
 	private String choosePath(boolean saveMode, FileFilter filter) {
@@ -216,30 +220,41 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(filter);
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
-		if (dialogResult == JFileChooser.APPROVE_OPTION) result = chooser.getSelectedFile().getAbsolutePath();
+		if (dialogResult == JFileChooser.APPROVE_OPTION)
+			result = chooser.getSelectedFile().getAbsolutePath();
 		return result;
 	}
 
-	private String chooseSavePath(FileFilter fileFilter) { return choosePath(true, fileFilter); }
+	private String chooseSavePath(FileFilter fileFilter) {
+		String path = choosePath(true, fileFilter);
+		if (path != null && fileFilter == FILE_FILTER_GZ && !path.toLowerCase().endsWith(".json.gz"))
+			path += ".json.gz";
+		if (path != null && fileFilter == FILE_FILTER_DOCX && !path.toLowerCase().endsWith(".docx"))
+			path += ".docx";
 
-	private String chooseOpenPath(FileFilter fileFilter) { return choosePath(false, fileFilter); }
+		return path;
+	}
 
-	private String chooseSavePath() { return chooseSavePath(null); }
+	private String chooseOpenPath(FileFilter fileFilter) {
+		return choosePath(false, fileFilter);
+	}
 
-	private String chooseOpenPath() { return chooseOpenPath(null); }
+	private String chooseOpenPath() {
+		return chooseOpenPath(null);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		switch (event.getActionCommand()) {
 			case ACTION_CMD_SAVE:
 				String filename = ObjectExchange.etl.getFilename();
-				doSave(filename == null ? chooseSavePath(FILE_FILTER_JSON) : filename);
+				doSave((filename == null || !filename.toLowerCase().endsWith(".json.gz")) ? chooseSavePath(FILE_FILTER_GZ) : filename);
 				break;
 			case ACTION_CMD_SAVE_AS:
-				doSave(chooseSavePath(FILE_FILTER_JSON));
+				doSave(chooseSavePath(FILE_FILTER_GZ));
 				break;
 			case ACTION_CMD_OPEN_ETL_SPECS:
-				doOpenSpecs(chooseOpenPath(FILE_FILTER_JSON));
+				doOpenSpecs(chooseOpenPath(FILE_FILTER_GZ));
 				break;
 			case ACTION_CMD_OPEN_SCAN_REPORT:
 				doOpenScanReport(chooseOpenPath());
@@ -247,14 +262,22 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_GENERATE_ETL_DOCUMENT:
 				doGenerateEtlDoc(chooseSavePath(FILE_FILTER_DOCX));
 				break;
+			case ACTION_CMD_DISCARD_COUNTS:
+				doDiscardCounts();
+				break;
 		}
+	}
+
+	private void doDiscardCounts() {
+		ObjectExchange.etl.discardCounts();
+		detailsPanel.refresh();
 	}
 
 	private void doSave(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETL.FileFormat fileFormat = filename.endsWith("json") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
-			ObjectExchange.etl.save(filename, fileFormat, includeCounts);
+			ETL.FileFormat fileFormat = filename.endsWith("json.gz") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
+			ObjectExchange.etl.save(filename, fileFormat);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
@@ -262,9 +285,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doOpenSpecs(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETL.FileFormat fileFormat = filename.endsWith("json") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
+			ETL.FileFormat fileFormat = filename.endsWith(".json.gz") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
 			try {
-				ObjectExchange.etl = ETL.FromFile(filename, fileFormat);
+				ObjectExchange.etl = ETL.fromFile(filename, fileFormat);
 				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -288,7 +311,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doGenerateEtlDoc(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLDocumentGenerator.generate(ObjectExchange.etl, filename, includeCounts);
+			ETLDocumentGenerator.generate(ObjectExchange.etl, filename);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
