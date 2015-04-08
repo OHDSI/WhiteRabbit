@@ -23,7 +23,6 @@ public class Field implements MappableItem {
 	private Table				table;
 	private String				name;
 	private String				comment				= "";
-	// private List<Pair<String, String>> valueCounts;
 	private String[][]			valueCounts;
 	private boolean				isNullable;
 	private String				type;
