@@ -67,7 +67,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 
 	public RabbitInAHatMain() {
-		frame = new JFrame("Rabbit in a hat");
+		frame = new JFrame("Rabbit in a Hat");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				System.exit(0);
