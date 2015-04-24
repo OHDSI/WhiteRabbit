@@ -17,6 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -87,6 +88,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		scrollPane1.setBorder(new TitledBorder("Tables"));
 		scrollPane1.getVerticalScrollBar().setUnitIncrement(16);
 		scrollPane1.setAutoscrolls(true);
+		scrollPane1.setOpaque(true);
+		scrollPane1.setBackground(Color.WHITE);
 		frame.addKeyListener(tableMappingPanel);
 
 		fieldMappingPanel = new MappingPanel(etl.getTableToTableMapping());

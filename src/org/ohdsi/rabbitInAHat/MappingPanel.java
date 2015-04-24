@@ -210,10 +210,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			g2d = (Graphics2D) g;
 		else
 			g2d = (Graphics2D) offscreen.getGraphics();
-
+		g2d.setBackground(Color.WHITE);
+		g2d.clearRect(0, 0, getWidth(), getHeight());
+		
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g2d.setRenderingHints(rh);
-		// g2d.clearRect(0, 0, getWidth(), getHeight());
+		g2d.setRenderingHints(rh); 
 
 		addLabel(g2d, "Source", sourceX + ITEM_WIDTH / 2, HEADER_HEIGHT / 2);
 		addLabel(g2d, "CDM", cdmX + ITEM_WIDTH / 2, HEADER_HEIGHT / 2);
