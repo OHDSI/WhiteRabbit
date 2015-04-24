@@ -169,7 +169,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private JLabel				nameLabel			= new JLabel("");
 		private JLabel				rowCountLabel		= new JLabel("");
-		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency");
+		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency", "Percent of Total (%)");
 		private JTextArea			commentsArea		= new JTextArea();
 		private Field				field;
 
@@ -213,14 +213,34 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			rowCountLabel.setText(field.getType());
 			valueTable.clear();
 			if (field.getValueCounts() != null) {
+				double valueCountTotal = 0.0;
+				for (String[] total : field.getValueCounts()) {
+					String temp = total[1];
+					if (StringUtilities.isNumber(temp)) {
+						double valueCountTemp = Double.parseDouble(temp);
+						valueCountTotal += valueCountTemp;
+					}
+				}
 				DecimalFormat formatter = new DecimalFormat("#,###");
+				DecimalFormat formatterPercent = new DecimalFormat("#,##0.0");
 				for (String[] valueCount : field.getValueCounts()) {
 					String nr = valueCount[1];
+					String vp = "";
 					if (StringUtilities.isNumber(nr)) {
 						double number = Double.parseDouble(nr);
 						nr = formatter.format(number);
+						double valueCountPercent = number / valueCountTotal * 100;
+						if (valueCountPercent < 0.1) {
+							vp = "< 0.1";
+						}
+						else if (valueCountPercent > 99) {
+							vp = "> 99.0";
+						}
+						else {
+							vp = formatterPercent.format(valueCountPercent);
+						}
 					}
-					valueTable.add(valueCount[0], nr);
+					valueTable.add(valueCount[0], nr, vp);
 				}
 			}
 			commentsArea.setText(field.getComment());
