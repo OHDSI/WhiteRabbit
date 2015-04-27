@@ -63,10 +63,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private JSplitPane				tableFieldSplitPane;
 
 	public static void main(String[] args) {
-		new RabbitInAHatMain();
+		new RabbitInAHatMain(args);
 	}
 
-	public RabbitInAHatMain() {
+	public RabbitInAHatMain(String[] args) {
 		frame = new JFrame("Rabbit in a Hat");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -114,6 +114,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.pack();
 		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
+		
+		if (args.length > 0) {
+			doOpenSpecs(args[0]);
+		}
 	}
 
 	private void loadIcons(JFrame f) {
