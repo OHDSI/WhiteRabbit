@@ -216,7 +216,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		// g2d.clearRect(0, 0, getWidth(), getHeight());
 
 		addLabel(g2d, "Source", sourceX + ITEM_WIDTH / 2, HEADER_HEIGHT / 2);
-		addLabel(g2d, "CDM", cdmX + ITEM_WIDTH / 2, HEADER_HEIGHT / 2);
+		addLabel(g2d, "CDMv5", cdmX + ITEM_WIDTH / 2, HEADER_HEIGHT / 2);
 
 		if (showingArrowStarts && dragRectangle == null) {
 			for (LabeledRectangle item : sourceComponents)
