@@ -236,7 +236,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				component.paint(g2d);
 
 		for (Arrow component : arrows)
-			if (component != dragArrow)
+			if (component != dragArrow && !component.isHighlighted())
 				component.paint(g2d);
 
 		if (dragRectangle != null)
@@ -244,7 +244,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 		if (dragArrow != null)
 			dragArrow.paint(g2d);
-
+		
+		for (Arrow component : arrows)
+			if (component != dragArrow && component.isHighlighted())
+				component.paint(g2d);
+		
 		if (offscreen != null)
 			g.drawImage(offscreen, 0, 0, this);
 	}
