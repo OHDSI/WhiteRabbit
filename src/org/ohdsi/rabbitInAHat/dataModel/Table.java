@@ -41,6 +41,9 @@ public class Table implements MappableItem {
 		return name;
 	}
 	
+	public String outputName(){
+		return getName();
+	}
 	public void setName(String name) {
 		this.name = name;
 	}

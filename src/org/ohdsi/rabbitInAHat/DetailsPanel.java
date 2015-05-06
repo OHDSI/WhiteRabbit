@@ -143,8 +143,9 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			DecimalFormat formatter = new DecimalFormat("#,###");
 			rowCountLabel.setText(formatter.format(table.getRowCount()));
 			fieldTable.clear();
-			for (Field field : table.getFields())
-				fieldTable.add(field.getName(), field.getType());
+			for (Field field : table.getFields()){
+				fieldTable.add(field.outputName(), field.getType());
+			}
 			commentsArea.setText(table.getComment());
 		}
 

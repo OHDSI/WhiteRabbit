@@ -20,5 +20,6 @@ package org.ohdsi.rabbitInAHat.dataModel;
 import java.io.Serializable;
 
 public interface MappableItem extends Serializable{
+	public String outputName();
 	public String getName();
 }
