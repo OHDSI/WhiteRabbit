@@ -262,6 +262,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseClicked(MouseEvent event) {
+		// Save away which arrows are currently highlighted vs normal before we
+		// de-select all the tables and arrows
+		List<Arrow> currentlyHighlightedArrows = highlightedArrows();
+		List<Arrow> currentlyNormalArrows = normalArrows();
+		
 		if (selectedArrow != null) {
 			selectedArrow.setSelected(false);
 			detailsListener.showDetails(null);
@@ -300,25 +305,40 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 		}
 		if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
-			for (Arrow component : arrows) {
-				if (component.contains(event.getPoint())) {
-					if (event.getClickCount() == 2) { // double click
-						zoomArrow = component;
-						if (slaveMappingPanel != null) {
-							slaveMappingPanel.setMapping(ObjectExchange.etl.getFieldToFieldMapping((Table) zoomArrow.getSource().getItem(), (Table) zoomArrow
-									.getTarget().getItem()));
-							new AnimateThread(true).start();
-						}
-
-					} else { // single click
-						if (!component.isSelected()) {
-							component.setSelected(true);
-							selectedArrow = component;
-							detailsListener.showDetails(mapping.getSourceToCdmMap(selectedArrow.getSource().getItem(), selectedArrow.getTarget().getItem()));
-						}
-						repaint();
+			Arrow clickedArrow = null;
+			
+			for (Arrow arrow : currentlyHighlightedArrows) {
+				if (arrow.contains(event.getPoint())) {
+					clickedArrow = arrow;
+					break;
+				}
+			}
+			
+			if (clickedArrow == null) {
+				for (Arrow arrow : currentlyNormalArrows) {
+					if (arrow.contains(event.getPoint())) {
+						clickedArrow = arrow;
 						break;
 					}
+				}
+			}
+			
+			if (clickedArrow != null) {
+				if (event.getClickCount() == 2) { // double click
+					zoomArrow = clickedArrow;
+					if (slaveMappingPanel != null) {
+						slaveMappingPanel.setMapping(ObjectExchange.etl.getFieldToFieldMapping((Table) zoomArrow.getSource().getItem(), (Table) zoomArrow
+								.getTarget().getItem()));
+						new AnimateThread(true).start();
+					}
+
+				} else { // single click
+					if (!clickedArrow.isSelected()) {
+						clickedArrow.setSelected(true);
+						selectedArrow = clickedArrow;
+						detailsListener.showDetails(mapping.getSourceToCdmMap(selectedArrow.getSource().getItem(), selectedArrow.getTarget().getItem()));
+					}
+					repaint();
 				}
 			}
 		}
