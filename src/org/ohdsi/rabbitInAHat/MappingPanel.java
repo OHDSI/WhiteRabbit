@@ -235,8 +235,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			if (component != dragRectangle)
 				component.paint(g2d);
 
-		for (Arrow component : arrows)
-			if (component != dragArrow && !component.isHighlighted())
+		for (Arrow component : normalArrows())
+			if (component != dragArrow)
 				component.paint(g2d);
 
 		if (dragRectangle != null)
@@ -245,8 +245,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		if (dragArrow != null)
 			dragArrow.paint(g2d);
 		
-		for (Arrow component : arrows)
-			if (component != dragArrow && component.isHighlighted())
+		for (Arrow component : highlightedArrows())
+			if (component != dragArrow)
 				component.paint(g2d);
 		
 		if (offscreen != null)
@@ -601,6 +601,27 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	public void setDetailsListener(DetailsListener detailsListener) {
 		this.detailsListener = detailsListener;
+	}
+	
+	private List<Arrow> highlightedArrows() {
+		List<Arrow> highlighted = new ArrayList<Arrow>();
+		for(Arrow arrow : arrows) {
+			if (arrow.isHighlighted()) {
+				highlighted.add(arrow);
+			}
+		}
+		return highlighted;
+	}
+	
+	
+	private List<Arrow> normalArrows() {
+		List<Arrow> highlighted = new ArrayList<Arrow>();
+		for(Arrow arrow : arrows) {
+			if (!arrow.isHighlighted()) {
+				highlighted.add(arrow);
+			}
+		}
+		return highlighted;
 	}
 
 }
