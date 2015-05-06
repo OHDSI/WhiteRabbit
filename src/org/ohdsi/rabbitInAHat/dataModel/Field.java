@@ -44,7 +44,15 @@ public class Field implements MappableItem {
 	public String getName() {
 		return name;
 	}
-
+	
+	public String outputName(){
+		if(!isNullable){
+			return "*" + name;
+		}else{
+			return name;
+		}
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}

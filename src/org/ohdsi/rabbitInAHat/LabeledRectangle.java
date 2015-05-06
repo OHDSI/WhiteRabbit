@@ -100,24 +100,24 @@ public class LabeledRectangle implements MappingComponent {
 		g2d.setFont(new Font("default", Font.PLAIN, FONT_SIZE));
 		FontMetrics fm = g2d.getFontMetrics();
 
-		Rectangle2D r = fm.getStringBounds(item.getName(), g2d);
+		Rectangle2D r = fm.getStringBounds(item.outputName(), g2d);
 		if (r.getWidth() >= width) {
 			int breakPoint = 0;
-			int index = nextBreakPoint(item.getName(), 0);
-			double midPoint = item.getName().length() / 2d;
+			int index = nextBreakPoint(item.outputName(), 0);
+			double midPoint = item.outputName().length() / 2d;
 			while (index != -1) {
 				if (Math.abs(index - midPoint) < Math.abs(breakPoint - midPoint))
 					breakPoint = index;
-				index = nextBreakPoint(item.getName(), index + 1);
+				index = nextBreakPoint(item.outputName(), index + 1);
 			}
 			if (breakPoint == 0) {
 				int textX = (this.getWidth() - (int) r.getWidth()) / 2;
 				int textY = (this.getHeight() - (int) r.getHeight()) / 2 + fm.getAscent();
-				g2d.drawString(item.getName(), x + textX, y + textY);
+				g2d.drawString(item.outputName(), x + textX, y + textY);
 			}
 			breakPoint++;
-			String line1 = item.getName().substring(0, breakPoint);
-			String line2 = item.getName().substring(breakPoint);
+			String line1 = item.outputName().substring(0, breakPoint);
+			String line2 = item.outputName().substring(breakPoint);
 			r = fm.getStringBounds(line1, g2d);
 			int textX = (this.getWidth() - (int) r.getWidth()) / 2;
 			int textY = (this.getHeight() / 2 - (int) r.getHeight()) / 2 + fm.getAscent();
@@ -129,7 +129,7 @@ public class LabeledRectangle implements MappingComponent {
 		} else {
 			int textX = (this.getWidth() - (int) r.getWidth()) / 2;
 			int textY = (this.getHeight() - (int) r.getHeight()) / 2 + fm.getAscent();
-			g2d.drawString(item.getName(), x + textX, y + textY);
+			g2d.drawString(item.outputName(), x + textX, y + textY);
 		}
 	}
 
