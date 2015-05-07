@@ -62,7 +62,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private MappingPanel			fieldMappingPanel;
 	private DetailsPanel			detailsPanel;
 	private JSplitPane				tableFieldSplitPane;
-
+	
+	private JFileChooser 			chooser;
+	
 	public static void main(String[] args) {
 		new RabbitInAHatMain(args);
 	}
@@ -224,7 +226,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	 */
 	private String choosePath(boolean saveMode, FileFilter filter) {
 		String result = null;
-		JFileChooser chooser = new JFileChooser();
+		
+		if( chooser == null){
+			chooser = new JFileChooser();
+		}
 		chooser.setFileFilter(filter);
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
 		if (dialogResult == JFileChooser.APPROVE_OPTION)
