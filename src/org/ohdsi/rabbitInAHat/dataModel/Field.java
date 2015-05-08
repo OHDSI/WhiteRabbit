@@ -26,6 +26,7 @@ public class Field implements MappableItem {
 	private String[][]			valueCounts;
 	private boolean				isNullable;
 	private String				type;
+	private String				description			= "";
 	private int					maxLength;
 
 	public Field(String name, Table table) {
@@ -80,7 +81,14 @@ public class Field implements MappableItem {
 	public void setType(String type) {
 		this.type = type;
 	}
-
+	
+	public String getDescription(){
+		return this.description;
+	}
+	
+	public void setDescription(String description){
+		this.description = description;
+	}
 	public String toString() {
 		return table.getName() + "." + name;
 	}

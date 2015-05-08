@@ -57,6 +57,7 @@ public class Database implements Serializable {
 			Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), table);
 			field.setNullable(row.get("IS_NULLABLE").equals("YES"));
 			field.setType(row.get("DATA_TYPE"));
+			field.setDescription(row.get("DESCRIPTION"));
 			table.getFields().add(field);
 		}
 		// database.defaultOrdering = new ArrayList<Table>(database.tables);
