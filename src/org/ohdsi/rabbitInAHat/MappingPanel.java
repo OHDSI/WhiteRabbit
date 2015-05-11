@@ -206,10 +206,13 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void paint(Graphics g) {
 		Image offscreen = createVolatileImage(getWidth(), getHeight());
 		Graphics2D g2d;
-		if (offscreen == null)
+		
+		if (offscreen == null){
 			g2d = (Graphics2D) g;
-		else
+		}else{
 			g2d = (Graphics2D) offscreen.getGraphics();
+		}
+		
 		g2d.setBackground(Color.WHITE);
 		g2d.clearRect(0, 0, getWidth(), getHeight());
 		
