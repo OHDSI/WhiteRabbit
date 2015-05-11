@@ -19,6 +19,7 @@ package org.ohdsi.rabbitInAHat;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -33,8 +34,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -43,6 +48,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
+import org.ohdsi.rabbitInAHat.dataModel.TableCellLongTextRenderer;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
 
@@ -80,6 +86,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		this.object = object;
 		if (object instanceof Table) {
 			tablePanel.showTable((Table) object);
+			tablePanel.updateRowHeights();
 			cardLayout.show(this, Table.class.getName());
 		} else if (object instanceof Field) {
 			fieldPanel.showField((Field) object);
@@ -101,8 +108,10 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private Table				table;
 		private JLabel				nameLabel			= new JLabel("");
 		private JLabel				rowCountLabel		= new JLabel("");
-		private SimpleTableModel	fieldTable			= new SimpleTableModel("Field", "Type");
+		private SimpleTableModel	fieldTable			= new SimpleTableModel("Field", "Type","Description");
 		private JTextArea			commentsArea		= new JTextArea();
+		private JTable 				displayTable 		= new JTable(fieldTable);
+		
 
 		public TablePanel() {
 			setLayout(new BorderLayout());
@@ -118,13 +127,54 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			generalInfoPanel.add(rowCountLabel);
 			add(generalInfoPanel, BorderLayout.NORTH);
 
-			JTable table = new JTable(fieldTable);
-			JScrollPane fieldListPanel = new JScrollPane(table);
-			table.setFont(font);
-			table.setRowHeight(24);
+			
+			JScrollPane fieldListPanel = new JScrollPane(displayTable);
+			
+			// Updates row heights when column widths change
+			displayTable.getColumnModel().addColumnModelListener(new TableColumnModelListener(){
+				
+				@Override
+				public void columnMarginChanged(ChangeEvent e) {
+					updateRowHeights();
+					
+				}
+				
+				@Override
+				public void columnMoved(TableColumnModelEvent e){
+					
+				}
+
+				@Override
+				public void columnAdded(TableColumnModelEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void columnRemoved(TableColumnModelEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+
+
+
+				@Override
+				public void columnSelectionChanged(ListSelectionEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+			
+			displayTable.setFont(font);		
+			
+			// Set cell renderer that wraps content
+			for (int c = 0; c < displayTable.getColumnCount(); c++){				
+					displayTable.getColumnModel().getColumn(c).setCellRenderer(new TableCellLongTextRenderer());
+			}			
+			
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder("Fields"));
 			add(fieldListPanel, BorderLayout.CENTER);
-
+			
 			// JScrollPane commentsPanel = new JScrollPane(commentsArea);
 			// commentsArea.setFont(font);
 			// commentsArea.getDocument().addDocumentListener(this);
@@ -136,16 +186,40 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			// add(commentsPanel, BorderLayout.SOUTH);
 
 		}
+		
+		private void updateRowHeights() {
 
+		    /* 
+		     * Auto adjust the height of rows in a JTable.
+		     * The only way to know the row height for sure is to render each cell 
+		     * to determine the rendered height. After your table is populated with 
+		     * data you can do:         
+		     *  
+		     */        
+		    for (int row = 0; row < displayTable.getRowCount(); row++) {
+		        int rowHeight = displayTable.getRowHeight();
+		        for (int column = 0; column < displayTable.getColumnCount(); column++)
+		        {
+		            Component comp = displayTable.prepareRenderer(displayTable.getCellRenderer(row, column), row, column);
+		            
+		            rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+		            
+		        }
+		        displayTable.setRowHeight(row, rowHeight);
+		    }
+		}
+		
 		public void showTable(Table table) {
 			this.table = table;
 			nameLabel.setText(table.getName());
 			DecimalFormat formatter = new DecimalFormat("#,###");
 			rowCountLabel.setText(formatter.format(table.getRowCount()));
-			fieldTable.clear();
+			fieldTable.clear();			
+			
 			for (Field field : table.getFields()){
-				fieldTable.add(field.outputName(), field.getType());
+				fieldTable.add(field.outputName(), field.getType(),field.getDescription());
 			}
+			
 			commentsArea.setText(table.getComment());
 		}
 
@@ -170,6 +244,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private JLabel				nameLabel			= new JLabel("");
 		private JLabel				rowCountLabel		= new JLabel("");
+		private RiaH_JTextArea 		description			= new RiaH_JTextArea ("");
 		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency", "Percent of Total (%)");
 		private JTextArea			commentsArea		= new JTextArea();
 		private Field				field;
@@ -178,15 +253,29 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			setLayout(new BorderLayout());
 
 			JPanel generalInfoPanel = new JPanel();
-			generalInfoPanel.setLayout(new GridLayout(0, 2));
+			
+			generalInfoPanel.setLayout(new BorderLayout(5,5));
+			
 			generalInfoPanel.setBorder(BorderFactory.createTitledBorder("General information"));
+			
+			JPanel fieldInfo = new JPanel();
+			fieldInfo.setLayout(new GridLayout(0,2));
+			
+			fieldInfo.add(new JLabel("Field name: "));
+			fieldInfo.add(nameLabel);
 
-			generalInfoPanel.add(new JLabel("Field name: "));
-			generalInfoPanel.add(nameLabel);
-
-			generalInfoPanel.add(new JLabel("Field type: "));
-			generalInfoPanel.add(rowCountLabel);
-
+			fieldInfo.add(new JLabel("Field type: "));
+			fieldInfo.add(rowCountLabel);
+			
+			generalInfoPanel.add(fieldInfo,BorderLayout.NORTH);
+			
+			JPanel descriptionInfo = new JPanel();
+			descriptionInfo.setLayout(new GridLayout(0,2));
+			descriptionInfo.add(new JLabel("Description: "));
+			descriptionInfo.add(description);			
+			
+			generalInfoPanel.add(descriptionInfo,BorderLayout.SOUTH);
+			
 			add(generalInfoPanel, BorderLayout.NORTH);
 
 			JTable table = new JTable(valueTable);
@@ -210,9 +299,16 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 		public void showField(Field field) {
 			this.field = field;
+			
 			nameLabel.setText(field.getName());
 			rowCountLabel.setText(field.getType());
+			description.setText(field.getDescription());
+			
+			// Hide description if it's empty
+			description.getParent().setVisible(!description.getText().isEmpty());
+
 			valueTable.clear();
+			
 			if (field.getValueCounts() != null) {
 				double valueCountTotal = 0.0;
 				for (String[] total : field.getValueCounts()) {
