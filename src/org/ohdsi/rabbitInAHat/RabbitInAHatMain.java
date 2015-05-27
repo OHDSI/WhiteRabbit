@@ -52,6 +52,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard value counts";
+	public final static String		ACTION_CMD_FILTER					= "Filter";
 
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -188,6 +189,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		discardCounts.addActionListener(this);
 		discardCounts.setActionCommand(ACTION_CMD_DISCARD_COUNTS);
 		editMenu.add(discardCounts);
+		
+		JMenuItem filter = new JMenuItem(ACTION_CMD_FILTER);
+		filter.addActionListener(this);
+		filter.setActionCommand(ACTION_CMD_FILTER);
+		editMenu.add(filter);
 
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
@@ -277,7 +283,20 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_DISCARD_COUNTS:
 				doDiscardCounts();
 				break;
+			case ACTION_CMD_FILTER:
+				doOpenFilterDialog();
+				break;
 		}
+	}
+	
+	//Opens Filter dialog window
+	private void doOpenFilterDialog() {
+		FilterDialog filter;
+		filter = new FilterDialog(frame);
+
+		filter.setFilterPanel(tableMappingPanel);
+				
+		filter.setVisible(true);
 	}
 
 	private void doDiscardCounts() {
