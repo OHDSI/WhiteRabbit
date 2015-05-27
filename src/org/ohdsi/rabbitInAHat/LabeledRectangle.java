@@ -62,12 +62,16 @@ public class LabeledRectangle implements MappingComponent {
 		this.x = x;
 		this.y = y;
 		this.width = width;
-		this.height = height;
+		this.height = height;		
 		this.item = item;
 		this.baseColor = baseColor;
 		this.transparentColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 128);
 	}
 
+	public boolean isVisible(){
+		return isVisible == true;
+	}
+	
 	public int getWidth() {
 		return width;
 	}
@@ -80,11 +84,21 @@ public class LabeledRectangle implements MappingComponent {
 		this.x = x;
 		this.y = y;
 	}
-
+	
+	public void filter(String searchTerm){
+		if (this.getItem().getName().matches(".*" + searchTerm + ".*") || searchTerm.equals("") ){
+			this.setVisible(true);				
+		}else{
+			this.setVisible(false);
+		}
+	}
+	
 	public void paint(Graphics g) {
 		if (!isVisible)
-			return;
-		Graphics2D g2d = (Graphics2D) g;
+			return;		
+		
+		Graphics2D g2d = (Graphics2D) g.create();		
+		
 		g2d.setColor(transparentColor);
 		g2d.fillRect(x, y, width, height);
 		if (isSelected) {
