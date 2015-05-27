@@ -147,6 +147,10 @@ public class Arrow implements MappingComponent {
 			return color;
 		}
 	}
+	
+	public boolean isHighlighted() {
+		return (source != null && source.isSelected()) || (target != null && target.isSelected());
+	}
 
 	public static void drawArrowHead(Graphics2D g2d, int x, int y) {
 		int nPoints = 3;

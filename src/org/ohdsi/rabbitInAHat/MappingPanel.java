@@ -235,7 +235,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			if (component != dragRectangle)
 				component.paint(g2d);
 
-		for (Arrow component : arrows)
+		for (Arrow component : normalArrows())
 			if (component != dragArrow)
 				component.paint(g2d);
 
@@ -244,7 +244,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 		if (dragArrow != null)
 			dragArrow.paint(g2d);
-
+		
+		for (Arrow component : highlightedArrows())
+			if (component != dragArrow)
+				component.paint(g2d);
+		
 		if (offscreen != null)
 			g.drawImage(offscreen, 0, 0, this);
 	}
@@ -258,6 +262,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseClicked(MouseEvent event) {
+		// Save away which arrows are currently highlighted vs normal before we
+		// de-select all the tables and arrows
+		List<Arrow> currentlyHighlightedArrows = highlightedArrows();
+		List<Arrow> currentlyNormalArrows = normalArrows();
+		
 		if (selectedArrow != null) {
 			selectedArrow.setSelected(false);
 			detailsListener.showDetails(null);
@@ -296,25 +305,40 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 		}
 		if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
-			for (Arrow component : arrows) {
-				if (component.contains(event.getPoint())) {
-					if (event.getClickCount() == 2) { // double click
-						zoomArrow = component;
-						if (slaveMappingPanel != null) {
-							slaveMappingPanel.setMapping(ObjectExchange.etl.getFieldToFieldMapping((Table) zoomArrow.getSource().getItem(), (Table) zoomArrow
-									.getTarget().getItem()));
-							new AnimateThread(true).start();
-						}
-
-					} else { // single click
-						if (!component.isSelected()) {
-							component.setSelected(true);
-							selectedArrow = component;
-							detailsListener.showDetails(mapping.getSourceToCdmMap(selectedArrow.getSource().getItem(), selectedArrow.getTarget().getItem()));
-						}
-						repaint();
+			Arrow clickedArrow = null;
+			
+			for (Arrow arrow : currentlyHighlightedArrows) {
+				if (arrow.contains(event.getPoint())) {
+					clickedArrow = arrow;
+					break;
+				}
+			}
+			
+			if (clickedArrow == null) {
+				for (Arrow arrow : currentlyNormalArrows) {
+					if (arrow.contains(event.getPoint())) {
+						clickedArrow = arrow;
 						break;
 					}
+				}
+			}
+			
+			if (clickedArrow != null) {
+				if (event.getClickCount() == 2) { // double click
+					zoomArrow = clickedArrow;
+					if (slaveMappingPanel != null) {
+						slaveMappingPanel.setMapping(ObjectExchange.etl.getFieldToFieldMapping((Table) zoomArrow.getSource().getItem(), (Table) zoomArrow
+								.getTarget().getItem()));
+						new AnimateThread(true).start();
+					}
+
+				} else { // single click
+					if (!clickedArrow.isSelected()) {
+						clickedArrow.setSelected(true);
+						selectedArrow = clickedArrow;
+						detailsListener.showDetails(mapping.getSourceToCdmMap(selectedArrow.getSource().getItem(), selectedArrow.getTarget().getItem()));
+					}
+					repaint();
 				}
 			}
 		}
@@ -597,6 +621,27 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	public void setDetailsListener(DetailsListener detailsListener) {
 		this.detailsListener = detailsListener;
+	}
+	
+	private List<Arrow> highlightedArrows() {
+		List<Arrow> highlighted = new ArrayList<Arrow>();
+		for(Arrow arrow : arrows) {
+			if (arrow.isHighlighted()) {
+				highlighted.add(arrow);
+			}
+		}
+		return highlighted;
+	}
+	
+	
+	private List<Arrow> normalArrows() {
+		List<Arrow> highlighted = new ArrayList<Arrow>();
+		for(Arrow arrow : arrows) {
+			if (!arrow.isHighlighted()) {
+				highlighted.add(arrow);
+			}
+		}
+		return highlighted;
 	}
 
 }
