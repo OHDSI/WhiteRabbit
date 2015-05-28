@@ -161,6 +161,11 @@ public class LabeledRectangle implements MappingComponent {
 	public boolean contains(Point point) {
 		return (point.x >= x && point.x <= x + width && point.y >= y && point.y <= y + height);
 	}
+	
+	public boolean contains(Point point, int xOffset, int yOffset) {
+		Point p = new Point(point.x + xOffset, point.y + yOffset);
+		return contains(p);
+	}
 
 	public int getX() {
 		return x;
