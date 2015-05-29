@@ -202,4 +202,8 @@ public class Arrow implements MappingComponent {
 	public boolean isSourceAndTargetVisible(){
 		return source.isVisible() && target.isVisible();
 	}
+	
+	public boolean isConnected(){
+		return source != null && target != null;
+	}
 }

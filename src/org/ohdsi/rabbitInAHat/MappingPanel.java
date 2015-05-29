@@ -70,7 +70,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	private List<LabeledRectangle>	targetComponents			= new ArrayList<LabeledRectangle>();
 	private List<Arrow>				arrows						= new ArrayList<Arrow>();
 	private LabeledRectangle		dragRectangle				= null;
-	private LabeledRectangle		selectedRectangle			= null;
+	private LabeledRectangle		lastSelectedRectangle		= null;
 	private Arrow					dragArrow					= null;
 	private Arrow					zoomArrow					= null;
 	private Arrow					selectedArrow				= null;
@@ -209,6 +209,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		Dimension dimension = new Dimension();
 		dimension.width = 2 * (ITEM_WIDTH + MARGIN) + MIN_SPACE_BETWEEN_COLUMNS;
 		dimension.height = Math.min(HEADER_HEIGHT + HEADER_TOP_MARGIN + Math.max(sourceComponents.size(), targetComponents.size()) * (ITEM_HEIGHT + MARGIN), maxHeight);
+
 		return dimension;
 	}
 
@@ -315,39 +316,26 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			selectedArrow.setSelected(false);
 			detailsListener.showDetails(null);
 			selectedArrow = null;
-		}
-		if (selectedRectangle != null) {
-			selectedRectangle.setSelected(false);
-			detailsListener.showDetails(null);
-			selectedRectangle = null;
+		}	
+		
+		if (!event.isShiftDown() && !event.isControlDown()){
+			for( LabeledRectangle component : targetComponents){
+				component.setSelected(false);
+			}
+			
+			for( LabeledRectangle component : sourceComponents){
+				component.setSelected(false);
+			}
 		}
 		
 		if (event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH) { // Source component
-			for (LabeledRectangle component : getVisibleSourceComponents()) {
-				if (component.contains(event.getPoint())) {
-					if (!component.isSelected()) {
-						component.setSelected(true);
-						detailsListener.showDetails(component.getItem());
-						selectedRectangle = component;
-					}
-					repaint();
-					break;
-				}
-			}
+			LabeledRectangleClicked(event, getVisibleSourceComponents());
 		}
+		
 		if (event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH) { // cdm component
-			for (LabeledRectangle component : getVisibleTargetComponents()) {
-				if (component.contains(event.getPoint())) {
-					if (!component.isSelected()) {
-						component.setSelected(true);
-						detailsListener.showDetails(component.getItem());
-						selectedRectangle = component;
-					}
-					repaint();
-					break;
-				}
-			}
+			LabeledRectangleClicked(event,  getVisibleTargetComponents());
 		}
+		
 		if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
 			Arrow clickedArrow = null;
 			
@@ -528,6 +516,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					break;
 				}
 			}
+
 			for (LabeledRectangle item : getVisibleTargetComponents()) {
 				if (item.contains(event.getPoint())) {
 					dragRectangle = item;
@@ -540,7 +529,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	@Override
 	public void mouseReleased(MouseEvent event) {
-		if (dragRectangle != null) {
+		
+		if (dragRectangle != null) { // Dragging rectangles to reorder
 			if (!isSorted(sourceComponents, new YComparator())) {
 				Collections.sort(sourceComponents, new YComparator());
 				mapping.setSourceItems(getItemsList(sourceComponents));
@@ -551,24 +541,18 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 			dragRectangle = null;
 			layoutItems();
-		} else if (dragArrow != null) {
+		} else if (dragArrow != null) { // dragging arrow to set source and target
 			if (event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX + ITEM_WIDTH)
+
 				for (LabeledRectangle component : getVisibleRectangles(targetComponents)) {
-					if (event.getY() >= component.getY() && event.getY() <= component.getY() + component.getHeight()) {
+					if (component.contains(event.getPoint(),ARROW_START_WIDTH,0)) {
 						dragArrow.setTarget(component);
 						if (dragArrow.getTarget() == dragArrowPreviousTarget) {
 							arrows.add(dragArrow);
 							break;
 						}
-
-						boolean isNew = true;
-						for (Arrow other : arrows)
-							if (dragArrow.getSource() == other.getSource() && dragArrow.getTarget() == other.getTarget())
-								isNew = false;
-						if (isNew) {
-							arrows.add(dragArrow);
-							mapping.addSourceToCdmMap(dragArrow.getSource().getItem(), dragArrow.getTarget().getItem());
-						}
+						
+						makeMapSourceToTarget(dragArrow.getSource(),dragArrow.getTarget());
 						break;
 					}
 				}
@@ -678,6 +662,92 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 		}
 		return highlighted;
+	}
+	
+	private void LabeledRectangleClicked(MouseEvent event, List<LabeledRectangle> components){
+		int startIndex = 0;
+		int endIndex = 0;
+
+		for (LabeledRectangle component : components) {			
+			
+			if (component.contains(event.getPoint())) {				
+				
+				if(event.isControlDown()){ // Add one at a time
+					 component.toggleSelected();
+				}else if(event.isShiftDown()){ // Add in consecutive order
+					
+					startIndex = Math.min(components.indexOf(lastSelectedRectangle),components.indexOf(component));
+					endIndex = Math.max(components.indexOf(lastSelectedRectangle),components.indexOf(component));
+					
+					if( startIndex >= 0 && endIndex >= 0){
+						for( int i = startIndex; i <= endIndex; i++){
+							components.get(i).setSelected(true);
+						}
+					}else{
+						component.toggleSelected();
+					}
+					
+				}else{
+					component.setSelected(true);					
+				}
+				
+				if(component.isSelected()){
+					lastSelectedRectangle = component;
+				}else{
+					lastSelectedRectangle=null;
+				}
+				
+				detailsListener.showDetails(component.getItem());				
+				repaint();
+				break;
+			}
+		}
+	}
+	
+	private List<LabeledRectangle> getSelectedRectangles(List<LabeledRectangle> components){
+		
+		List<LabeledRectangle> selected  = new ArrayList<LabeledRectangle>();
+		
+		for( LabeledRectangle c : components){			
+			if( c.isSelected()){
+				selected.add(c);
+			}
+		}
+		
+		return selected;
+	}
+	
+	public void makeMapSelectedSourceAndTarget(){
+		
+		for( LabeledRectangle source : getSelectedRectangles(sourceComponents)){			
+			for(LabeledRectangle target :  getSelectedRectangles(targetComponents)){
+				makeMapSourceToTarget(source,target);
+			}
+		}
+		
+	}
+	
+	private void makeMapSourceToTarget(LabeledRectangle source, LabeledRectangle target){
+		boolean isNew = true;
+		
+		for (Arrow other : arrows){
+			if (source == other.getSource() && target == other.getTarget()){
+				isNew = false;
+			}
+		}
+		
+		if (isNew) {
+			Arrow arrow = new Arrow(source);
+			arrow.setTarget(target);
+			arrows.add(arrow);
+			
+			mapping.addSourceToCdmMap(source.getItem(), target.getItem());
+		}
+		repaint();
+	}
+	
+	public boolean isMaximized(){
+		return !minimized;
 	}
 
 	public List<LabeledRectangle> getVisibleRectangles(List<LabeledRectangle> components){
