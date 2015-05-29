@@ -186,6 +186,11 @@ public class LabeledRectangle implements MappingComponent {
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
+	
+	public boolean toggleSelected(){
+		this.isSelected = !this.isSelected;
+		return isSelected;
+	}
 
 	public void setVisible(boolean value) {
 		isVisible = value;

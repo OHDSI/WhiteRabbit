@@ -53,7 +53,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard value counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
-
+	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
+	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
 	private JFrame					frame;
@@ -114,7 +115,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JSplitPane leftRightSplinePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, detailsPanel);
 		leftRightSplinePane.setDividerLocation(700);
 		frame.add(leftRightSplinePane);
-
+		
 		loadIcons(frame);
 		frame.pack();
 		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
@@ -193,6 +194,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		filter.addActionListener(this);
 		filter.setActionCommand(ACTION_CMD_FILTER);
 		editMenu.add(filter);
+
+		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
+		makeMappings.addActionListener(this);
+		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
+		makeMappings.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_M, ActionEvent.CTRL_MASK));
+		
+		editMenu.add(makeMappings);
 
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
@@ -284,6 +293,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_CMD_FILTER:
 				doOpenFilterDialog();
+			case ACTION_CMD_MAKE_MAPPING:
+				doMakeMappings();
 				break;
 		}
 	}
@@ -296,6 +307,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		filter.setFilterPanel(tableMappingPanel);
 				
 		filter.setVisible(true);
+	}
+
+	private void doMakeMappings() {
+		if(this.tableMappingPanel.isMaximized()){
+			this.tableMappingPanel.makeMapSelectedSourceAndTarget();
+		}else{
+			this.fieldMappingPanel.makeMapSelectedSourceAndTarget();
+		}
+		
 	}
 
 	private void doDiscardCounts() {
