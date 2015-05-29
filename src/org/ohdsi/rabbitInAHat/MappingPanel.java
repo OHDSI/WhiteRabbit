@@ -649,7 +649,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void addResizeListener(ResizeListener resizeListener) {
 		resizeListeners.add(resizeListener);
 	}
-
+	
+	public void removeResizeListener(ResizeListener resizeListener) {
+		resizeListeners.remove(resizeListener);
+	}
+	
 	public void setDetailsListener(DetailsListener detailsListener) {
 		this.detailsListener = detailsListener;
 	}
