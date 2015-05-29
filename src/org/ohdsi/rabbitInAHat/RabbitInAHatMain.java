@@ -300,6 +300,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_CMD_FILTER:
 				doOpenFilterDialog();
+				break;
 			case ACTION_CMD_MAKE_MAPPING:
 				doMakeMappings();
 				break;
