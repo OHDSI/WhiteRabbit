@@ -54,6 +54,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard value counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
+	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -199,10 +200,16 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		makeMappings.addActionListener(this);
 		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
 		makeMappings.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_M, ActionEvent.CTRL_MASK));
-		
+                KeyEvent.VK_M, ActionEvent.CTRL_MASK));		
 		editMenu.add(makeMappings);
 
+		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
+		removeMappings.addActionListener(this);
+		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
+		removeMappings.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_R, ActionEvent.CTRL_MASK));		
+		editMenu.add(removeMappings);
+		
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
 
@@ -296,6 +303,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_MAKE_MAPPING:
 				doMakeMappings();
 				break;
+			case ACTION_CMD_REMOVE_MAPPING:
+				doRemoveMappings();
+				break;
 		}
 	}
 	
@@ -318,6 +328,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		
 	}
 
+	private void doRemoveMappings() {
+		if(this.tableMappingPanel.isMaximized()){
+			this.tableMappingPanel.removeMapSelectedSourceAndTarget();
+		}else{
+			this.fieldMappingPanel.removeMapSelectedSourceAndTarget();
+		}
+		
+	}
 	private void doDiscardCounts() {
 		ObjectExchange.etl.discardCounts();
 		detailsPanel.refresh();

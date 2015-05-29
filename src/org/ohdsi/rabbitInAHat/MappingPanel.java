@@ -36,6 +36,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -327,8 +328,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				component.setSelected(false);
 			}
 		}
-		
-		if (event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH) { // Source component
+		if (event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH) { // Source component		
 			LabeledRectangleClicked(event, getVisibleSourceComponents());
 		}
 		
@@ -743,6 +743,28 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			
 			mapping.addSourceToCdmMap(source.getItem(), target.getItem());
 		}
+		repaint();
+	}
+	
+	public void removeMapSelectedSourceAndTarget(){
+			
+		for( LabeledRectangle source : getSelectedRectangles(sourceComponents)){			
+			for(LabeledRectangle target :  getSelectedRectangles(targetComponents)){
+				removeMapSourceToTarget(source,target);
+			}
+		}			
+	}
+
+	private void removeMapSourceToTarget(LabeledRectangle source, LabeledRectangle target){	
+		
+		for (Iterator<Arrow> iterator = arrows.iterator(); iterator.hasNext();){
+			Arrow arrow = iterator.next();
+			if (source == arrow.getSource() && target == arrow.getTarget()){
+				iterator.remove();
+			}
+		}
+		
+		mapping.removeSourceToCdmMap(source.getItem(), target.getItem());
 		repaint();
 	}
 	
