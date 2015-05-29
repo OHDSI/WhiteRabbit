@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import org.ohdsi.rabbitInAHat.ResizeListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -13,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
-public class FilterDialog extends JDialog implements ActionListener{
+public class FilterDialog extends JDialog implements ActionListener, ResizeListener {
 	
 	
 	/**
@@ -85,7 +86,15 @@ public class FilterDialog extends JDialog implements ActionListener{
 	};
 	
 	public void setFilterPanel(MappingPanel aFilterPanel){
+		if (filterPanel != null) {
+			filterPanel.removeResizeListener(this);
+		}
+		
 		filterPanel = aFilterPanel;
+		
+		if (filterPanel != null) {
+			aFilterPanel.addResizeListener(this);
+		}
 	}
 	
 	public MappingPanel getFilterPanel(){
@@ -123,6 +132,11 @@ public class FilterDialog extends JDialog implements ActionListener{
 	private void clearSourceFilter() {
 		sourceSearchField.setText("");
 		doFilterPanel("","Source");
+	}
+	
+	public void notifyResized(int height, boolean minimized, boolean maximized) {
+		clearSourceFilter();
+		clearTargetFilter();
 	}
 	
 	class SearchListener implements KeyListener{
