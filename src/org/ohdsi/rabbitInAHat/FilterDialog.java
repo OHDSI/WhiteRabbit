@@ -104,17 +104,25 @@ public class FilterDialog extends JDialog implements ActionListener{
 	public void actionPerformed(ActionEvent event) {
 		switch (event.getActionCommand()) {
 			case "Clear Source":
-				sourceSearchField.setText("");
-				doFilterPanel("","Source");
+				clearSourceFilter();
 				break;
 			
 			case "Clear Target":
-				targetSearchField.setText("");
-				doFilterPanel("","Target");
+				clearTargetFilter();
 				break;
 				
 		}
 		
+	}
+
+	private void clearTargetFilter() {
+		targetSearchField.setText("");
+		doFilterPanel("","Target");
+	}
+	
+	private void clearSourceFilter() {
+		sourceSearchField.setText("");
+		doFilterPanel("","Source");
 	}
 	
 	class SearchListener implements KeyListener{
