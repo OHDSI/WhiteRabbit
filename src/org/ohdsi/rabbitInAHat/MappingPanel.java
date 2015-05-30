@@ -34,7 +34,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -284,7 +283,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			if (component != dragRectangle)
 				component.paint(g2d);
 
-		for (int i = HighlightStatus.values().length - 1; i <= 0; i--) {
+		for (int i = HighlightStatus.values().length - 1; i >= 0; i--) {
 			HighlightStatus status = HighlightStatus.values()[i];
 			for (Arrow arrow: arrowsByStatus(status)) {
 				if (arrow != dragArrow) {
@@ -298,10 +297,6 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 		if (dragArrow != null)
 			dragArrow.paint(g2d);
-		
-		for (Arrow component : highlightedArrows())
-			if (component != dragArrow)
-				component.paint(g2d);
 		
 		if (offscreen != null)
 			g.drawImage(offscreen, 0, 0, this);
@@ -641,16 +636,6 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	
 	public void setDetailsListener(DetailsListener detailsListener) {
 		this.detailsListener = detailsListener;
-	}
-	
-	private List<Arrow> highlightedArrows() {
-		List<Arrow> highlighted = new ArrayList<Arrow>();
-		for(Arrow arrow : arrows) {
-			if (arrow.isHighlighted()) {
-				highlighted.add(arrow);
-			}
-		}
-		return highlighted;
 	}
 	
 	private void removeArrow(Arrow a){

@@ -161,10 +161,6 @@ public class Arrow implements MappingComponent {
 	public Color fillColor() {
 		return getHighlightStatus().color;
 	}
-	
-	public boolean isHighlighted() {
-		return isSourceSelected() || isTargetSelected();
-	}
 
 	private boolean isTargetSelected() {
 		return target != null && target.isSelected();
