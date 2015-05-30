@@ -34,15 +34,18 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
+import org.ohdsi.rabbitInAHat.Arrow.HighlightStatus;
 import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.Mapping;
@@ -281,9 +284,14 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			if (component != dragRectangle)
 				component.paint(g2d);
 
-		for (Arrow component : normalArrows())
-			if (component != dragArrow)
-				component.paint(g2d);
+		for (int i = HighlightStatus.values().length - 1; i <= 0; i--) {
+			HighlightStatus status = HighlightStatus.values()[i];
+			for (Arrow arrow: arrowsByStatus(status)) {
+				if (arrow != dragArrow) {
+					arrow.paint(g2d);
+				}
+			}
+		}
 
 		if (dragRectangle != null)
 			dragRectangle.paint(g2d);
@@ -310,8 +318,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void mouseClicked(MouseEvent event) {
 		// Save away which arrows are currently highlighted vs normal before we
 		// de-select all the tables and arrows
-		List<Arrow> currentlyHighlightedArrows = highlightedArrows();
-		List<Arrow> currentlyNormalArrows = normalArrows();
+		Hashtable<HighlightStatus, List<Arrow>> currentArrowStatus = new Hashtable<HighlightStatus, List<Arrow>>();
+		for (HighlightStatus status: HighlightStatus.values()) {
+			currentArrowStatus.put(status, arrowsByStatus(status));
+		}
 		
 		if (selectedArrow != null) {
 			selectedArrow.setSelected(false);
@@ -338,20 +348,15 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		
 		if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
 			Arrow clickedArrow = null;
-			
-			for (Arrow arrow : currentlyHighlightedArrows) {
-				if (arrow.contains(event.getPoint())) {
-					clickedArrow = arrow;
-					break;
-				}
-			}
-			
-			if (clickedArrow == null) {
-				for (Arrow arrow : currentlyNormalArrows) {
+			for (HighlightStatus status: HighlightStatus.values()) {
+				for (Arrow arrow : currentArrowStatus.get(status)) {
 					if (arrow.contains(event.getPoint())) {
 						clickedArrow = arrow;
 						break;
 					}
+				}
+				if (clickedArrow != null) {
+					break;
 				}
 			}
 			
@@ -654,14 +659,14 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			repaint();
 	}
 	
-	private List<Arrow> normalArrows() {
-		List<Arrow> highlighted = new ArrayList<Arrow>();
+	private List<Arrow> arrowsByStatus(HighlightStatus status) {
+		List<Arrow> matchingArrows = new ArrayList<Arrow>();
 		for(Arrow arrow : arrows) {
-			if (!arrow.isHighlighted()) {
-				highlighted.add(arrow);
+			if (arrow.getHighlightStatus() == status) {
+				matchingArrows.add(arrow);
 			}
 		}
-		return highlighted;
+		return matchingArrows;
 	}
 	
 	private void LabeledRectangleClicked(MouseEvent event, List<LabeledRectangle> components){
