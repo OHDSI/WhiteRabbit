@@ -114,7 +114,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		tableMappingPanel.setDetailsListener(detailsPanel);
 		fieldMappingPanel.setDetailsListener(detailsPanel);
 		JSplitPane leftRightSplinePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, detailsPanel);
-		leftRightSplinePane.setDividerLocation(700);
+		leftRightSplinePane.setResizeWeight(0.40);
 		frame.add(leftRightSplinePane);
 		
 		loadIcons(frame);
@@ -194,20 +194,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JMenuItem filter = new JMenuItem(ACTION_CMD_FILTER);
 		filter.addActionListener(this);
 		filter.setActionCommand(ACTION_CMD_FILTER);
+		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));	
 		editMenu.add(filter);
 
 		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
 		makeMappings.addActionListener(this);
 		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
-		makeMappings.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_M, ActionEvent.CTRL_MASK));		
+		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));		
 		editMenu.add(makeMappings);
 
 		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
 		removeMappings.addActionListener(this);
 		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
-		removeMappings.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_R, ActionEvent.CTRL_MASK));		
+		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));		
 		editMenu.add(removeMappings);
 		
 		// JMenu viewMenu = new JMenu("View");

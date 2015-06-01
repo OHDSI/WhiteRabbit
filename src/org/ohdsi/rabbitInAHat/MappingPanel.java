@@ -84,6 +84,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	private MappingPanel			slaveMappingPanel;
 	private boolean					showOnlyConnectedItems		= false;
 
+	private String					lastSourceFilter			= "";
+	private String					lastTargetFilter			= "";
+
 	private boolean					showingArrowStarts			= false;
 
 	private DetailsListener			detailsListener;
@@ -109,6 +112,14 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		});
 		
 		renderModel();
+	}
+	
+	public String getLastSourceFilter(){
+		return lastSourceFilter;
+	}
+	
+	public String getLastTargetFilter(){
+		return lastTargetFilter;
 	}
 	
 	public boolean isMinimized(){
@@ -238,8 +249,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		
 		if( filterTarget == true ){
 			components = targetComponents;
+			lastTargetFilter = searchTerm;
 		}else{
 			components = sourceComponents;
+			lastSourceFilter = searchTerm;
 		}
 		
 		for (LabeledRectangle c : components){	
@@ -335,13 +348,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 		if (event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH) { // Source component		
 			LabeledRectangleClicked(event, getVisibleSourceComponents());
-		}
-		
-		if (event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH) { // cdm component
+		}else if (event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH) { // cdm component
 			LabeledRectangleClicked(event,  getVisibleTargetComponents());
-		}
-		
-		if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
+		}else if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
 			Arrow clickedArrow = null;
 			for (HighlightStatus status: HighlightStatus.values()) {
 				for (Arrow arrow : currentArrowStatus.get(status)) {
@@ -362,6 +371,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 						slaveMappingPanel.setMapping(ObjectExchange.etl.getFieldToFieldMapping((Table) zoomArrow.getSource().getItem(), (Table) zoomArrow
 								.getTarget().getItem()));
 						new AnimateThread(true).start();
+						
+						slaveMappingPanel.filterComponents("", false);
+						slaveMappingPanel.filterComponents("", true);
 					}
 
 				} else { // single click
@@ -372,7 +384,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					}
 					repaint();
 				}
+			}else{
+				detailsListener.showDetails(null);
 			}
+		}else{
+			detailsListener.showDetails(null);
 		}
 
 	}
@@ -466,11 +482,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		minimized = false;
 		for (ResizeListener resizeListener : resizeListeners)
 			resizeListener.notifyResized(maxHeight, false, true);
-		for (LabeledRectangle component : sourceComponents)
-			component.setVisible(true);
 
-		for (LabeledRectangle component : targetComponents)
-			component.setVisible(true);
+		filterComponents(lastSourceFilter, false);
+		
+		filterComponents(lastTargetFilter, true);
 
 		for (Arrow component : arrows)
 			component.setVisible(true);

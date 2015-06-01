@@ -86,10 +86,11 @@ public class LabeledRectangle implements MappingComponent {
 	}
 	
 	public void filter(String searchTerm){
-		if (this.getItem().getName().matches(".*" + searchTerm + ".*") || searchTerm.equals("") ){
+		if (this.getItem().getName().matches(".*(" + searchTerm + ").*") || searchTerm.equals("") ){
 			this.setVisible(true);				
 		}else{
 			this.setVisible(false);
+			this.setSelected(false);
 		}
 	}
 	
