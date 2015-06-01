@@ -92,7 +92,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		scrollPane1.setAutoscrolls(true);
 		scrollPane1.setOpaque(true);
 		scrollPane1.setBackground(Color.WHITE);
-		frame.addKeyListener(tableMappingPanel);
 
 		fieldMappingPanel = new MappingPanel(etl.getTableToTableMapping());
 		tableMappingPanel.setSlaveMappingPanel(fieldMappingPanel);
@@ -101,7 +100,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		scrollPane2.getVerticalScrollBar().setUnitIncrement(16);
 		scrollPane2.setVisible(false);
 		scrollPane2.setBorder(new TitledBorder("Fields"));
-		frame.addKeyListener(fieldMappingPanel);
+
 		tableFieldSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane1, scrollPane2);
 		tableFieldSplitPane.setDividerLocation(600);
 		tableFieldSplitPane.setDividerSize(0);

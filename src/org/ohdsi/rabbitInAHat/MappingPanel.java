@@ -27,8 +27,8 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -38,7 +38,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
@@ -47,7 +49,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.collections.IntegerComparator;
 import org.ohdsi.whiteRabbit.ObjectExchange;
 
-public class MappingPanel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
+public class MappingPanel extends JPanel implements MouseListener, MouseMotionListener {
 
 	private static final long		serialVersionUID			= 4589294949568810155L;
 
@@ -82,13 +84,26 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	private DetailsListener			detailsListener;
 
+	@SuppressWarnings("serial")
 	public MappingPanel(Mapping<?> mapping) {
 		super();
 		this.mapping = mapping;
 		this.setFocusable(true);
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		addKeyListener(this);
+		
+		// Add keybindings to delete arrows
+		this.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE,0,false),"del pressed");
+		this.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE,0,false),"del pressed");
+		this.getActionMap().put("del pressed", new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (selectedArrow != null) {
+					removeArrow(selectedArrow);
+				}				
+			}			
+		});
+		
 		renderModel();
 	}
 
@@ -592,26 +607,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	}
 
-	@Override
-	public void keyPressed(KeyEvent event) {
-		if (event.getKeyCode() == KeyEvent.VK_DELETE) {
-			if (selectedArrow != null) {
-				arrows.remove(selectedArrow);
-				mapping.removeSourceToCdmMap(selectedArrow.getSource().getItem(), selectedArrow.getTarget().getItem());
-				repaint();
-			}
-		}
-	}
 
-	@Override
-	public void keyReleased(KeyEvent event) {
-
-	}
-
-	@Override
-	public void keyTyped(KeyEvent event) {
-
-	}
 
 	private List<ResizeListener>	resizeListeners	= new ArrayList<ResizeListener>();
 
@@ -633,6 +629,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		return highlighted;
 	}
 	
+	private void removeArrow(Arrow a){
+			arrows.remove(a);
+			mapping.removeSourceToCdmMap(a.getSource().getItem(), a.getTarget().getItem());
+			repaint();
+	}
 	
 	private List<Arrow> normalArrows() {
 		List<Arrow> highlighted = new ArrayList<Arrow>();
