@@ -57,6 +57,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public static int				ITEM_WIDTH					= 200;
 	public static int				MARGIN						= 10;
 	public static int				HEADER_HEIGHT				= 25;
+	public static int				HEADER_TOP_MARGIN			= 0;
 	public static int				MIN_SPACE_BETWEEN_COLUMNS	= 200;
 	public static int				ARROW_START_WIDTH			= 50;
 	public static int				BORDER_HEIGHT				= 25;
@@ -66,7 +67,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	private Mapping<?>				mapping;
 	private List<LabeledRectangle>	sourceComponents			= new ArrayList<LabeledRectangle>();
-	private List<LabeledRectangle>	cdmComponents				= new ArrayList<LabeledRectangle>();
+	private List<LabeledRectangle>	targetComponents			= new ArrayList<LabeledRectangle>();
 	private List<Arrow>				arrows						= new ArrayList<Arrow>();
 	private LabeledRectangle		dragRectangle				= null;
 	private LabeledRectangle		selectedRectangle			= null;
@@ -106,25 +107,40 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		
 		renderModel();
 	}
-
+	
+	public boolean isMinimized(){
+		return minimized;
+	}
 	public void setMapping(Mapping<?> mapping) {
 		maximize();
 		this.mapping = mapping;
 		renderModel();
 	}
+	
+	public List<LabeledRectangle> getVisibleSourceComponents(){
+		return getVisibleRectangles(sourceComponents);
+	}
 
+	public List<LabeledRectangle> getVisibleTargetComponents(){
+		return getVisibleRectangles(targetComponents);
+	}
+	
 	public void setSlaveMappingPanel(MappingPanel mappingPanel) {
 		this.slaveMappingPanel = mappingPanel;
+	}
+	
+	public MappingPanel getSlaveMappingPanel(){
+		return this.slaveMappingPanel;
 	}
 
 	public void setShowOnlyConnectedItems(boolean value) {
 		showOnlyConnectedItems = value;
 		renderModel();
 	}
-
+	
 	private void renderModel() {
 		sourceComponents.clear();
-		cdmComponents.clear();
+		targetComponents.clear();
 		arrows.clear();
 		for (MappableItem item : mapping.getSourceItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
@@ -134,10 +150,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		for (MappableItem item : mapping.getCdmItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				LabeledRectangle component = new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255));
-				cdmComponents.add(component);
+				targetComponents.add(component);
 			}
 		for (ItemToItemMap map : mapping.getSourceToCdmMaps()) {
-			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getCdmItem(), cdmComponents));
+			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getCdmItem(), targetComponents));
 			arrows.add(component);
 		}
 		layoutItems();
@@ -157,48 +173,42 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				return component;
 		return null;
 	}
-
+	
+	// Layout visible LabeledRectangles
 	private void layoutItems() {
 		if (minimized) { // Only update x coordinate
-			for (LabeledRectangle cdmComponent : cdmComponents)
+			for (LabeledRectangle cdmComponent : getVisibleTargetComponents()){
 				cdmComponent.setLocation(cdmX, cdmComponent.getY());
+			}
 		} else {
-			int avoidY = Integer.MAX_VALUE;
-			if (dragRectangle != null && dragRectangle.getX() == sourceX)
-				avoidY = dragRectangle.getY();
-			int y = HEADER_HEIGHT;
-			for (int i = 0; i < sourceComponents.size(); i++) {
-				LabeledRectangle item = sourceComponents.get(i);
-				if (y > avoidY - ITEM_HEIGHT && y <= avoidY + MARGIN)
-					y += MARGIN + ITEM_HEIGHT;
-
-				if (dragRectangle == null || item != dragRectangle) {
-					item.setLocation(sourceX, y);
-					y += MARGIN + ITEM_HEIGHT;
-				}
-			}
-
-			avoidY = Integer.MAX_VALUE;
-			if (dragRectangle != null && dragRectangle.getX() == cdmX)
-				avoidY = dragRectangle.getY();
-			y = HEADER_HEIGHT;
-			for (int i = 0; i < cdmComponents.size(); i++) {
-				LabeledRectangle item = cdmComponents.get(i);
-				if (y > avoidY - ITEM_HEIGHT && y <= avoidY + MARGIN)
-					y += MARGIN + ITEM_HEIGHT;
-
-				if (dragRectangle == null || item != dragRectangle) {
-					item.setLocation(cdmX, y);
-					y += MARGIN + ITEM_HEIGHT;
-				}
-			}
+			setLabeledRectanglesLocation(getVisibleSourceComponents(),sourceX);
+			setLabeledRectanglesLocation(getVisibleTargetComponents(),cdmX);
 		}
 	}
+	
+	// Sets the location of the Labeled Rectangles
+	private void setLabeledRectanglesLocation(List<LabeledRectangle> components, int xpos){
+		int avoidY = Integer.MAX_VALUE;
+		if (dragRectangle != null && dragRectangle.getX() == xpos)
+			avoidY = dragRectangle.getY();
+		int y = HEADER_HEIGHT + HEADER_TOP_MARGIN;
+		for (int i = 0; i < components.size(); i++) {
+			LabeledRectangle item = components.get(i);
+			if (y > avoidY - ITEM_HEIGHT && y <= avoidY + MARGIN)
+				y += MARGIN + ITEM_HEIGHT;
 
+			if (dragRectangle == null || item != dragRectangle) {
+				item.setLocation(xpos, y);
+				y += MARGIN + ITEM_HEIGHT;
+			}
+			
+		}
+	}
+	
 	public Dimension getMinimumSize() {
 		Dimension dimension = new Dimension();
 		dimension.width = 2 * (ITEM_WIDTH + MARGIN) + MIN_SPACE_BETWEEN_COLUMNS;
-		dimension.height = Math.min(HEADER_HEIGHT + Math.max(sourceComponents.size(), cdmComponents.size()) * (ITEM_HEIGHT + MARGIN), maxHeight);
+		dimension.height = Math.min(HEADER_HEIGHT + HEADER_TOP_MARGIN + Math.max(sourceComponents.size(), targetComponents.size()) * (ITEM_HEIGHT + MARGIN), maxHeight);
 		return dimension;
 	}
 
@@ -217,7 +227,25 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		layoutItems();
 		super.setSize(width, height);
 	}
-
+	
+	// Set visibility of components based on a search term
+	public void filterComponents(String searchTerm, boolean filterTarget){
+		List<LabeledRectangle> components;
+		
+		if( filterTarget == true ){
+			components = targetComponents;
+		}else{
+			components = sourceComponents;
+		}
+		
+		for (LabeledRectangle c : components){	
+			c.filter(searchTerm);
+		}
+		
+		layoutItems();
+		repaint();
+	}
+	
 	public void paint(Graphics g) {
 		Image offscreen = createVolatileImage(getWidth(), getHeight());
 		Graphics2D g2d;
@@ -234,19 +262,20 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2d.setRenderingHints(rh); 
 
-		addLabel(g2d, "Source", sourceX + ITEM_WIDTH / 2, HEADER_HEIGHT / 2);
-		addLabel(g2d, "CDMv5", cdmX + ITEM_WIDTH / 2, HEADER_HEIGHT / 2);
-
+		addLabel(g2d, "Source", sourceX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
+		addLabel(g2d, "CDMv5", cdmX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
+		
+		
 		if (showingArrowStarts && dragRectangle == null) {
-			for (LabeledRectangle item : sourceComponents)
+			for (LabeledRectangle item : getVisibleSourceComponents())
 				Arrow.drawArrowHead(g2d, Math.round(item.getX() + item.getWidth() + Arrow.headThickness), item.getY() + item.getHeight() / 2);
 		}
 
-		for (LabeledRectangle component : sourceComponents)
+		for (LabeledRectangle component : getVisibleSourceComponents())
 			if (component != dragRectangle)
 				component.paint(g2d);
 
-		for (LabeledRectangle component : cdmComponents)
+		for (LabeledRectangle component : getVisibleTargetComponents())
 			if (component != dragRectangle)
 				component.paint(g2d);
 
@@ -292,9 +321,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			detailsListener.showDetails(null);
 			selectedRectangle = null;
 		}
-
+		
 		if (event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH) { // Source component
-			for (LabeledRectangle component : sourceComponents) {
+			for (LabeledRectangle component : getVisibleSourceComponents()) {
 				if (component.contains(event.getPoint())) {
 					if (!component.isSelected()) {
 						component.setSelected(true);
@@ -307,7 +336,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 		}
 		if (event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH) { // cdm component
-			for (LabeledRectangle component : cdmComponents) {
+			for (LabeledRectangle component : getVisibleTargetComponents()) {
 				if (component.contains(event.getPoint())) {
 					if (!component.isSelected()) {
 						component.setSelected(true);
@@ -377,7 +406,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					if (component != sourceComponent)
 						component.setVisible(false);
 
-				for (LabeledRectangle component : cdmComponents)
+				for (LabeledRectangle component : targetComponents)
 					if (component != cdmComponent)
 						component.setVisible(false);
 
@@ -385,9 +414,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					if (component != zoomArrow)
 						component.setVisible(false);
 				minimized = true;
-				Path heightPath = new Path(getHeight(), HEADER_HEIGHT + MARGIN + ITEM_HEIGHT + BORDER_HEIGHT);
-				Path sourcePath = new Path(sourceComponent.getY(), HEADER_HEIGHT);
-				Path cdmPath = new Path(cdmComponent.getY(), HEADER_HEIGHT);
+				Path heightPath = new Path(getHeight(), HEADER_TOP_MARGIN + HEADER_HEIGHT + MARGIN + ITEM_HEIGHT + BORDER_HEIGHT);
+				Path sourcePath = new Path(sourceComponent.getY(), HEADER_TOP_MARGIN + HEADER_HEIGHT);
+				Path cdmPath = new Path(cdmComponent.getY(), HEADER_TOP_MARGIN + HEADER_HEIGHT);
 				for (int i = 0; i < nSteps; i++) {
 					maxHeight = heightPath.getValue(i);
 					sourceComponent.setLocation(sourceX, sourcePath.getValue(i));
@@ -452,11 +481,13 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		for (LabeledRectangle component : sourceComponents)
 			component.setVisible(true);
 
-		for (LabeledRectangle component : cdmComponents)
+		for (LabeledRectangle component : targetComponents)
 			component.setVisible(true);
 
 		for (Arrow component : arrows)
 			component.setVisible(true);
+		
+		this.requestFocusInWindow();
 	}
 
 	@Override
@@ -467,7 +498,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 
 		if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < sourceX + ITEM_WIDTH + ARROW_START_WIDTH) { // Arrow starts
-			for (LabeledRectangle item : sourceComponents) {
+			for (LabeledRectangle item : getVisibleSourceComponents()) {
 				if (event.getY() >= item.getY() && event.getY() <= item.getY() + item.getHeight()) {
 					dragArrow = new Arrow(item);
 					dragArrow.setTargetPoint(new Point(item.getX() + item.getWidth() + Arrow.headThickness, item.getY() + item.getHeight() / 2));
@@ -478,7 +509,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 		} else if (event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX && dragArrow == null) { // Existing arrowheads
 			for (Arrow arrow : arrows) {
-				if (event.getY() >= arrow.getTarget().getY() && event.getY() <= arrow.getTarget().getY() + arrow.getTarget().getHeight()) {
+				if (event.getY() >= arrow.getTarget().getY() && event.getY() <= arrow.getTarget().getY() + arrow.getTarget().getHeight() && arrow.isSourceAndTargetVisible()) {
 					dragArrow = arrow;
 					dragArrowPreviousTarget = dragArrow.getTarget();
 					dragArrow.setTarget(null);
@@ -490,14 +521,14 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 			repaint();
 		} else {
-			for (LabeledRectangle item : sourceComponents) {
+			for (LabeledRectangle item : getVisibleSourceComponents()) {
 				if (item.contains(event.getPoint())) {
 					dragRectangle = item;
 					dragOffsetY = event.getY() - item.getY();
 					break;
 				}
 			}
-			for (LabeledRectangle item : cdmComponents) {
+			for (LabeledRectangle item : getVisibleTargetComponents()) {
 				if (item.contains(event.getPoint())) {
 					dragRectangle = item;
 					dragOffsetY = event.getY() - item.getY();
@@ -514,15 +545,15 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				Collections.sort(sourceComponents, new YComparator());
 				mapping.setSourceItems(getItemsList(sourceComponents));
 			}
-			if (!isSorted(cdmComponents, new YComparator())) {
-				Collections.sort(cdmComponents, new YComparator());
-				mapping.setCdmItems(getItemsList(cdmComponents));
+			if (!isSorted(targetComponents, new YComparator())) {
+				Collections.sort(targetComponents, new YComparator());
+				mapping.setCdmItems(getItemsList(targetComponents));
 			}
 			dragRectangle = null;
 			layoutItems();
 		} else if (dragArrow != null) {
 			if (event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX + ITEM_WIDTH)
-				for (LabeledRectangle component : cdmComponents) {
+				for (LabeledRectangle component : getVisibleRectangles(targetComponents)) {
 					if (event.getY() >= component.getY() && event.getY() <= component.getY() + component.getHeight()) {
 						dragArrow.setTarget(component);
 						if (dragArrow.getTarget() == dragArrowPreviousTarget) {
@@ -558,9 +589,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		return items;
 	}
 
-	private boolean isSorted(List<LabeledRectangle> components, Comparator<LabeledRectangle> comparator) {
-		for (int i = 0; i < components.size() - 1; i++)
-			if (comparator.compare(components.get(i), components.get(i + 1)) < 0)
+	private boolean isSorted(List<LabeledRectangle> sourceComponents2, Comparator<LabeledRectangle> comparator) {
+		for (int i = 0; i < sourceComponents2.size() - 1; i++)
+			if (comparator.compare(sourceComponents2.get(i), sourceComponents2.get(i + 1)) < 0)
 				return false;
 		return true;
 	}
@@ -614,7 +645,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void addResizeListener(ResizeListener resizeListener) {
 		resizeListeners.add(resizeListener);
 	}
-
+	
+	public void removeResizeListener(ResizeListener resizeListener) {
+		resizeListeners.remove(resizeListener);
+	}
+	
 	public void setDetailsListener(DetailsListener detailsListener) {
 		this.detailsListener = detailsListener;
 	}
@@ -645,4 +680,15 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		return highlighted;
 	}
 
+	public List<LabeledRectangle> getVisibleRectangles(List<LabeledRectangle> components){
+		List<LabeledRectangle> visible = new ArrayList<LabeledRectangle>();
+		
+		for( LabeledRectangle component : components){
+			
+			if(component.isVisible())
+			visible.add(component);
+		}
+		
+		return visible;
+	}
 }

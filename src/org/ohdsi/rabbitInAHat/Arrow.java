@@ -75,6 +75,9 @@ public class Arrow implements MappingComponent {
 		return height;
 	}
 
+	public boolean isVisible(){
+		return isVisible;
+	}
 	public LabeledRectangle getSource() {
 		return source;
 	}
@@ -92,6 +95,12 @@ public class Arrow implements MappingComponent {
 	public void paint(Graphics g) {
 		if (!isVisible)
 			return;
+		
+		if( source != null && target != null){
+			if(!source.isVisible() || !target.isVisible()){
+				return;
+			}
+		}
 		Graphics2D g2d = (Graphics2D) g;
 
 		if (source != null) {
@@ -188,5 +197,9 @@ public class Arrow implements MappingComponent {
 
 	public void setVisible(boolean value) {
 		isVisible = value;
+	}
+	
+	public boolean isSourceAndTargetVisible(){
+		return source.isVisible() && target.isVisible();
 	}
 }
