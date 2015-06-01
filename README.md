@@ -68,7 +68,3 @@ Development
 White Rabbit and Rabbit in a Hat are being developed in Eclipse. Contributions are welcome.
 ###Development status
 Alpha testing - useable but some bugs are already known to exist
-
-Acknowledgements
-===========
-Martijn Schuemie is the author of this application.
