@@ -84,7 +84,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setCDMDatabase(Database.generateCDMModel());
+		etl.setTargetDatabase(Database.generateCDMModel());
 		ObjectExchange.etl = etl;
 
 		tableMappingPanel = new MappingPanel(etl.getTableToTableMapping());
@@ -370,7 +370,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETL etl = new ETL();
 			etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
-			etl.setCDMDatabase(Database.generateCDMModel());
+			etl.setTargetDatabase(Database.generateCDMModel());
 			ObjectExchange.etl = etl;
 			tableMappingPanel.setMapping(etl.getTableToTableMapping());
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
