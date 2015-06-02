@@ -111,6 +111,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		detailsPanel = new DetailsPanel();
 		detailsPanel.setBorder(new TitledBorder("Details"));
 		detailsPanel.setPreferredSize(new Dimension(200, 500));
+		detailsPanel.setMinimumSize(new Dimension(0, 0));
 		tableMappingPanel.setDetailsListener(detailsPanel);
 		fieldMappingPanel.setDetailsListener(detailsPanel);
 		JSplitPane leftRightSplinePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, detailsPanel);
