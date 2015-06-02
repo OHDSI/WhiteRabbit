@@ -27,6 +27,7 @@ import java.awt.Polygon;
 public class Arrow implements MappingComponent {
 
 	public enum HighlightStatus {
+		IS_SELECTED (new Color(128, 128, 128, 128)),
 		BOTH_SELECTED (new Color(255, 255, 0, 192)),
 		SOURCE_SELECTED (new Color(255, 128, 0, 192)),
 		TARGET_SELECTED (new Color(0, 0, 255, 192)),
@@ -193,7 +194,9 @@ public class Arrow implements MappingComponent {
 	}
 
 	public HighlightStatus getHighlightStatus() {
-		if (isSourceSelected() && isTargetSelected()) {
+		if (isSelected()) {
+			return HighlightStatus.IS_SELECTED;
+		} else if (isSourceSelected() && isTargetSelected()) {
 			return HighlightStatus.BOTH_SELECTED;
 		} else if (isSourceSelected()) {
 			return HighlightStatus.SOURCE_SELECTED;
