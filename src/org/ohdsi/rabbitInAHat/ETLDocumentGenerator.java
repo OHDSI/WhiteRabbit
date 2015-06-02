@@ -58,8 +58,8 @@ public class ETLDocumentGenerator {
 			
 			addTableLevelSection(document, etl);
 			
-			for (Table cdmTable : etl.getCDMDatabase().getTables())
-				addCDMTableSection(document, etl, cdmTable);
+			for (Table targetTable : etl.getTargetDatabase().getTables())
+				addTargetTableSection(document, etl, targetTable);
 
 			if (includeCounts) addSourceTablesAppendix(document, etl);
 			
@@ -118,24 +118,24 @@ public class ETLDocumentGenerator {
 		run.setFontSize(18);
 	}
 	
-	private static void addCDMTableSection(CustomXWPFDocument document, ETL etl, Table cdmTable) throws InvalidFormatException, FileNotFoundException {
+	private static void addTargetTableSection(CustomXWPFDocument document, ETL etl, Table targetTable) throws InvalidFormatException, FileNotFoundException {
 		XWPFParagraph paragraph = document.createParagraph();
 		XWPFRun run = paragraph.createRun();
 		run.addBreak(BreakType.PAGE);
 		
-		run.setText("Table name: " + cdmTable.getName());
+		run.setText("Table name: " + targetTable.getName());
 		run.setFontSize(18);
 		
-		if (!cdmTable.getComment().equals("")) {
+		if (!targetTable.getComment().equals("")) {
 			paragraph = document.createParagraph();
 			run = paragraph.createRun();
-			run.setText(cdmTable.getComment());
+			run.setText(targetTable.getComment());
 		}
 		
-		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToCdmMaps())
-			if (tableToTableMap.getCdmItem() == cdmTable) {
+		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps())
+			if (tableToTableMap.getTargetItem() == targetTable) {
 				Table sourceTable = (Table) tableToTableMap.getSourceItem();
-				Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, cdmTable);
+				Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
 				
 				paragraph = document.createParagraph();
 				run = paragraph.createRun();
@@ -167,7 +167,7 @@ public class ETLDocumentGenerator {
 				document.addPicture(im, 600, height * 6 / 8);
 				
 				// Add table of field to field mapping
-				XWPFTable table = document.createTable(fieldtoFieldMapping.getCdmItems().size() + 1, 4);
+				XWPFTable table = document.createTable(fieldtoFieldMapping.getTargetItems().size() + 1, 4);
 				// table.setWidth(2000);
 				XWPFTableRow header = table.getRow(0);
 				setTextAndHeaderShading(header.getCell(0), "Destination Field");
@@ -175,15 +175,15 @@ public class ETLDocumentGenerator {
 				setTextAndHeaderShading(header.getCell(2), "Logic");
 				setTextAndHeaderShading(header.getCell(3), "Comment");
 				int rowNr = 1;
-				for (MappableItem cdmField : fieldtoFieldMapping.getCdmItems()) {
+				for (MappableItem targetField : fieldtoFieldMapping.getTargetItems()) {
 					XWPFTableRow row = table.getRow(rowNr++);
-					row.getCell(0).setText(cdmField.getName());
+					row.getCell(0).setText(targetField.getName());
 					
 					StringBuilder source = new StringBuilder();
 					StringBuilder logic = new StringBuilder();
 					StringBuilder comment = new StringBuilder();
-					for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToCdmMaps())
-						if (fieldToFieldMap.getCdmItem() == cdmField) {
+					for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToTargetMaps())
+						if (fieldToFieldMap.getTargetItem() == targetField) {
 							if (source.length() != 0)
 								source.append("\n");
 							source.append(fieldToFieldMap.getSourceItem().getName());
@@ -196,8 +196,8 @@ public class ETLDocumentGenerator {
 								comment.append("\n");
 							comment.append(fieldToFieldMap.getComment());
 						}
-					for (Field field : cdmTable.getFields())
-						if (field.getName().equals(cdmField.getName())) {
+					for (Field field : targetTable.getFields())
+						if (field.getName().equals(targetField.getName())) {
 							if (comment.length() != 0)
 								comment.append("\n");
 							comment.append(field.getComment());

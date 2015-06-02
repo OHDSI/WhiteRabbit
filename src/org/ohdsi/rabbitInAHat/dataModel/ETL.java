@@ -40,7 +40,7 @@ public class ETL implements Serializable {
 	}
 
 	private Database								sourceDb					= new Database();
-	private Database								cdmDb						= new Database();
+	private Database								targetDb					= new Database();
 	private List<ItemToItemMap>						tableToTableMaps			= new ArrayList<ItemToItemMap>();
 	private Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<ItemToItemMap, List<ItemToItemMap>>();
 	private transient String						filename					= null;
@@ -59,32 +59,32 @@ public class ETL implements Serializable {
 	}
 
 	public Mapping<Table> getTableToTableMapping() {
-		return new Mapping<Table>(sourceDb.getTables(), cdmDb.getTables(), tableToTableMaps);
+		return new Mapping<Table>(sourceDb.getTables(), targetDb.getTables(), tableToTableMaps);
 	}
 
-	public Mapping<Field> getFieldToFieldMapping(Table sourceTable, Table cdmTable) {
-		List<ItemToItemMap> fieldToFieldMaps = tableMapToFieldToFieldMaps.get(new ItemToItemMap(sourceTable, cdmTable));
+	public Mapping<Field> getFieldToFieldMapping(Table sourceTable, Table targetTable) {
+		List<ItemToItemMap> fieldToFieldMaps = tableMapToFieldToFieldMaps.get(new ItemToItemMap(sourceTable, targetTable));
 		if (fieldToFieldMaps == null) {
 			fieldToFieldMaps = new ArrayList<ItemToItemMap>();
-			tableMapToFieldToFieldMaps.put(new ItemToItemMap(sourceTable, cdmTable), fieldToFieldMaps);
+			tableMapToFieldToFieldMaps.put(new ItemToItemMap(sourceTable, targetTable), fieldToFieldMaps);
 		}
-		return new Mapping<Field>(sourceTable.getFields(), cdmTable.getFields(), fieldToFieldMaps);
+		return new Mapping<Field>(sourceTable.getFields(), targetTable.getFields(), fieldToFieldMaps);
 	}
 
 	public String getFilename() {
 		return filename;
 	}
 
-	public void setCDMDatabase(Database cdmDb) {
-		this.cdmDb = cdmDb;
+	public void setTargetDatabase(Database targetDb) {
+		this.targetDb = targetDb;
 	}
 
 	public void setSourceDatabase(Database sourceDb) {
 		this.sourceDb = sourceDb;
 	}
 
-	public Database getCDMDatabase() {
-		return cdmDb;
+	public Database getTargetDatabase() {
+		return targetDb;
 	}
 
 	public Database getSourceDatabase() {

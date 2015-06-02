@@ -23,17 +23,17 @@ import java.util.List;
 
 public class Mapping <T extends MappableItem>{
 	private List<T>	sourceItems;
-	private List<T>	cdmItems;
-	private List<ItemToItemMap>				sourceToCdmMaps;
+	private List<T>					targetItems;
+	private List<ItemToItemMap>		sourceToTargetMaps;
 	
-	public Mapping(List<T> sourceItems, List<T> cdmItems, List<ItemToItemMap> sourceToCdmMaps) {
+	public Mapping(List<T> sourceItems, List<T> targetItems, List<ItemToItemMap> sourceToTargetMaps) {
 		this.sourceItems = sourceItems;
-		this.cdmItems = cdmItems;
-		this.sourceToCdmMaps = sourceToCdmMaps;
+		this.targetItems = targetItems;
+		this.sourceToTargetMaps = sourceToTargetMaps;
 	}
 	
-	public void addSourceToCdmMap(MappableItem sourceItem, MappableItem cdmItem) {
-		sourceToCdmMaps.add(new ItemToItemMap(sourceItem, cdmItem));
+	public void addSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
+		sourceToTargetMaps.add(new ItemToItemMap(sourceItem, targetItem));
 	}
 	
 	public List<MappableItem> getSourceItems() {
@@ -51,39 +51,39 @@ public class Mapping <T extends MappableItem>{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void setCdmItems(List<? extends MappableItem> cdmItems) {
-		this.cdmItems.clear();
-		for (MappableItem item : cdmItems)
-			this.cdmItems.add((T) item);
+	public void setTargetItems(List<? extends MappableItem> targetItems) {
+		this.targetItems.clear();
+		for (MappableItem item : targetItems)
+			this.targetItems.add((T) item);
 	}
 	
-	public List<MappableItem> getCdmItems() {
+	public List<MappableItem> getTargetItems() {
 		List<MappableItem> list = new ArrayList<MappableItem>();
-		for (MappableItem item : cdmItems)
+		for (MappableItem item : targetItems)
 			list.add(item);
 		return list;
 
 	}
 	
-	public List<ItemToItemMap> getSourceToCdmMaps() {
-		return sourceToCdmMaps;
+	public List<ItemToItemMap> getSourceToTargetMaps() {
+		return sourceToTargetMaps;
 	}
 	
-	public void removeSourceToCdmMap(MappableItem sourceItem, MappableItem cdmItem) {
-		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
+	public void removeSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
+		Iterator<ItemToItemMap> iterator = sourceToTargetMaps.iterator();
 		while (iterator.hasNext()) {
-			ItemToItemMap sourceToCdmMap = iterator.next();
-			if (sourceToCdmMap.getSourceItem().equals(sourceItem) && sourceToCdmMap.getCdmItem().equals(cdmItem))
+			ItemToItemMap sourceToTargetMap = iterator.next();
+			if (sourceToTargetMap.getSourceItem().equals(sourceItem) && sourceToTargetMap.getTargetItem().equals(targetItem))
 				iterator.remove();
 		}
 	}
 	
-	public ItemToItemMap getSourceToCdmMap(MappableItem sourceItem, MappableItem cdmItem) {
-		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
+	public ItemToItemMap getSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
+		Iterator<ItemToItemMap> iterator = sourceToTargetMaps.iterator();
 		while (iterator.hasNext()) {
-			ItemToItemMap sourceToCdmMap = iterator.next();
-			if (sourceToCdmMap.getSourceItem().equals(sourceItem) && sourceToCdmMap.getCdmItem().equals(cdmItem))
-				return sourceToCdmMap;
+			ItemToItemMap sourceToTargetMap = iterator.next();
+			if (sourceToTargetMap.getSourceItem().equals(sourceItem) && sourceToTargetMap.getTargetItem().equals(targetItem))
+				return sourceToTargetMap;
 		}
 		return null;
 	}
