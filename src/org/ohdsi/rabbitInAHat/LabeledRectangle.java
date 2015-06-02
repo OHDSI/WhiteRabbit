@@ -86,10 +86,11 @@ public class LabeledRectangle implements MappingComponent {
 	}
 	
 	public void filter(String searchTerm){
-		if (this.getItem().getName().matches(".*" + searchTerm + ".*") || searchTerm.equals("") ){
+		if (this.getItem().getName().matches(".*(" + searchTerm + ").*") || searchTerm.equals("") ){
 			this.setVisible(true);				
 		}else{
 			this.setVisible(false);
+			this.setSelected(false);
 		}
 	}
 	
@@ -161,6 +162,11 @@ public class LabeledRectangle implements MappingComponent {
 	public boolean contains(Point point) {
 		return (point.x >= x && point.x <= x + width && point.y >= y && point.y <= y + height);
 	}
+	
+	public boolean contains(Point point, int xOffset, int yOffset) {
+		Point p = new Point(point.x + xOffset, point.y + yOffset);
+		return contains(p);
+	}
 
 	public int getX() {
 		return x;
@@ -180,6 +186,11 @@ public class LabeledRectangle implements MappingComponent {
 
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
+	}
+	
+	public boolean toggleSelected(){
+		this.isSelected = !this.isSelected;
+		return isSelected;
 	}
 
 	public void setVisible(boolean value) {

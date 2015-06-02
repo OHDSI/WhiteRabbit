@@ -33,7 +33,7 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 	
 	public FilterDialog(Window parentWindow){
 		
-		super(parentWindow,"Filter Results",ModalityType.MODELESS);		
+		super(parentWindow,"Filter",ModalityType.MODELESS);		
 						
 		this.setLocation(parentWindow.getX()+parentWindow.getWidth()/2, parentWindow.getY()+100);
 		this.setSize(700,120);
@@ -95,6 +95,8 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 		if (filterPanel != null) {
 			aFilterPanel.addResizeListener(this);
 		}
+		
+		setSearchFieldsToLastSearch();
 	}
 	
 	public MappingPanel getFilterPanel(){
@@ -134,9 +136,12 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 		doFilterPanel("","Source");
 	}
 	
+	private void setSearchFieldsToLastSearch(){
+		sourceSearchField.setText(getFilterPanel().getLastSourceFilter());			
+		targetSearchField.setText(getFilterPanel().getLastTargetFilter());
+	}
 	public void notifyResized(int height, boolean minimized, boolean maximized) {
-		clearSourceFilter();
-		clearTargetFilter();
+		setSearchFieldsToLastSearch();
 	}
 	
 	class SearchListener implements KeyListener{
