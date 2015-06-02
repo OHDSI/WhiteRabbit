@@ -26,11 +26,22 @@ import java.awt.Polygon;
 
 public class Arrow implements MappingComponent {
 
+	public enum HighlightStatus {
+		BOTH_SELECTED (new Color(255, 255, 0, 192)),
+		SOURCE_SELECTED (new Color(255, 128, 0, 192)),
+		TARGET_SELECTED (new Color(0, 0, 255, 192)),
+		NONE_SELECTED (new Color(128, 128, 128, 128));
+		
+		private final Color color;
+		
+		HighlightStatus(Color color) {
+			this.color = color;
+		}
+	}
+	
 	public static float			thickness		= 5;
 	public static int			headThickness	= 15;
-	public static Color			color	    	= new Color(128, 128, 128, 128);
-	public static Color			sourceColor		= new Color(255, 128, 0, 192);
-	public static Color			targetColor		= new Color(0, 0, 255, 192);
+	public static Color			color	    	= HighlightStatus.NONE_SELECTED.color;
 	private static BasicStroke	dashed			= new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 10.f }, 0.0f);
 
 	private int					x1;
@@ -46,7 +57,7 @@ public class Arrow implements MappingComponent {
 	private Polygon				polygon;
 
 	private boolean				isSelected		= false;
-	private boolean				isVisible		= true;																										;
+	private boolean				isVisible		= true;
 
 	public Arrow(LabeledRectangle source) {
 		this.source = source;
@@ -148,17 +159,15 @@ public class Arrow implements MappingComponent {
 	}
 
 	public Color fillColor() {
-		if (source != null && source.isSelected()) {
-			return sourceColor;
-		} else if (target != null && target.isSelected()) {
-			return targetColor;
-		} else {
-			return color;
-		}
+		return getHighlightStatus().color;
 	}
-	
-	public boolean isHighlighted() {
-		return (source != null && source.isSelected()) || (target != null && target.isSelected());
+
+	private boolean isTargetSelected() {
+		return target != null && target.isSelected();
+	}
+
+	private boolean isSourceSelected() {
+		return source != null && source.isSelected();
 	}
 
 	public static void drawArrowHead(Graphics2D g2d, int x, int y) {
@@ -183,10 +192,22 @@ public class Arrow implements MappingComponent {
 		return target;
 	}
 
+	public HighlightStatus getHighlightStatus() {
+		if (isSourceSelected() && isTargetSelected()) {
+			return HighlightStatus.BOTH_SELECTED;
+		} else if (isSourceSelected()) {
+			return HighlightStatus.SOURCE_SELECTED;
+		} else if (isTargetSelected()) {
+			return HighlightStatus.TARGET_SELECTED;
+		} else {
+			return HighlightStatus.NONE_SELECTED;
+		}
+	}
+
 	public boolean isSelected() {
 		return isSelected;
 	}
-
+	
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
@@ -201,5 +222,9 @@ public class Arrow implements MappingComponent {
 	
 	public boolean isSourceAndTargetVisible(){
 		return source.isVisible() && target.isVisible();
+	}
+	
+	public boolean isConnected(){
+		return source != null && target != null;
 	}
 }

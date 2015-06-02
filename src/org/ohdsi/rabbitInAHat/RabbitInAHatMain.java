@@ -53,7 +53,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard value counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
-
+	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
+	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
+	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
 	private JFrame					frame;
@@ -112,9 +114,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		tableMappingPanel.setDetailsListener(detailsPanel);
 		fieldMappingPanel.setDetailsListener(detailsPanel);
 		JSplitPane leftRightSplinePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, detailsPanel);
-		leftRightSplinePane.setDividerLocation(700);
+		leftRightSplinePane.setResizeWeight(0.40);
 		frame.add(leftRightSplinePane);
-
+		
 		loadIcons(frame);
 		frame.pack();
 		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
@@ -192,8 +194,21 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JMenuItem filter = new JMenuItem(ACTION_CMD_FILTER);
 		filter.addActionListener(this);
 		filter.setActionCommand(ACTION_CMD_FILTER);
+		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));	
 		editMenu.add(filter);
 
+		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
+		makeMappings.addActionListener(this);
+		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
+		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));		
+		editMenu.add(makeMappings);
+
+		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
+		removeMappings.addActionListener(this);
+		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
+		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));		
+		editMenu.add(removeMappings);
+		
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
 
@@ -285,6 +300,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_FILTER:
 				doOpenFilterDialog();
 				break;
+			case ACTION_CMD_MAKE_MAPPING:
+				doMakeMappings();
+				break;
+			case ACTION_CMD_REMOVE_MAPPING:
+				doRemoveMappings();
+				break;
 		}
 	}
 	
@@ -298,6 +319,23 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		filter.setVisible(true);
 	}
 
+	private void doMakeMappings() {
+		if(this.tableMappingPanel.isMaximized()){
+			this.tableMappingPanel.makeMapSelectedSourceAndTarget();
+		}else{
+			this.fieldMappingPanel.makeMapSelectedSourceAndTarget();
+		}
+		
+	}
+
+	private void doRemoveMappings() {
+		if(this.tableMappingPanel.isMaximized()){
+			this.tableMappingPanel.removeMapSelectedSourceAndTarget();
+		}else{
+			this.fieldMappingPanel.removeMapSelectedSourceAndTarget();
+		}
+		
+	}
 	private void doDiscardCounts() {
 		ObjectExchange.etl.discardCounts();
 		detailsPanel.refresh();
