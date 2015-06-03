@@ -22,4 +22,5 @@ import java.io.Serializable;
 public interface MappableItem extends Serializable{
 	public String outputName();
 	public String getName();
+	public Database getDb();
 }

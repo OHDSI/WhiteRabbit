@@ -46,6 +46,13 @@ public class ETL implements Serializable {
 	private transient String						filename					= null;
 	private static final long						serialVersionUID			= 8987388381751618498L;
 
+	public ETL(){
+		
+	}
+	public ETL(Database sourceDB, Database targetDb){
+		this.setSourceDatabase(sourceDB);
+		this.setTargetDatabase(targetDb);
+	}
 	public void saveCurrentState() {
 
 	}
@@ -82,6 +89,7 @@ public class ETL implements Serializable {
 	public void setSourceDatabase(Database sourceDb) {
 		this.sourceDb = sourceDb;
 	}
+
 
 	public Database getTargetDatabase() {
 		return targetDb;

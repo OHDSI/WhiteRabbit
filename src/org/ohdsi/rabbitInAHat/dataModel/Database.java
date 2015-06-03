@@ -31,8 +31,22 @@ import org.ohdsi.utilities.files.Row;
 
 public class Database implements Serializable {
 
+	public enum CDMVersion {
+		CDMV4 ("CDMV4Model.csv", "CDMv4"), 
+		CDMV5 ("CDMv5Model.csv", "CDMv5");
+		
+		private final String fileName;
+		private final String dbName;
+		
+		CDMVersion(String fileName, String dbName){
+			this.fileName = fileName;
+			this.dbName = dbName;
+		}
+	}
+	
 	private List<Table>			tables				= new ArrayList<Table>();
 	private static final long	serialVersionUID	= -3912166654601191039L;
+	private String				dbName				= "";				
 
 	public List<Table> getTables() {
 		return tables;
@@ -42,14 +56,21 @@ public class Database implements Serializable {
 		this.tables = tables;
 	}
 
-	public static Database generateCDMModel() {
+	public String getDbName(){
+		return dbName;
+	}
+
+	public static Database generateCDMModel(CDMVersion cdmVersion) {
 		Database database = new Database();
+		
+		database.dbName = cdmVersion.dbName;
+		
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
-		for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream("CDMv5Model.csv"))) {
-		//for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream("CDMV4Model.csv"))) {
+		for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream(cdmVersion.fileName))) {
 			Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
 			if (table == null) {
 				table = new Table();
+				table.setDb(database);
 				table.setName(row.get("TABLE_NAME").toLowerCase());
 				nameToTable.put(row.get("TABLE_NAME").toLowerCase(), table);
 				database.tables.add(table);
