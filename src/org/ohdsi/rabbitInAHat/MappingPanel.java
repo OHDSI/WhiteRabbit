@@ -279,8 +279,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2d.setRenderingHints(rh); 
 
-		addLabel(g2d, "Source", sourceX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
-		addLabel(g2d, "CDMv5", targetX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
+		addLabel(g2d, this.getSourceDbName(), sourceX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
+		addLabel(g2d, this.getTargetDbName(), targetX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
 		
 		
 		if (showingArrowStarts && dragRectangle == null) {
@@ -787,5 +787,32 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 		
 		return visible;
+	}
+	
+	public String getSourceDbName(){
+		String resString = "Source";
+
+		if(this.mapping.getSourceItems().size() > 0 ){
+			
+			if(this.mapping.getSourceItems().get(0).getDb() != null){
+				resString = this.mapping.getSourceItems().get(0).getDb().getDbName();
+			}
+		}
+		
+		return resString;
+		
+	}
+	
+	public String getTargetDbName(){
+		String resString = "Target";
+		
+		if(this.mapping.getTargetItems().size() > 0 ){
+			
+			if(this.mapping.getTargetItems().get(0).getDb() != null){
+				resString = this.mapping.getTargetItems().get(0).getDb().getDbName();
+			}
+		}
+		
+		return resString;
 	}
 }

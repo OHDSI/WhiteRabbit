@@ -1,162 +1,162 @@
-TABLE_NAME,COLUMN_NAME,IS_NULLABLE,DATA_TYPE
-location,LOCATION_ID,NO,int(11)
-location,ADDRESS_1,YES,varchar(50)
-location,ADDRESS_2,YES,varchar(50)
-location,CITY,YES,varchar(50)
-location,STATE,YES,char(2)
-location,ZIP,YES,varchar(9)
-location,COUNTY,YES,varchar(20)
-location,LOCATION_SOURCE_VALUE,YES,varchar(50)
-person,PERSON_ID,NO,bigint(20)
-person,GENDER_CONCEPT_ID,NO,int(11)
-person,YEAR_OF_BIRTH,NO,int(11)
-person,MONTH_OF_BIRTH,YES,int(11)
-person,DAY_OF_BIRTH,YES,int(11)
-person,RACE_CONCEPT_ID,YES,int(11)
-person,ETHNICITY_CONCEPT_ID,YES,int(11)
-person,LOCATION_ID,YES,int(11)
-person,PROVIDER_ID,YES,int(11)
-person,CARE_SITE_ID,YES,int(11)
-person,PERSON_SOURCE_VALUE,YES,varchar(50)
-person,GENDER_SOURCE_VALUE,YES,varchar(50)
-person,RACE_SOURCE_VALUE,YES,varchar(50)
-person,ETHNICITY_SOURCE_VALUE,YES,varchar(50)
-observation_period,OBSERVATION_PERIOD_ID,NO,bigint(20)
-observation_period,PERSON_ID,NO,bigint(20)
-observation_period,OBSERVATION_PERIOD_START_DATE,NO,date
-observation_period,OBSERVATION_PERIOD_END_DATE,NO,date
-care_site,CARE_SITE_ID,NO,int(11)
-care_site,LOCATION_ID,YES,int(11)
-care_site,ORGANIZATION_ID,YES,int(11)
-care_site,PLACE_OF_SERVICE_CONCEPT_ID,YES,int(11)
-care_site,CARE_SITE_SOURCE_VALUE,YES,varchar(50)
-care_site,PLACE_OF_SERVICE_SOURCE_VALUE,YES,varchar(50)
-visit_occurrence,VISIT_OCCURRENCE_ID,NO,bigint(20)
-visit_occurrence,PERSON_ID,NO,bigint(20)
-visit_occurrence,PLACE_OF_SERVICE_CONCEPT_ID,NO,int(11)
-visit_occurrence,VISIT_START_DATE,NO,date
-visit_occurrence,VISIT_END_DATE,NO,date
-visit_occurrence,PLACE_OF_SERVICE_SOURCE_VALUE,YES,varchar(50)
-visit_occurrence,CARE_SITE_ID,YES,int(11)
-provider,PROVIDER_ID,NO,bigint(20)
-provider,NPI,YES,varchar(20)
-provider,DEA,YES,varchar(20)
-provider,SPECIALTY_CONCEPT_ID,YES,int(11)
-provider,CARE_SITE_ID,YES,int(11)
-provider,PROVIDER_SOURCE_VALUE,YES,varchar(50)
-provider,SPECIALTY_SOURCE_VALUE,YES,varchar(50)
-condition_occurrence,CONDITION_OCCURRENCE_ID,NO,bigint(20)
-condition_occurrence,PERSON_ID,NO,bigint(20)
-condition_occurrence,CONDITION_CONCEPT_ID,NO,int(11)
-condition_occurrence,CONDITION_START_DATE,NO,date
-condition_occurrence,CONDITION_END_DATE,YES,date
-condition_occurrence,CONDITION_TYPE_CONCEPT_ID,NO,int(11)
-condition_occurrence,STOP_REASON,YES,varchar(20)
-condition_occurrence,ASSOCIATED_PROVIDER_ID,YES,int(11)
-condition_occurrence,VISIT_OCCURRENCE_ID,YES,bigint(20)
-condition_occurrence,CONDITION_SOURCE_VALUE,YES,varchar(50)
-death,PERSON_ID,NO,bigint(20)
-death,DEATH_DATE,NO,date
-death,DEATH_TYPE_CONCEPT_ID,NO,int(11)
-death,CAUSE_OF_DEATH_CONCEPT_ID,YES,int(11)
-death,CAUSE_OF_DEATH_SOURCE_VALUE,YES,varchar(50)
-drug_exposure,DRUG_CONCEPT_ID,NO,int(11)
-drug_exposure,DRUG_EXPOSURE_START_DATE,NO,date
-drug_exposure,DRUG_EXPOSURE_END_DATE,YES,date
-drug_exposure,DRUG_TYPE_CONCEPT_ID,NO,int(11)
-drug_exposure,STOP_REASON,YES,varchar(20)
-drug_exposure,REFILLS,YES,int(11)
-drug_exposure,QUANTITY,YES,int(11)
-drug_exposure,DAYS_SUPPLY,YES,int(11)
-drug_exposure,SIG,YES,varchar(500)
-drug_exposure,PRESCRIBING_PROVIDER_ID,YES,int(11)
-drug_exposure,VISIT_OCCURRENCE_ID,YES,bigint(20)
-drug_exposure,RELEVANT_CONDITION_CONCEPT_ID,YES,int(11)
-drug_exposure,DRUG_SOURCE_VALUE,YES,varchar(50)
-drug_exposure,DRUG_EXPOSURE_ID,NO,bigint(20)
-drug_exposure,PERSON_ID,NO,bigint(20)
-procedure_occurrence,PROCEDURE_OCCURRENCE_ID,NO,bigint(20)
-procedure_occurrence,PERSON_ID,NO,bigint(20)
-procedure_occurrence,PROCEDURE_TYPE_CONCEPT_ID,NO,int(11)
-procedure_occurrence,PROCEDURE_DATE,NO,date
-procedure_occurrence,PROCEDURE_CONCEPT_ID,NO,bigint(20)
-procedure_occurrence,ASSOCIATED_PROVIDER_ID,YES,int(11)
-procedure_occurrence,PROCEDURE_SOURCE_VALUE,YES,varchar(50)
-procedure_occurrence,VISIT_OCCURRENCE_ID,YES,bigint(20)
-procedure_occurrence,RELEVANT_CONDITION_CONCEPT_ID,YES,int(11)
-observation,OBSERVATION_ID,NO,bigint(20)
-observation,PERSON_ID,NO,bigint(20)
-observation,OBSERVATION_CONCEPT_ID,NO,bigint(20)
-observation,OBSERVATION_TYPE_CONCEPT_ID,NO,int(11)
-observation,OBSERVATION_DATE,NO,date
-observation,OBSERVATION_TIME,YES,time
-observation,VALUE_AS_NUMBER,YES,"decimal(10,0)"
-observation,VALUE_AS_STRING,YES,varchar(256)
-observation,VALUE_AS_CONCEPT_ID,YES,int(11)
-observation,UNIT_CONCEPT_ID,YES,bigint(20)
-observation,RANGE_LOW,YES,float
-observation,RANGE_HIGH,YES,float
-observation,ASSOCIATED_PROVIDER_ID,YES,int(11)
-observation,VISIT_OCCURRENCE_ID,YES,bigint(20)
-observation,OBSERVATION_SOURCE_VALUE,YES,varchar(256)
-observation,UNIT_SOURCE_VALUE,YES,varchar(256)
-observation,RELEVANT_CONDITION_CONCEPT_ID,YES,int(11)
-condition_era,CONDITION_ERA_ID,NO,bigint(20)
-condition_era,PERSON_ID,NO,bigint(20)
-condition_era,CONDITION_CONCEPT_ID,NO,int(11)
-condition_era,CONDITION_ERA_START_DATE,NO,date
-condition_era,CONDITION_ERA_END_DATE,NO,date
-condition_era,CONDITION_TYPE_CONCEPT_ID,NO,int(11)
-condition_era,CONDITION_OCCURRENCE_COUNT,YES,int(11)
-drug_era,DRUG_ERA_ID,NO,bigint(20)
-drug_era,PERSON_ID,NO,bigint(20)
-drug_era,DRUG_ERA_START_DATE,NO,date
-drug_era,DRUG_ERA_END_DATE,NO,date
-drug_era,DRUG_TYPE_CONCEPT_ID,NO,int(11)
-drug_era,DRUG_CONCEPT_ID,YES,int(11)
-drug_era,DRUG_EXPOSURE_COUNT,NO,int(11)
-organization,ORGANIZATION_ID,NO,int(11)
-organization,PLACE_OF_SERVICE_CONCEPT_ID,YES,int(11)
-organization,LOCATION_ID,YES,int(11)
-organization,ORGANIZATION_SOURCE_VALUE,YES,varchar(50)
-organization,PLACE_OF_SERVICE_SOURCE_VALUE,YES,varchar(50)
-payer_plan_period,PAYER_PLAN_PERIOD_ID,NO,bigint(20)
-payer_plan_period,PERSON_ID,NO,bigint(20)
-payer_plan_period,PAYER_PLAN_PERIOD_START_DATE,NO,date
-payer_plan_period,PAYER_PLAN_PERIOD_END_DATE,NO,date
-payer_plan_period,PAYER_SOURCE_VALUE,YES,varchar(50)
-payer_plan_period,PLAN_SOURCE_VALUE,YES,varchar(50)
-payer_plan_period,FAMILY_SOURCE_VALUE,YES,varchar(50)
-drug_cost,DRUG_COST_ID,NO,bigint(20)
-drug_cost,DRUG_EXPOSURE_ID,NO,bigint(20)
-drug_cost,PAID_COPAY,YES,"decimal(10,0)"
-drug_cost,PAID_COINSURANCE,YES,"decimal(10,0)"
-drug_cost,PAID_TOWARD_DEDUCTIBLE,YES,"decimal(10,0)"
-drug_cost,PAID_BY_PAYER,YES,"decimal(10,0)"
-drug_cost,PAID_BY_COORDINATION_BENEFITS,YES,"decimal(10,0)"
-drug_cost,TOTAL_OUT_OF_POCKET,YES,"decimal(10,0)"
-drug_cost,TOTAL_PAID,YES,"decimal(10,0)"
-drug_cost,INGREDIENT_COST,YES,"decimal(10,0)"
-drug_cost,DISPENSING_FEE,YES,"decimal(10,0)"
-drug_cost,AVERAGE_WHOLESALE_PRICE,YES,"decimal(10,0)"
-drug_cost,PAYER_PLAN_PERIOD_ID,YES,int(11)
-procedure_cost,PROCEDURE_COST_ID,NO,bigint(20)
-procedure_cost,PROCEDURE_OCCURRENCE_ID,NO,bigint(20)
-procedure_cost,PAID_COPAY,YES,"decimal(10,0)"
-procedure_cost,PAID_COINSURANCE,YES,"decimal(10,0)"
-procedure_cost,PAID_TOWARD_DEDUCTIBLE,YES,"decimal(10,0)"
-procedure_cost,PAID_BY_PAYER,YES,"decimal(10,0)"
-procedure_cost,PAID_BY_COORDINATION_BENEFITS,YES,"decimal(10,0)"
-procedure_cost,TOTAL_OUT_OF_POCKET,YES,"decimal(10,0)"
-procedure_cost,TOTAL_PAID,YES,"decimal(10,0)"
-procedure_cost,DISEASE_CLASS_CONCEPT_ID,YES,int(11)
-procedure_cost,REVENUE_CODE_CONCEPT_ID,YES,int(11)
-procedure_cost,PAYER_PLAN_PERIOD_ID,YES,bigint(20)
-procedure_cost,DISEASE_CLASS_SOURCE_VALUE,YES,varchar(50)
-procedure_cost,REVENUE_CODE_SOURCE_VALUE,YES,varchar(50)
-cohort,COHORT_ID,NO,int(11)
-cohort,COHORT_CONCEPT_ID,NO,int(11)
-cohort,COHORT_START_DATE,NO,date
-cohort,COHORT_END_DATE,YES,date
-cohort,SUBJECT_ID,NO,bigint(20)
-cohort,STOP_REASON,YES,varchar(20)
+TABLE_NAME,COLUMN_NAME,IS_NULLABLE,DATA_TYPE,STANDARD_VOCABULARY,DESCRIPTION,,,,,,,
+location,LOCATION_ID,NO,int(11),   , A system-generated unique identifier for each geographic location.  ,,,,,,,
+location,ADDRESS_1,YES,varchar(50),   ," The address field 1, typically used for the street address, as it appears in the source data.  ",,,,,,,
+location,ADDRESS_2,YES,varchar(50),   ," The address field 2, typically used for additional detail such as buildings, suites, floors, as it appears in the source data.  ",,,,,,,
+location,CITY,YES,varchar(50),   , The city field as it appears in the source data.  ,,,,,,,
+location,STATE,YES,char(2),   , The state field as it appears in the source data.  ,,,,,,,
+location,ZIP,YES,varchar(9),   ," The zip code. For US addresses, valid zip codes canbe 3, 5 or 9 digits long, depending on the source data.  ",,,,,,,
+location,COUNTY,YES,varchar(20),   , The county. The county information is necessary because not all zip codes fall into one and the same county.  ,,,,,,,
+location,LOCATION_SOURCE_VALUE,YES,varchar(50),   , The verbatim information that is used to uniquely identify the location as it appears in the source data. ,,,,,,,
+person,PERSON_ID,NO,bigint(20),   , A system-generated unique identifier for each person.  ,,,,,,,
+person,GENDER_CONCEPT_ID,NO,int(11), HL7  , A foreign key that refers to a standard concept identifier in the vocabulary for the gender of the person.  ,,,,,,,
+person,YEAR_OF_BIRTH,NO,int(11),   ," The year of birth of the person. For data sources with date of birth, the year is extracted. For data sources where the year of birth is not available, the approximate year of birth is derived based on any age group categorization available.  ",,,,,,,
+person,MONTH_OF_BIRTH,YES,int(11),   ," The month of birth of the person. For data sources that provide the precise date of birth, the month is extracted and stored in this field.  ",,,,,,,
+person,DAY_OF_BIRTH,YES,int(11),   ," The day of the month of birth of the person. For data sources that provide the precise date of birth, the day is extracted and stored in this field.  ",,,,,,,
+person,RACE_CONCEPT_ID,YES,int(11)," OMB, CDC  ", A foreign key that refers to a standard concept identifier in the vocabulary for the race of the person.  ,,,,,,,
+person,ETHNICITY_CONCEPT_ID,YES,int(11), OMB  , A foreign key that refers to the standard concept identifier in the vocabulary for the ethnicity of the person.  ,,,,,,,
+person,LOCATION_ID,YES,int(11),   ," A foreign key to the place of residency for the person in the location table, where the detailed address information is stored.  ",,,,,,,
+person,PROVIDER_ID,YES,int(11),   , A foreign key to the primary care provider the person is seeing in the provider table.  ,,,,,,,
+person,CARE_SITE_ID,YES,int(11),   ," A foreign key to the primary care site in the care site table, where the details of the care site are stored.  ",,,,,,,
+person,PERSON_SOURCE_VALUE,YES,varchar(50),   , An encrypted key derived from the person identifier in the source data. This is necessary when a drug safety issue requiresa link back to the person data at the source dataset. No value with any medical or demographic significance must be stored.  ,,,,,,,
+person,GENDER_SOURCE_VALUE,YES,varchar(50),   ," The source code for the gender of the person as it appears in the source data. Theperson gender is mapped to a standard gender concept in the vocabulary and the corresponding concept identifier is, stored here for reference.  ",,,,,,,
+person,RACE_SOURCE_VALUE,YES,varchar(50),   ," The source code for the race of the person as it appears in the source data. The personrace is mapped to a standard race concept in the vocabulary and the original code is, stored here for reference.  ",,,,,,,
+person,ETHNICITY_SOURCE_VALUE,YES,varchar(50),   ," The source code for the ethnicity of the person as it appears in the source data. Theperson ethnicity is mapped to a standard ethnicity concept in the vocabulary and the original code is, stored here for reference.  ",,,,,,,
+observation_period,OBSERVATION_PERIOD_ID,NO,bigint(20),   , A system-generated unique identifier for each observation period.  ,,,,,,,
+observation_period,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person for whom the observation period is defined. The demographic details of that person arestored in the person table.  ,,,,,,,
+observation_period,OBSERVATION_PERIOD_START_DATE,NO,date,   , The start date of the observation period for which data are available from the data source.  ,,,,,,,
+observation_period,OBSERVATION_PERIOD_END_DATE,NO,date,   , The end date of the observation period for which data are available from the data source.  ,,,,,,,
+care_site,CARE_SITE_ID,NO,int(11),   , A system-generated unique identifier for each care site. A care site is the place where the provider delivered the healthcare to the person.  ,,,,,,,
+care_site,LOCATION_ID,YES,int(11),   ," A foreign key to the geographic location in the location table, where the detailed address information is stored.  ",,,,,,,
+care_site,ORGANIZATION_ID,YES,int(11),   ," A foreign key to the organization in the organization table, where the detailed information is stored.  ",,,,,,,
+care_site,PLACE_OF_SERVICE_CONCEPT_ID,YES,int(11),  CMS  , A foreign key to the predefined concept identifier in the vocabulary reflecting the place of service.  ,,,,,,,
+care_site,CARE_SITE_SOURCE_VALUE,YES,varchar(50),   ," The identifier for the care site as it appears in the source data, stored here forreference.  ",,,,,,,
+care_site,PLACE_OF_SERVICE_SOURCE_VALUE,YES,varchar(50),   ," The source code for the place of service as it appears in the source data, stored here for reference.  ",,,,,,,
+visit_occurrence,VISIT_OCCURRENCE_ID,NO,bigint(20),   , A system-generated unique identifier for each person's visit or encounter at a healthcare provider.  ,,,,,,,
+visit_occurrence,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person for whom the visit is recorded. The demographic details of that person are stored in the person table.  ,,,,,,,
+visit_occurrence,PLACE_OF_SERVICE_CONCEPT_ID,NO,int(11), OMOP CMS  , A foreign key that refers to a place of service concept identifier in the vocabulary.  ,,,,,,,
+visit_occurrence,VISIT_START_DATE,NO,date,   , The start date of the visit.  ,,,,,,,
+visit_occurrence,VISIT_END_DATE,NO,date,   , The end date of the visit. If this is a one-dayvisit the end date should match the start date.  ,,,,,,,
+visit_occurrence,PLACE_OF_SERVICE_SOURCE_VALUE,YES,varchar(50),   ," The source code used to reflect the type or source of the visit in the source data. Valid entries include office visits, hospital admissions, etc. These source codes can also be type-of service codes and activity type codes.  ",,,,,,,
+visit_occurrence,CARE_SITE_ID,YES,int(11),   , A foreign key to the care site in the care site table that was visited.  ,,,,,,,
+provider,PROVIDER_ID,NO,bigint(20),   , A foreign key to the care site in the care site table that was visited.  ,,,,,,,
+provider,NPI,YES,varchar(20),   , A system-generated unique identifier for each provider.  ,,,,,,,
+provider,DEA,YES,varchar(20),   , The National Provider Identifier (NPI) of the provider.  ,,,,,,,
+provider,SPECIALTY_CONCEPT_ID,YES,int(11),   , The Drug Enforcement Administration (DEA) number of the provider.  ,,,,,,,
+provider,CARE_SITE_ID,YES,int(11), CDC  , A foreign key to a standard provider's specialtyconcept identifier in the vocabulary.   ,,,,,,,
+provider,PROVIDER_SOURCE_VALUE,YES,varchar(50),   , A foreign key to the main care site where the provider is practicing.  ,,,,,,,
+provider,SPECIALTY_SOURCE_VALUE,YES,varchar(50),   ," The identifier used for the provider in the sourcedata, stored here for reference.  ",,,,,,,
+condition_occurrence,CONDITION_OCCURRENCE_ID,NO,bigint(20),   ," The source code for the provider specialty as it appears in the source data, stored here for reference.  ",,,,,,,
+condition_occurrence,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person who isexperiencing the condition. The demographic details of that person are stored in the person table.  ,,,,,,,
+condition_occurrence,CONDITION_CONCEPT_ID,NO,int(11), SNOMED  , A foreign key that refers to a standard condition concept identifier in the vocabulary.   ,,,,,,,
+condition_occurrence,CONDITION_START_DATE,NO,date,   , The date when the instance of the condition is recorded.  ,,,,,,,
+condition_occurrence,CONDITION_END_DATE,YES,date,   , The date when the instance of the condition is considered to have ended. This is not typically recorded.  ,,,,,,,
+condition_occurrence,CONDITION_TYPE_CONCEPT_ID,NO,int(11), OMOP  ," A foreign key to the predefined concept identifier in the vocabulary reflecting the source data from which the condition was recorded, the level of standardization, and the type of occurrence. Conditions are defined as primary or secondary diagnoses, problem lists and person statuses.  ",,,,,,,
+condition_occurrence,STOP_REASON,YES,varchar(20),   ," The reason, if available, that the condition was no longer recorded, as indicated in thesource data. Valid values include discharged, resolved, etc.  ",,,,,,,
+condition_occurrence,ASSOCIATED_PROVIDER_ID,YES,int(11),   , A foreign key to the provider in the providertable who was responsible for determining (diagnosing) the condition.  ,,,,,,,
+condition_occurrence,VISIT_OCCURRENCE_ID,YES,bigint(20),   , A foreign key to the visit in the visit table during which the condition was determined (diagnosed).  ,,,,,,,
+condition_occurrence,CONDITION_SOURCE_VALUE,YES,varchar(50),   ," The source code for the condition as it appears in the source data. This code is mapped to a standard condition concept in the vocabulary and the original code is, stored here for reference. Condition sourcecodes are typically ICD-9-CM diagnosis codes from medical claims or discharge status/disposition codes from EHRs.  ",,,,,,,
+death,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the deceased person. The demographic details of that person are stored in the person table.  ,,,,,,,
+death,DEATH_DATE,NO,date,   ," The date the person deceased. If the precise date including day or month is notknown or not allowed, December is used as the default month, and the last day of the month the default day.  ",,,,,,,
+death,DEATH_TYPE_CONCEPT_ID,NO,int(11),  OMOP  , A foreign key referring to the predefined concept identifier in the vocabulary reflecting how the death was represented in the source data.  ,,,,,,,
+death,CAUSE_OF_DEATH_CONCEPT_ID,YES,int(11),  SNOMED  , A foreign key referring to a standard concept identifier in the vocabulary for conditions.  ,,,,,,,
+death,CAUSE_OF_DEATH_SOURCE_VALUE,YES,varchar(50),   ," The source code for the cause of death asit appears in the source data. This code is mapped to a standard concept in the vocabulary and the original code is, storedhere for reference.   ",,,,,,,
+drug_exposure,DRUG_CONCEPT_ID,NO,int(11), RxNorm  , A foreign key that refers to a standard concept identifier in the vocabulary for the drug concept.  ,,,,,,,
+drug_exposure,DRUG_EXPOSURE_START_DATE,NO,date,   ," The start date for the current instance of drug utilization. Valid entries include a start date of a prescription, the date a prescription was filled, or the date on which a drug administration procedurewas recorded.  ",,,,,,,
+drug_exposure,DRUG_EXPOSURE_END_DATE,YES,date,   , The end date for the current instance of drug utilization. It is not available from all sources.  ,,,,,,,
+drug_exposure,DRUG_TYPE_CONCEPT_ID,NO,int(11), OMOP  ,"  A foreign key to the predefined concept identifier in the vocabulary reflecting the type of drug exposure recorded. It indicates how the drug exposure was represented in the source data: as medication history, filled prescriptions, etc.   ",,,,,,,
+drug_exposure,STOP_REASON,YES,varchar(20),   ," The reason the medication was stopped, where available. Reasons include regimen completed, changed, removed, etc.  ",,,,,,,
+drug_exposure,REFILLS,YES,int(11),   ," The number of refills after the initial prescription. The initial prescription is not counted, values start with 0.  ",,,,,,,
+drug_exposure,QUANTITY,YES,int(11),   , The quantity of drug as recorded in the original prescription or dispensing record.  ,,,,,,,
+drug_exposure,DAYS_SUPPLY,YES,int(11),   , The number of days of supply of the medication as recorded in the original prescription or dispensing record.  ,,,,,,,
+drug_exposure,SIG,YES,varchar(500),   ," The directions (""signetur"") on the drug prescriptionas recorded in the original prescription (and printed on the container) or dispensing record.  ",,,,,,,
+drug_exposure,PRESCRIBING_PROVIDER_ID,YES,int(11),   , A foreign key to the provider in the provider table who initiated (prescribed) the drug exposure.  ,,,,,,,
+drug_exposure,VISIT_OCCURRENCE_ID,YES,bigint(20),   , A foreign key to the visit in the visit table during which the drug exposure initiated.  ,,,,,,,
+drug_exposure,RELEVANT_CONDITION_CONCEPT_ID,YES,int(11), SNOMED  ," A foreign key to the predefined concept identifier in the vocabulary reflecting the condition that was the cause for initiation of the drug exposure. Note that this is not a direct reference to a specific condition record in the condition table, but rather acondition concept in the vocabulary.  ",,,,,,,
+drug_exposure,DRUG_SOURCE_VALUE,YES,varchar(50),   ," The source code for the drug as it appears in the source data. This code is mapped to a standard drug concept in the vocabulary and the original code is, stored here for reference.  ",,,,,,,
+drug_exposure,DRUG_EXPOSURE_ID,NO,bigint(20),   , A system-generated unique identifier for each drug utilization event.  ,,,,,,,
+drug_exposure,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person who is subjected to the drug. The demographic details of that person are stored in the person table.  ,,,,,,,
+procedure_occurrence,PROCEDURE_OCCURRENCE_ID,NO,bigint(20),   , A system-generated unique identifier for each procedure occurrence.  ,,,,,,,
+procedure_occurrence,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person who issubjected to the procedure. The demographic details of that person are stored in the person table.  ,,,,,,,
+procedure_occurrence,PROCEDURE_TYPE_CONCEPT_ID,NO,int(11), OMOP  , A foreign key to the predefined concept identifier in the vocabulary reflecting the type of the procedure.   ,,,,,,,
+procedure_occurrence,PROCEDURE_DATE,NO,date,   , The date on which the procedure was performed.  ,,,,,,,
+procedure_occurrence,PROCEDURE_CONCEPT_ID,NO,bigint(20)," CPT-4 HCPCS ICD-9-Proc, ICD-9-CM, LOINC  ", A foreign key that refers to a standard procedure concept identifier in the vocabulary.   ,,,,,,,
+procedure_occurrence,ASSOCIATED_PROVIDER_ID,YES,int(11),   , A foreign key to the provider in the providertable who was responsible for carrying out the procedure.  ,,,,,,,
+procedure_occurrence,PROCEDURE_SOURCE_VALUE,YES,varchar(50),   ," The source code for the procedure as it appears in the source data. This code is mapped to a standard procedure concept in the vocabulary and the original code is,stored here for reference. Procedure source codes are typically ICD-9-Proc, CPT-4 or HCPCS codes.  ",,,,,,,
+procedure_occurrence,VISIT_OCCURRENCE_ID,YES,bigint(20),   , A foreign key to the visit in the visit table during which the procedure was carried out.  ,,,,,,,
+procedure_occurrence,RELEVANT_CONDITION_CONCEPT_ID,YES,int(11), SNOMED  ," A foreign key to the predefined concept identifier in the vocabulary reflecting the condition that was the cause for initiation ofthe procedure. Note that this is not a direct reference to a specific condition record in the condition table, but rather a condition concept in the vocabulary.  ",,,,,,,
+observation,OBSERVATION_ID,NO,bigint(20),   , A system-generated unique identifier for each observation.  ,,,,,,,
+observation,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person about whom the observation was recorded. The demographic details ofthat person are stored in the person table.  ,,,,,,,
+observation,OBSERVATION_CONCEPT_ID,NO,bigint(20), LOINC SNOMED  , A foreign key to the standard observation concept identifier in the vocabulary.   ,,,,,,,
+observation,OBSERVATION_TYPE_CONCEPT_ID,NO,int(11), OMOP  , A foreign key to the predefined concept identifier in the vocabulary reflecting the type of the observation.  ,,,,,,,
+observation,OBSERVATION_DATE,NO,date,   , The date of the observation.  ,,,,,,,
+observation,OBSERVATION_TIME,YES,time,   , The time of the observation.  ,,,,,,,
+observation,VALUE_AS_NUMBER,YES,"decimal(10,0)",   , The observation result stored as a number. This is applicable to observations where the result is expressed as a numeric value.  ,,,,,,,
+observation,VALUE_AS_STRING,YES,varchar(256),   ," The observation result stored as a string. This is applicable to observations where the result is expressed as verbatim text, such as in radiology or pathology reports.  ",,,,,,,
+observation,VALUE_AS_CONCEPT_ID,YES,int(11),   ," A foreign key to an observation result stored as a concept identifier. This is applicable to observations where the result can be expressed as a standard concept from the vocabulary(e.g., positive/negative, present/absent, low/high, etc.).  ",,,,,,,
+observation,UNIT_CONCEPT_ID,YES,bigint(20), UCUM  , A foreign key to a standard concept identifier of measurement units in the vocabulary.  ,,,,,,,
+observation,RANGE_LOW,YES,float,   ," The lower limit of the normal range of the observation. It is not applicable if the observation results are non-numeric or categorical, and must be in the same units of measure as the observation value.  ",,,,,,,
+observation,RANGE_HIGH,YES,float,   ," The upper limit of the normal range ofthe observation. It is not applicable if the observation results are non-numeric or categorical, and must be in the same units of measure as the observation value.  ",,,,,,,
+observation,ASSOCIATED_PROVIDER_ID,YES,int(11),   , A foreign key to the provider in the provider table who was responsible for making the observation.  ,,,,,,,
+observation,VISIT_OCCURRENCE_ID,YES,bigint(20),   , A foreign key to the visit in the visit table during which the observation was recorded.  ,,,,,,,
+observation,OBSERVATION_SOURCE_VALUE,YES,varchar(256),   ," The observation code as it appears inthe source data. This code is mappedto a standard concept in the vocabulary and the original code is, stored here for reference.  ",,,,,,,
+observation,UNIT_SOURCE_VALUE,YES,varchar(256),   ," The source code for the unit as it appears in the source data. This codeis mapped to a standard unit concept in the vocabulary and the original code is, stored here for reference.   ",,,,,,,
+observation,RELEVANT_CONDITION_CONCEPT_ID,YES,int(11), SNOMED  ," A foreign key to the predefined concept identifier in the vocabulary reflecting the condition that was associated with the observation. Note that this is not a direct reference to a specific condition record in the condition table, but rather a condition concept in the vocabulary.  ",,,,,,,
+condition_era,CONDITION_ERA_ID,NO,bigint(20),   , A system-generated unique identifier for each condition era.  ,,,,,,,
+condition_era,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person who isexperiencing the condition during the condition era. The demographic details of that person are stored in the person table.  ,,,,,,,
+condition_era,CONDITION_CONCEPT_ID,NO,int(11),  SNOMED  , A foreign key that refers to a standard condition concept identifier in the vocabulary.   ,,,,,,,
+condition_era,CONDITION_ERA_START_DATE,NO,date,   , The start date for the condition era constructed from the individual instances ofcondition occurrences. It is the start date of the very first chronologically recorded instance of the condition.  ,,,,,,,
+condition_era,CONDITION_ERA_END_DATE,NO,date,   , The end date for the condition era constructed from the individual instances ofcondition occurrences. It is the end date of the final continuously recorded instance of the condition.  ,,,,,,,
+condition_era,CONDITION_TYPE_CONCEPT_ID,NO,int(11),  OMOP  ,  A foreign key to the predefined concept identifier in the vocabulary reflecting the parameters used to construct the condition era.   ,,,,,,,
+condition_era,CONDITION_OCCURRENCE_COUNT,YES,int(11),   , The number of individual condition occurrences used to construct the condition era.  ,,,,,,,
+drug_era,DRUG_ERA_ID,NO,bigint(20),   , A system-generated unique identifier for each drug era.  ,,,,,,,
+drug_era,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person who is subjected to the drug during the drug era. The demographic details of that person are stored in the person table.  ,,,,,,,
+drug_era,DRUG_ERA_START_DATE,NO,date,   , The start date for the drug era constructed from the individual instances of drug exposures. It is the startdate of the very first chronologically recorded instance of utilization of a drug.  ,,,,,,,
+drug_era,DRUG_ERA_END_DATE,NO,date,   , The end date for the drug era constructed from the individual instance of drug exposures. It is the end date of the final continuously recorded instance of utilization of a drug.  ,,,,,,,
+drug_era,DRUG_TYPE_CONCEPT_ID,NO,int(11),  OMOP  , A foreign key to the predefined concept identifier inthe vocabulary reflecting the parameters used to construct the drug era.   ,,,,,,,
+drug_era,DRUG_CONCEPT_ID,YES,int(11), RxNorm  , A foreign key that refers to a standard concept identifier in the vocabulary for the drug concept.  ,,,,,,,
+drug_era,DRUG_EXPOSURE_COUNT,NO,int(11),   , The number of individual drug exposure occurrences used to construct the drug era.  ,,,,,,,
+organization,ORGANIZATION_ID,NO,int(11),   ," A system-generated unique identifier for each organization. Here, an organization is defined as a collection of one or more care sites that share a single EHR database.  ",,,,,,,
+organization,PLACE_OF_SERVICE_CONCEPT_ID,YES,int(11),  CMS  , A foreign key that refers to a place of service concept identifier in the vocabulary.  ,,,,,,,
+organization,LOCATION_ID,YES,int(11),   ," A foreign key to the geographic location of the administrative offices of the organization in the location table, where the detailed address information is stored. ",,,,,,,
+organization,ORGANIZATION_SOURCE_VALUE,YES,varchar(50),   ," The identifier for the organization in the source data, stored here for reference.  ",,,,,,,
+organization,PLACE_OF_SERVICE_SOURCE_VALUE,YES,varchar(50),   ," The source code for the place of service as it appears in the source data, stored here for reference.  ",,,,,,,
+payer_plan_period,PAYER_PLAN_PERIOD_ID,NO,bigint(20),   ," A system-generated identifier for each unique combination of payer, plan, family code and time span.  ",,,,,,,
+payer_plan_period,PERSON_ID,NO,bigint(20),   , A foreign key identifier to the person covered by the payer. The demographic details of that person are stored in the person table.  ,,,,,,,
+payer_plan_period,PAYER_PLAN_PERIOD_START_DATE,NO,date,   , The start date of the payer plan period.  ,,,,,,,
+payer_plan_period,PAYER_PLAN_PERIOD_END_DATE,NO,date,   , The end date of the payer plan period.  ,,,,,,,
+payer_plan_period,PAYER_SOURCE_VALUE,YES,varchar(50),   , The source code for the payer as it appears in the source data.   ,,,,,,,
+payer_plan_period,PLAN_SOURCE_VALUE,YES,varchar(50),   , The source code for the person's coverage plan as it appears in the source data.  ,,,,,,,
+payer_plan_period,FAMILY_SOURCE_VALUE,YES,varchar(50),   , The source code for the person's family as itappears in the source data.  ,,,,,,,
+drug_cost,DRUG_COST_ID,NO,bigint(20),   , A system-generated unique identifier for each drug cost record.  ,,,,,,,
+drug_cost,DRUG_EXPOSURE_ID,NO,bigint(20),   , A foreign key identifier to the drug record for which cost data are recorded.  ,,,,,,,
+drug_cost,PAID_COPAY,YES,"decimal(10,0)",   , The amount paid by the person as a fixedcontribution to the expenses. Copay doesnot contribute to the out of pocket expenses.  ,,,,,,,
+drug_cost,PAID_COINSURANCE,YES,"decimal(10,0)",   ," The amount paid by the person as a joint assumption of risk. Typically, this is a percentage of the expenses defined by the payer plan (policy) after the person's deductible is exceeded.  ",,,,,,,
+drug_cost,PAID_TOWARD_DEDUCTIBLE,YES,"decimal(10,0)",   , The amount paid by the person that is counted toward the deductible defined by the payer plan (policy).  ,,,,,,,
+drug_cost,PAID_BY_PAYER,YES,"decimal(10,0)",   ," The amount paid by the payer (insurer). Ifthere is more than one payer, several drug_cost records indicate that fact.  ",,,,,,,
+drug_cost,PAID_BY_COORDINATION_BENEFITS,YES,"decimal(10,0)",   , The amount paid by a secondary payer through the coordination of benefits.  ,,,,,,,
+drug_cost,TOTAL_OUT_OF_POCKET,YES,"decimal(10,0)",   ," The total amount paid by the person as a share of the expenses, excluding the copay.  ",,,,,,,
+drug_cost,TOTAL_PAID,YES,"decimal(10,0)",   , The total amount paid for the expenses of drug exposure.  ,,,,,,,
+drug_cost,INGREDIENT_COST,YES,"decimal(10,0)",   ," The portion of the drug expenses due to the cost charged by the manufacturer for the drug, typically a percentage of the Average Wholesale Price.  ",,,,,,,
+drug_cost,DISPENSING_FEE,YES,"decimal(10,0)",   ," The portion of the drug expenses due to the dispensing fee charged by the pharmacy, typically a fixed amount.  ",,,,,,,
+drug_cost,AVERAGE_WHOLESALE_PRICE,YES,"decimal(10,0)",   , List price of a drug set by the manufacturer.  ,,,,,,,
+drug_cost,PAYER_PLAN_PERIOD_ID,YES,int(11),   ," A foreign key to the payer_plan_period table, where the details of the payer, plan and family are stored.  ",,,,,,,
+procedure_cost,PROCEDURE_COST_ID,NO,bigint(20),   , A system-generated unique identifier for each procedure cost record.  ,,,,,,,
+procedure_cost,PROCEDURE_OCCURRENCE_ID,NO,bigint(20),   , A foreign key identifier to the procedure record for which cost data are recorded.  ,,,,,,,
+procedure_cost,PAID_COPAY,YES,"decimal(10,0)",   , The amount paid by the person as a fixed contribution to the expenses. Copay does not contribute to the out_of_pocket expenses.  ,,,,,,,
+procedure_cost,PAID_COINSURANCE,YES,"decimal(10,0)",   ," The amount paid by the person as a jointassumption of risk. Typically, this is a percentage of the expenses defined by the payer plan (policy) after the person's deductible is exceeded.  ",,,,,,,
+procedure_cost,PAID_TOWARD_DEDUCTIBLE,YES,"decimal(10,0)",   , The amount paid by the person that is counted toward the deductible defined by the payer plan (policy).  ,,,,,,,
+procedure_cost,PAID_BY_PAYER,YES,"decimal(10,0)",   ," The amount paid by the payer (insurer). If there is more than one payer, several procedure_cost records indicate that fact.  ",,,,,,,
+procedure_cost,PAID_BY_COORDINATION_BENEFITS,YES,"decimal(10,0)",   , The amount paid by a secondary payer through the coordination of benefits.  ,,,,,,,
+procedure_cost,TOTAL_OUT_OF_POCKET,YES,"decimal(10,0)",   ," The total amount paid by the person as ashare of the expenses, excluding the copay.  ",,,,,,,
+procedure_cost,TOTAL_PAID,YES,"decimal(10,0)",   , The total amount paid for the expenses of the procedure.  ,,,,,,,
+procedure_cost,DISEASE_CLASS_CONCEPT_ID,YES,int(11)," DRG, APC  "," A foreign key referring to a standard concept identifier in the vocabulary for disease classes, such as DRGs and APCs.  ",,,,,,,
+procedure_cost,REVENUE_CODE_CONCEPT_ID,YES,int(11), HCFA  , A foreign key referring to a standard concept identifier in the vocabulary for revenue codes.  ,,,,,,,
+procedure_cost,PAYER_PLAN_PERIOD_ID,YES,bigint(20),   ," A foreign key to the payer_plan_period table, where the details of the payer, plan and family are stored.  ",,,,,,,
+procedure_cost,DISEASE_CLASS_SOURCE_VALUE,YES,varchar(50),   ," he source code for the disease class asit appears in the source data, stored here for reference.  ",,,,,,,
+procedure_cost,REVENUE_CODE_SOURCE_VALUE,YES,varchar(50),   ," The source code for the revenue code as it appears in the source data, stored here for reference.  ",,,,,,,
+cohort,COHORT_ID,NO,int(11),   , A system-generated unique identifier for each cohort record.   ,,,,,,,
+cohort,COHORT_CONCEPT_ID,NO,int(11),   ," A foreign key to a standard cohort concept identifier in the vocabulary. Cohort concepts identify the cohorts: whether they are defined through persons, providers orvisits, or any combination thereof.  ",,,,,,,
+cohort,COHORT_START_DATE,NO,date,   ," The date when the cohort definition criteria for the person, provider or visit first match.  ",,,,,,,
+cohort,COHORT_END_DATE,YES,date,   ," The date when the cohort definition criteria for the person, provider or visit no longer match or the cohort membership was terminated.  ",,,,,,,
+cohort,SUBJECT_ID,NO,bigint(20),   ," A foreign key to the subject in the cohort. These could be referring to records in the Person, Provider, Visit Occurrence table.  ",,,,,,,
+cohort,STOP_REASON,YES,varchar(20),   , The reason for the end of a cohort membership other than defined by the cohort definition criteria as it appears in the source data.  ,,,,,,,
