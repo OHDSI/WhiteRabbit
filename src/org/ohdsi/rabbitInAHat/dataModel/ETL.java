@@ -89,7 +89,7 @@ public class ETL implements Serializable {
 	public void setSourceDatabase(Database sourceDb) {
 		this.sourceDb = sourceDb;
 	}
-
+	
 
 	public Database getTargetDatabase() {
 		return targetDb;
@@ -97,16 +97,6 @@ public class ETL implements Serializable {
 
 	public Database getSourceDatabase() {
 		return sourceDb;
-	}
-
-	public ItemToItemMap createItemToItemMap(MappableItem source, MappableItem target) {
-		ItemToItemMap itemToItemMap = new ItemToItemMap(source, target);
-		if (source instanceof Table) {
-			tableToTableMaps.add(itemToItemMap);
-		} else {
-			tableMapToFieldToFieldMaps.get(((Field) source).getTable()).add(itemToItemMap);
-		}
-		return itemToItemMap;
 	}
 
 	public String toJson() {
