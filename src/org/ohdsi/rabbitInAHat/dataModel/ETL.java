@@ -40,7 +40,7 @@ public class ETL implements Serializable {
 	}
 
 	private Database								sourceDb					= new Database();
-	private Database								targetDb					= new Database();
+	private Database								cdmDb					= new Database();
 	private List<ItemToItemMap>						tableToTableMaps			= new ArrayList<ItemToItemMap>();
 	private Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<ItemToItemMap, List<ItemToItemMap>>();
 	private transient String						filename					= null;
@@ -66,7 +66,7 @@ public class ETL implements Serializable {
 	}
 
 	public Mapping<Table> getTableToTableMapping() {
-		return new Mapping<Table>(sourceDb.getTables(), targetDb.getTables(), tableToTableMaps);
+		return new Mapping<Table>(sourceDb.getTables(), cdmDb.getTables(), tableToTableMaps);
 	}
 
 	public Mapping<Field> getFieldToFieldMapping(Table sourceTable, Table targetTable) {
@@ -83,7 +83,7 @@ public class ETL implements Serializable {
 	}
 
 	public void setTargetDatabase(Database targetDb) {
-		this.targetDb = targetDb;
+		this.cdmDb = targetDb;
 	}
 
 	public void setSourceDatabase(Database sourceDb) {
@@ -92,7 +92,7 @@ public class ETL implements Serializable {
 	
 
 	public Database getTargetDatabase() {
-		return targetDb;
+		return cdmDb;
 	}
 
 	public Database getSourceDatabase() {
