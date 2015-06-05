@@ -38,6 +38,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.ohdsi.rabbitInAHat.dataModel.Database;
+import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.whiteRabbit.ObjectExchange;
 
@@ -55,6 +56,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
 	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
+	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
+	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -84,7 +87,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setCDMDatabase(Database.generateCDMModel());
+		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV5));
+		
 		ObjectExchange.etl = etl;
 
 		tableMappingPanel = new MappingPanel(etl.getTableToTableMapping());
@@ -210,6 +214,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));		
 		editMenu.add(removeMappings);
 		
+		JMenu setTarget = new JMenu("Set Target Database");
+		JMenuItem targetCDMV4 = new JMenuItem(ACTION_CMD_SET_TARGET_V4);
+		targetCDMV4.addActionListener(this);
+		targetCDMV4.setActionCommand(ACTION_CMD_SET_TARGET_V4);
+		setTarget.add(targetCDMV4);		
+		editMenu.add(setTarget);
+		
+		JMenuItem targetCDMV5 = new JMenuItem(ACTION_CMD_SET_TARGET_V5);
+		targetCDMV5.addActionListener(this);
+		targetCDMV5.setActionCommand(ACTION_CMD_SET_TARGET_V5);
+		setTarget.add(targetCDMV5);		
+		editMenu.add(setTarget);
+		
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
 
@@ -307,9 +324,22 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_REMOVE_MAPPING:
 				doRemoveMappings();
 				break;
+			case ACTION_CMD_SET_TARGET_V4:
+				doSetTargetCDM(CDMVersion.CDMV4);
+				break;
+			case ACTION_CMD_SET_TARGET_V5:
+				doSetTargetCDM(CDMVersion.CDMV5);
+				break;
 		}
 	}
 	
+	private void doSetTargetCDM(CDMVersion cdmVersion) {
+		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(),Database.generateCDMModel(cdmVersion));
+	
+		ObjectExchange.etl = etl;
+		tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());		
+	}
+
 	//Opens Filter dialog window
 	private void doOpenFilterDialog() {
 		FilterDialog filter;
@@ -370,9 +400,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETL etl = new ETL();
 			etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
-			etl.setCDMDatabase(Database.generateCDMModel());
-			ObjectExchange.etl = etl;
+			etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());			
 			tableMappingPanel.setMapping(etl.getTableToTableMapping());
+			ObjectExchange.etl = etl;
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}

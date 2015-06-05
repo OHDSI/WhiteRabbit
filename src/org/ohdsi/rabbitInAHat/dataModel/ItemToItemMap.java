@@ -24,15 +24,15 @@ import java.util.Map;
 public class ItemToItemMap implements Serializable {
 	
 	private MappableItem		sourceItem;
-	private MappableItem		cdmItem;
+	private MappableItem		targetItem;
 	private Map<String, String>	extraFieldToValue	= new HashMap<String, String>();
 	private String				comment				= "";
 	private String				logic				= "";
 	private static final long	serialVersionUID	= -7803242002700513410L;
 	
-	public ItemToItemMap(MappableItem sourceItem, MappableItem cdmItem) {
+	public ItemToItemMap(MappableItem sourceItem, MappableItem targetItem) {
 		this.sourceItem = sourceItem;
-		this.cdmItem = cdmItem;
+		this.targetItem = targetItem;
 	}
 	
 	public MappableItem getSourceItem() {
@@ -43,12 +43,12 @@ public class ItemToItemMap implements Serializable {
 		this.sourceItem = sourceItem;
 	}
 	
-	public MappableItem getCdmItem() {
-		return cdmItem;
+	public MappableItem getTargetItem() {
+		return targetItem;
 	}
 	
-	public void setCdmItem(MappableItem cdmItem) {
-		this.cdmItem = cdmItem;
+	public void setTargetItem(MappableItem targetItem) {
+		this.targetItem = targetItem;
 	}
 	
 	public Map<String, String> getExtraFieldToValue() {
@@ -57,13 +57,13 @@ public class ItemToItemMap implements Serializable {
 	
 	public boolean equals(Object other) {
 		if (other instanceof ItemToItemMap) {
-			return (((ItemToItemMap) other).sourceItem.equals(sourceItem) && ((ItemToItemMap) other).cdmItem.equals(cdmItem));
+			return (((ItemToItemMap) other).sourceItem.equals(sourceItem) && ((ItemToItemMap) other).targetItem.equals(targetItem));
 		} else
 			return false;
 	}
 	
 	public int hashCode() {
-		return (sourceItem.toString() + "\t" + cdmItem.toString()).hashCode();
+		return (sourceItem.toString() + "\t" + targetItem.toString()).hashCode();
 	}
 	
 	public String getComment() {

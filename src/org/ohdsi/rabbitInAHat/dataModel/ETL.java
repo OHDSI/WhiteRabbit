@@ -40,12 +40,19 @@ public class ETL implements Serializable {
 	}
 
 	private Database								sourceDb					= new Database();
-	private Database								cdmDb						= new Database();
+	private Database								targetDb					= new Database();
 	private List<ItemToItemMap>						tableToTableMaps			= new ArrayList<ItemToItemMap>();
 	private Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<ItemToItemMap, List<ItemToItemMap>>();
 	private transient String						filename					= null;
 	private static final long						serialVersionUID			= 8987388381751618498L;
 
+	public ETL(){
+		
+	}
+	public ETL(Database sourceDB, Database targetDb){
+		this.setSourceDatabase(sourceDB);
+		this.setTargetDatabase(targetDb);
+	}
 	public void saveCurrentState() {
 
 	}
@@ -59,46 +66,37 @@ public class ETL implements Serializable {
 	}
 
 	public Mapping<Table> getTableToTableMapping() {
-		return new Mapping<Table>(sourceDb.getTables(), cdmDb.getTables(), tableToTableMaps);
+		return new Mapping<Table>(sourceDb.getTables(), targetDb.getTables(), tableToTableMaps);
 	}
 
-	public Mapping<Field> getFieldToFieldMapping(Table sourceTable, Table cdmTable) {
-		List<ItemToItemMap> fieldToFieldMaps = tableMapToFieldToFieldMaps.get(new ItemToItemMap(sourceTable, cdmTable));
+	public Mapping<Field> getFieldToFieldMapping(Table sourceTable, Table targetTable) {
+		List<ItemToItemMap> fieldToFieldMaps = tableMapToFieldToFieldMaps.get(new ItemToItemMap(sourceTable, targetTable));
 		if (fieldToFieldMaps == null) {
 			fieldToFieldMaps = new ArrayList<ItemToItemMap>();
-			tableMapToFieldToFieldMaps.put(new ItemToItemMap(sourceTable, cdmTable), fieldToFieldMaps);
+			tableMapToFieldToFieldMaps.put(new ItemToItemMap(sourceTable, targetTable), fieldToFieldMaps);
 		}
-		return new Mapping<Field>(sourceTable.getFields(), cdmTable.getFields(), fieldToFieldMaps);
+		return new Mapping<Field>(sourceTable.getFields(), targetTable.getFields(), fieldToFieldMaps);
 	}
 
 	public String getFilename() {
 		return filename;
 	}
 
-	public void setCDMDatabase(Database cdmDb) {
-		this.cdmDb = cdmDb;
+	public void setTargetDatabase(Database targetDb) {
+		this.targetDb = targetDb;
 	}
 
 	public void setSourceDatabase(Database sourceDb) {
 		this.sourceDb = sourceDb;
 	}
+	
 
-	public Database getCDMDatabase() {
-		return cdmDb;
+	public Database getTargetDatabase() {
+		return targetDb;
 	}
 
 	public Database getSourceDatabase() {
 		return sourceDb;
-	}
-
-	public ItemToItemMap createItemToItemMap(MappableItem source, MappableItem target) {
-		ItemToItemMap itemToItemMap = new ItemToItemMap(source, target);
-		if (source instanceof Table) {
-			tableToTableMaps.add(itemToItemMap);
-		} else {
-			tableMapToFieldToFieldMaps.get(((Field) source).getTable()).add(itemToItemMap);
-		}
-		return itemToItemMap;
 	}
 
 	public String toJson() {
