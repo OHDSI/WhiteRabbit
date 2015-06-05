@@ -335,9 +335,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	
 	private void doSetTargetCDM(CDMVersion cdmVersion) {
 		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(),Database.generateCDMModel(cdmVersion));
-	
+		
+		etl.copyETLMappings(ObjectExchange.etl);
+		tableMappingPanel.setMapping(etl.getTableToTableMapping());	
 		ObjectExchange.etl = etl;
-		tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());		
 	}
 
 	//Opens Filter dialog window

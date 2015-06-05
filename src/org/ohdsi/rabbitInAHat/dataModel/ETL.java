@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.ohdsi.rabbitInAHat.MappingComponent;
+
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 
@@ -46,13 +48,28 @@ public class ETL implements Serializable {
 	private transient String						filename					= null;
 	private static final long						serialVersionUID			= 8987388381751618498L;
 
-	public ETL(){
-		
+	public ETL(){		
 	}
+	
 	public ETL(Database sourceDB, Database targetDb){
 		this.setSourceDatabase(sourceDB);
 		this.setTargetDatabase(targetDb);
 	}
+	
+	public void copyETLMappings(ETL etl){
+		Mapping<Table> oldTableMapping = etl.getTableToTableMapping();
+		Mapping<Table> newTableMapping = this.getTableToTableMapping();
+		Mapping<Field> oldFieldMapping;
+		
+		for(Table sourceTable : sourceDb.getTables()){
+			for(Table targetTable : targetDb.getTables()){			
+				if( oldTableMapping.getSourceToTargetMapByName(sourceTable, targetTable) != null ){
+					newTableMapping.addSourceToTargetMap(sourceTable,targetTable);
+				}
+			}
+		}
+	}
+	
 	public void saveCurrentState() {
 
 	}
