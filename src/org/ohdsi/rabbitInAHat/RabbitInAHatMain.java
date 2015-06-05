@@ -469,11 +469,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	
 	private void doHideCommented() {
 		tableMappingPanel.showCommented = false;
-		tableMappingPanel.setShowOnlyConnectedItems(true);
+		tableMappingPanel.setShowOnlyConnectedItems(false);
+		fieldMappingPanel.showCommented = false;
+		fieldMappingPanel.setShowOnlyConnectedItems(false);
 	}
 	
 	private void doShowCommented() {
 		tableMappingPanel.showCommented = true;
-		tableMappingPanel.setShowOnlyConnectedItems(true);
+		tableMappingPanel.setShowOnlyConnectedItems(false);
+		fieldMappingPanel.showCommented = true;
+		fieldMappingPanel.setShowOnlyConnectedItems(false);
 	}
 }
