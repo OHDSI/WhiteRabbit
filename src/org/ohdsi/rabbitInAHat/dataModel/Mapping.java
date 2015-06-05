@@ -87,4 +87,14 @@ public class Mapping <T extends MappableItem>{
 		}
 		return null;
 	}
+	
+	public ItemToItemMap getSourceToTargetMapByName(MappableItem sourceItem, MappableItem targetItem) {
+		Iterator<ItemToItemMap> iterator = sourceToTargetMaps.iterator();
+		while (iterator.hasNext()) {
+			ItemToItemMap sourceToTargetMap = iterator.next();
+			if (sourceToTargetMap.getSourceItem().getName().equals(sourceItem.getName()) && sourceToTargetMap.getTargetItem().getName().equals(targetItem.getName()))
+				return sourceToTargetMap;
+		}
+		return null;
+	}
 }
