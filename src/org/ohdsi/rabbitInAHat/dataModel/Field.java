@@ -34,6 +34,10 @@ public class Field implements MappableItem {
 		this.name = name;
 	}
 
+	public Database getDb() {
+		return this.table.getDb();
+	}
+	
 	public Table getTable() {
 		return table;
 	}

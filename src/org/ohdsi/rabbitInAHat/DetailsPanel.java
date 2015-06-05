@@ -416,7 +416,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		public void showItemToItemMap(ItemToItemMap itemToItemMap) {
 			this.itemToItemMap = itemToItemMap;
 			sourceLabel.setText(itemToItemMap.getSourceItem().toString());
-			targetLabel.setText(itemToItemMap.getCdmItem().toString());
+			targetLabel.setText(itemToItemMap.getTargetItem().toString());
 			logicArea.setText(itemToItemMap.getLogic());
 			commentsArea.setText(itemToItemMap.getComment());
 		}

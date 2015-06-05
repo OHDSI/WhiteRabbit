@@ -66,7 +66,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public static int				BORDER_HEIGHT				= 25;
 
 	private int						sourceX						= 10;
-	private int						cdmX						= 200;
+	private int						targetX						= 200;
 
 	private Mapping<?>				mapping;
 	private List<LabeledRectangle>	sourceComponents			= new ArrayList<LabeledRectangle>();
@@ -161,13 +161,13 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				LabeledRectangle component = new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0));
 				sourceComponents.add(component);
 			}
-		for (MappableItem item : mapping.getCdmItems())
+		for (MappableItem item : mapping.getTargetItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				LabeledRectangle component = new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255));
 				targetComponents.add(component);
 			}
-		for (ItemToItemMap map : mapping.getSourceToCdmMaps()) {
-			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getCdmItem(), targetComponents));
+		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
+			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), targetComponents));
 			arrows.add(component);
 		}
 		layoutItems();
@@ -175,8 +175,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	}
 
 	private boolean isConnected(MappableItem item) {
-		for (ItemToItemMap map : mapping.getSourceToCdmMaps())
-			if (map.getSourceItem() == item || map.getCdmItem() == item)
+		for (ItemToItemMap map : mapping.getSourceToTargetMaps())
+			if (map.getSourceItem() == item || map.getTargetItem() == item)
 				return true;
 		return false;
 	}
@@ -191,12 +191,12 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	// Layout visible LabeledRectangles
 	private void layoutItems() {
 		if (minimized) { // Only update x coordinate
-			for (LabeledRectangle cdmComponent : getVisibleTargetComponents()){
-				cdmComponent.setLocation(cdmX, cdmComponent.getY());
+			for (LabeledRectangle targetComponent : getVisibleTargetComponents()){
+				targetComponent.setLocation(targetX, targetComponent.getY());
 			}
 		} else {
 			setLabeledRectanglesLocation(getVisibleSourceComponents(),sourceX);
-			setLabeledRectanglesLocation(getVisibleTargetComponents(),cdmX);
+			setLabeledRectanglesLocation(getVisibleTargetComponents(),targetX);
 		}
 	}
 	
@@ -237,7 +237,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	public void setSize(int width, int height) {
 		sourceX = MARGIN;
-		cdmX = width - MARGIN - ITEM_WIDTH;
+		targetX = width - MARGIN - ITEM_WIDTH;
 
 		layoutItems();
 		super.setSize(width, height);
@@ -279,8 +279,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2d.setRenderingHints(rh); 
 
-		addLabel(g2d, "Source", sourceX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
-		addLabel(g2d, "CDMv5", cdmX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
+		addLabel(g2d, this.getSourceDbName(), sourceX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
+		addLabel(g2d, this.getTargetDbName(), targetX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
 		
 		
 		if (showingArrowStarts && dragRectangle == null) {
@@ -348,9 +348,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 		if (event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH) { // Source component		
 			LabeledRectangleClicked(event, getVisibleSourceComponents());
-		}else if (event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH) { // cdm component
+		}else if (event.getX() > targetX && event.getX() < targetX + ITEM_WIDTH) { // target component
 			LabeledRectangleClicked(event,  getVisibleTargetComponents());
-		}else if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
+		}else if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < targetX) { // Arrows
 			Arrow clickedArrow = null;
 			for (HighlightStatus status: HighlightStatus.values()) {
 				for (Arrow arrow : currentArrowStatus.get(status)) {
@@ -380,7 +380,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					if (!clickedArrow.isSelected()) {
 						clickedArrow.setSelected(true);
 						selectedArrow = clickedArrow;
-						detailsListener.showDetails(mapping.getSourceToCdmMap(selectedArrow.getSource().getItem(), selectedArrow.getTarget().getItem()));
+						detailsListener.showDetails(mapping.getSourceToTargetMap(selectedArrow.getSource().getItem(), selectedArrow.getTarget().getItem()));
 					}
 					repaint();
 				}
@@ -404,14 +404,14 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		public void run() {
 			if (minimizing) {
 				LabeledRectangle sourceComponent = zoomArrow.getSource();
-				LabeledRectangle cdmComponent = zoomArrow.getTarget();
+				LabeledRectangle targetComponent = zoomArrow.getTarget();
 
 				for (LabeledRectangle component : sourceComponents)
 					if (component != sourceComponent)
 						component.setVisible(false);
 
 				for (LabeledRectangle component : targetComponents)
-					if (component != cdmComponent)
+					if (component != targetComponent)
 						component.setVisible(false);
 
 				for (Arrow component : arrows)
@@ -420,11 +420,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				minimized = true;
 				Path heightPath = new Path(getHeight(), HEADER_TOP_MARGIN + HEADER_HEIGHT + MARGIN + ITEM_HEIGHT + BORDER_HEIGHT);
 				Path sourcePath = new Path(sourceComponent.getY(), HEADER_TOP_MARGIN + HEADER_HEIGHT);
-				Path cdmPath = new Path(cdmComponent.getY(), HEADER_TOP_MARGIN + HEADER_HEIGHT);
+				Path targetPath = new Path(targetComponent.getY(), HEADER_TOP_MARGIN + HEADER_HEIGHT);
 				for (int i = 0; i < nSteps; i++) {
 					maxHeight = heightPath.getValue(i);
 					sourceComponent.setLocation(sourceX, sourcePath.getValue(i));
-					cdmComponent.setLocation(cdmX, cdmPath.getValue(i));
+					targetComponent.setLocation(targetX, targetPath.getValue(i));
 					for (ResizeListener resizeListener : resizeListeners)
 						resizeListener.notifyResized(maxHeight, false, false);
 					try {
@@ -435,7 +435,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				}
 				maxHeight = heightPath.getEnd();
 				sourceComponent.setLocation(sourceX, sourcePath.getEnd());
-				cdmComponent.setLocation(cdmX, cdmPath.getEnd());
+				targetComponent.setLocation(targetX, targetPath.getEnd());
 				for (ResizeListener resizeListener : resizeListeners)
 					resizeListener.notifyResized(maxHeight, true, false);
 			} else { // maximizing
@@ -510,7 +510,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					break;
 				}
 			}
-		} else if (event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX && dragArrow == null) { // Existing arrowheads
+		} else if (event.getX() > targetX - ARROW_START_WIDTH && event.getX() < targetX && dragArrow == null) { // Existing arrowheads
 			for (Arrow arrow : arrows) {
 				if (event.getY() >= arrow.getTarget().getY() && event.getY() <= arrow.getTarget().getY() + arrow.getTarget().getHeight() && arrow.isSourceAndTargetVisible()) {
 					dragArrow = arrow;
@@ -552,12 +552,12 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 			if (!isSorted(targetComponents, new YComparator())) {
 				Collections.sort(targetComponents, new YComparator());
-				mapping.setCdmItems(getItemsList(targetComponents));
+				mapping.setTargetItems(getItemsList(targetComponents));
 			}
 			dragRectangle = null;
 			layoutItems();
 		} else if (dragArrow != null) { // dragging arrow to set source and target
-			if (event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX + ITEM_WIDTH)
+			if (event.getX() > targetX - ARROW_START_WIDTH && event.getX() < targetX + ITEM_WIDTH)
 
 				for (LabeledRectangle component : getVisibleRectangles(targetComponents)) {
 					if (component.contains(event.getPoint(),ARROW_START_WIDTH,0)) {
@@ -573,7 +573,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				}
 			if (dragArrowPreviousTarget != null && dragArrow.getTarget() != dragArrowPreviousTarget) { // Retargeted an existing arrow, remove old map from
 																										// model
-				mapping.removeSourceToCdmMap(dragArrow.getSource().getItem(), dragArrowPreviousTarget.getItem());
+				mapping.removeSourceToTargetMap(dragArrow.getSource().getItem(), dragArrowPreviousTarget.getItem());
 			}
 			dragArrowPreviousTarget = null;
 			dragArrow = null;
@@ -655,7 +655,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	
 	private void removeArrow(Arrow a){
 			arrows.remove(a);
-			mapping.removeSourceToCdmMap(a.getSource().getItem(), a.getTarget().getItem());
+			mapping.removeSourceToTargetMap(a.getSource().getItem(), a.getTarget().getItem());
 			repaint();
 	}
 	
@@ -746,7 +746,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			arrow.setTarget(target);
 			arrows.add(arrow);
 			
-			mapping.addSourceToCdmMap(source.getItem(), target.getItem());
+			mapping.addSourceToTargetMap(source.getItem(), target.getItem());
 		}
 		repaint();
 	}
@@ -769,7 +769,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 		}
 		
-		mapping.removeSourceToCdmMap(source.getItem(), target.getItem());
+		mapping.removeSourceToTargetMap(source.getItem(), target.getItem());
 		repaint();
 	}
 	
@@ -787,5 +787,32 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 		
 		return visible;
+	}
+	
+	public String getSourceDbName(){
+		String resString = "Source";
+
+		if(this.mapping.getSourceItems().size() > 0 ){
+			
+			if(this.mapping.getSourceItems().get(0).getDb() != null){
+				resString = this.mapping.getSourceItems().get(0).getDb().getDbName();
+			}
+		}
+		
+		return resString;
+		
+	}
+	
+	public String getTargetDbName(){
+		String resString = "Target";
+		
+		if(this.mapping.getTargetItems().size() > 0 ){
+			
+			if(this.mapping.getTargetItems().get(0).getDb() != null){
+				resString = this.mapping.getTargetItems().get(0).getDb().getDbName();
+			}
+		}
+		
+		return resString;
 	}
 }
