@@ -27,11 +27,12 @@ import java.awt.Polygon;
 public class Arrow implements MappingComponent {
 
 	public enum HighlightStatus {
-		IS_SELECTED (new Color(128, 128, 128, 128)),
+		IS_SELECTED (new Color(204, 255, 204, 192)),
 		BOTH_SELECTED (new Color(255, 255, 0, 192)),
 		SOURCE_SELECTED (new Color(255, 128, 0, 192)),
 		TARGET_SELECTED (new Color(0, 0, 255, 192)),
-		NONE_SELECTED (new Color(128, 128, 128, 128));
+		NONE_SELECTED (new Color(128, 128, 128, 192)),
+		IS_COMPLETED (new Color(128, 128, 128, 50));
 		
 		private final Color color;
 		
@@ -59,6 +60,8 @@ public class Arrow implements MappingComponent {
 
 	private boolean				isSelected		= false;
 	private boolean				isVisible		= true;
+	
+	private boolean				isCompleted		= false;
 
 	public Arrow(LabeledRectangle source) {
 		this.source = source;
@@ -202,6 +205,8 @@ public class Arrow implements MappingComponent {
 			return HighlightStatus.SOURCE_SELECTED;
 		} else if (isTargetSelected()) {
 			return HighlightStatus.TARGET_SELECTED;
+		} else if (isCompleted()) {
+			return HighlightStatus.IS_COMPLETED;
 		} else {
 			return HighlightStatus.NONE_SELECTED;
 		}
@@ -215,6 +220,14 @@ public class Arrow implements MappingComponent {
 		this.isSelected = isSelected;
 	}
 
+	public boolean isCompleted() {
+		return isCompleted;
+	}
+	
+	public void setCompleted(boolean isCompleted) {
+		this.isCompleted = isCompleted;
+	}
+	
 	public boolean contains(Point point) {
 		return polygon.contains(point);
 	}
