@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.ohdsi.rabbitInAHat.MappingComponent;
-
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 
@@ -58,14 +56,35 @@ public class ETL implements Serializable {
 	
 	public void copyETLMappings(ETL etl){
 		Mapping<Table> oldTableMapping = etl.getTableToTableMapping();
-		Mapping<Table> newTableMapping = this.getTableToTableMapping();
-		Mapping<Field> oldFieldMapping;
+		Mapping<Table> newTableMapping = this.getTableToTableMapping();	
 		
 		for(Table sourceTable : sourceDb.getTables()){
-			for(Table targetTable : targetDb.getTables()){			
-				if( oldTableMapping.getSourceToTargetMapByName(sourceTable, targetTable) != null ){
-					newTableMapping.addSourceToTargetMap(sourceTable,targetTable);
-				}
+			for(Table targetTable : cdmDb.getTables()){			
+				
+				ItemToItemMap copyMapping = oldTableMapping.getSourceToTargetMapByName(sourceTable, targetTable);
+				
+				if( copyMapping != null ){
+					copyMapping.setSourceItem(sourceTable);
+					copyMapping.setTargetItem(targetTable);
+					
+					newTableMapping.addSourceToTargetMap(copyMapping);
+					
+					Mapping<Field> oldFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
+					Mapping<Field> newFieldMapping = this.getFieldToFieldMapping(sourceTable, targetTable);
+					
+					for(Field sourceField : sourceTable.getFields()){
+						for(Field targetField : targetTable.getFields()){	
+							copyMapping = oldFieldMapping.getSourceToTargetMapByName(sourceField, targetField);
+							
+							if(copyMapping != null){
+								copyMapping.setSourceItem(sourceField);
+								copyMapping.setTargetItem(targetField);
+								
+								newFieldMapping.addSourceToTargetMap(copyMapping);
+							}
+						}
+					}
+				}							
 			}
 		}
 	}
