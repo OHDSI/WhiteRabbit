@@ -58,7 +58,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
 	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
 	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
-	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Target";
+	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -216,24 +216,23 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));		
 		editMenu.add(removeMappings);
 		
-		JMenu setTarget = new JMenu("Set Target Database");
-				
-		JMenuItem loadTarget = new JMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
-		loadTarget.addActionListener(this);
-		loadTarget.setActionCommand(ACTION_CMD_SET_TARGET_CUSTOM);
-		setTarget.add(loadTarget);		
-		editMenu.add(setTarget);
-		
+		JMenu setTarget = new JMenu("Set Target Database");				
+	
 		JMenuItem targetCDMV4 = new JMenuItem(ACTION_CMD_SET_TARGET_V4);
 		targetCDMV4.addActionListener(this);
 		targetCDMV4.setActionCommand(ACTION_CMD_SET_TARGET_V4);
 		setTarget.add(targetCDMV4);		
-		editMenu.add(setTarget);
 		
 		JMenuItem targetCDMV5 = new JMenuItem(ACTION_CMD_SET_TARGET_V5);
 		targetCDMV5.addActionListener(this);
 		targetCDMV5.setActionCommand(ACTION_CMD_SET_TARGET_V5);
 		setTarget.add(targetCDMV5);		
+		
+		JMenuItem loadTarget = new JMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
+		loadTarget.addActionListener(this);
+		loadTarget.setActionCommand(ACTION_CMD_SET_TARGET_CUSTOM);
+		setTarget.add(loadTarget);		
+		
 		editMenu.add(setTarget);
 
 		// JMenu viewMenu = new JMenu("View");
