@@ -30,7 +30,7 @@ public class TableCellLongTextRenderer extends DefaultTableCellRenderer implemen
 		jtext.setWrapStyleWord(true);                    
 		jtext.setLineWrap(true);   
 		jtext.setFont(table.getFont());
-		jtext.setSize(table.getColumn(table.getColumnName(column)).getWidth(), 1);
+		jtext.setSize(table.getColumn(table.getColumnName(column)).getWidth(), (int)jtext.getPreferredSize().getHeight());
 		
         if(isSelected){
         	jtext.setBackground((Color)UIManager.get("Table.selectionBackground"));
