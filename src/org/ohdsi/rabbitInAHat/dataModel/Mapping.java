@@ -23,17 +23,17 @@ import java.util.List;
 
 public class Mapping <T extends MappableItem>{
 	private List<T>	sourceItems;
-	private List<T>					targetItems;
-	private List<ItemToItemMap>		sourceToTargetMaps;
+	private List<T>					cdmItems;
+	private List<ItemToItemMap>		sourceToCdmMaps;
 	
 	public Mapping(List<T> sourceItems, List<T> targetItems, List<ItemToItemMap> sourceToTargetMaps) {
 		this.sourceItems = sourceItems;
-		this.targetItems = targetItems;
-		this.sourceToTargetMaps = sourceToTargetMaps;
+		this.cdmItems = targetItems;
+		this.sourceToCdmMaps = sourceToTargetMaps;
 	}
 	
 	public void addSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
-		sourceToTargetMaps.add(new ItemToItemMap(sourceItem, targetItem));
+		sourceToCdmMaps.add(new ItemToItemMap(sourceItem, targetItem));
 	}
 	
 	public List<MappableItem> getSourceItems() {
@@ -52,25 +52,25 @@ public class Mapping <T extends MappableItem>{
 	
 	@SuppressWarnings("unchecked")
 	public void setTargetItems(List<? extends MappableItem> targetItems) {
-		this.targetItems.clear();
+		this.cdmItems.clear();
 		for (MappableItem item : targetItems)
-			this.targetItems.add((T) item);
+			this.cdmItems.add((T) item);
 	}
 	
 	public List<MappableItem> getTargetItems() {
 		List<MappableItem> list = new ArrayList<MappableItem>();
-		for (MappableItem item : targetItems)
+		for (MappableItem item : cdmItems)
 			list.add(item);
 		return list;
 
 	}
 	
 	public List<ItemToItemMap> getSourceToTargetMaps() {
-		return sourceToTargetMaps;
+		return sourceToCdmMaps;
 	}
 	
 	public void removeSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
-		Iterator<ItemToItemMap> iterator = sourceToTargetMaps.iterator();
+		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
 		while (iterator.hasNext()) {
 			ItemToItemMap sourceToTargetMap = iterator.next();
 			if (sourceToTargetMap.getSourceItem().equals(sourceItem) && sourceToTargetMap.getTargetItem().equals(targetItem))
@@ -79,7 +79,7 @@ public class Mapping <T extends MappableItem>{
 	}
 	
 	public ItemToItemMap getSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
-		Iterator<ItemToItemMap> iterator = sourceToTargetMaps.iterator();
+		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
 		while (iterator.hasNext()) {
 			ItemToItemMap sourceToTargetMap = iterator.next();
 			if (sourceToTargetMap.getSourceItem().equals(sourceItem) && sourceToTargetMap.getTargetItem().equals(targetItem))
