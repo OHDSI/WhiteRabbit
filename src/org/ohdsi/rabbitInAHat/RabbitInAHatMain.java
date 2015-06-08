@@ -31,7 +31,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.awt.Toolkit;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
@@ -159,12 +159,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
+		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+		
 		menuBar.add(fileMenu);
 
 		JMenuItem openItem = new JMenuItem("Open ETL specs");
 		openItem.addActionListener(this);
 		openItem.setActionCommand(ACTION_CMD_OPEN_ETL_SPECS);
-		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, menuShortcutMask));
 		fileMenu.add(openItem);
 
 		JMenuItem openScanReportItem = new JMenuItem("Open scan report");
@@ -175,7 +177,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JMenuItem saveItem = new JMenuItem("Save");
 		saveItem.addActionListener(this);
 		saveItem.setActionCommand(ACTION_CMD_SAVE);
-		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, menuShortcutMask));
 		fileMenu.add(saveItem);
 
 		JMenuItem saveAsItem = new JMenuItem("Save as");
@@ -199,19 +201,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JMenuItem filter = new JMenuItem(ACTION_CMD_FILTER);
 		filter.addActionListener(this);
 		filter.setActionCommand(ACTION_CMD_FILTER);
-		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));	
+		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));	
 		editMenu.add(filter);
 
 		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
 		makeMappings.addActionListener(this);
 		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
-		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));		
+		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));		
 		editMenu.add(makeMappings);
 
 		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
 		removeMappings.addActionListener(this);
 		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
-		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));		
+		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));		
 		editMenu.add(removeMappings);
 		
 		JMenu setTarget = new JMenu("Set Target Database");
