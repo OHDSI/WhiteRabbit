@@ -168,10 +168,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				LabeledRectangle component = new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255));
 				cdmComponents.add(component);
 			}
+
 		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
 			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents));
+			if (!showCommented && (!(map.getComment().equals("")) || !(map.getLogic().equals("")))) component.setCompleted(true);
 			arrows.add(component);
-			if (!(showCommented) && !(map.getComment().equals(""))) arrows.remove(component);
 		}
 		layoutItems();
 		repaint();
