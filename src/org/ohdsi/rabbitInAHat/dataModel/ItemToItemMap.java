@@ -57,7 +57,7 @@ public class ItemToItemMap implements Serializable {
 	
 	public boolean equals(Object other) {
 		if (other instanceof ItemToItemMap) {
-			return (((ItemToItemMap) other).sourceItem.equals(sourceItem) && ((ItemToItemMap) other).cdmItem.equals(cdmItem));
+			return (((ItemToItemMap) other).sourceItem.getName().equals(sourceItem.getName()) && ((ItemToItemMap) other).cdmItem.getName().equals(cdmItem.getName()));
 		} else
 			return false;
 	}

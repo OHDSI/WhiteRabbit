@@ -36,6 +36,10 @@ public class Mapping <T extends MappableItem>{
 		sourceToCdmMaps.add(new ItemToItemMap(sourceItem, targetItem));
 	}
 	
+	public void addSourceToTargetMap(ItemToItemMap itemToItemMap) {
+		sourceToCdmMaps.add(itemToItemMap);
+	}
+	
 	public List<MappableItem> getSourceItems() {
 		List<MappableItem> list = new ArrayList<MappableItem>();
 		for (MappableItem item : sourceItems)
@@ -83,6 +87,17 @@ public class Mapping <T extends MappableItem>{
 		while (iterator.hasNext()) {
 			ItemToItemMap sourceToTargetMap = iterator.next();
 			if (sourceToTargetMap.getSourceItem().equals(sourceItem) && sourceToTargetMap.getTargetItem().equals(targetItem))
+				return sourceToTargetMap;
+		}
+		return null;
+	}
+	
+	public ItemToItemMap getSourceToTargetMapByName(MappableItem sourceItem, MappableItem targetItem) {
+		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
+
+		while (iterator.hasNext()) {
+			ItemToItemMap sourceToTargetMap = iterator.next();
+			if (sourceToTargetMap.getSourceItem().getName().equals(sourceItem.getName()) && sourceToTargetMap.getTargetItem().getName().equals(targetItem.getName()))
 				return sourceToTargetMap;
 		}
 		return null;

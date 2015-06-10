@@ -17,6 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat.dataModel;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,13 +62,21 @@ public class Database implements Serializable {
 	}
 
 	public static Database generateCDMModel(CDMVersion cdmVersion) {
+		String path = Database.class.getResource(cdmVersion.fileName).getFile();
+		return Database.generateModelFromCSV(path);
+	}
+	
+	public static Database generateModelFromCSV(String fileName) {
 		Database database = new Database();
 		
-		database.dbName = cdmVersion.dbName;
-		
+		String dbname = new File(fileName).getName();
+		database.dbName = dbname.substring(0,dbname.lastIndexOf("."));
+				
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
-		for (Row row : new ReadCSVFileWithHeader(Database.class.getResourceAsStream(cdmVersion.fileName))) {
+		for (Row row : new ReadCSVFileWithHeader(fileName)) {
+			
 			Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
+			
 			if (table == null) {
 				table = new Table();
 				table.setDb(database);
@@ -81,7 +90,7 @@ public class Database implements Serializable {
 			field.setDescription(row.get("DESCRIPTION"));
 			table.getFields().add(field);
 		}
-		// database.defaultOrdering = new ArrayList<Table>(database.tables);
+
 		return database;
 	}
 
