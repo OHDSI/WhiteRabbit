@@ -76,6 +76,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 
 	public RabbitInAHatMain(String[] args) {
+		
+//		Set look and feel to the system look and feel
+		try {
+		   UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}catch(Exception ex) {
+		    ex.printStackTrace();
+		}		
+		
 		frame = new JFrame("Rabbit in a Hat");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -268,7 +276,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		if( chooser == null){
 			chooser = new JFileChooser();
 		}
-		chooser.setFileFilter(filter);
+		chooser.setFileFilter(filter);		
+
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
 		if (dialogResult == JFileChooser.APPROVE_OPTION)
 			result = chooser.getSelectedFile().getAbsolutePath();
