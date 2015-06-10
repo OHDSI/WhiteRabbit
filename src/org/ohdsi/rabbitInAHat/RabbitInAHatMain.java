@@ -58,9 +58,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
 	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
 	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
+	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
+	private final static FileFilter	FILE_FILTER_CSV					= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
 	private JScrollPane				scrollPane2;
@@ -224,19 +226,25 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));		
 		editMenu.add(removeMappings);
 		
-		JMenu setTarget = new JMenu("Set Target Database");
+		JMenu setTarget = new JMenu("Set Target Database");				
+	
 		JMenuItem targetCDMV4 = new JMenuItem(ACTION_CMD_SET_TARGET_V4);
 		targetCDMV4.addActionListener(this);
 		targetCDMV4.setActionCommand(ACTION_CMD_SET_TARGET_V4);
 		setTarget.add(targetCDMV4);		
-		editMenu.add(setTarget);
 		
 		JMenuItem targetCDMV5 = new JMenuItem(ACTION_CMD_SET_TARGET_V5);
 		targetCDMV5.addActionListener(this);
 		targetCDMV5.setActionCommand(ACTION_CMD_SET_TARGET_V5);
 		setTarget.add(targetCDMV5);		
-		editMenu.add(setTarget);
 		
+		JMenuItem loadTarget = new JMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
+		loadTarget.addActionListener(this);
+		loadTarget.setActionCommand(ACTION_CMD_SET_TARGET_CUSTOM);
+		setTarget.add(loadTarget);		
+		
+		editMenu.add(setTarget);
+
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
 
@@ -341,14 +349,27 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_SET_TARGET_V5:
 				doSetTargetCDM(CDMVersion.CDMV5);
 				break;
+			case ACTION_CMD_SET_TARGET_CUSTOM:
+				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
+				break;
 		}
 	}
 	
+	private void doSetTargetCustom(String fileName) {
+		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(),Database.generateModelFromCSV(fileName));
+		
+		etl.copyETLMappings(ObjectExchange.etl);
+		tableMappingPanel.setMapping(etl.getTableToTableMapping());	
+		ObjectExchange.etl = etl;
+		
+	}
+
 	private void doSetTargetCDM(CDMVersion cdmVersion) {
 		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(),Database.generateCDMModel(cdmVersion));
-	
+		
+		etl.copyETLMappings(ObjectExchange.etl);
+		tableMappingPanel.setMapping(etl.getTableToTableMapping());	
 		ObjectExchange.etl = etl;
-		tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());		
 	}
 
 	//Opens Filter dialog window

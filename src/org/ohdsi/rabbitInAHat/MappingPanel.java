@@ -278,7 +278,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2d.setRenderingHints(rh); 
-
+		
+		g2d.setColor(Color.BLACK);
 		addLabel(g2d, this.getSourceDbName(), sourceX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
 		addLabel(g2d, this.getTargetDbName(), cdmX + ITEM_WIDTH / 2, HEADER_TOP_MARGIN + HEADER_HEIGHT / 2);
 		

@@ -46,13 +46,49 @@ public class ETL implements Serializable {
 	private transient String						filename					= null;
 	private static final long						serialVersionUID			= 8987388381751618498L;
 
-	public ETL(){
-		
+	public ETL(){		
 	}
+	
 	public ETL(Database sourceDB, Database targetDb){
 		this.setSourceDatabase(sourceDB);
 		this.setTargetDatabase(targetDb);
 	}
+	
+	public void copyETLMappings(ETL etl){
+		Mapping<Table> oldTableMapping = etl.getTableToTableMapping();
+		Mapping<Table> newTableMapping = this.getTableToTableMapping();	
+		
+		for(Table sourceTable : sourceDb.getTables()){
+			for(Table targetTable : cdmDb.getTables()){			
+				
+				ItemToItemMap copyMapping = oldTableMapping.getSourceToTargetMapByName(sourceTable, targetTable);
+				
+				if( copyMapping != null ){
+					copyMapping.setSourceItem(sourceTable);
+					copyMapping.setTargetItem(targetTable);
+					
+					newTableMapping.addSourceToTargetMap(copyMapping);
+					
+					Mapping<Field> oldFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
+					Mapping<Field> newFieldMapping = this.getFieldToFieldMapping(sourceTable, targetTable);
+					
+					for(Field sourceField : sourceTable.getFields()){
+						for(Field targetField : targetTable.getFields()){	
+							copyMapping = oldFieldMapping.getSourceToTargetMapByName(sourceField, targetField);
+							
+							if(copyMapping != null){
+								copyMapping.setSourceItem(sourceField);
+								copyMapping.setTargetItem(targetField);
+								
+								newFieldMapping.addSourceToTargetMap(copyMapping);
+							}
+						}
+					}
+				}							
+			}
+		}
+	}
+	
 	public void saveCurrentState() {
 
 	}

@@ -20,12 +20,9 @@ package org.ohdsi.rabbitInAHat;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.zip.GZIPInputStream;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xwpf.usermodel.BreakType;
@@ -43,14 +40,6 @@ import org.ohdsi.rabbitInAHat.dataModel.Mapping;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 
 public class ETLDocumentGenerator {
-	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		FileInputStream fileOutputStream = new FileInputStream("C:/home/Research/EMIF WP12/HCUP//HCUP_final.etl");
-		GZIPInputStream gzipOutputStream = new GZIPInputStream(fileOutputStream);
-		ObjectInputStream out = new ObjectInputStream(gzipOutputStream);
-		ETL etl = (ETL) out.readObject();
-		out.close();
-		generate(etl, "C:/Users/mschuemi/Desktop/test.docx");
-	}
 	
 	public static void generate(ETL etl, String filename, boolean includeCounts) {
 		try {
@@ -226,13 +215,13 @@ public class ETLDocumentGenerator {
 		XWPFParagraph tmpParagraph = document.createParagraph();
 		XWPFRun tmpRun = tmpParagraph.createRun();
 		
-		tmpRun.setText("Source Data Mapping Approach");
-		tmpRun.setFontSize(18);
-		
 		MappingPanel mappingPanel = new MappingPanel(etl.getTableToTableMapping());
 		mappingPanel.setShowOnlyConnectedItems(true);
 		int height = mappingPanel.getMinimumSize().height;
 		mappingPanel.setSize(800, height);
+		
+		tmpRun.setText(mappingPanel.getSourceDbName() + " Data Mapping Approach to " + mappingPanel.getTargetDbName());
+		tmpRun.setFontSize(18);
 		
 		BufferedImage im = new BufferedImage(800, height, BufferedImage.TYPE_INT_ARGB);
 		im.getGraphics().setColor(Color.WHITE);
