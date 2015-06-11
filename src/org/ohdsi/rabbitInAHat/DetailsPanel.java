@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -114,6 +115,9 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			cardLayout.show(this, ItemToItemMap.class.getName());
 		} else
 			cardLayout.show(this, "");
+		
+		// Discard edits made by showing a new details view
+		undoManager.discardAllEdits();
 	}
 
 	public void refresh() {
@@ -132,11 +136,16 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		InputMap im = jta.getInputMap(JComponent.WHEN_FOCUSED);
 		ActionMap am = jta.getActionMap();
 
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK), "Undo");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_MASK), "Redo");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo");
 
 		am.put("Undo", new AbstractAction() {
-		    @Override
+		    /**
+			 * 
+			 */
+			private static final long serialVersionUID = -3363877112423623107L;
+
+			@Override
 		    public void actionPerformed(ActionEvent e) {
 		        try {
 		            if (undoManager.canUndo()) {
@@ -149,7 +158,12 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		});
 		
 		am.put("Redo", new AbstractAction() {
-		    @Override
+		    /**
+			 * 
+			 */
+			private static final long serialVersionUID = -5581878642285644039L;
+
+			@Override
 		    public void actionPerformed(ActionEvent e) {
 		        try {
 		            if (undoManager.canRedo()) {
