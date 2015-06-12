@@ -23,6 +23,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
+import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 
 public class Arrow implements MappingComponent {
 
@@ -52,6 +53,7 @@ public class Arrow implements MappingComponent {
 	private int					y2;
 	private LabeledRectangle	source			= null;
 	private LabeledRectangle	target			= null;
+	private ItemToItemMap		itemToItemMap;
 
 	private int					width;
 	private int					height;
@@ -60,9 +62,7 @@ public class Arrow implements MappingComponent {
 
 	private boolean				isSelected		= false;
 	private boolean				isVisible		= true;
-	
-	private boolean				isCompleted		= false;
-
+	private boolean				hideCompleted		= false;
 	public Arrow(LabeledRectangle source) {
 		this.source = source;
 	}
@@ -81,7 +81,21 @@ public class Arrow implements MappingComponent {
 		this.source = source;
 		this.target = target;
 	}
+	
+	public Arrow(LabeledRectangle source, LabeledRectangle target, ItemToItemMap itemToItemMap) {
+		this.source = source;
+		this.target = target;	
+		this.itemToItemMap = itemToItemMap;
+	}
 
+	public ItemToItemMap getItemToItemMap() {
+		return itemToItemMap;
+	}
+	
+	public void setItemToItemMap(ItemToItemMap itemToItemMap) {
+		this.itemToItemMap = itemToItemMap;
+	}
+	
 	public int getWidth() {
 		return width;
 	}
@@ -205,7 +219,7 @@ public class Arrow implements MappingComponent {
 			return HighlightStatus.SOURCE_SELECTED;
 		} else if (isTargetSelected()) {
 			return HighlightStatus.TARGET_SELECTED;
-		} else if (isCompleted()) {
+		} else if (isCompleted() && getHideCompleted()) {
 			return HighlightStatus.IS_COMPLETED;
 		} else {
 			return HighlightStatus.NONE_SELECTED;
@@ -221,11 +235,20 @@ public class Arrow implements MappingComponent {
 	}
 
 	public boolean isCompleted() {
-		return isCompleted;
+		if (getItemToItemMap() != null) {
+			return (!getItemToItemMap().getComment().equals("")) || (!getItemToItemMap().getLogic().equals(""));
+		}
+		else {
+			return false;
+		}
 	}
 	
-	public void setCompleted(boolean isCompleted) {
-		this.isCompleted = isCompleted;
+	public boolean getHideCompleted() {
+		return hideCompleted;
+	}
+	
+	public void setHideCompleted(boolean hideCompleted) {
+		this.hideCompleted = hideCompleted;
 	}
 	
 	public boolean contains(Point point) {

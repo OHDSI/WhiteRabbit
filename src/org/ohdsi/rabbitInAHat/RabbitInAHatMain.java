@@ -61,8 +61,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
 	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
-	public final static String		ACTION_CMD_HIDE_COMMENTED			= "Hide Commented Arrows";
-	public final static String		ACTION_CMD_SHOW_COMMENTED			= "Show Commented Arrows";
+	public final static String		ACTION_CMD_HIDE_COMPLETED			= "Hide Completed Arrows";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -249,18 +248,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		
 		editMenu.add(setTarget);
 
-		final JCheckBoxMenuItem hideCommented = new JCheckBoxMenuItem(ACTION_CMD_HIDE_COMMENTED);
-		hideCommented.addItemListener(new ItemListener() {
+		final JCheckBoxMenuItem hideCompleted = new JCheckBoxMenuItem(ACTION_CMD_HIDE_COMPLETED);
+		hideCompleted.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				if (hideCommented.isSelected()) {
-					doHideCommented();
-				} else {
-					doShowCommented();
-				}
+				if (hideCompleted.isSelected()) doHideCompleted();
+				else doShowCompleted();
 			}
 		});
-		editMenu.add(hideCommented);
-
+		editMenu.add(hideCompleted);
+		
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
 
@@ -463,21 +459,13 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 	
-	private void doHideCommented() {
-		fieldMappingPanel.showCommented = false;
-		tableMappingPanel.showCommented = false;
-		fieldMappingPanel.setShowOnlyConnectedItems(false);
-		tableMappingPanel.setShowOnlyConnectedItems(false);
-		tableMappingPanel.setVisible(true);
-
+	public void doHideCompleted() {
+		this.tableMappingPanel.hideCompleted();
+		this.fieldMappingPanel.hideCompleted();
 	}
 	
-	private void doShowCommented() {
-		fieldMappingPanel.showCommented = true;
-		tableMappingPanel.showCommented = true;
-		fieldMappingPanel.setShowOnlyConnectedItems(false);
-		tableMappingPanel.setShowOnlyConnectedItems(false);
-		tableMappingPanel.setVisible(true);
-
+	private void doShowCompleted() {
+		this.tableMappingPanel.showCompleted();
+		this.fieldMappingPanel.showCompleted();
 	}
 }
