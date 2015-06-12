@@ -91,7 +91,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	private DetailsListener			detailsListener;
 	
-	public boolean					showCommented				= true;
+	public boolean					hiding						= false;
 
 	@SuppressWarnings("serial")
 	public MappingPanel(Mapping<?> mapping) {
@@ -168,10 +168,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				LabeledRectangle component = new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255));
 				cdmComponents.add(component);
 			}
-
 		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
-			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents));
-			if (!showCommented && (!(map.getComment().equals("")) || !(map.getLogic().equals("")))) component.setCompleted(true);
+			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents), map);
 			arrows.add(component);
 		}
 		layoutItems();
@@ -184,7 +182,24 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				return true;
 		return false;
 	}
+	
+	public void hideCompleted() {
+		for (Arrow arrow : arrows) {
+			arrow.setHideCompleted(true);
+		}
+		repaint();
+		hiding = true;
+	}
+	
+	public void showCompleted() {
+		for (Arrow arrow : arrows) {
+			arrow.setHideCompleted(false);
+		}
+		repaint();
+		hiding = false;
+	}
 
+	
 	private LabeledRectangle getComponentWithItem(MappableItem item, List<LabeledRectangle> components) {
 		for (LabeledRectangle component : components)
 			if (component.getItem().equals(item))
@@ -379,6 +394,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 						
 						slaveMappingPanel.filterComponents("", false);
 						slaveMappingPanel.filterComponents("", true);
+						if (hiding) {
+							slaveMappingPanel.hideCompleted();
+						}
 					}
 
 				} else { // single click
@@ -749,9 +767,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		if (isNew) {
 			Arrow arrow = new Arrow(source);
 			arrow.setTarget(target);
-			arrows.add(arrow);
-			
 			mapping.addSourceToTargetMap(source.getItem(), target.getItem());
+			arrow.setItemToItemMap(mapping.getSourceToTargetMap(source.getItem(), target.getItem()));
+			arrow.setHideCompleted(hiding);
+			arrows.add(arrow);
 		}
 		repaint();
 	}
