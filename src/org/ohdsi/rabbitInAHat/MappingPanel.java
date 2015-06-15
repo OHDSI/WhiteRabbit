@@ -91,7 +91,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	private DetailsListener			detailsListener;
 	
-	public boolean					hiding						= false;
+	private boolean					hiding						= false;
 
 	@SuppressWarnings("serial")
 	public MappingPanel(Mapping<?> mapping) {
@@ -184,21 +184,38 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	public void hideCompleted() {
-		for (Arrow arrow : arrows) {
-			arrow.setHideCompleted(true);
+		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
+			map.setHideCompleted(true);
 		}
 		repaint();
 		hiding = true;
 	}
 	
 	public void showCompleted() {
-		for (Arrow arrow : arrows) {
-			arrow.setHideCompleted(false);
+		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
+			map.setHideCompleted(false);
 		}
 		repaint();
 		hiding = false;
 	}
-
+	
+	public void markCompleted() {
+		for (Arrow arrow : arrows) {
+			if (arrow.isSelected() || arrow.getSource().isSelected() || arrow.getTarget().isSelected()){
+				arrow.getItemToItemMap().setCompleted(true);
+			}
+		}
+		repaint();
+	}
+	
+	public void unmarkCompleted() {
+		for (Arrow arrow : arrows) {
+			if (arrow.isSelected() || arrow.getSource().isSelected() || arrow.getTarget().isSelected()){
+				arrow.getItemToItemMap().setCompleted(false);
+			}
+		}
+		repaint();
+	}
 	
 	private LabeledRectangle getComponentWithItem(MappableItem item, List<LabeledRectangle> components) {
 		for (LabeledRectangle component : components)
@@ -769,7 +786,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			arrow.setTarget(target);
 			mapping.addSourceToTargetMap(source.getItem(), target.getItem());
 			arrow.setItemToItemMap(mapping.getSourceToTargetMap(source.getItem(), target.getItem()));
-			arrow.setHideCompleted(hiding);
+			arrow.getItemToItemMap().setHideCompleted(hiding);
 			arrows.add(arrow);
 		}
 		repaint();

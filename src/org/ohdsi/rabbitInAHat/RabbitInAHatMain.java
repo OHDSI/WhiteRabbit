@@ -62,6 +62,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
 	public final static String		ACTION_CMD_HIDE_COMPLETED			= "Hide Completed Arrows";
+	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
+	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Unmark Highlighted";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -245,8 +247,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		loadTarget.addActionListener(this);
 		loadTarget.setActionCommand(ACTION_CMD_SET_TARGET_CUSTOM);
 		setTarget.add(loadTarget);		
-		
 		editMenu.add(setTarget);
+		
+		JMenu arrowMenu = new JMenu("Arrows");
+		menuBar.add(arrowMenu);
 
 		final JCheckBoxMenuItem hideCompleted = new JCheckBoxMenuItem(ACTION_CMD_HIDE_COMPLETED);
 		hideCompleted.addItemListener(new ItemListener() {
@@ -255,7 +259,20 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				else doShowCompleted();
 			}
 		});
-		editMenu.add(hideCompleted);
+		hideCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.CTRL_MASK));
+		arrowMenu.add(hideCompleted);
+		
+		JMenuItem markCompleted = new JMenuItem(ACTION_CMD_MARK_COMPLETED);
+		markCompleted.addActionListener(this);
+		markCompleted.setActionCommand(ACTION_CMD_MARK_COMPLETED);	
+		markCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+		arrowMenu.add(markCompleted);
+		
+		JMenuItem unmarkCompleted = new JMenuItem(ACTION_CMD_UNMARK_COMPLETED);
+		unmarkCompleted.addActionListener(this);
+		unmarkCompleted.setActionCommand(ACTION_CMD_UNMARK_COMPLETED);	
+//		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
+		arrowMenu.add(unmarkCompleted);
 		
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
@@ -364,6 +381,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_SET_TARGET_CUSTOM:
 				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
 				break;
+			case ACTION_CMD_MARK_COMPLETED:
+				doMarkCompleted();
+				break;
+			case ACTION_CMD_UNMARK_COMPLETED:
+				doUnmarkCompleted();
+				break;
 		}
 	}
 	
@@ -459,7 +482,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 	
-	public void doHideCompleted() {
+	private void doHideCompleted() {
 		this.tableMappingPanel.hideCompleted();
 		this.fieldMappingPanel.hideCompleted();
 	}
@@ -468,4 +491,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		this.tableMappingPanel.showCompleted();
 		this.fieldMappingPanel.showCompleted();
 	}
+	
+	private void doMarkCompleted() {
+		this.tableMappingPanel.markCompleted();
+		this.fieldMappingPanel.markCompleted();
+	}
+	
+	private void doUnmarkCompleted() {
+		this.tableMappingPanel.unmarkCompleted();
+		this.fieldMappingPanel.unmarkCompleted();
+	}
+	
 }
