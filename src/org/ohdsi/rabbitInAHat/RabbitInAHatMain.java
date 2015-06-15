@@ -259,19 +259,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				else doShowCompleted();
 			}
 		});
-		hideCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.CTRL_MASK));
+		hideCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, menuShortcutMask));
 		arrowMenu.add(hideCompleted);
 		
 		JMenuItem markCompleted = new JMenuItem(ACTION_CMD_MARK_COMPLETED);
 		markCompleted.addActionListener(this);
 		markCompleted.setActionCommand(ACTION_CMD_MARK_COMPLETED);	
-		markCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+		markCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, menuShortcutMask));
 		arrowMenu.add(markCompleted);
 		
 		JMenuItem unmarkCompleted = new JMenuItem(ACTION_CMD_UNMARK_COMPLETED);
 		unmarkCompleted.addActionListener(this);
 		unmarkCompleted.setActionCommand(ACTION_CMD_UNMARK_COMPLETED);	
-//		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
+//		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, menuShortcutMask));
 		arrowMenu.add(unmarkCompleted);
 		
 		// JMenu viewMenu = new JMenu("View");
