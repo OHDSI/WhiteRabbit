@@ -48,11 +48,11 @@ import org.ohdsi.whiteRabbit.ObjectExchange;
 public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	public final static String		ACTION_CMD_SAVE						= "Save";
-	public final static String		ACTION_CMD_SAVE_AS					= "Save as";
+	public final static String		ACTION_CMD_SAVE_AS					= "Save As";
 	public final static String		ACTION_CMD_OPEN_ETL_SPECS			= "Open ETL Specs";
 	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
-	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard value counts";
+	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
 	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
@@ -61,7 +61,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
-	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
+	private final static FileFilter	FILE_FILTER_DOCX				= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
 	private final static FileFilter	FILE_FILTER_CSV					= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
@@ -173,29 +173,29 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		
 		menuBar.add(fileMenu);
 
-		JMenuItem openItem = new JMenuItem("Open ETL specs");
+		JMenuItem openItem = new JMenuItem(ACTION_CMD_OPEN_ETL_SPECS);
 		openItem.addActionListener(this);
 		openItem.setActionCommand(ACTION_CMD_OPEN_ETL_SPECS);
 		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, menuShortcutMask));
 		fileMenu.add(openItem);
 
-		JMenuItem openScanReportItem = new JMenuItem("Open scan report");
+		JMenuItem openScanReportItem = new JMenuItem(ACTION_CMD_OPEN_SCAN_REPORT);
 		openScanReportItem.addActionListener(this);
 		openScanReportItem.setActionCommand(ACTION_CMD_OPEN_SCAN_REPORT);
 		fileMenu.add(openScanReportItem);
 
-		JMenuItem saveItem = new JMenuItem("Save");
+		JMenuItem saveItem = new JMenuItem(ACTION_CMD_SAVE);
 		saveItem.addActionListener(this);
 		saveItem.setActionCommand(ACTION_CMD_SAVE);
 		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, menuShortcutMask));
 		fileMenu.add(saveItem);
 
-		JMenuItem saveAsItem = new JMenuItem("Save as");
+		JMenuItem saveAsItem = new JMenuItem(ACTION_CMD_SAVE_AS);
 		saveAsItem.addActionListener(this);
 		saveAsItem.setActionCommand(ACTION_CMD_SAVE_AS);
 		fileMenu.add(saveAsItem);
 
-		JMenuItem generateDocItem = new JMenuItem("Generate ETL document");
+		JMenuItem generateDocItem = new JMenuItem(ACTION_CMD_GENERATE_ETL_DOCUMENT);
 		generateDocItem.addActionListener(this);
 		generateDocItem.setActionCommand(ACTION_CMD_GENERATE_ETL_DOCUMENT);
 		fileMenu.add(generateDocItem);
