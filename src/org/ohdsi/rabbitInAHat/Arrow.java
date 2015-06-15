@@ -62,11 +62,11 @@ public class Arrow implements MappingComponent {
 
 	private boolean				isSelected		= false;
 	private boolean				isVisible		= true;
-	private boolean				hideCompleted		= false;
+	
 	public Arrow(LabeledRectangle source) {
 		this.source = source;
 	}
-
+	
 	public Arrow(int x1, int y1, int x2, int y2) {
 		this.x1 = x1;
 		this.y1 = y1;
@@ -219,7 +219,7 @@ public class Arrow implements MappingComponent {
 			return HighlightStatus.SOURCE_SELECTED;
 		} else if (isTargetSelected()) {
 			return HighlightStatus.TARGET_SELECTED;
-		} else if (isCompleted() && getHideCompleted()) {
+		} else if (isCompleted() && getItemToItemMap().getHideCompleted()) {
 			return HighlightStatus.IS_COMPLETED;
 		} else {
 			return HighlightStatus.NONE_SELECTED;
@@ -236,19 +236,11 @@ public class Arrow implements MappingComponent {
 
 	public boolean isCompleted() {
 		if (getItemToItemMap() != null) {
-			return (!getItemToItemMap().getComment().equals("")) || (!getItemToItemMap().getLogic().equals(""));
+			return (!getItemToItemMap().getComment().equals("")) || (!getItemToItemMap().getLogic().equals("")) || getItemToItemMap().isCompleted();
 		}
 		else {
 			return false;
 		}
-	}
-	
-	public boolean getHideCompleted() {
-		return hideCompleted;
-	}
-	
-	public void setHideCompleted(boolean hideCompleted) {
-		this.hideCompleted = hideCompleted;
 	}
 	
 	public boolean contains(Point point) {
