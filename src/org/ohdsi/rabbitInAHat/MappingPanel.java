@@ -201,7 +201,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	
 	public void markCompleted() {
 		for (Arrow arrow : arrows) {
-			if (arrow.isSelected() || arrow.getSource().isSelected() || arrow.getTarget().isSelected()){
+			if (arrow.isSelected() || arrow.getHighlightStatus() == HighlightStatus.BOTH_SELECTED){
 				arrow.getItemToItemMap().setCompleted(true);
 			}
 		}
@@ -210,7 +210,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	
 	public void unmarkCompleted() {
 		for (Arrow arrow : arrows) {
-			if (arrow.isSelected() || arrow.getSource().isSelected() || arrow.getTarget().isSelected()){
+			if (arrow.isSelected() || arrow.getHighlightStatus() == HighlightStatus.BOTH_SELECTED){
 				arrow.getItemToItemMap().setCompleted(false);
 			}
 		}
