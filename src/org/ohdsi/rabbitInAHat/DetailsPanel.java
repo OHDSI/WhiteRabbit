@@ -23,16 +23,25 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
@@ -42,7 +51,12 @@ import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.table.TableModel;
+import javax.swing.text.Document;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
@@ -61,6 +75,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 	private ItemToItemMapPanel	itemToItemMapPanel;
 	private CardLayout			cardLayout			= new CardLayout();
 
+	private UndoManager			undoManager;
+	
 	public DetailsPanel() {
 		UIManager.put("Label.font", font);
 
@@ -79,6 +95,9 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		add(nullPanel, "");
 
 		cardLayout.show(this, "");
+		
+		undoManager = new UndoManager();
+		
 	}
 
 	@Override
@@ -96,12 +115,66 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			cardLayout.show(this, ItemToItemMap.class.getName());
 		} else
 			cardLayout.show(this, "");
+		
+		// Discard edits made by showing a new details view
+		undoManager.discardAllEdits();
 	}
 
 	public void refresh() {
 		showDetails(object);
 	}
 
+	private void addUndoToTextArea(JTextArea jta){
+		Document doc = jta.getDocument();
+		doc.addUndoableEditListener(new UndoableEditListener() {
+		    @Override
+		    public void undoableEditHappened(UndoableEditEvent e) {
+		        undoManager.addEdit(e.getEdit());
+		    }
+		});
+		
+		InputMap im = jta.getInputMap(JComponent.WHEN_FOCUSED);
+		ActionMap am = jta.getActionMap();
+
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo");
+
+		am.put("Undo", new AbstractAction() {
+		    /**
+			 * 
+			 */
+			private static final long serialVersionUID = -3363877112423623107L;
+
+			@Override
+		    public void actionPerformed(ActionEvent e) {
+		        try {
+		            if (undoManager.canUndo()) {
+		                undoManager.undo();
+		            }
+		        } catch (CannotUndoException exp) {
+		            exp.printStackTrace();
+		        }
+		    }
+		});
+		
+		am.put("Redo", new AbstractAction() {
+		    /**
+			 * 
+			 */
+			private static final long serialVersionUID = -5581878642285644039L;
+
+			@Override
+		    public void actionPerformed(ActionEvent e) {
+		        try {
+		            if (undoManager.canRedo()) {
+		                undoManager.redo();
+		            }
+		        } catch (CannotUndoException exp) {
+		            exp.printStackTrace();
+		        }
+		    }
+		});
+	}
 	private class TablePanel extends JPanel implements DocumentListener {
 
 		private static final long	serialVersionUID	= -4393026616049677944L;
@@ -290,6 +363,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			commentsArea.getDocument().addDocumentListener(this);
 			commentsArea.setWrapStyleWord(true);
 			commentsArea.setLineWrap(true);
+			addUndoToTextArea(commentsArea);
 
 			commentsPanel.setBorder(BorderFactory.createTitledBorder("Comments"));
 			commentsPanel.setPreferredSize(new Dimension(100, 200));
@@ -390,6 +464,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			logicArea.getDocument().addDocumentListener(this);
 			logicArea.setWrapStyleWord(true);
 			logicArea.setLineWrap(true);
+			addUndoToTextArea(logicArea);
 
 			logicPanel.setBorder(BorderFactory.createTitledBorder("Logic"));
 			logicPanel.setPreferredSize(new Dimension(100, 200));
@@ -401,6 +476,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			commentsArea.getDocument().addDocumentListener(this);
 			commentsArea.setWrapStyleWord(true);
 			commentsArea.setLineWrap(true);
+			addUndoToTextArea(commentsArea);
 
 			commentsPanel.setBorder(BorderFactory.createTitledBorder("Comments"));
 			commentsPanel.setPreferredSize(new Dimension(100, 200));
