@@ -25,13 +25,11 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Toolkit;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
@@ -59,6 +57,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
 	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
+	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
+	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Mark Highlighted As Incomplete";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -225,7 +225,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
 		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));		
 		editMenu.add(removeMappings);
-		
+
 		JMenu setTarget = new JMenu("Set Target Database");				
 	
 		JMenuItem targetCDMV4 = new JMenuItem(ACTION_CMD_SET_TARGET_V4);
@@ -242,9 +242,23 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		loadTarget.addActionListener(this);
 		loadTarget.setActionCommand(ACTION_CMD_SET_TARGET_CUSTOM);
 		setTarget.add(loadTarget);		
-		
 		editMenu.add(setTarget);
+		
+		JMenu arrowMenu = new JMenu("Arrows");
+		menuBar.add(arrowMenu);
 
+		JMenuItem markCompleted = new JMenuItem(ACTION_CMD_MARK_COMPLETED);
+		markCompleted.addActionListener(this);
+		markCompleted.setActionCommand(ACTION_CMD_MARK_COMPLETED);	
+		markCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, menuShortcutMask));
+		arrowMenu.add(markCompleted);
+		
+		JMenuItem unmarkCompleted = new JMenuItem(ACTION_CMD_UNMARK_COMPLETED);
+		unmarkCompleted.addActionListener(this);
+		unmarkCompleted.setActionCommand(ACTION_CMD_UNMARK_COMPLETED);	
+		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, menuShortcutMask));
+		arrowMenu.add(unmarkCompleted);
+		
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
 
@@ -259,14 +273,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			scrollPane2.setVisible(!maximized);
 
 		if (!maximized)
-			scrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+			scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		else
-			scrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		if (!minimized)
-			scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+			scrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		else
-			scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			scrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		tableFieldSplitPane.setDividerLocation(height);
 	}
@@ -351,6 +365,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_CMD_SET_TARGET_CUSTOM:
 				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
+				break;
+			case ACTION_CMD_MARK_COMPLETED:
+				doMarkCompleted();
+				break;
+			case ACTION_CMD_UNMARK_COMPLETED:
+				doUnmarkCompleted();
 				break;
 		}
 	}
@@ -445,5 +465,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			ETLDocumentGenerator.generate(ObjectExchange.etl, filename);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
+	}
+	
+	private void doMarkCompleted() {
+		this.tableMappingPanel.markCompleted();
+		this.fieldMappingPanel.markCompleted();
+	}
+	
+	private void doUnmarkCompleted() {
+		this.tableMappingPanel.unmarkCompleted();
+		this.fieldMappingPanel.unmarkCompleted();
 	}
 }
