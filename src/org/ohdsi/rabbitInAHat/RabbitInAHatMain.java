@@ -252,16 +252,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
 
-		final JCheckBoxMenuItem hideCompleted = new JCheckBoxMenuItem(ACTION_CMD_HIDE_COMPLETED);
-		hideCompleted.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				if (hideCompleted.isSelected()) doHideCompleted();
-				else doShowCompleted();
-			}
-		});
-		hideCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, menuShortcutMask));
-		arrowMenu.add(hideCompleted);
-		
 		JMenuItem markCompleted = new JMenuItem(ACTION_CMD_MARK_COMPLETED);
 		markCompleted.addActionListener(this);
 		markCompleted.setActionCommand(ACTION_CMD_MARK_COMPLETED);	
@@ -482,16 +472,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 	
-	private void doHideCompleted() {
-		this.tableMappingPanel.hideCompleted();
-		this.fieldMappingPanel.hideCompleted();
-	}
-	
-	private void doShowCompleted() {
-		this.tableMappingPanel.showCompleted();
-		this.fieldMappingPanel.showCompleted();
-	}
-	
 	private void doMarkCompleted() {
 		this.tableMappingPanel.markCompleted();
 		this.fieldMappingPanel.markCompleted();
@@ -501,5 +481,4 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		this.tableMappingPanel.unmarkCompleted();
 		this.fieldMappingPanel.unmarkCompleted();
 	}
-	
 }
