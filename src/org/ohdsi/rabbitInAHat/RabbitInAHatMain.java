@@ -25,15 +25,11 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Toolkit;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
@@ -61,9 +57,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
 	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
-	public final static String		ACTION_CMD_HIDE_COMPLETED			= "Hide Completed Arrows";
 	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
-	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Unmark Highlighted";
+	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Mark Highlighted As Incomplete";
 	
 	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -261,7 +256,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JMenuItem unmarkCompleted = new JMenuItem(ACTION_CMD_UNMARK_COMPLETED);
 		unmarkCompleted.addActionListener(this);
 		unmarkCompleted.setActionCommand(ACTION_CMD_UNMARK_COMPLETED);	
-//		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, menuShortcutMask));
+		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, menuShortcutMask));
 		arrowMenu.add(unmarkCompleted);
 		
 		// JMenu viewMenu = new JMenu("View");
