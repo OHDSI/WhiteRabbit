@@ -173,16 +173,16 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		
 		menuBar.add(fileMenu);
 
+		JMenuItem openScanReportItem = new JMenuItem("Open scan report");
+		openScanReportItem.addActionListener(this);
+		openScanReportItem.setActionCommand(ACTION_CMD_OPEN_SCAN_REPORT);
+		fileMenu.add(openScanReportItem);
+		
 		JMenuItem openItem = new JMenuItem("Open ETL specs");
 		openItem.addActionListener(this);
 		openItem.setActionCommand(ACTION_CMD_OPEN_ETL_SPECS);
 		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, menuShortcutMask));
 		fileMenu.add(openItem);
-
-		JMenuItem openScanReportItem = new JMenuItem("Open scan report");
-		openScanReportItem.addActionListener(this);
-		openScanReportItem.setActionCommand(ACTION_CMD_OPEN_SCAN_REPORT);
-		fileMenu.add(openScanReportItem);
 
 		JMenuItem saveItem = new JMenuItem("Save");
 		saveItem.addActionListener(this);
@@ -442,6 +442,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
 			} catch (Exception e) {
 				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -451,10 +452,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETL etl = new ETL();
-			etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
-			etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());			
-			tableMappingPanel.setMapping(etl.getTableToTableMapping());
-			ObjectExchange.etl = etl;
+			try {
+				etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
+				etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());			
+				tableMappingPanel.setMapping(etl.getTableToTableMapping());
+				ObjectExchange.etl = etl;
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
