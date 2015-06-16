@@ -236,7 +236,7 @@ public class Arrow implements MappingComponent {
 
 	public boolean isCompleted() {
 		if (getItemToItemMap() != null) {
-			return (!getItemToItemMap().getComment().equals("")) || (!getItemToItemMap().getLogic().equals("")) || getItemToItemMap().isCompleted();
+			return getItemToItemMap().isCompleted();
 		}
 		else {
 			return false;
