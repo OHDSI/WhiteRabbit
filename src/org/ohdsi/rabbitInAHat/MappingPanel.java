@@ -526,7 +526,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			repaint();
 		} else {
 			for (LabeledRectangle item : getVisibleSourceComponents()) {
-				if (item.contains(event.getPoint())) {
+				if (item.contains(event.getPoint()) && !isBeingFiltered()) {
 					dragRectangle = item;
 					dragOffsetY = event.getY() - item.getY();
 					break;
@@ -534,7 +534,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 
 			for (LabeledRectangle item : getVisibleTargetComponents()) {
-				if (item.contains(event.getPoint())) {
+				if (item.contains(event.getPoint()) && !isBeingFiltered()) {
 					dragRectangle = item;
 					dragOffsetY = event.getY() - item.getY();
 					break;
@@ -815,5 +815,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 		
 		return resString;
+	}
+	
+	public boolean isBeingFiltered() {
+		return lastSourceFilter != "" || lastTargetFilter != ""; 
 	}
 }
