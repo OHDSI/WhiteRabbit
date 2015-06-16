@@ -219,7 +219,7 @@ public class Arrow implements MappingComponent {
 			return HighlightStatus.SOURCE_SELECTED;
 		} else if (isTargetSelected()) {
 			return HighlightStatus.TARGET_SELECTED;
-		} else if (isCompleted() && getItemToItemMap().getHideCompleted()) {
+		} else if (isCompleted()) {
 			return HighlightStatus.IS_COMPLETED;
 		} else {
 			return HighlightStatus.NONE_SELECTED;

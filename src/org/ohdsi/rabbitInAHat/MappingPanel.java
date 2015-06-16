@@ -90,8 +90,6 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	private boolean					showingArrowStarts			= false;
 
 	private DetailsListener			detailsListener;
-	
-	private boolean					hiding						= false;
 
 	@SuppressWarnings("serial")
 	public MappingPanel(Mapping<?> mapping) {
@@ -181,22 +179,6 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			if (map.getSourceItem() == item || map.getTargetItem() == item)
 				return true;
 		return false;
-	}
-	
-	public void hideCompleted() {
-		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
-			map.setHideCompleted(true);
-		}
-		repaint();
-		hiding = true;
-	}
-	
-	public void showCompleted() {
-		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
-			map.setHideCompleted(false);
-		}
-		repaint();
-		hiding = false;
 	}
 	
 	public void markCompleted() {
@@ -411,9 +393,6 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 						
 						slaveMappingPanel.filterComponents("", false);
 						slaveMappingPanel.filterComponents("", true);
-						if (hiding) {
-							slaveMappingPanel.hideCompleted();
-						}
 					}
 
 				} else { // single click
@@ -786,7 +765,6 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			arrow.setTarget(target);
 			mapping.addSourceToTargetMap(source.getItem(), target.getItem());
 			arrow.setItemToItemMap(mapping.getSourceToTargetMap(source.getItem(), target.getItem()));
-			arrow.getItemToItemMap().setHideCompleted(hiding);
 			arrows.add(arrow);
 		}
 		repaint();
