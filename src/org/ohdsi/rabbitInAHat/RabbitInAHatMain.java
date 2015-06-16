@@ -214,18 +214,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));	
 		editMenu.add(filter);
 
-		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
-		makeMappings.addActionListener(this);
-		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
-		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));		
-		editMenu.add(makeMappings);
-
-		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
-		removeMappings.addActionListener(this);
-		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
-		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));		
-		editMenu.add(removeMappings);
-
 		JMenu setTarget = new JMenu("Set Target Database");				
 	
 		JMenuItem targetCDMV4 = new JMenuItem(ACTION_CMD_SET_TARGET_V4);
@@ -246,7 +234,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
+		
+		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
+		makeMappings.addActionListener(this);
+		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
+		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));		
+		arrowMenu.add(makeMappings);
 
+		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
+		removeMappings.addActionListener(this);
+		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
+		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));		
+		arrowMenu.add(removeMappings);
+		
 		JMenuItem markCompleted = new JMenuItem(ACTION_CMD_MARK_COMPLETED);
 		markCompleted.addActionListener(this);
 		markCompleted.setActionCommand(ACTION_CMD_MARK_COMPLETED);	
