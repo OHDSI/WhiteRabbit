@@ -29,6 +29,7 @@ public class ItemToItemMap implements Serializable {
 	private String				comment				= "";
 	private String				logic				= "";
 	private static final long	serialVersionUID	= -7803242002700513410L;
+	private boolean				isCompleted			= false;
 	
 	public ItemToItemMap(MappableItem sourceItem, MappableItem cdmItem) {
 		this.sourceItem = sourceItem;
@@ -80,5 +81,13 @@ public class ItemToItemMap implements Serializable {
 	
 	public void setLogic(String logic) {
 		this.logic = logic;
+	}
+	
+	public boolean isCompleted() {
+		return isCompleted;
+	}
+	
+	public void setCompleted(boolean isCompleted) {
+		this.isCompleted = isCompleted;
 	}
 }

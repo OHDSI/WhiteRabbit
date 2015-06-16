@@ -167,7 +167,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				cdmComponents.add(component);
 			}
 		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
-			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents));
+			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents), map);
 			arrows.add(component);
 		}
 		layoutItems();
@@ -180,7 +180,25 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				return true;
 		return false;
 	}
-
+	
+	public void markCompleted() {
+		for (Arrow arrow : arrows) {
+			if (arrow.isSelected() || arrow.getHighlightStatus() == HighlightStatus.BOTH_SELECTED){
+				arrow.getItemToItemMap().setCompleted(true);
+			}
+		}
+		repaint();
+	}
+	
+	public void unmarkCompleted() {
+		for (Arrow arrow : arrows) {
+			if (arrow.isSelected() || arrow.getHighlightStatus() == HighlightStatus.BOTH_SELECTED){
+				arrow.getItemToItemMap().setCompleted(false);
+			}
+		}
+		repaint();
+	}
+	
 	private LabeledRectangle getComponentWithItem(MappableItem item, List<LabeledRectangle> components) {
 		for (LabeledRectangle component : components)
 			if (component.getItem().equals(item))
@@ -745,9 +763,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		if (isNew) {
 			Arrow arrow = new Arrow(source);
 			arrow.setTarget(target);
-			arrows.add(arrow);
-			
 			mapping.addSourceToTargetMap(source.getItem(), target.getItem());
+			arrow.setItemToItemMap(mapping.getSourceToTargetMap(source.getItem(), target.getItem()));
+			arrows.add(arrow);
 		}
 		repaint();
 	}

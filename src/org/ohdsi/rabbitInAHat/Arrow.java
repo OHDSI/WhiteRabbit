@@ -23,15 +23,17 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
+import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 
 public class Arrow implements MappingComponent {
 
 	public enum HighlightStatus {
-		IS_SELECTED (new Color(128, 128, 128, 128)),
+		IS_SELECTED (new Color(204, 255, 204, 192)),
 		BOTH_SELECTED (new Color(255, 255, 0, 192)),
 		SOURCE_SELECTED (new Color(255, 128, 0, 192)),
 		TARGET_SELECTED (new Color(0, 0, 255, 192)),
-		NONE_SELECTED (new Color(128, 128, 128, 128));
+		NONE_SELECTED (new Color(128, 128, 128, 192)),
+		IS_COMPLETED (new Color(128, 128, 128, 50));
 		
 		private final Color color;
 		
@@ -51,6 +53,7 @@ public class Arrow implements MappingComponent {
 	private int					y2;
 	private LabeledRectangle	source			= null;
 	private LabeledRectangle	target			= null;
+	private ItemToItemMap		itemToItemMap;
 
 	private int					width;
 	private int					height;
@@ -59,11 +62,11 @@ public class Arrow implements MappingComponent {
 
 	private boolean				isSelected		= false;
 	private boolean				isVisible		= true;
-
+	
 	public Arrow(LabeledRectangle source) {
 		this.source = source;
 	}
-
+	
 	public Arrow(int x1, int y1, int x2, int y2) {
 		this.x1 = x1;
 		this.y1 = y1;
@@ -78,7 +81,21 @@ public class Arrow implements MappingComponent {
 		this.source = source;
 		this.target = target;
 	}
+	
+	public Arrow(LabeledRectangle source, LabeledRectangle target, ItemToItemMap itemToItemMap) {
+		this.source = source;
+		this.target = target;	
+		this.itemToItemMap = itemToItemMap;
+	}
 
+	public ItemToItemMap getItemToItemMap() {
+		return itemToItemMap;
+	}
+	
+	public void setItemToItemMap(ItemToItemMap itemToItemMap) {
+		this.itemToItemMap = itemToItemMap;
+	}
+	
 	public int getWidth() {
 		return width;
 	}
@@ -202,6 +219,8 @@ public class Arrow implements MappingComponent {
 			return HighlightStatus.SOURCE_SELECTED;
 		} else if (isTargetSelected()) {
 			return HighlightStatus.TARGET_SELECTED;
+		} else if (isCompleted()) {
+			return HighlightStatus.IS_COMPLETED;
 		} else {
 			return HighlightStatus.NONE_SELECTED;
 		}
@@ -215,6 +234,15 @@ public class Arrow implements MappingComponent {
 		this.isSelected = isSelected;
 	}
 
+	public boolean isCompleted() {
+		if (getItemToItemMap() != null) {
+			return getItemToItemMap().isCompleted();
+		}
+		else {
+			return false;
+		}
+	}
+	
 	public boolean contains(Point point) {
 		return polygon.contains(point);
 	}
