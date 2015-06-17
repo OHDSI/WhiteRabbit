@@ -76,7 +76,7 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 		
 		layout.putConstraint(SpringLayout.WEST, targetLabel, 5, SpringLayout.WEST, contentPane);
 		layout.putConstraint(SpringLayout.NORTH, targetLabel, 10, SpringLayout.SOUTH, sourceLabel);
-		
+			
 		layout.putConstraint(SpringLayout.WEST, targetSearchField, 0, SpringLayout.WEST, sourceSearchField);
 		layout.putConstraint(SpringLayout.NORTH, targetSearchField, 0, SpringLayout.NORTH, targetLabel);
 		
