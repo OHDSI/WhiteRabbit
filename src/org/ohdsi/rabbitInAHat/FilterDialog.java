@@ -4,6 +4,8 @@ import java.awt.Container;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -48,21 +50,25 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 		
 		// Add key listener to send search string as it's being typed
 		sourceSearchField.addKeyListener(new SearchListener() );
+		sourceSearchField.addFocusListener(new SearchFocusListener());		
 		JLabel sourceLabel = new JLabel("Filter Source:",JLabel.TRAILING);
 		JButton sourceClearBtn = new JButton("Clear");
 		contentPane.add(sourceLabel);
 		contentPane.add(sourceSearchField);
 		sourceClearBtn.addActionListener(this);
 		sourceClearBtn.setActionCommand("Clear Source");
+		sourceClearBtn.setFocusable(false);
 		contentPane.add(sourceClearBtn);
 		
 		targetSearchField.addKeyListener(new SearchListener() );
+		targetSearchField.addFocusListener(new SearchFocusListener());
 		JLabel targetLabel = new JLabel("Filter Target:",JLabel.TRAILING);
 		JButton targetClearBtn = new JButton("Clear");
 		contentPane.add(targetLabel);
 		contentPane.add(targetSearchField);		
 		targetClearBtn.addActionListener(this);
 		targetClearBtn.setActionCommand("Clear Target");
+		targetClearBtn.setFocusable(false);
 		contentPane.add(targetClearBtn);
 		
 		layout.putConstraint(SpringLayout.WEST, sourceLabel, 5, SpringLayout.WEST, contentPane);
@@ -179,6 +185,23 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 				
 			}
 		
+	}
+	
+	public class SearchFocusListener implements FocusListener {
+
+		@Override
+		public void focusGained(FocusEvent e) {
+			// TODO Auto-generated method stub
+			JTextField jtf = (JTextField) e.getComponent();
+			jtf.selectAll();
+		}
+
+		@Override
+		public void focusLost(FocusEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 	
 	
