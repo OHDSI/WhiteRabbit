@@ -46,11 +46,11 @@ import org.ohdsi.whiteRabbit.ObjectExchange;
 public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	public final static String		ACTION_CMD_SAVE						= "Save";
-	public final static String		ACTION_CMD_SAVE_AS					= "Save as";
+	public final static String		ACTION_CMD_SAVE_AS					= "Save As";
 	public final static String		ACTION_CMD_OPEN_ETL_SPECS			= "Open ETL Specs";
 	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
-	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard value counts";
+	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
 	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
@@ -60,9 +60,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
 	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Mark Highlighted As Incomplete";
 	
-	private final static FileFilter	FILE_FILTER_GZ					= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
+	private final static FileFilter	FILE_FILTER_GZ						= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
-	private final static FileFilter	FILE_FILTER_CSV					= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
+	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
 	private JScrollPane				scrollPane2;
@@ -173,29 +173,29 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		
 		menuBar.add(fileMenu);
 
-		JMenuItem openScanReportItem = new JMenuItem("Open scan report");
+		JMenuItem openScanReportItem = new JMenuItem(ACTION_CMD_OPEN_SCAN_REPORT);
 		openScanReportItem.addActionListener(this);
 		openScanReportItem.setActionCommand(ACTION_CMD_OPEN_SCAN_REPORT);
 		fileMenu.add(openScanReportItem);
 		
-		JMenuItem openItem = new JMenuItem("Open ETL specs");
+		JMenuItem openItem = new JMenuItem(ACTION_CMD_OPEN_ETL_SPECS);
 		openItem.addActionListener(this);
 		openItem.setActionCommand(ACTION_CMD_OPEN_ETL_SPECS);
 		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, menuShortcutMask));
 		fileMenu.add(openItem);
 
-		JMenuItem saveItem = new JMenuItem("Save");
+		JMenuItem saveItem = new JMenuItem(ACTION_CMD_SAVE);
 		saveItem.addActionListener(this);
 		saveItem.setActionCommand(ACTION_CMD_SAVE);
 		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, menuShortcutMask));
 		fileMenu.add(saveItem);
 
-		JMenuItem saveAsItem = new JMenuItem("Save as");
+		JMenuItem saveAsItem = new JMenuItem(ACTION_CMD_SAVE_AS);
 		saveAsItem.addActionListener(this);
 		saveAsItem.setActionCommand(ACTION_CMD_SAVE_AS);
 		fileMenu.add(saveAsItem);
 
-		JMenuItem generateDocItem = new JMenuItem("Generate ETL document");
+		JMenuItem generateDocItem = new JMenuItem(ACTION_CMD_GENERATE_ETL_DOCUMENT);
 		generateDocItem.addActionListener(this);
 		generateDocItem.setActionCommand(ACTION_CMD_GENERATE_ETL_DOCUMENT);
 		fileMenu.add(generateDocItem);
@@ -213,18 +213,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		filter.setActionCommand(ACTION_CMD_FILTER);
 		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));	
 		editMenu.add(filter);
-
-		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
-		makeMappings.addActionListener(this);
-		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
-		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));		
-		editMenu.add(makeMappings);
-
-		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
-		removeMappings.addActionListener(this);
-		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
-		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));		
-		editMenu.add(removeMappings);
 
 		JMenu setTarget = new JMenu("Set Target Database");				
 	
@@ -246,7 +234,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
+		
+		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
+		makeMappings.addActionListener(this);
+		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
+		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));		
+		arrowMenu.add(makeMappings);
 
+		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
+		removeMappings.addActionListener(this);
+		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
+		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));		
+		arrowMenu.add(removeMappings);
+		
 		JMenuItem markCompleted = new JMenuItem(ACTION_CMD_MARK_COMPLETED);
 		markCompleted.addActionListener(this);
 		markCompleted.setActionCommand(ACTION_CMD_MARK_COMPLETED);	
