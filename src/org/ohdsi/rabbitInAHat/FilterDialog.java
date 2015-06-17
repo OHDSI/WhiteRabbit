@@ -1,10 +1,12 @@
 package org.ohdsi.rabbitInAHat;
 
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
 import org.ohdsi.rabbitInAHat.ResizeListener;
 
 import javax.swing.JButton;
@@ -36,7 +38,7 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 		super(parentWindow,"Filter",ModalityType.MODELESS);		
 						
 		this.setLocation(parentWindow.getX()+parentWindow.getWidth()/2, parentWindow.getY()+100);
-		this.setSize(700,120);
+		this.setPreferredSize(new Dimension(350,120));
 		
 		sourceSearchField = new JTextField(40);
 		sourceSearchField.setName("Source");
@@ -67,22 +69,25 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 		layout.putConstraint(SpringLayout.WEST, sourceLabel, 10, SpringLayout.WEST, mainView);
 		layout.putConstraint(SpringLayout.NORTH, sourceLabel, 10, SpringLayout.NORTH, mainView);
 		
-		layout.putConstraint(SpringLayout.WEST, sourceSearchField, 5, SpringLayout.EAST, sourceLabel);
-		layout.putConstraint(SpringLayout.NORTH, sourceSearchField, 10, SpringLayout.NORTH, mainView);
-		
-		layout.putConstraint(SpringLayout.WEST, sourceClearBtn, 5, SpringLayout.EAST, sourceSearchField);
+		layout.putConstraint(SpringLayout.EAST, sourceClearBtn, -5, SpringLayout.EAST, mainView);
 		layout.putConstraint(SpringLayout.NORTH, sourceClearBtn, 10, SpringLayout.NORTH, mainView);
+		
+		layout.putConstraint(SpringLayout.WEST, sourceSearchField, 5, SpringLayout.EAST, sourceLabel);
+		layout.putConstraint(SpringLayout.EAST, sourceSearchField, -5, SpringLayout.WEST, sourceClearBtn);
+		layout.putConstraint(SpringLayout.NORTH, sourceSearchField, 10, SpringLayout.NORTH, mainView);
 		
 		layout.putConstraint(SpringLayout.WEST, targetLabel, 10, SpringLayout.WEST, mainView);
 		layout.putConstraint(SpringLayout.NORTH, targetLabel, 10, SpringLayout.SOUTH, sourceLabel);
 		
+		layout.putConstraint(SpringLayout.EAST, targetClearBtn, -5, SpringLayout.EAST, mainView);
+		layout.putConstraint(SpringLayout.NORTH, targetClearBtn, 0, SpringLayout.NORTH, targetSearchField);
+				
 		layout.putConstraint(SpringLayout.WEST, targetSearchField, 0, SpringLayout.WEST, sourceSearchField);
+		layout.putConstraint(SpringLayout.EAST, targetSearchField, -5, SpringLayout.WEST, targetClearBtn);
 		layout.putConstraint(SpringLayout.NORTH, targetSearchField, 0, SpringLayout.NORTH, targetLabel);
 		
-		layout.putConstraint(SpringLayout.WEST, targetClearBtn, 5, SpringLayout.EAST, targetSearchField);
-		layout.putConstraint(SpringLayout.NORTH, targetClearBtn, 0, SpringLayout.NORTH, targetSearchField);
-		
 		this.add(mainView);
+		this.pack();
 	};
 	
 	public void setFilterPanel(MappingPanel aFilterPanel){
