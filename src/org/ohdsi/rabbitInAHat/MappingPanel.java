@@ -27,6 +27,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -70,7 +71,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	private Mapping<?>				mapping;
 	private List<LabeledRectangle>	sourceComponents			= new ArrayList<LabeledRectangle>();
-	private List<LabeledRectangle>	cdmComponents			= new ArrayList<LabeledRectangle>();
+	private List<LabeledRectangle>	cdmComponents				= new ArrayList<LabeledRectangle>();
 	private List<Arrow>				arrows						= new ArrayList<Arrow>();
 	private LabeledRectangle		dragRectangle				= null;
 	private LabeledRectangle		lastSelectedRectangle		= null;
@@ -84,6 +85,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	private MappingPanel			slaveMappingPanel;
 	private boolean					showOnlyConnectedItems		= false;
 
+	private int 					shortcutMask	 			= Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	
 	private String					lastSourceFilter			= "";
 	private String					lastTargetFilter			= "";
 
@@ -355,8 +358,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			detailsListener.showDetails(null);
 			selectedArrow = null;
 		}	
-		
-		if (!event.isShiftDown() && !event.isControlDown()){
+	
+		if (!event.isShiftDown() && !( (event.getModifiers() & shortcutMask ) == shortcutMask )){
 			for( LabeledRectangle component : cdmComponents){
 				component.setSelected(false);
 			}
@@ -370,6 +373,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}else if (event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH) { // target component
 			LabeledRectangleClicked(event,  getVisibleTargetComponents());
 		}else if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
+			lastSelectedRectangle = null;
 			Arrow clickedArrow = null;
 			for (HighlightStatus status: HighlightStatus.values()) {
 				for (Arrow arrow : currentArrowStatus.get(status)) {
@@ -407,6 +411,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				detailsListener.showDetails(null);
 			}
 		}else{
+			lastSelectedRectangle = null;
 			detailsListener.showDetails(null);
 		}
 
@@ -696,7 +701,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			
 			if (component.contains(event.getPoint())) {				
 				
-				if(event.isControlDown()){ // Add one at a time
+				if((event.getModifiers() & shortcutMask ) == shortcutMask ){ // Add one at a time
 					 component.toggleSelected();
 				}else if(event.isShiftDown()){ // Add in consecutive order
 					
