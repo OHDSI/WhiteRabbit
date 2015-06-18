@@ -248,15 +248,15 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder("Fields"));
 			add(fieldListPanel, BorderLayout.CENTER);
 			
-			// JScrollPane commentsPanel = new JScrollPane(commentsArea);
-			// commentsArea.setFont(font);
-			// commentsArea.getDocument().addDocumentListener(this);
-			// commentsArea.setWrapStyleWord(true);
-			// commentsArea.setLineWrap(true);
-			//
-			// commentsPanel.setBorder(BorderFactory.createTitledBorder("Comments"));
-			// commentsPanel.setPreferredSize(new Dimension(100, 200));
-			// add(commentsPanel, BorderLayout.SOUTH);
+			 JScrollPane commentsPanel = new JScrollPane(commentsArea);
+			 commentsArea.setFont(font);
+			 commentsArea.getDocument().addDocumentListener(this);
+			 commentsArea.setWrapStyleWord(true);
+			 commentsArea.setLineWrap(true);
+			
+			 commentsPanel.setBorder(BorderFactory.createTitledBorder("Comments"));
+			 commentsPanel.setPreferredSize(new Dimension(100, 200));
+			 add(commentsPanel, BorderLayout.SOUTH);
 
 		}
 		
