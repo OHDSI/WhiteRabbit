@@ -28,8 +28,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
@@ -376,11 +381,22 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 	
 	private void doSetTargetCustom(String fileName) {
-		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(),Database.generateModelFromCSV(fileName));
 		
-		etl.copyETLMappings(ObjectExchange.etl);
-		tableMappingPanel.setMapping(etl.getTableToTableMapping());	
-		ObjectExchange.etl = etl;
+		if( fileName != null ){
+			File file = new File(fileName);
+			InputStream stream;
+			
+			try{
+				stream = new FileInputStream(file);
+				ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(),Database.generateModelFromCSV(stream, file.getName()));
+				
+				etl.copyETLMappings(ObjectExchange.etl);
+				tableMappingPanel.setMapping(etl.getTableToTableMapping());	
+				ObjectExchange.etl = etl;
+			}catch (IOException e) {
+			    //Do nothing if error
+			}										
+		}	
 		
 	}
 

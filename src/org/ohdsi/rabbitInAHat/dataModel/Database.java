@@ -17,7 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat.dataModel;
 
-import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,15 +33,13 @@ import org.ohdsi.utilities.files.Row;
 public class Database implements Serializable {
 
 	public enum CDMVersion {
-		CDMV4 ("CDMV4Model.csv", "CDMv4"), 
-		CDMV5 ("CDMv5Model.csv", "CDMv5");
+		CDMV4 ("CDMV4.csv"), 
+		CDMV5 ("CDMV5.csv");
 		
 		private final String fileName;
-		private final String dbName;
 		
-		CDMVersion(String fileName, String dbName){
+		CDMVersion(String fileName){
 			this.fileName = fileName;
-			this.dbName = dbName;
 		}
 	}
 	
@@ -62,18 +60,16 @@ public class Database implements Serializable {
 	}
 
 	public static Database generateCDMModel(CDMVersion cdmVersion) {
-		String path = Database.class.getResource(cdmVersion.fileName).getFile();
-		return Database.generateModelFromCSV(path);
+		return Database.generateModelFromCSV(Database.class.getResourceAsStream(cdmVersion.fileName), cdmVersion.fileName);
 	}
 	
-	public static Database generateModelFromCSV(String fileName) {
+	public static Database generateModelFromCSV(InputStream stream, String dbName) {
 		Database database = new Database();
 		
-		String dbname = new File(fileName).getName();
-		database.dbName = dbname.substring(0,dbname.lastIndexOf("."));
-				
+		database.dbName = dbName.substring(0, dbName.lastIndexOf("."));
+		
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
-		for (Row row : new ReadCSVFileWithHeader(fileName)) {
+		for (Row row : new ReadCSVFileWithHeader(stream)) {
 			
 			Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
 			
@@ -171,4 +167,5 @@ public class Database implements Serializable {
 			}
 		return list.toArray(new String[list.size()][2]);
 	}
+
 }
