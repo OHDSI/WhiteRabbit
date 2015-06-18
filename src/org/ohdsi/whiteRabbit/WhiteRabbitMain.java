@@ -19,6 +19,7 @@ package org.ohdsi.whiteRabbit;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -30,10 +31,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +54,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -57,6 +65,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -64,6 +73,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
+import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.utilities.DirectoryUtilities;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
@@ -72,7 +82,10 @@ import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 /**
  * This is the WhiteRabbit main class
  */
-public class WhiteRabbitMain {
+public class WhiteRabbitMain implements ActionListener {
+
+	public final static String	WIKI_URL						= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit";
+	public final static String	ACTION_CMD_HELP					= "Open help Wiki";
 
 	private JFrame				frame;
 	private JTextField			folderField;
@@ -115,6 +128,7 @@ public class WhiteRabbitMain {
 			}
 		});
 		frame.setLayout(new BorderLayout());
+		frame.setJMenuBar(createMenuBar());
 
 		JComponent tabsPanel = createTabsPanel();
 		JComponent consolePanel = createConsolePanel();
@@ -400,7 +414,7 @@ public class WhiteRabbitMain {
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
 		targetType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
-		//targetType = new JComboBox(new String[] { "Delimited text files", "MySQL" });
+		// targetType = new JComboBox(new String[] { "Delimited text files", "MySQL" });
 		targetType.setToolTipText("Select the type of source data available");
 		targetType.addItemListener(new ItemListener() {
 
@@ -938,7 +952,25 @@ public class WhiteRabbitMain {
 		public Object[] getSelectedItems() {
 			return list.getSelectedValues();
 		}
+	}
 
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		switch (event.getActionCommand()) {
+			case ACTION_CMD_HELP:
+				doOpenWiki();
+				break;
+
+		}
+	}
+
+	private void doOpenWiki() {
+		try {
+			Desktop desktop = Desktop.getDesktop();
+			desktop.browse(new URI(WIKI_URL));
+		} catch (URISyntaxException | IOException ex) {
+
+		}
 	}
 
 	private void handleError(Exception e) {
@@ -948,6 +980,21 @@ public class WhiteRabbitMain {
 		message += "\nAn error report has been generated:\n" + errorReportFilename;
 		System.out.println(message);
 		JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error", JOptionPane.ERROR_MESSAGE);
+	}
+
+	private JMenuBar createMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
+		JMenu fileMenu = new JMenu("File");
+		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+		JMenu helpMenu = new JMenu("Help");
+		menuBar.add(helpMenu);
+		JMenuItem helpItem = new JMenuItem(ACTION_CMD_HELP);
+		helpItem.addActionListener(this);
+		helpItem.setActionCommand(ACTION_CMD_HELP);
+		helpMenu.add(helpItem);
+
+		return menuBar;
 	}
 
 }

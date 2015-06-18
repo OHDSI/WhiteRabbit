@@ -19,6 +19,7 @@ package org.ohdsi.rabbitInAHat;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.MediaTracker;
@@ -32,6 +33,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +67,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
 	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
 	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Mark Highlighted As Incomplete";
-	
+	public final static String		ACTION_CMD_HELP						= "Open help Wiki";
+
+	public final static String		WIKI_URL							= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat";
 	private final static FileFilter	FILE_FILTER_GZ						= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
 	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
@@ -75,22 +80,22 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private MappingPanel			fieldMappingPanel;
 	private DetailsPanel			detailsPanel;
 	private JSplitPane				tableFieldSplitPane;
-	
-	private JFileChooser 			chooser;
-	
+
+	private JFileChooser			chooser;
+
 	public static void main(String[] args) {
 		new RabbitInAHatMain(args);
 	}
 
 	public RabbitInAHatMain(String[] args) {
-		
-//		Set look and feel to the system look and feel
+
+		// Set look and feel to the system look and feel
 		try {
-		   UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}catch(Exception ex) {
-		    ex.printStackTrace();
-		}		
-		
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
 		frame = new JFrame("Rabbit in a Hat");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -103,7 +108,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 		ETL etl = new ETL();
 		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV5));
-		
+
 		ObjectExchange.etl = etl;
 
 		tableMappingPanel = new MappingPanel(etl.getTableToTableMapping());
@@ -136,12 +141,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JSplitPane leftRightSplinePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, detailsPanel);
 		leftRightSplinePane.setResizeWeight(0.40);
 		frame.add(leftRightSplinePane);
-		
+
 		loadIcons(frame);
 		frame.pack();
 		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
-		
+
 		if (args.length > 0) {
 			doOpenSpecs(args[0]);
 		}
@@ -175,14 +180,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
 		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-		
+
 		menuBar.add(fileMenu);
 
 		JMenuItem openScanReportItem = new JMenuItem(ACTION_CMD_OPEN_SCAN_REPORT);
 		openScanReportItem.addActionListener(this);
 		openScanReportItem.setActionCommand(ACTION_CMD_OPEN_SCAN_REPORT);
 		fileMenu.add(openScanReportItem);
-		
+
 		JMenuItem openItem = new JMenuItem(ACTION_CMD_OPEN_ETL_SPECS);
 		openItem.addActionListener(this);
 		openItem.setActionCommand(ACTION_CMD_OPEN_ETL_SPECS);
@@ -212,63 +217,68 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		discardCounts.addActionListener(this);
 		discardCounts.setActionCommand(ACTION_CMD_DISCARD_COUNTS);
 		editMenu.add(discardCounts);
-		
+
 		JMenuItem filter = new JMenuItem(ACTION_CMD_FILTER);
 		filter.addActionListener(this);
 		filter.setActionCommand(ACTION_CMD_FILTER);
-		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));	
+		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));
 		editMenu.add(filter);
 
-		JMenu setTarget = new JMenu("Set Target Database");				
-	
+		JMenu setTarget = new JMenu("Set Target Database");
+
 		JMenuItem targetCDMV4 = new JMenuItem(ACTION_CMD_SET_TARGET_V4);
 		targetCDMV4.addActionListener(this);
 		targetCDMV4.setActionCommand(ACTION_CMD_SET_TARGET_V4);
-		setTarget.add(targetCDMV4);		
-		
+		setTarget.add(targetCDMV4);
+
 		JMenuItem targetCDMV5 = new JMenuItem(ACTION_CMD_SET_TARGET_V5);
 		targetCDMV5.addActionListener(this);
 		targetCDMV5.setActionCommand(ACTION_CMD_SET_TARGET_V5);
-		setTarget.add(targetCDMV5);		
-		
+		setTarget.add(targetCDMV5);
+
 		JMenuItem loadTarget = new JMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
 		loadTarget.addActionListener(this);
 		loadTarget.setActionCommand(ACTION_CMD_SET_TARGET_CUSTOM);
-		setTarget.add(loadTarget);		
+		setTarget.add(loadTarget);
 		editMenu.add(setTarget);
-		
+
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
-		
+
 		JMenuItem makeMappings = new JMenuItem(ACTION_CMD_MAKE_MAPPING);
 		makeMappings.addActionListener(this);
 		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
-		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));		
+		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));
 		arrowMenu.add(makeMappings);
 
 		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
 		removeMappings.addActionListener(this);
 		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
-		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));		
+		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));
 		arrowMenu.add(removeMappings);
-		
+
 		JMenuItem markCompleted = new JMenuItem(ACTION_CMD_MARK_COMPLETED);
 		markCompleted.addActionListener(this);
-		markCompleted.setActionCommand(ACTION_CMD_MARK_COMPLETED);	
+		markCompleted.setActionCommand(ACTION_CMD_MARK_COMPLETED);
 		markCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, menuShortcutMask));
 		arrowMenu.add(markCompleted);
-		
+
 		JMenuItem unmarkCompleted = new JMenuItem(ACTION_CMD_UNMARK_COMPLETED);
 		unmarkCompleted.addActionListener(this);
-		unmarkCompleted.setActionCommand(ACTION_CMD_UNMARK_COMPLETED);	
+		unmarkCompleted.setActionCommand(ACTION_CMD_UNMARK_COMPLETED);
 		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, menuShortcutMask));
 		arrowMenu.add(unmarkCompleted);
-		
+
 		// JMenu viewMenu = new JMenu("View");
 		// menuBar.add(viewMenu);
 
-		// JMenu helpMenu = new JMenu("Help");
-		// menuBar.add(helpMenu);
+		JMenu helpMenu = new JMenu("Help");
+		menuBar.add(helpMenu);
+		JMenuItem helpItem = new JMenuItem(ACTION_CMD_HELP);
+		helpItem.addActionListener(this);
+		helpItem.setActionCommand(ACTION_CMD_HELP);
+		helpMenu.add(helpItem);
+
 		return menuBar;
 	}
 
@@ -301,11 +311,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	 */
 	private String choosePath(boolean saveMode, FileFilter filter) {
 		String result = null;
-		
-		if( chooser == null){
+
+		if (chooser == null) {
 			chooser = new JFileChooser();
 		}
-		chooser.setFileFilter(filter);		
+		chooser.setFileFilter(filter);
 
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
 		if (dialogResult == JFileChooser.APPROVE_OPTION)
@@ -377,64 +387,78 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_UNMARK_COMPLETED:
 				doUnmarkCompleted();
 				break;
+			case ACTION_CMD_HELP:
+				doOpenWiki();
+				break;
+
 		}
 	}
-	
+
+	private void doOpenWiki() {
+		try {
+			Desktop desktop = Desktop.getDesktop();
+			desktop.browse(new URI(WIKI_URL));
+		} catch (URISyntaxException | IOException ex) {
+
+		}
+	}
+
 	private void doSetTargetCustom(String fileName) {
-		
-		if( fileName != null ){
+
+		if (fileName != null) {
 			File file = new File(fileName);
 			InputStream stream;
-			
-			try{
+
+			try {
 				stream = new FileInputStream(file);
-				ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(),Database.generateModelFromCSV(stream, file.getName()));
-				
+				ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(), Database.generateModelFromCSV(stream, file.getName()));
+
 				etl.copyETLMappings(ObjectExchange.etl);
-				tableMappingPanel.setMapping(etl.getTableToTableMapping());	
+				tableMappingPanel.setMapping(etl.getTableToTableMapping());
 				ObjectExchange.etl = etl;
-			}catch (IOException e) {
-			    //Do nothing if error
-			}										
-		}	
-		
+			} catch (IOException e) {
+				// Do nothing if error
+			}
+		}
+
 	}
 
 	private void doSetTargetCDM(CDMVersion cdmVersion) {
-		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(),Database.generateCDMModel(cdmVersion));
-		
+		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(), Database.generateCDMModel(cdmVersion));
+
 		etl.copyETLMappings(ObjectExchange.etl);
-		tableMappingPanel.setMapping(etl.getTableToTableMapping());	
+		tableMappingPanel.setMapping(etl.getTableToTableMapping());
 		ObjectExchange.etl = etl;
 	}
 
-	//Opens Filter dialog window
+	// Opens Filter dialog window
 	private void doOpenFilterDialog() {
 		FilterDialog filter;
 		filter = new FilterDialog(frame);
 
 		filter.setFilterPanel(tableMappingPanel);
-				
+
 		filter.setVisible(true);
 	}
 
 	private void doMakeMappings() {
-		if(this.tableMappingPanel.isMaximized()){
+		if (this.tableMappingPanel.isMaximized()) {
 			this.tableMappingPanel.makeMapSelectedSourceAndTarget();
-		}else{
+		} else {
 			this.fieldMappingPanel.makeMapSelectedSourceAndTarget();
 		}
-		
+
 	}
 
 	private void doRemoveMappings() {
-		if(this.tableMappingPanel.isMaximized()){
+		if (this.tableMappingPanel.isMaximized()) {
 			this.tableMappingPanel.removeMapSelectedSourceAndTarget();
-		}else{
+		} else {
 			this.fieldMappingPanel.removeMapSelectedSourceAndTarget();
 		}
-		
+
 	}
+
 	private void doDiscardCounts() {
 		ObjectExchange.etl.discardCounts();
 		detailsPanel.refresh();
@@ -470,7 +494,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			ETL etl = new ETL();
 			try {
 				etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
-				etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());			
+				etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());
 				tableMappingPanel.setMapping(etl.getTableToTableMapping());
 				ObjectExchange.etl = etl;
 			} catch (Exception e) {
@@ -488,12 +512,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
-	
+
 	private void doMarkCompleted() {
 		this.tableMappingPanel.markCompleted();
 		this.fieldMappingPanel.markCompleted();
 	}
-	
+
 	private void doUnmarkCompleted() {
 		this.tableMappingPanel.unmarkCompleted();
 		this.fieldMappingPanel.unmarkCompleted();
