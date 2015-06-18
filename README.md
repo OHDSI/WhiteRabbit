@@ -67,4 +67,4 @@ Development
 ===========
 White Rabbit and Rabbit in a Hat are being developed in Eclipse. Contributions are welcome.
 ###Development status
-Alpha testing - useable but some bugs are already known to exist
+Beta testing - We invite everyone to try the software, and report any issues they may find.
