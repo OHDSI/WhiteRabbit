@@ -26,7 +26,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
