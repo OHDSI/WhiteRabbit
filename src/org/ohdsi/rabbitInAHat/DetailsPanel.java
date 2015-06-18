@@ -19,6 +19,7 @@ package org.ohdsi.rabbitInAHat;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -43,6 +44,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -355,6 +357,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			JScrollPane fieldListPanel = new JScrollPane(table);
 			table.setFont(font);
 			table.setRowHeight(24);
+			table.setBorder(new MatteBorder(1, 0, 1, 0, Color.BLACK));
+			
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder("Fields"));
 			add(fieldListPanel, BorderLayout.CENTER);
 

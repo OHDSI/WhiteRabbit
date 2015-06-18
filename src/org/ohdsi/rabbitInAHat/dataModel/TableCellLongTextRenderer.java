@@ -2,6 +2,7 @@ package org.ohdsi.rabbitInAHat.dataModel;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Insets;
 
 import javax.swing.JTable;  
 import javax.swing.JTextArea;  
@@ -32,9 +33,7 @@ public class TableCellLongTextRenderer extends DefaultTableCellRenderer implemen
 		jtext.setFont(table.getFont());
 		jtext.setSize(table.getColumn(table.getColumnName(column)).getWidth(), (int)jtext.getPreferredSize().getHeight());
 		
-        if(isSelected){
-        	jtext.setBackground((Color)UIManager.get("Table.selectionBackground"));
-        }
+		jtext.setMargin(new Insets(10,5,10,5));
       	
 		return jtext;
 	}
