@@ -47,11 +47,11 @@ WhiteRabbit
 
 1. Under the [Releases](https://github.com/OHDSI/WhiteRabbit/releases) tab, download WhiteRabbit*.zip
 2. Unzip the download
-3. Click on WhiteRabbit1.5GB.cmd (Windows) or WhiteRabbit1.5GB.sh (Linux, Mac) to start White Rabbit.
+3. Double-click on WhiteRabbit.jar to start White Rabbit.
 
 Rabbit-In-A-Hat
 
-1. Using the files downloaded for WhiteRabbit, click on RabbitInAHat1.5GB.cmd (Windows) or RabbitInAHat.5GB.sh (Linux, Mac) to start Rabbit-In-A-Hat.
+1. Using the files downloaded for WhiteRabbit, double-click on RabbitInAHat.jar to start Rabbit-In-A-Hat.
 
 Getting Involved
 =============
