@@ -526,7 +526,6 @@ public class WhiteRabbitMain implements ActionListener {
 		consoleArea.setEditable(false);
 		Console console = new Console();
 		console.setTextArea(consoleArea);
-		console.setDebugFile("c:/temp/debug.txt");
 		System.setOut(new PrintStream(console));
 		System.setErr(new PrintStream(console));
 		JScrollPane consoleScrollPane = new JScrollPane(consoleArea);
