@@ -34,7 +34,7 @@ White Rabbit and Rabbit in a Hat are pure Java applications. Both applications u
 
 System Requirements
 ============
-Requires Java 1.6 or higher, and read access to the database to be scanned.   Java can be downloaded from
+Requires Java 1.7 or higher, and read access to the database to be scanned.   Java can be downloaded from
 <a href="http://www.java.com" target="_blank">http://www.java.com</a>.
 
 Dependencies
