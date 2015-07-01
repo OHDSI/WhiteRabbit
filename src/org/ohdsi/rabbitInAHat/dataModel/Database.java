@@ -17,7 +17,9 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat.dataModel;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,10 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
-import org.ohdsi.utilities.files.ReadCSVFileWithHeader;
-import org.ohdsi.utilities.files.Row;
 
 public class Database implements Serializable {
 
@@ -69,7 +71,8 @@ public class Database implements Serializable {
 		database.dbName = dbName.substring(0, dbName.lastIndexOf("."));
 		
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
-		for (Row row : new ReadCSVFileWithHeader(stream)) {
+		try {
+		for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
 			
 			Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
 			
@@ -86,7 +89,9 @@ public class Database implements Serializable {
 			field.setDescription(row.get("DESCRIPTION"));
 			table.getFields().add(field);
 		}
-
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage());
+		}
 		return database;
 	}
 
