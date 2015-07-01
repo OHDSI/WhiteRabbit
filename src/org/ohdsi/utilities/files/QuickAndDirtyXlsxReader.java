@@ -45,24 +45,6 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 	private Map<String, Sheet>	rIdToSheet			= new HashMap<String, Sheet>();
 	private Map<String, Sheet>	filenameToSheet		= new HashMap<String, Sheet>();
 
-	public static void main(String[] args) {
-		QuickAndDirtyXlsxReader reader = new QuickAndDirtyXlsxReader("S:/Data/THIN/ScanReport.xlsx");
-		WriteCSVFile out = new WriteCSVFile("c:/temp/xlsxdump.csv");
-		for (Sheet sheet : reader) {
-			List<String> sheetHeader = new ArrayList<String>();
-			sheetHeader.add("*** " + sheet.name + " ***");
-			out.write(sheetHeader);
-			for (Row row : sheet)
-				out.write(row);
-
-			List<String> sheetFooter = new ArrayList<String>();
-			sheetHeader.add("");
-			out.write(sheetFooter);
-		}
-		out.close();
-
-	}
-
 	public QuickAndDirtyXlsxReader(String filename) {
 		try {
 			// Step 1: load the shared strings (if any), and the rels

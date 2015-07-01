@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="lib/postgresql-9.3-1101.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.3-1101.jdbc41.jar"/>
 	<classpathentry kind="lib" path="lib/json-io-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-csv-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

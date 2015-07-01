@@ -34,7 +34,6 @@ import java.util.Set;
 
 import org.ohdsi.utilities.SimpleCounter;
 import org.ohdsi.utilities.StringUtilities;
-import org.ohdsi.utilities.files.ReadCSVFileWithHeader;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 
@@ -225,18 +224,6 @@ public class RichConnection {
 		for (Row row : queryResult)
 			out.write(row);
 		out.close();
-	}
-
-	/**
-	 * Reads a table from a file in CSV format, and inserts it into the database.
-	 * 
-	 * @param filename
-	 * @param table
-	 * @param create
-	 *            If true, the data format is determined based on the first batch of rows and used to create the table structure.
-	 */
-	public void readFromFile(String filename, String table, boolean create) {
-		insertIntoTable(new ReadCSVFileWithHeader(filename).iterator(), table, create);
 	}
 
 	/**
