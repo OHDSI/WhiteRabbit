@@ -58,16 +58,16 @@ public class SourceDataScan {
 	private String		database;
 
 	public static void main(String[] args) {
-		// DbSettings dbSettings = new DbSettings();
-		// dbSettings.dataType = DbSettings.DATABASE;
-		// dbSettings.dbType = DbType.POSTGRESQL;
-		// dbSettings.server = "127.0.0.1/test";
-		// dbSettings.database = "test_schema";
-		// dbSettings.tables.add("test_table");
-		// dbSettings.user = "postgres";
-		// dbSettings.password = "F1r3starter";
-		// SourceDataScan scan = new SourceDataScan();
-		// scan.process(dbSettings, 1000000, true, 25, "s:/data/ScanReport.xlsx");
+		DbSettings dbSettings = new DbSettings();
+		dbSettings.dataType = DbSettings.DATABASE;
+		dbSettings.dbType = DbType.POSTGRESQL;
+		dbSettings.server = "127.0.0.1/ohdsi";
+		dbSettings.database = "cdm5";
+		dbSettings.tables.add("care_site");
+		dbSettings.user = "postgres";
+		dbSettings.password = "F1r3starter";
+		SourceDataScan scan = new SourceDataScan();
+		scan.process(dbSettings, 1000000, true, 25, "s:/temp/ScanReport.xlsx");
 
 		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
@@ -80,17 +80,17 @@ public class SourceDataScan {
 		// SourceDataScan scan = new SourceDataScan();
 		// scan.process(dbSettings, 1000000, "s:/data/ScanReport.xlsx");
 
-		DbSettings dbSettings = new DbSettings();
-		dbSettings.dataType = DbSettings.DATABASE;
-		dbSettings.dbType = DbType.MSSQL;
-		dbSettings.server = "RNDUSRDHIT04";
-		dbSettings.database = "[HCUP-NIS]";
-		dbSettings.tables.add("hospital");
-		dbSettings.tables.add("severity");
-		dbSettings.tables.add("dx_pr_grps");
-		dbSettings.tables.add("core");
-		SourceDataScan scan = new SourceDataScan();
-		scan.process(dbSettings, 1000000, true, 25, "s:/data/ScanReport.xlsx");
+		// DbSettings dbSettings = new DbSettings();
+		// dbSettings.dataType = DbSettings.DATABASE;
+		// dbSettings.dbType = DbType.MSSQL;
+		// dbSettings.server = "RNDUSRDHIT04";
+		// dbSettings.database = "[HCUP-NIS]";
+		// dbSettings.tables.add("hospital");
+		// dbSettings.tables.add("severity");
+		// dbSettings.tables.add("dx_pr_grps");
+		// dbSettings.tables.add("core");
+		// SourceDataScan scan = new SourceDataScan();
+		// scan.process(dbSettings, 1000000, true, 25, "s:/data/ScanReport.xlsx");
 
 		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
@@ -248,11 +248,7 @@ public class SourceDataScan {
 		StringUtilities.outputWithTime("Scanning table " + table);
 
 		long rowCount = connection.getTableSize(table);
-		if (rowCount == 0)
-			return new ArrayList<SourceDataScan.FieldInfo>();
-
-		List<FieldInfo> fieldInfos = fetchTableStructure(connection, rowCount, table);
-
+		List<FieldInfo> fieldInfos = fetchTableStructure(connection, table);
 		if (scanValues) {
 			int actualCount = 0;
 			QueryResult queryResult = fetchRowsFromTable(connection, table, rowCount);
@@ -299,7 +295,7 @@ public class SourceDataScan {
 
 	}
 
-	private List<FieldInfo> fetchTableStructure(RichConnection connection, long rowCount, String table) {
+	private List<FieldInfo> fetchTableStructure(RichConnection connection, String table) {
 		String query = null;
 		if (dbType == DbType.ORACLE)
 			query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
@@ -320,7 +316,8 @@ public class SourceDataScan {
 			row.upperCaseFieldNames();
 			FieldInfo fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
 			fieldInfo.type = row.get("DATA_TYPE");
-			fieldInfo.rowCount = rowCount;
+			fieldInfo.rowCount = connection.getTableSize(table);
+			;
 			fieldInfos.add(fieldInfo);
 		}
 		return fieldInfos;
@@ -383,7 +380,10 @@ public class SourceDataScan {
 		}
 
 		public Double getFractionEmpty() {
-			return emptyCount / (double) nProcessed;
+			if (nProcessed == 0)
+				return 0d;
+			else
+				return emptyCount / (double) nProcessed;
 		}
 
 		public String getTypeDescription() {
