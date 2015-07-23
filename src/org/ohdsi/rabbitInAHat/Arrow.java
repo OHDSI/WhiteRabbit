@@ -45,20 +45,20 @@ public class Arrow implements MappingComponent {
 	public static float			thickness		= 5;
 	public static int			headThickness	= 15;
 	public static Color			color	    	= HighlightStatus.NONE_SELECTED.color;
-	private static BasicStroke	dashed			= new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 10.f }, 0.0f);
+	protected static BasicStroke	dashed			= new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 10.f }, 0.0f);
 
-	private int					x1;
-	private int					y1;
-	private int					x2;
-	private int					y2;
+	protected int				x1;
+	protected int				y1;
+	protected int				x2;
+	protected int				y2;
 	private LabeledRectangle	source			= null;
 	private LabeledRectangle	target			= null;
 	private ItemToItemMap		itemToItemMap;
 
-	private int					width;
-	private int					height;
+	protected int				width;
+	protected int				height;
 
-	private Polygon				polygon;
+	protected Polygon			polygon;
 
 	private boolean				isSelected		= false;
 	private boolean				isVisible		= true;
@@ -107,6 +107,7 @@ public class Arrow implements MappingComponent {
 	public boolean isVisible(){
 		return isVisible;
 	}
+	
 	public LabeledRectangle getSource() {
 		return source;
 	}
@@ -257,5 +258,9 @@ public class Arrow implements MappingComponent {
 	
 	public boolean isConnected(){
 		return source != null && target != null;
+	}
+	
+	public boolean getIsSelected(){
+		return isSelected;
 	}
 }

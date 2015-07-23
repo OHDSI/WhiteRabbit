@@ -40,7 +40,7 @@ public class ETL implements Serializable {
 	}
 
 	private Database								sourceDb					= new Database();
-	private Database								cdmDb					= new Database();
+	private Database								cdmDb						= new Database();
 	private List<ItemToItemMap>						tableToTableMaps			= new ArrayList<ItemToItemMap>();
 	private Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<ItemToItemMap, List<ItemToItemMap>>();
 	private transient String						filename					= null;
@@ -126,7 +126,6 @@ public class ETL implements Serializable {
 		this.sourceDb = sourceDb;
 	}
 	
-
 	public Database getTargetDatabase() {
 		return cdmDb;
 	}

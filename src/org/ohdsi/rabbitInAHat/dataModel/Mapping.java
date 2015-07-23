@@ -22,14 +22,16 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Mapping <T extends MappableItem>{
-	private List<T>	sourceItems;
-	private List<T>					cdmItems;
-	private List<ItemToItemMap>		sourceToCdmMaps;
+	private List<T>						sourceItems;
+	private List<T>						cdmItems;
+	private List<ItemToItemMap>			sourceToCdmMaps;
+	private List<List<ItemToItemMap>> 	sourceToCdmMapsOfMaps;
 	
 	public Mapping(List<T> sourceItems, List<T> targetItems, List<ItemToItemMap> sourceToTargetMaps) {
 		this.sourceItems = sourceItems;
 		this.cdmItems = targetItems;
 		this.sourceToCdmMaps = sourceToTargetMaps;
+		//this.sourceToCdmMapsOfMaps = sourceToCdmMapsOfMaps;
 	}
 	
 	public void addSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
@@ -38,6 +40,10 @@ public class Mapping <T extends MappableItem>{
 	
 	public void addSourceToTargetMap(ItemToItemMap itemToItemMap) {
 		sourceToCdmMaps.add(itemToItemMap);
+	}
+	
+	public void addSourceToTargetMapList(List<ItemToItemMap> maps){
+		sourceToCdmMapsOfMaps.add(maps);
 	}
 	
 	public List<MappableItem> getSourceItems() {
@@ -69,8 +75,17 @@ public class Mapping <T extends MappableItem>{
 
 	}
 	
+	
 	public List<ItemToItemMap> getSourceToTargetMaps() {
 		return sourceToCdmMaps;
+	}
+	
+	public List<List<ItemToItemMap>> getSourceToTargetMapsOfMaps(){
+		return sourceToCdmMapsOfMaps;
+	}
+	
+	public MappableItem getTargetItemFromMapsOfMaps(){
+		return null;
 	}
 	
 	public void removeSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {

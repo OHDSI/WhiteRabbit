@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
@@ -73,6 +75,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	private List<LabeledRectangle>	sourceComponents			= new ArrayList<LabeledRectangle>();
 	private List<LabeledRectangle>	cdmComponents				= new ArrayList<LabeledRectangle>();
 	private List<Arrow>				arrows						= new ArrayList<Arrow>();
+	private List<GroupedArrow> 		manyToOneArrows				= new ArrayList<GroupedArrow>();
 	private LabeledRectangle		dragRectangle				= null;
 	private LabeledRectangle		lastSelectedRectangle		= null;
 	private Arrow					dragArrow					= null;
@@ -128,6 +131,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public boolean isMinimized(){
 		return minimized;
 	}
+	
 	public void setMapping(Mapping<?> mapping) {
 		maximize();
 		this.mapping = mapping;
@@ -138,6 +142,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		return getVisibleRectangles(sourceComponents);
 	}
 
+	public List<LabeledRectangle> getSourceComponentsList() {
+		return sourceComponents;
+	}
+	
 	public List<LabeledRectangle> getVisibleTargetComponents(){
 		return getVisibleRectangles(cdmComponents);
 	}
@@ -159,6 +167,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		sourceComponents.clear();
 		cdmComponents.clear();
 		arrows.clear();
+		manyToOneArrows.clear();
 		for (MappableItem item : mapping.getSourceItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				LabeledRectangle component = new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0));
@@ -173,6 +182,30 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents), map);
 			arrows.add(component);
 		}
+		/*
+		for (List<ItemToItemMap> maps : mapping.getSourceToTargetMapsOfMaps()) {
+			//TODO need to get the List<ItemToItemMap> with all of the ItemToItemMaps in the GroupedArrow
+			//return target item if all targets in List<ItemToItemMap are equal
+			//1) take in maps declared above
+			//2) go through and compare all targets to each other
+			//3) if true (it should be... not sure if I even need to put an if statement here) return target
+			//4) if false... not sure. Maybe return null?
+			MappableItem target = null;
+			for (ItemToItemMap map : maps) {
+				if (target != null) {
+					if (target.equals(map.getTargetItem())){
+						System.out.println();
+					} else {
+						
+					}
+				} else {
+					target = map.getTargetItem();
+				}
+			}
+			GroupedArrow component = new GroupedArrow(null, getComponentWithItem(maps.getTargetItem(), cdmComponents), null);
+			manyToOneArrows.add(component);
+		}
+		*/
 		layoutItems();
 		repaint();
 	}
@@ -193,8 +226,26 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		repaint();
 	}
 	
+	public void markManyToOneCompleted() {
+		for (GroupedArrow arrow : manyToOneArrows) {
+			if (arrow.isSelected() || arrow.getHighlightStatus() == HighlightStatus.BOTH_SELECTED){
+				arrow.getItemToItemMap().setCompleted(true);
+			}
+		}
+		repaint();
+	}
+	
 	public void unmarkCompleted() {
 		for (Arrow arrow : arrows) {
+			if (arrow.isSelected() || arrow.getHighlightStatus() == HighlightStatus.BOTH_SELECTED){
+				arrow.getItemToItemMap().setCompleted(false);
+			}
+		}
+		repaint();
+	}
+	
+	public void unmarkManyToOneCompleted() {
+		for (GroupedArrow arrow : manyToOneArrows) {
 			if (arrow.isSelected() || arrow.getHighlightStatus() == HighlightStatus.BOTH_SELECTED){
 				arrow.getItemToItemMap().setCompleted(false);
 			}
@@ -441,6 +492,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				for (Arrow component : arrows)
 					if (component != zoomArrow)
 						component.setVisible(false);
+				//TODO for loop for ManyTailsOneHeadArrow
 				minimized = true;
 				Path heightPath = new Path(getHeight(), HEADER_TOP_MARGIN + HEADER_HEIGHT + MARGIN + ITEM_HEIGHT + BORDER_HEIGHT);
 				Path sourcePath = new Path(sourceComponent.getY(), HEADER_TOP_MARGIN + HEADER_HEIGHT);
@@ -513,7 +565,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 		for (Arrow component : arrows)
 			component.setVisible(true);
-		
+		//TODO for loop for ManyTailsOneHeadArrow
 		this.requestFocusInWindow();
 	}
 
@@ -747,23 +799,41 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	public void makeMapSelectedSourceAndTarget(){
-		
 		for( LabeledRectangle source : getSelectedRectangles(sourceComponents)){			
-			for(LabeledRectangle target :  getSelectedRectangles(cdmComponents)){
+			for(LabeledRectangle target : getSelectedRectangles(cdmComponents)){
 				makeMapSourceToTarget(source,target);
 			}
 		}
-		
 	}
 	
 	private void makeMapSourceToTarget(LabeledRectangle source, LabeledRectangle target){
 		boolean isNew = true;
 		
+		/* Iterates through list of arrows to make sure there aren't duplicates. If there
+		 * are duplicates, the boolean isNew changes to false so that the if statement below
+		 * doesn't activate.
+		 */
 		for (Arrow other : arrows){
 			if (source == other.getSource() && target == other.getTarget()){
 				isNew = false;
 			}
 		}
+		
+		/* If the arrow is new, it will go through three methods:
+		 *  -addSourceToTargetMap(): it gets added to mapping, which is a list of type <?>
+		 *  -setItemToItemMap(): gets the source and target item from mapping that we just put there
+		 *   and sets it as the ItemToItemMap instance variable that is contained in the Arrow class
+		 *  -adds the created Arrow (arrow) to the arrows list.
+		 *  finally, repaint() is called which kind of calls paint(), but also kind of not...
+		 *  it basically updates what needs to be updated.
+		 */
+		/*if (isNew) {
+			Arrow arrow = new Arrow(source);
+			arrow.setTarget(target);
+			mapping.addSourceToTargetMap(source.getItem(), target.getItem());
+			arrow.setItemToItemMap(mapping.getSourceToTargetMap(source.getItem(), target.getItem()));
+			arrows.add(arrow);
+		}*/
 		
 		if (isNew) {
 			Arrow arrow = new Arrow(source);
@@ -774,14 +844,63 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 		repaint();
 	}
-	
+
+	public void makeManyToOneMapSourcesAndTarget(){
+		if (isOneTarget()) {
+			LabeledRectangle target = null;
+			List<LabeledRectangle> listOfSources = new ArrayList<LabeledRectangle>();
+			for (LabeledRectangle source : getSelectedRectangles(sourceComponents)) {
+				listOfSources.add(source);
+			}
+			for (LabeledRectangle t : getSelectedRectangles(cdmComponents)) {
+				target = t;
+			}
+			makeMapManySourcesToOneTarget(listOfSources, target);
+		}
+		else {
+			JFrame frame = new JFrame();
+			JOptionPane.showMessageDialog(frame,
+			    "You must pick only one Target item!",
+			    "Target Error",
+			    JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void makeMapManySourcesToOneTarget(List<LabeledRectangle> sources, LabeledRectangle target){
+		boolean isNew = true;
+
+		for (GroupedArrow comparison : manyToOneArrows){
+			if (sources.equals(comparison.getList()) && target.equals(comparison.getTarget())){
+				isNew = false;
+			}
+		}
+		if (isNew) {
+			/* GroupedArrow is done with null, target, and sources to follow the same parameter structure
+			 * as its superclass, but we don't care about one source, we care about the group of
+			 * sources.
+			 */
+			GroupedArrow arrow = new GroupedArrow(null, target, sources);
+			List<ItemToItemMap> mapsOfGroupedArrow = new ArrayList<ItemToItemMap>();
+			for (LabeledRectangle source : sources){
+				ItemToItemMap map = new ItemToItemMap(source.getItem(), target.getItem());
+				mapsOfGroupedArrow.add(map);
+				//Added to List<ItemToItemMap> called mapsOfGroupedArrow.
+				//These are all of the source->concept maps that are in the GroupedArrow.
+				//Adds to the list, doesn't create a list. Equivalent to setItemToItemMap.
+				arrow.addItemToItemMap(mapsOfGroupedArrow);
+			}
+			mapping.addSourceToTargetMapList(mapsOfGroupedArrow);
+			manyToOneArrows.add(arrow);
+		}
+		repaint();
+	}
+
 	public void removeMapSelectedSourceAndTarget(){
-			
 		for( LabeledRectangle source : getSelectedRectangles(sourceComponents)){			
-			for(LabeledRectangle target :  getSelectedRectangles(cdmComponents)){
+			for(LabeledRectangle target : getSelectedRectangles(cdmComponents)){
 				removeMapSourceToTarget(source,target);
 			}
-		}			
+		}
 	}
 
 	private void removeMapSourceToTarget(LabeledRectangle source, LabeledRectangle target){	
@@ -842,5 +961,24 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	
 	public boolean isBeingFiltered() {
 		return lastSourceFilter != "" || lastTargetFilter != ""; 
+	}
+
+	public boolean isOneTarget() {
+		LabeledRectangle[] countOfTargets = new LabeledRectangle[1];
+		int counter = 0;
+		try {
+			for (LabeledRectangle target : getSelectedRectangles(cdmComponents)) {
+				countOfTargets[counter] = target;
+				counter++;
+			}
+			if (countOfTargets[0] != null) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		} catch (IndexOutOfBoundsException i) {
+			return false;
+		}
 	}
 }

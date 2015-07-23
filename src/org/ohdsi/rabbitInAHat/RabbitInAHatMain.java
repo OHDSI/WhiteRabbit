@@ -17,7 +17,9 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -61,6 +63,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
+	public final static String		ACTION_CMD_MANY_TO_ONE_MAPPING		= "Many (Tails) to One (Head) Mapping";
 	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
 	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
 	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
@@ -250,7 +253,13 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		makeMappings.setActionCommand(ACTION_CMD_MAKE_MAPPING);
 		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));
 		arrowMenu.add(makeMappings);
-
+		
+		JMenuItem getFields = new JMenuItem(ACTION_CMD_MANY_TO_ONE_MAPPING);
+		getFields.addActionListener(this);
+		getFields.setActionCommand(ACTION_CMD_MANY_TO_ONE_MAPPING);
+		getFields.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));
+		arrowMenu.add(getFields);
+		
 		JMenuItem removeMappings = new JMenuItem(ACTION_CMD_REMOVE_MAPPING);
 		removeMappings.addActionListener(this);
 		removeMappings.setActionCommand(ACTION_CMD_REMOVE_MAPPING);
@@ -369,6 +378,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_MAKE_MAPPING:
 				doMakeMappings();
 				break;
+			case ACTION_CMD_MANY_TO_ONE_MAPPING:
+				doManyToOne();
+				break;
 			case ACTION_CMD_REMOVE_MAPPING:
 				doRemoveMappings();
 				break;
@@ -447,16 +459,22 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		} else {
 			this.fieldMappingPanel.makeMapSelectedSourceAndTarget();
 		}
-
 	}
 
+	private void doManyToOne() {
+		if (this.tableMappingPanel.isMaximized()) {
+			this.tableMappingPanel.makeManyToOneMapSourcesAndTarget();
+		} else {
+			this.fieldMappingPanel.makeManyToOneMapSourcesAndTarget();
+		}
+	}
+	
 	private void doRemoveMappings() {
 		if (this.tableMappingPanel.isMaximized()) {
 			this.tableMappingPanel.removeMapSelectedSourceAndTarget();
 		} else {
 			this.fieldMappingPanel.removeMapSelectedSourceAndTarget();
 		}
-
 	}
 
 	private void doDiscardCounts() {
