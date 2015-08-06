@@ -79,11 +79,7 @@ public class ETLDocumentGenerator {
 			run.setText("Table: " + sourceTable.getName());
 			run.setFontSize(14);
 			
-			if (!sourceTable.getComment().equals("")) {
-				paragraph = document.createParagraph();
-				run = paragraph.createRun();
-				run.setText(sourceTable.getComment());
-			}
+			createDocumentParagraph(document, sourceTable.getComment());
 			
 			XWPFTable table = document.createTable(sourceTable.getFields().size() + 1, 4);
 			// table.setWidth(2000);
@@ -99,7 +95,7 @@ public class ETLDocumentGenerator {
 				row.getCell(1).setText(sourceField.getType());
 				if (sourceField.getValueCounts() != null && sourceField.getValueCounts().length != 0)
 					row.getCell(2).setText(sourceField.getValueCounts()[0][0]);
-				row.getCell(3).setText(sourceField.getComment());
+				createCellParagraph(row.getCell(3), sourceField.getComment().trim());
 			}
 			
 		}
@@ -115,11 +111,7 @@ public class ETLDocumentGenerator {
 		run.setText("Table name: " + targetTable.getName());
 		run.setFontSize(18);
 		
-		if (!targetTable.getComment().equals("")) {
-			paragraph = document.createParagraph();
-			run = paragraph.createRun();
-			run.setText(targetTable.getComment());
-		}
+		createDocumentParagraph(document, targetTable.getComment());
 		
 		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps())
 			if (tableToTableMap.getTargetItem() == targetTable) {
@@ -131,17 +123,9 @@ public class ETLDocumentGenerator {
 				run.setText("Reading from " + tableToTableMap.getSourceItem());
 				run.setFontSize(14);
 				
-				if (!tableToTableMap.getLogic().equals("")) {
-					paragraph = document.createParagraph();
-					run = paragraph.createRun();
-					run.setText(tableToTableMap.getLogic());
-				}
+				createDocumentParagraph(document, tableToTableMap.getLogic());
 				
-				if (!tableToTableMap.getComment().equals("")) {
-					paragraph = document.createParagraph();
-					run = paragraph.createRun();
-					run.setText(tableToTableMap.getComment());
-				}
+				createDocumentParagraph(document, tableToTableMap.getComment());
 				
 				// Add picture of field to field mapping
 				MappingPanel mappingPanel = new MappingPanel(fieldtoFieldMapping);
@@ -171,30 +155,33 @@ public class ETLDocumentGenerator {
 					StringBuilder source = new StringBuilder();
 					StringBuilder logic = new StringBuilder();
 					StringBuilder comment = new StringBuilder();
-					for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToTargetMaps())
+					for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToTargetMaps()) {
 						if (fieldToFieldMap.getTargetItem() == targetField) {
 							if (source.length() != 0)
 								source.append("\n");
-							source.append(fieldToFieldMap.getSourceItem().getName());
+							source.append(fieldToFieldMap.getSourceItem().getName().trim());
 							
 							if (logic.length() != 0)
 								logic.append("\n");
-							logic.append(fieldToFieldMap.getLogic());
+							logic.append(fieldToFieldMap.getLogic().trim());
 							
 							if (comment.length() != 0)
 								comment.append("\n");
-							comment.append(fieldToFieldMap.getComment());
+							comment.append(fieldToFieldMap.getComment().trim());
 						}
-					for (Field field : targetTable.getFields())
+					}
+					
+					for (Field field : targetTable.getFields()) {
 						if (field.getName().equals(targetField.getName())) {
 							if (comment.length() != 0)
 								comment.append("\n");
-							comment.append(field.getComment());
+							comment.append(field.getComment().trim());
 						}
+					}
 					
-					row.getCell(1).setText(source.toString());
-					row.getCell(2).setText(logic.toString());
-					row.getCell(3).setText(comment.toString());
+					createCellParagraph(row.getCell(1), source.toString());
+					createCellParagraph(row.getCell(2), logic.toString());
+					createCellParagraph(row.getCell(3), comment.toString());
 				}
 			}
 		
@@ -228,5 +215,29 @@ public class ETLDocumentGenerator {
 		im.getGraphics().fillRect(0, 0, im.getWidth(), im.getHeight());
 		mappingPanel.paint(im.getGraphics());
 		document.addPicture(im, 600, height * 6 / 8);
+	}
+	
+	private static void createDocumentParagraph(CustomXWPFDocument document, String text) {
+		if (text.equals("")) {
+			return;
+		}
+		for(String line: text.split("\n")) {
+			addToParagraph(document.createParagraph(), line);
+		}
+	}
+	
+	private static void createCellParagraph(XWPFTableCell cell, String text) {
+		if (text.equals("")) {
+			return;
+		}
+		cell.removeParagraph(0);
+		for(String line: text.split("\n")) {
+			addToParagraph(cell.addParagraph(), line);			
+		}
+	}
+	
+	private static void addToParagraph(XWPFParagraph paragraph, String text) {
+		XWPFRun run = paragraph.createRun();
+		run.setText(text);
 	}
 }
