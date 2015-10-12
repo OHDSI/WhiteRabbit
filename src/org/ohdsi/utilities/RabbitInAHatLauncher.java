@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * http://silentdevelopment.blogspot.com/2010/03/how-to-set-or-increase-xmx-heap-memory.html
  */
 public class RabbitInAHatLauncher {
-	private final static int	MIN_HEAP	= 1500;
+	private final static int	MIN_HEAP	= 1200;
 
 	public static void main(String[] args) throws Exception {
 
