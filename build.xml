@@ -22,7 +22,7 @@
 		<jar destfile="${build.dir}/WhiteRabbit.jar">
 			<manifest>
 				<attribute name="Main-Class" value="org.ohdsi.utilities.WhiteRabbitLauncher"/>
-				<attribute name="Class-Path" value=". WhiteRabbit_lib/ojdbc5.jar WhiteRabbit_lib/ojdbc6.jar WhiteRabbit_lib/sqljdbc4.jar WhiteRabbit_lib/mysql-connector-java-5.1.30-${build.dir}.jar WhiteRabbit_lib/dom4j-1.6.1.jar WhiteRabbit_lib/poi-3.9-20121203.jar WhiteRabbit_lib/poi-excelant-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-schemas-3.9-20121203.jar WhiteRabbit_lib/stax-api-1.0.1.jar WhiteRabbit_lib/xmlbeans-2.3.0.jar WhiteRabbit_lib/jtds-1.2.7.jar WhiteRabbit_lib/postgresql-9.3-1101.jdbc4.jar WhiteRabbit_lib/postgresql-9.3-1101.jdbc41.jar"/>
+				<attribute name="Class-Path" value=". WhiteRabbit_lib/ojdbc5.jar WhiteRabbit_lib/ojdbc6.jar WhiteRabbit_lib/sqljdbc4.jar WhiteRabbit_lib/mysql-connector-java-5.1.30-${build.dir}.jar WhiteRabbit_lib/dom4j-1.6.1.jar WhiteRabbit_lib/poi-3.9-20121203.jar WhiteRabbit_lib/poi-excelant-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-schemas-3.9-20121203.jar WhiteRabbit_lib/stax-api-1.0.1.jar WhiteRabbit_lib/xmlbeans-2.3.0.jar WhiteRabbit_lib/jtds-1.2.7.jar WhiteRabbit_lib/postgresql-9.4-1201.jdbc4.jar WhiteRabbit_lib/postgresql-9.4-1201.jdbc41.jar"/>
 			</manifest>
 			<fileset dir="${build.dir}"/>
 			<fileset dir="${src.dir}" includes="**/*.csv,**/*.png" />
@@ -30,7 +30,7 @@
 		<jar destfile="${build.dir}/RabbitInAHat.jar">
 			<manifest>
 				<attribute name="Main-Class" value="org.ohdsi.utilities.RabbitInAHatLauncher"/>
-				<attribute name="Class-Path" value=". WhiteRabbit_lib/ojdbc5.jar WhiteRabbit_lib/ojdbc6.jar WhiteRabbit_lib/sqljdbc4.jar WhiteRabbit_lib/mysql-connector-java-5.1.30-${build.dir}.jar WhiteRabbit_lib/dom4j-1.6.1.jar WhiteRabbit_lib/poi-3.9-20121203.jar WhiteRabbit_lib/poi-excelant-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-schemas-3.9-20121203.jar WhiteRabbit_lib/stax-api-1.0.1.jar WhiteRabbit_lib/xmlbeans-2.3.0.jar WhiteRabbit_lib/jtds-1.2.7.jar WhiteRabbit_lib/postgresql-9.3-1101.jdbc4.jar WhiteRabbit_lib/postgresql-9.3-1101.jdbc41.jar WhiteRabbit_lib/json-io-3.0.1.jar"/>
+				<attribute name="Class-Path" value=". WhiteRabbit_lib/ojdbc5.jar WhiteRabbit_lib/ojdbc6.jar WhiteRabbit_lib/sqljdbc4.jar WhiteRabbit_lib/mysql-connector-java-5.1.30-${build.dir}.jar WhiteRabbit_lib/dom4j-1.6.1.jar WhiteRabbit_lib/poi-3.9-20121203.jar WhiteRabbit_lib/poi-excelant-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-3.9-20121203.jar WhiteRabbit_lib/poi-ooxml-schemas-3.9-20121203.jar WhiteRabbit_lib/stax-api-1.0.1.jar WhiteRabbit_lib/xmlbeans-2.3.0.jar WhiteRabbit_lib/jtds-1.2.7.jar WhiteRabbit_lib/postgresql-9.4-1201.jdbc4.jar WhiteRabbit_lib/postgresql-9.4-1201.jdbc41.jar WhiteRabbit_lib/json-io-3.0.1.jar"/>
 			</manifest>
 			<fileset dir="${build.dir}"/>
 			<fileset dir="${src.dir}" includes="**/*.csv,**/*.png" />
@@ -52,8 +52,8 @@
 		<copy file="lib/stax-api-1.0.1.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/xmlbeans-2.3.0.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/jtds-1.2.7.jar" todir="${build.dir}/WhiteRabbit_lib"/>
-		<copy file="lib/postgresql-9.3-1101.jdbc4.jar" todir="${build.dir}/WhiteRabbit_lib"/>
-		<copy file="lib/postgresql-9.3-1101.jdbc41.jar" todir="${build.dir}/WhiteRabbit_lib"/>
+		<copy file="lib/postgresql-9.4-1201.jdbc4.jar" todir="${build.dir}/WhiteRabbit_lib"/>
+		<copy file="lib/postgresql-9.4-1201.jdbc41.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/json-io-3.0.1.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 	</target>
 </project>
