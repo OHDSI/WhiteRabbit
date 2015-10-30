@@ -5,7 +5,6 @@
 	<classpathentry kind="lib" path="lib/ojdbc5.jar"/>
 	<classpathentry kind="lib" path="lib/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="lib/sqljdbc4.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.30-bin.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/poi-3.9-20121203.jar"/>
 	<classpathentry kind="lib" path="lib/poi-excelant-3.9-20121203.jar"/>
@@ -18,5 +17,6 @@
 	<classpathentry kind="lib" path="lib/commons-csv-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.4-1201.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.4-1201.jdbc41.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.37-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
