@@ -107,7 +107,7 @@ public class DBConnector {
 			throw new RuntimeException("Cannot find JDBC driver. Make sure the file mysql-connector-java-x.x.xx-bin.jar is in the path");
 		}
 
-		String url = "jdbc:mysql://" + server + ":3306/?useCursorFetch=true";
+		String url = "jdbc:mysql://" + server + ":3306/?useCursorFetch=true&zeroDateTimeBehavior=convertToNull";
 
 		try {
 			return DriverManager.getConnection(url, user, password);
