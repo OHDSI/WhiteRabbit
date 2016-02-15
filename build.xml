@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="create_run_jars" name="Create runnable WhiteRabbit and RabbitInAHat jar files with libraries in sub-folder">
-	<property name="JDK_VERSION" value="1.7" />
+	<property name="JDK_VERSION" value="1.8" />
 	<path id="classpath">
 		<fileset dir="lib" includes="**/*.jar" />
 	</path>

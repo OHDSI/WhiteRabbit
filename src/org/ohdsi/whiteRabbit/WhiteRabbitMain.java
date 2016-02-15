@@ -191,7 +191,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
 		sourcePanel.add(new JLabel("Data type"));
-		sourceType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
+		sourceType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access" });
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(new ItemListener() {
 
@@ -701,7 +701,8 @@ public class WhiteRabbitMain implements ActionListener {
 						dbSettings.domain = parts[0];
 					}
 				}
-			}
+			}else if (sourceType.getSelectedItem().toString().equals("MS Access"))
+				dbSettings.dbType = DbType.MSACCESS;
 		}
 		return dbSettings;
 	}
