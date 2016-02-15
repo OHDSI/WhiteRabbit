@@ -20,6 +20,8 @@ package org.ohdsi.whiteRabbit.scan;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -271,7 +273,7 @@ public class SourceDataScan {
 
 	private QueryResult fetchRowsFromTable(RichConnection connection, String table, long rowCount) {
 		String query;
-		if (dbType == DbType.MSSQL)
+		if (dbType == DbType.MSSQL || dbType == DbType.MSACCESS)
 			query = "SELECT * FROM [" + table + "]";
 		else
 			query = "SELECT * FROM " + table;
@@ -289,6 +291,8 @@ public class SourceDataScan {
 				}
 			} else if (dbType == DbType.POSTGRESQL)
 				query += " ORDER BY RANDOM() LIMIT " + sampleSize;
+			else if (dbType == DbType.MSACCESS)
+				query = "SELECT " + "TOP " + sampleSize + " * FROM [" + table + "]";
 		}
 		// System.out.println("SQL: " + query);
 		return connection.query(query);
@@ -296,29 +300,44 @@ public class SourceDataScan {
 	}
 
 	private List<FieldInfo> fetchTableStructure(RichConnection connection, String table) {
-		String query = null;
-		if (dbType == DbType.ORACLE)
-			query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
-		else if (dbType == DbType.MSSQL) {
-			String trimmedDatabase = database;
-			if (database.startsWith("[") && database.endsWith("]"))
-				trimmedDatabase = database.substring(1, database.length() - 1);
-			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_NAME='" + table
-					+ "';";
-		} else if (dbType == DbType.MYSQL)
-			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table + "';";
-		else if (dbType == DbType.POSTGRESQL)
-			query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
-					+ table.toLowerCase() + "' ORDER BY ordinal_position;";
-
 		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
-		for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
-			row.upperCaseFieldNames();
-			FieldInfo fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
-			fieldInfo.type = row.get("DATA_TYPE");
-			fieldInfo.rowCount = connection.getTableSize(table);
-			;
-			fieldInfos.add(fieldInfo);
+		
+		if (dbType == DbType.MSACCESS){
+			ResultSet rs = connection.getMsAccessFieldNames(table);
+			try {
+				while (rs.next()){
+					FieldInfo fieldInfo = new FieldInfo(rs.getString("COLUMN_NAME"));
+					fieldInfo.type = rs.getString("TYPE_NAME");
+					fieldInfo.rowCount = connection.getTableSize(table);
+					fieldInfos.add(fieldInfo);
+				}
+			} catch (SQLException e) {
+				throw new RuntimeException(e.getMessage());
+			}
+		}else{
+			String query = null;
+			if (dbType == DbType.ORACLE)
+				query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
+			else if (dbType == DbType.MSSQL) {
+				String trimmedDatabase = database;
+				if (database.startsWith("[") && database.endsWith("]"))
+					trimmedDatabase = database.substring(1, database.length() - 1);
+				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_NAME='" + table
+						+ "';";
+			} else if (dbType == DbType.MYSQL)
+				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table + "';";
+			else if (dbType == DbType.POSTGRESQL)
+				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
+						+ table.toLowerCase() + "' ORDER BY ordinal_position;";
+	
+			for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
+				row.upperCaseFieldNames();
+				FieldInfo fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
+				fieldInfo.type = row.get("DATA_TYPE");
+				fieldInfo.rowCount = connection.getTableSize(table);
+				;
+				fieldInfos.add(fieldInfo);
+			}
 		}
 		return fieldInfos;
 	}

@@ -19,6 +19,7 @@ package org.ohdsi.databases;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -122,6 +123,8 @@ public class RichConnection {
 			execute("ALTER SESSION SET current_schema = " + database);
 		else if (dbType == DbType.POSTGRESQL)
 			execute("SET search_path TO " + database);
+		else if (dbType == DbType.MSACCESS)
+			;
 		else
 			execute("USE " + database);
 	}
@@ -137,6 +140,8 @@ public class RichConnection {
 			query = "SELECT table_name FROM all_tables WHERE owner='" + database.toUpperCase() + "'";
 		} else if (dbType == DbType.POSTGRESQL) {
 			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database.toLowerCase() + "'";
+		} else if (dbType == DbType.MSACCESS) {
+			query = "SELECT Name FROM sys.MSysObjects WHERE Type=1 AND Flags=0;";
 		}
 
 		for (Row row : query(query))
@@ -157,6 +162,18 @@ public class RichConnection {
 
 		return names;
 	}
+	
+	public ResultSet getMsAccessFieldNames(String table){
+		if(dbType == DbType.MSACCESS){
+			try {
+				DatabaseMetaData metadata = connection.getMetaData();
+				return metadata.getColumns(null, null, table, null);
+			} catch (SQLException e) {
+				throw new RuntimeException(e.getMessage());
+			}
+		}else
+			throw new RuntimeException("DB is not of type MS Access");
+	}
 
 	/**
 	 * Returns the row count of the specified table.
@@ -165,7 +182,7 @@ public class RichConnection {
 	 * @return
 	 */
 	public long getTableSize(String tableName) {
-		if (dbType == DbType.MSSQL)
+		if (dbType == DbType.MSSQL || dbType == DbType.MSACCESS)
 			return Long.parseLong(query("SELECT COUNT(*) FROM [" + tableName + "];").iterator().next().getCells().get(0));
 		else
 			return Long.parseLong(query("SELECT COUNT(*) FROM " + tableName + ";").iterator().next().getCells().get(0));

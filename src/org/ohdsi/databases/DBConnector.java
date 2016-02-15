@@ -80,8 +80,24 @@ public class DBConnector {
 			return DBConnector.connectToOracle(server, domain, user, password);
 		else if (dbType.equals(DbType.POSTGRESQL))
 			return DBConnector.connectToPostgreSQL(server, user, password);
+		else if (dbType.equals(DbType.MSACCESS))
+			return DBConnector.connectToMsAccess(server, user, password);
 		else
 			return null;
+	}
+
+	public static Connection connectToMsAccess(String server, String user, String password) {
+		try{
+			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+		}catch (ClassNotFoundException e) {
+			throw new RuntimeException("Cannot find ucanaccess driver. Make sure the file ucanaccess-3.0.3.1.jar is in the path");
+		}
+		String url = "jdbc:ucanaccess://" + server + ";sysschema=true";
+		try{
+			return DriverManager.getConnection(url, user, password);
+		}catch (SQLException e) {
+			throw new RuntimeException("Cannot connect to DB server: " + e.getMessage());
+		}
 	}
 
 	public static Connection connectToPostgreSQL(String server, String user, String password) {

@@ -22,9 +22,10 @@ public class DbType {
 	public static DbType	MSSQL		= new DbType("mssql");
 	public static DbType	ORACLE		= new DbType("oracle");
 	public static DbType	POSTGRESQL	= new DbType("postgresql");
+	public static DbType	MSACCESS	= new DbType("msaccess");
 	
 	private enum Type {
-		MYSQL, MSSQL, ORACLE, POSTGRESQL
+		MYSQL, MSSQL, ORACLE, POSTGRESQL, MSACCESS
 	};
 	
 	private Type	type;
