@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="create_run_jars" name="Create runnable WhiteRabbit and RabbitInAHat jar files with libraries in sub-folder">
-	<property name="JDK_VERSION" value="1.8" />
+	<property name="JDK_VERSION" value="1.7" />
 	<path id="classpath">
 		<fileset dir="lib" includes="**/*.jar" />
 	</path>
@@ -51,10 +51,15 @@
 		<copy file="lib/poi-ooxml-schemas-3.9-20121203.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/stax-api-1.0.1.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/xmlbeans-2.3.0.jar" todir="${build.dir}/WhiteRabbit_lib"/>
-		<copy file="lib/jtds-1.2.7.jar" todir="${build.dir}/WhiteRabbit_lib"/>
+		<copy file="lib/jtds-1.3.1-v20140512.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/postgresql-9.4-1201.jdbc4.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/postgresql-9.4-1201.jdbc41.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/json-io-3.0.1.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 		<copy file="lib/commons-csv-1.1.jar" todir="${build.dir}/WhiteRabbit_lib"/>
+		<copy file="lib/commons-lang3-3.4.jar" todir="${build.dir}/WhiteRabbit_lib"/>
+		<copy file="lib/commons-logging-1.2.jar" todir="${build.dir}/WhiteRabbit_lib"/>
+		<copy file="lib/hsqldb-2.2.5.jar" todir="${build.dir}/WhiteRabbit_lib"/>
+		<copy file="lib/jackcess-2.1.3.jar" todir="${build.dir}/WhiteRabbit_lib"/>
+		<copy file="lib/ucanaccess-3.0.3.1.jar" todir="${build.dir}/WhiteRabbit_lib"/>
 	</target>
 </project>
