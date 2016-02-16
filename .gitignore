@@ -1,3 +1,7 @@
 /bin
 build/
 dist/
+/Error.txt
+/.gitignore
+/Error1.txt
+/ScanReport.xlsx
