@@ -7,7 +7,7 @@ WhiteRabbit is a small application that can be used to analyse the structure and
 
 Features
 ========
-- Can scan databases in SQL Server, Oracle, PostgreSQL, MySQL, and CSV files
+- Can scan databases in SQL Server, Oracle, PostgreSQL, MySQL, MS Access, and CSV files
 - The scan report contains information on tables, fields, and frequency distributions of values
 - Cutoff on the minimum frequency of values to protect patient privacy
 - Interactive tool (Rabbit in a Hat) for designing the ETL using the scan report as basis
@@ -34,7 +34,7 @@ White Rabbit and Rabbit in a Hat are pure Java applications. Both applications u
 
 System Requirements
 ============
-Requires Java 1.7 or higher, and read access to the database to be scanned.   Java can be downloaded from
+Requires Java 1.7 or higher, and read access to the database to be scanned. Java can be downloaded from
 <a href="http://www.java.com" target="_blank">http://www.java.com</a>.
 
 Dependencies
