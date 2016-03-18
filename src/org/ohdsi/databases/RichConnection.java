@@ -56,10 +56,10 @@ public class RichConnection {
 	 * @param sql
 	 */
 	public void execute(String sql) {
+		Statement statement = null;
 		try {
 			if (sql.length() == 0)
 				return;
-			Statement statement = null;
 
 			statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 			for (String subQuery : sql.split(";")) {
@@ -78,10 +78,19 @@ public class RichConnection {
 			statement.executeBatch();
 			if (verbose)
 				outputQueryStats(statement, System.currentTimeMillis() - start);
-			statement.close();
 		} catch (SQLException e) {
 			System.err.println(sql);
 			e.printStackTrace();
+		} finally {
+			if (statement != null) { 
+				try {
+					statement.close();
+				}
+				catch (SQLException e) {
+					// TODO Auto-generated catch block
+					System.err.println(e.getMessage());
+				}
+			}
 		}
 	}
 
@@ -121,7 +130,7 @@ public class RichConnection {
 			return;
 		if (dbType == DbType.ORACLE)
 			execute("ALTER SESSION SET current_schema = " + database);
-		else if (dbType == DbType.POSTGRESQL)
+		else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 			execute("SET search_path TO " + database);
 		else if (dbType == DbType.MSACCESS)
 			;
@@ -135,11 +144,11 @@ public class RichConnection {
 		if (dbType == DbType.MYSQL) {
 			query = "SHOW TABLES IN " + database;
 		} else if (dbType == DbType.MSSQL) {
-			query = "SELECT name FROM " + database + ".sys.tables ";
+			query = "SELECT name FROM " + database + ".sys.tables ORDER BY name";
 		} else if (dbType == DbType.ORACLE) {
 			query = "SELECT table_name FROM all_tables WHERE owner='" + database.toUpperCase() + "'";
-		} else if (dbType == DbType.POSTGRESQL) {
-			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database.toLowerCase() + "'";
+		} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) {
+			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database.toLowerCase() + "' ORDER BY table_name";
 		} else if (dbType == DbType.MSACCESS) {
 			query = "SELECT Name FROM sys.MSysObjects WHERE Type=1 AND Flags=0;";
 		}
@@ -182,10 +191,24 @@ public class RichConnection {
 	 * @return
 	 */
 	public long getTableSize(String tableName) {
+		QueryResult qr = null;
+		Long returnVal = null;
 		if (dbType == DbType.MSSQL || dbType == DbType.MSACCESS)
-			return Long.parseLong(query("SELECT COUNT(*) FROM [" + tableName + "];").iterator().next().getCells().get(0));
+			qr = query("SELECT COUNT(*) FROM [" + tableName + "];");
+			//return Long.parseLong(query("SELECT COUNT(*) FROM [" + tableName + "];").iterator().next().getCells().get(0));
 		else
-			return Long.parseLong(query("SELECT COUNT(*) FROM " + tableName + ";").iterator().next().getCells().get(0));
+			qr = query("SELECT COUNT(*) FROM " + tableName + ";");
+		//	return Long.parseLong(query("SELECT COUNT(*) FROM " + tableName + ";").iterator().next().getCells().get(0));
+		
+		// Obtain the value and close the connection
+		try {
+			returnVal = Long.parseLong(query("SELECT COUNT(*) FROM " + tableName + ";").iterator().next().getCells().get(0));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (qr != null) { qr.close(); }
+		}
+		return returnVal;			
 	}
 
 	/**
@@ -297,7 +320,7 @@ public class RichConnection {
 					if (value.length() == 0)
 						value = null;
 					// System.out.println(value);
-					if (dbType == DbType.POSTGRESQL) // PostgreSQL does not allow unspecified types
+					if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) // PostgreSQL does not allow unspecified types
 						statement.setObject(i + 1, value, Types.OTHER);
 					else if (dbType == DbType.ORACLE) {
 						if (isDate(value)) {
@@ -416,6 +439,7 @@ public class RichConnection {
 		private Set<String>	columnNames	= new HashSet<String>();
 
 		public DBRowIterator(String sql) {
+			Statement statement = null;
 			try {
 				sql.trim();
 				if (sql.endsWith(";"))
@@ -427,7 +451,7 @@ public class RichConnection {
 					System.out.println("Executing query: " + abbrSQL);
 				}
 				long start = System.currentTimeMillis();
-				Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+				statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 				resultSet = statement.executeQuery(sql.toString());
 				hasNext = resultSet.next();
 				if (verbose)
