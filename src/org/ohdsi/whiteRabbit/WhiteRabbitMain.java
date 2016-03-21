@@ -191,7 +191,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
 		sourcePanel.add(new JLabel("Data type"));
-		sourceType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access" });
+		sourceType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "Redshift" });
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(new ItemListener() {
 
@@ -350,8 +350,8 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsPanel.add(new JLabel("Rows per table "));
-		scanRowCount = new JComboBox(new String[] { "100,000", "1 million", "all" });
-		scanRowCount.setSelectedIndex(1);
+		scanRowCount = new JComboBox(new String[] { "100,000", "500,000", "1 million", "all" });
+		scanRowCount.setSelectedIndex(2);
 		scanRowCount.setToolTipText("Maximum number of rows per table to be scanned for field values");
 		scanOptionsPanel.add(scanRowCount);
 
@@ -692,6 +692,8 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.ORACLE;
 			else if (sourceType.getSelectedItem().toString().equals("PostgreSQL"))
 				dbSettings.dbType = DbType.POSTGRESQL;
+			else if (sourceType.getSelectedItem().toString().equals("Redshift"))
+				dbSettings.dbType = DbType.REDSHIFT;
 			else if (sourceType.getSelectedItem().toString().equals("SQL Server")) {
 				dbSettings.dbType = DbType.MSSQL;
 				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
@@ -815,6 +817,8 @@ public class WhiteRabbitMain implements ActionListener {
 		int rowCount = 0;
 		if (scanRowCount.getSelectedItem().toString().equals("100,000"))
 			rowCount = 100000;
+		else if (scanRowCount.getSelectedItem().toString().equals("500,000"))
+			rowCount = 500000;
 		else if (scanRowCount.getSelectedItem().toString().equals("1 million"))
 			rowCount = 1000000;
 		if (scanRowCount.getSelectedItem().toString().equals("all"))

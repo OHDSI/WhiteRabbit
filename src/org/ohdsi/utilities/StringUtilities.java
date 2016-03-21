@@ -828,7 +828,12 @@ public class StringUtilities {
 		if (text.substring(0, lineLength).contains("\n"))
 			return text.substring(0, text.indexOf("\n")).trim() + "\n\n" + wordWrap(text.substring(text.indexOf("\n") + 1), lineLength);
 		int place = Math.max(Math.max(text.lastIndexOf(" ", lineLength), text.lastIndexOf("\t", lineLength)), text.lastIndexOf("-", lineLength));
-		return text.substring(0, place).trim() + "\n" + wordWrap(text.substring(place), lineLength);
+		if (place > 0) {
+			return text.substring(0, place).trim() + "\n" + wordWrap(text.substring(place), lineLength);			
+		}
+		else {
+			return text;
+		}
 	}
 	
 	public static boolean isDate(String string) {

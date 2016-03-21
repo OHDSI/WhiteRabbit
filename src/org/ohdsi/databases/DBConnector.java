@@ -82,10 +82,28 @@ public class DBConnector {
 			return DBConnector.connectToPostgreSQL(server, user, password);
 		else if (dbType.equals(DbType.MSACCESS))
 			return DBConnector.connectToMsAccess(server, user, password);
+		else if (dbType.equals(DbType.REDSHIFT))
+			return DBConnector.connectToRedshift(server, user, password);
 		else
 			return null;
 	}
 
+	public static Connection connectToRedshift(String server, String user, String password) {
+		if (!server.contains("/"))
+			throw new RuntimeException("For Redshift, database name must be specified in the server field (<host>:<port>/<database>?<options>)");
+		try {
+			Class.forName("com.amazon.redshift.jdbc4.Driver");
+		} catch (ClassNotFoundException e1) {
+			throw new RuntimeException("Cannot find JDBC driver. Make sure the file RedshiftJDBCx-x.x.xx.xxxx.jar is in the path");
+		}
+		String url = "jdbc:redshift://" + server;
+		try {
+			return DriverManager.getConnection(url, user, password);
+		} catch (SQLException e1) {
+			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
+		}		
+	}
+	
 	public static Connection connectToMsAccess(String server, String user, String password) {
 		try{
 			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
