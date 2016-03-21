@@ -253,19 +253,26 @@ public class SourceDataScan {
 		List<FieldInfo> fieldInfos = fetchTableStructure(connection, table);
 		if (scanValues) {
 			int actualCount = 0;
-			QueryResult queryResult = fetchRowsFromTable(connection, table, rowCount);
-			for (org.ohdsi.utilities.files.Row row : queryResult) {
-				for (int i = 0; i < fieldInfos.size(); i++)
-					fieldInfos.get(i).processValue(row.getCells().get(i));
-				actualCount++;
-				if (sampleSize != -1 && actualCount >= sampleSize) {
-					System.out.println("Stopped after " + actualCount + " rows");
-					break;
+			QueryResult queryResult = null;
+			try
+			{				
+				queryResult = fetchRowsFromTable(connection, table, rowCount);
+				for (org.ohdsi.utilities.files.Row row : queryResult) {
+					for (int i = 0; i < fieldInfos.size(); i++)
+						fieldInfos.get(i).processValue(row.getCells().get(i));
+					actualCount++;
+					if (sampleSize != -1 && actualCount >= sampleSize) {
+						System.out.println("Stopped after " + actualCount + " rows");
+						break;
+					}
 				}
+				for (FieldInfo fieldInfo : fieldInfos)
+					fieldInfo.trim();
+			} catch (Exception e) {
+				System.out.println("Error: " + e.getMessage());
+			} finally {
+				if (queryResult != null) { queryResult.close(); }
 			}
-			queryResult.close(); // Not normally needed, but if we ended prematurely make sure its closed
-			for (FieldInfo fieldInfo : fieldInfos)
-				fieldInfo.trim();
 		}
 
 		return fieldInfos;
@@ -289,7 +296,7 @@ public class SourceDataScan {
 					if (percentage < 100)
 						query += " SAMPLE(" + percentage + ")";
 				}
-			} else if (dbType == DbType.POSTGRESQL)
+			} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 				query += " ORDER BY RANDOM() LIMIT " + sampleSize;
 			else if (dbType == DbType.MSACCESS)
 				query = "SELECT " + "TOP " + sampleSize + " * FROM [" + table + "]";
@@ -326,7 +333,7 @@ public class SourceDataScan {
 						+ "';";
 			} else if (dbType == DbType.MYSQL)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table + "';";
-			else if (dbType == DbType.POSTGRESQL)
+			else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
 						+ table.toLowerCase() + "' ORDER BY ordinal_position;";
 	
