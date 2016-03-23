@@ -7,7 +7,7 @@ WhiteRabbit is a small application that can be used to analyse the structure and
 
 Features
 ========
-- Can scan databases in SQL Server, Oracle, PostgreSQL, MySQL, MS Access, and CSV files
+- Can scan databases in SQL Server, Oracle, PostgreSQL, MySQL, MS Access, Amazon RedShift, and CSV files
 - The scan report contains information on tables, fields, and frequency distributions of values
 - Cutoff on the minimum frequency of values to protect patient privacy
 - Interactive tool (Rabbit in a Hat) for designing the ETL using the scan report as basis
