@@ -50,6 +50,9 @@ public class ETLTestFrameWorkGenerator {
 		r.add("declareTest <- function(id, description) {");
 		r.add("  assign(\"testId\", id, envir = globalenv()) ");
 		r.add("  assign(\"testDescription\", description, envir = globalenv()) ");
+		r.add("  sql <- c(\"\", paste0(\"-- \", id, \": \", description))");
+		r.add("  assign(\"insertSql\", c(get(\"insertSql\", envir = globalenv()), sql), envir = globalenv())");
+		r.add("  assign(\"testSql\", c(get(\"testSql\", envir = globalenv()), sql), envir = globalenv())");
 		r.add("}");
 		r.add("");
 	}
