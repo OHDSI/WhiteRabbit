@@ -58,6 +58,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_OPEN_ETL_SPECS			= "Open ETL Specs";
 	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
+	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK	= "Generate ETL Test Framework";
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
@@ -73,6 +74,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private final static FileFilter	FILE_FILTER_GZ						= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
 	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
+	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
 	private JScrollPane				scrollPane2;
@@ -209,6 +211,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateDocItem.addActionListener(this);
 		generateDocItem.setActionCommand(ACTION_CMD_GENERATE_ETL_DOCUMENT);
 		fileMenu.add(generateDocItem);
+
+		JMenuItem generateTestFrameworkItem = new JMenuItem(ACTION_CMD_GENERATE_TEST_FRAMEWORK);
+		generateTestFrameworkItem.addActionListener(this);
+		generateTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_TEST_FRAMEWORK);
+		fileMenu.add(generateTestFrameworkItem);
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
@@ -360,6 +367,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_GENERATE_ETL_DOCUMENT:
 				doGenerateEtlDoc(chooseSavePath(FILE_FILTER_DOCX));
 				break;
+			case ACTION_CMD_GENERATE_TEST_FRAMEWORK:
+				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
+				break;
 			case ACTION_CMD_DISCARD_COUNTS:
 				doDiscardCounts();
 				break;
@@ -391,6 +401,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doOpenWiki();
 				break;
 
+		}
+	}
+
+	private void doGenerateTestFramework(String filename) {
+		if (filename != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			ETLTestFrameWorkGenerator.generate(ObjectExchange.etl, filename);
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
 
