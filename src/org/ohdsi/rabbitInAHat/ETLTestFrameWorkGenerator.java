@@ -18,7 +18,9 @@
 package org.ohdsi.rabbitInAHat;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
@@ -28,7 +30,29 @@ import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.WriteTextFile;
 
 public class ETLTestFrameWorkGenerator {
+
+	public static String[]		keywords	= new String[] { "ADD", "ALL", "ALTER", "AND", "ANY", "AS", "ASC", "AUTHORIZATION", "BACKUP", "BEGIN", "BETWEEN",
+			"BREAK", "BROWSE", "BULK", "BY", "CASCADE", "CASE", "CHECK", "CHECKPOINT", "CLOSE", "CLUSTERED", "COALESCE", "COLLATE", "COLUMN", "COMMIT",
+			"COMPUTE", "CONSTRAINT", "CONTAINS", "CONTAINSTABLE", "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT", "CURRENT_DATE", "CURRENT_TIME",
+			"CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "DATABASE", "DBCC", "DEALLOCATE", "DECLARE", "DEFAULT", "DELETE", "DENY", "DESC", "DISK",
+			"DISTINCT", "DISTRIBUTED", "DOUBLE", "DROP", "DUMP", "ELSE", "END", "ERRLVL", "ESCAPE", "EXCEPT", "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXTERNAL",
+			"FETCH", "FILE", "FILLFACTOR", "FOR", "FOREIGN", "FREETEXT", "FREETEXTTABLE", "FROM", "FULL", "FUNCTION", "GOTO", "GRANT", "GROUP", "HAVING",
+			"HOLDLOCK", "IDENTITY", "IDENTITY_INSERT", "IDENTITYCOL", "IF", "IN", "INDEX", "INNER", "INSERT", "INTERSECT", "INTO", "IS", "JOIN", "KEY", "KILL",
+			"LEFT", "LIKE", "LINENO", "LOAD", "MERGE", "NATIONAL", "NOCHECK", "NONCLUSTERED", "NOT", "NULL", "NULLIF", "OF", "OFF", "OFFSETS", "ON", "OPEN",
+			"OPENDATASOURCE", "OPENQUERY", "OPENROWSET", "OPENXML", "OPTION", "OR", "ORDER", "OUTER", "OVER", "PERCENT", "PIVOT", "PLAN", "PRECISION",
+			"PRIMARY", "PRINT", "PROC", "PROCEDURE", "PUBLIC", "RAISERROR", "READ", "READTEXT", "RECONFIGURE", "REFERENCES", "REPLICATION", "RESTORE",
+			"RESTRICT", "RETURN", "REVERT", "REVOKE", "RIGHT", "ROLLBACK", "ROWCOUNT", "ROWGUIDCOL", "RULE", "SAVE", "SCHEMA", "SECURITYAUDIT", "SELECT",
+			"SEMANTICKEYPHRASETABLE", "SEMANTICSIMILARITYDETAILSTABLE", "SEMANTICSIMILARITYTABLE", "SESSION_USER", "SET", "SETUSER", "SHUTDOWN", "SOME",
+			"STATISTICS", "SYSTEM_USER", "TABLE", "TABLESAMPLE", "TEXTSIZE", "THEN", "TO", "TOP", "TRAN", "TRANSACTION", "TRIGGER", "TRUNCATE", "TRY_CONVERT",
+			"TSEQUAL", "UNION", "UNIQUE", "UNPIVOT", "UPDATE", "UPDATETEXT", "USE", "USER", "VALUES", "VARYING", "VIEW", "WAITFOR", "WHEN", "WHERE", "WHILE",
+			"WITH", "WITHIN GROUP", "WRITETEXT" };
+
+	private static Set<String>	keywordSet;
+
 	public static void generate(ETL etl, String filename) {
+		keywordSet = new HashSet<String>();
+		for (String keyword : keywords)
+			keywordSet.add(keyword);
 		List<String> r = generateRScript(etl);
 		WriteTextFile out = new WriteTextFile(filename);
 		for (String line : r)
@@ -74,7 +98,11 @@ public class ETLTestFrameWorkGenerator {
 				testDefs.add("    } else {");
 				testDefs.add("      statement <- paste0(statement, \" AND\")");
 				testDefs.add("    }");
-				testDefs.add("    statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
+				testDefs.add("    if (is.null(" + rFieldName + ")) {");
+				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
+				testDefs.add("    } else {");
+				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
+				testDefs.add("    }");
 				testDefs.add("  }");
 				testDefs.add("");
 			}
@@ -101,7 +129,7 @@ public class ETLTestFrameWorkGenerator {
 			r.addAll(testDefs);
 
 			if (negation)
-				r.add("  statement <- paste0(statement, \") = 1 THEN 'FAIL' ELSE 'PASS' END AS status;\")");
+				r.add("  statement <- paste0(statement, \") != 0 THEN 'FAIL' ELSE 'PASS' END AS status;\")");
 			else
 				r.add("  statement <- paste0(statement, \") = 0 THEN 'FAIL' ELSE 'PASS' END AS status;\")");
 
@@ -113,7 +141,7 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	private static String convertToSqlName(String name) {
-		if (name.contains(" ") || name.contains(".") || name.toLowerCase().equals("procedure"))
+		if (name.contains(" ") || name.contains(".") || keywordSet.contains(name.toUpperCase()))
 			name = "[" + name + "]";
 		return name;
 	}
@@ -165,7 +193,7 @@ public class ETLTestFrameWorkGenerator {
 
 				insertLines.add("  if (!is.null(" + rFieldName + ")) {");
 				insertLines.add("    insertFields <- c(insertFields, \"" + sqlFieldName + "\")");
-				insertLines.add("    insertValues <- c(insertValues, " +rFieldName + ")");
+				insertLines.add("    insertValues <- c(insertValues, " + rFieldName + ")");
 				insertLines.add("  }");
 				insertLines.add("");
 			}
@@ -174,13 +202,13 @@ public class ETLTestFrameWorkGenerator {
 			line.append(StringUtilities.join(argDefs, ", "));
 			line.append(") {");
 			r.add(line.toString());
-			
+
 			r.add("  insertFields <- c()");
 			r.add("  insertValues <- c()");
 			r.addAll(insertLines);
-		
+
 			line = new StringBuilder();
-			line.append("  statement <- paste0(\"INSERT INTO " + sqlTableName +  " (\", ");
+			line.append("  statement <- paste0(\"INSERT INTO " + sqlTableName + " (\", ");
 			line.append("paste(insertFields, collapse = \", \"), ");
 			line.append("\") VALUES ('\", ");
 			line.append("paste(insertValues, collapse = \"', '\"), ");
