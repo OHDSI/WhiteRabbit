@@ -651,12 +651,17 @@ public class WhiteRabbitMain implements ActionListener {
 				RichConnection connection = new RichConnection(sourceDbSettings.server, sourceDbSettings.domain, sourceDbSettings.user,
 						sourceDbSettings.password, sourceDbSettings.dbType);
 				String tableNames = StringUtilities.join(connection.getTableNames(sourceDbSettings.database), "\t");
-				DBTableSelectionDialog selectionDialog = new DBTableSelectionDialog(frame, true, tableNames);
-				if (selectionDialog.getAnswer()) {
-					for (Object item : selectionDialog.getSelectedItems()) {
-						if (!tables.contains(item))
-							tables.add((String) item);
-						tableList.setListData(tables.toArray());
+				if (tableNames.length() == 0) {
+					JOptionPane.showMessageDialog(frame, "No tables found in database " + sourceDbSettings.database, "Error fetching table names",
+							JOptionPane.ERROR_MESSAGE);
+				} else {
+					DBTableSelectionDialog selectionDialog = new DBTableSelectionDialog(frame, true, tableNames);
+					if (selectionDialog.getAnswer()) {
+						for (Object item : selectionDialog.getSelectedItems()) {
+							if (!tables.contains(item))
+								tables.add((String) item);
+							tableList.setListData(tables.toArray());
+						}
 					}
 				}
 				connection.close();
@@ -737,7 +742,9 @@ public class WhiteRabbitMain implements ActionListener {
 			}
 
 			try {
-				connection.getTableNames(dbSettings.database);
+				List<String> tableNames = connection.getTableNames(dbSettings.database);
+				if (tableNames.size() == 0)
+					throw new RuntimeException("Unable to retrieve table names for database " + dbSettings.database);
 			} catch (Exception e) {
 				String message = "Could not connect to database: " + e.getMessage();
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
