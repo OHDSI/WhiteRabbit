@@ -62,6 +62,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
 	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK	= "Generate ETL Test Framework";
+	public final static String		ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK	= "Generate ETL Test Framework (for R Packages)";
+	
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
@@ -224,6 +226,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_TEST_FRAMEWORK);
 		fileMenu.add(generateTestFrameworkItem);
 
+		JMenuItem generatePackageTestFrameworkItem = new JMenuItem(ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK);
+		generatePackageTestFrameworkItem.addActionListener(this);
+		generatePackageTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK);
+		fileMenu.add(generatePackageTestFrameworkItem);
+		
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
 
@@ -380,6 +387,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_GENERATE_TEST_FRAMEWORK:
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
 				break;
+			case ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK:
+				doGeneratePackageTestFramework(chooseSavePath(FILE_FILTER_R));
+				break;
 			case ACTION_CMD_DISCARD_COUNTS:
 				doDiscardCounts();
 				break;
@@ -421,6 +431,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLTestFrameWorkGenerator.generate(ObjectExchange.etl, filename);
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+	
+	private void doGeneratePackageTestFramework(String filename) {
+		if (filename != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			ETLPackageTestFrameWorkGenerator.generate(ObjectExchange.etl, filename);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
