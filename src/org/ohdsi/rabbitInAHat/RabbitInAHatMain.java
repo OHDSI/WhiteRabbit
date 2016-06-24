@@ -64,7 +64,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
 	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
 	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
-	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5";
+	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5.0.0";
+	public final static String		ACTION_CMD_SET_TARGET_V501			= "CDM v5.0.1";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
 	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
 	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Mark Highlighted As Incomplete";
@@ -109,7 +110,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV5));
+		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV501));
 
 		ObjectExchange.etl = etl;
 
@@ -242,6 +243,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		targetCDMV5.addActionListener(this);
 		targetCDMV5.setActionCommand(ACTION_CMD_SET_TARGET_V5);
 		setTarget.add(targetCDMV5);
+		
+		JMenuItem targetCDMV501 = new JMenuItem(ACTION_CMD_SET_TARGET_V501);
+		targetCDMV501.addActionListener(this);
+		targetCDMV501.setActionCommand(ACTION_CMD_SET_TARGET_V501);
+		setTarget.add(targetCDMV501);
 
 		JMenuItem loadTarget = new JMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
 		loadTarget.addActionListener(this);
@@ -387,6 +393,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_CMD_SET_TARGET_V5:
 				doSetTargetCDM(CDMVersion.CDMV5);
+				break;
+			case ACTION_CMD_SET_TARGET_V501:
+				doSetTargetCDM(CDMVersion.CDMV501);
 				break;
 			case ACTION_CMD_SET_TARGET_CUSTOM:
 				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
