@@ -36,7 +36,8 @@ public class Database implements Serializable {
 
 	public enum CDMVersion {
 		CDMV4 ("CDMV4.csv"), 
-		CDMV5 ("CDMV5.csv");
+		CDMV5 ("CDMV5.csv"),
+		CDMV501 ("CDMV5.0.1.csv");
 		
 		private final String fileName;
 		
