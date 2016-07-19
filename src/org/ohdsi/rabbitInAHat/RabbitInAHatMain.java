@@ -73,6 +73,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	public final static String		WIKI_URL							= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat";
 	private final static FileFilter	FILE_FILTER_GZ						= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
+	private final static FileFilter	FILE_FILTER_JSON					= new FileNameExtensionFilter("JSON Files (*.json)", "json");
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
 	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
 	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
@@ -243,7 +244,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		targetCDMV5.addActionListener(this);
 		targetCDMV5.setActionCommand(ACTION_CMD_SET_TARGET_V5);
 		setTarget.add(targetCDMV5);
-		
+
 		JMenuItem targetCDMV501 = new JMenuItem(ACTION_CMD_SET_TARGET_V501);
 		targetCDMV501.addActionListener(this);
 		targetCDMV501.setActionCommand(ACTION_CMD_SET_TARGET_V501);
@@ -322,13 +323,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	 *            restrict files displayed
 	 * @return if file selected, absolute path of selected file otherwise null
 	 */
-	private String choosePath(boolean saveMode, FileFilter filter) {
+	private String choosePath(boolean saveMode, FileFilter... filter) {
 		String result = null;
 
 		if (chooser == null) {
 			chooser = new JFileChooser();
 		}
-		chooser.setFileFilter(filter);
+		chooser.setFileFilter(filter[0]);
+		for (int i = 1; i < filter.length; i++)
+			chooser.addChoosableFileFilter(filter[i]);
 
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
 		if (dialogResult == JFileChooser.APPROVE_OPTION)
@@ -336,17 +339,16 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		return result;
 	}
 
-	private String chooseSavePath(FileFilter fileFilter) {
+	private String chooseSavePath(FileFilter... fileFilter) {
 		String path = choosePath(true, fileFilter);
-		if (path != null && fileFilter == FILE_FILTER_GZ && !path.toLowerCase().endsWith(".json.gz"))
+		if (path != null && fileFilter[0] == FILE_FILTER_GZ && !path.toLowerCase().endsWith(".json.gz") && !path.toLowerCase().endsWith(".json"))
 			path += ".json.gz";
-		if (path != null && fileFilter == FILE_FILTER_DOCX && !path.toLowerCase().endsWith(".docx"))
+		if (path != null && fileFilter[0] == FILE_FILTER_DOCX && !path.toLowerCase().endsWith(".docx"))
 			path += ".docx";
-
 		return path;
 	}
 
-	private String chooseOpenPath(FileFilter fileFilter) {
+	private String chooseOpenPath(FileFilter... fileFilter) {
 		return choosePath(false, fileFilter);
 	}
 
@@ -362,10 +364,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doSave((filename == null || !filename.toLowerCase().endsWith(".json.gz")) ? chooseSavePath(FILE_FILTER_GZ) : filename);
 				break;
 			case ACTION_CMD_SAVE_AS:
-				doSave(chooseSavePath(FILE_FILTER_GZ));
+				doSave(chooseSavePath(FILE_FILTER_GZ, FILE_FILTER_JSON));
 				break;
 			case ACTION_CMD_OPEN_ETL_SPECS:
-				doOpenSpecs(chooseOpenPath(FILE_FILTER_GZ));
+				doOpenSpecs(chooseOpenPath(FILE_FILTER_GZ, FILE_FILTER_JSON));
 				break;
 			case ACTION_CMD_OPEN_SCAN_REPORT:
 				doOpenScanReport(chooseOpenPath());
@@ -494,7 +496,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doSave(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETL.FileFormat fileFormat = filename.endsWith("json.gz") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
+			ETL.FileFormat fileFormat = filename.endsWith("json.gz") ? ETL.FileFormat.GzipJson : filename.endsWith("json") ? ETL.FileFormat.Json
+					: ETL.FileFormat.Binary;
 			ObjectExchange.etl.save(filename, fileFormat);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -503,7 +506,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doOpenSpecs(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETL.FileFormat fileFormat = filename.endsWith(".json.gz") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
+			ETL.FileFormat fileFormat = filename.endsWith(".json.gz") ? ETL.FileFormat.GzipJson : filename.endsWith(".json") ? ETL.FileFormat.Json
+					: ETL.FileFormat.Binary;
 			try {
 				ObjectExchange.etl = ETL.fromFile(filename, fileFormat);
 				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());

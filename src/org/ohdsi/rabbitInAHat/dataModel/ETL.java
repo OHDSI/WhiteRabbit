@@ -36,59 +36,59 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 public class ETL implements Serializable {
 	public enum FileFormat {
-		Binary, Json
+		Binary, Json, GzipJson
 	}
 
 	private Database								sourceDb					= new Database();
-	private Database								cdmDb					= new Database();
+	private Database								cdmDb						= new Database();
 	private List<ItemToItemMap>						tableToTableMaps			= new ArrayList<ItemToItemMap>();
 	private Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<ItemToItemMap, List<ItemToItemMap>>();
 	private transient String						filename					= null;
 	private static final long						serialVersionUID			= 8987388381751618498L;
 
-	public ETL(){		
+	public ETL() {
 	}
-	
-	public ETL(Database sourceDB, Database targetDb){
+
+	public ETL(Database sourceDB, Database targetDb) {
 		this.setSourceDatabase(sourceDB);
 		this.setTargetDatabase(targetDb);
 	}
-	
-	public void copyETLMappings(ETL etl){
+
+	public void copyETLMappings(ETL etl) {
 		Mapping<Table> oldTableMapping = etl.getTableToTableMapping();
-		Mapping<Table> newTableMapping = this.getTableToTableMapping();	
-		
-		for(Table sourceTable : sourceDb.getTables()){
-			for(Table targetTable : cdmDb.getTables()){			
-				
+		Mapping<Table> newTableMapping = this.getTableToTableMapping();
+
+		for (Table sourceTable : sourceDb.getTables()) {
+			for (Table targetTable : cdmDb.getTables()) {
+
 				ItemToItemMap copyMapping = oldTableMapping.getSourceToTargetMapByName(sourceTable, targetTable);
-				
-				if( copyMapping != null ){
+
+				if (copyMapping != null) {
 					copyMapping.setSourceItem(sourceTable);
 					copyMapping.setTargetItem(targetTable);
-					
+
 					newTableMapping.addSourceToTargetMap(copyMapping);
-					
+
 					Mapping<Field> oldFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
 					Mapping<Field> newFieldMapping = this.getFieldToFieldMapping(sourceTable, targetTable);
-					
-					for(Field sourceField : sourceTable.getFields()){
-						for(Field targetField : targetTable.getFields()){	
+
+					for (Field sourceField : sourceTable.getFields()) {
+						for (Field targetField : targetTable.getFields()) {
 							copyMapping = oldFieldMapping.getSourceToTargetMapByName(sourceField, targetField);
-							
-							if(copyMapping != null){
+
+							if (copyMapping != null) {
 								copyMapping.setSourceItem(sourceField);
 								copyMapping.setTargetItem(targetField);
-								
+
 								newFieldMapping.addSourceToTargetMap(copyMapping);
 							}
 						}
 					}
-				}							
+				}
 			}
 		}
 	}
-	
+
 	public void saveCurrentState() {
 
 	}
@@ -125,7 +125,6 @@ public class ETL implements Serializable {
 	public void setSourceDatabase(Database sourceDb) {
 		this.sourceDb = sourceDb;
 	}
-	
 
 	public Database getTargetDatabase() {
 		return cdmDb;
@@ -149,12 +148,19 @@ public class ETL implements Serializable {
 						out.writeObject(this);
 					}
 					break;
-				case Json:
+				case GzipJson:
 					String json = toJson();
 					try (FileOutputStream fileOutputStream = new FileOutputStream(filename);
 							GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream);
 							OutputStreamWriter out = new OutputStreamWriter(gzipOutputStream, "UTF-8")) {
 						out.write(json);
+					}
+					break;
+				case Json:
+					String json2 = toJson();
+					try (FileOutputStream fileOutputStream = new FileOutputStream(filename);
+							OutputStreamWriter out = new OutputStreamWriter(fileOutputStream, "UTF-8")) {
+						out.write(json2);
 					}
 					break;
 			}
@@ -184,10 +190,15 @@ public class ETL implements Serializable {
 						result = (ETL) objectInputStream.readObject();
 					}
 					break;
-				case Json:
+				case GzipJson:
 					try (FileInputStream fileInputStream = new FileInputStream(filename);
 							GZIPInputStream gzipInputStream = new GZIPInputStream(fileInputStream);
 							JsonReader jr = new JsonReader(gzipInputStream)) {
+						result = (ETL) jr.readObject();
+					}
+					break;
+				case Json:
+					try (FileInputStream fileInputStream = new FileInputStream(filename); JsonReader jr = new JsonReader(fileInputStream)) {
 						result = (ETL) jr.readObject();
 					}
 					break;
