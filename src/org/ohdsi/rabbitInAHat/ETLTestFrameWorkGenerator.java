@@ -74,6 +74,7 @@ public class ETLTestFrameWorkGenerator {
 		createExpectFunctions(r, DEFAULT, etl.getTargetDatabase());
 		createExpectFunctions(r, NEGATE, etl.getTargetDatabase());
 		createExpectFunctions(r, COUNT, etl.getTargetDatabase());
+		createLookupFunctions(r, etl.getTargetDatabase());
 		return r;
 	}
 
@@ -107,6 +108,8 @@ public class ETLTestFrameWorkGenerator {
 				testDefs.add("    }");
 				testDefs.add("    if (is.null(" + rFieldName + ")) {");
 				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
+				testDefs.add("    } else if (is(" + rFieldName + ", \"subQuery\")){");
+				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = (\", as.character(" + rFieldName + "), \")\")");
 				testDefs.add("    } else {");
 				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
 				testDefs.add("    }");
@@ -146,6 +149,50 @@ public class ETLTestFrameWorkGenerator {
 
 			r.add("  assign(\"testSql\", c(get(\"testSql\", envir = globalenv()), statement), envir = globalenv())");
 			r.add("  invisible(statement)");
+			r.add("}");
+			r.add("");
+		}
+	}
+	
+	private static void createLookupFunctions(List<String> r, Database database) {
+		for (Table table : database.getTables()) {
+			StringBuilder line = new StringBuilder();
+			String rTableName = convertToRName(table.getName());
+			String sqlTableName = convertToSqlName(table.getName());
+			List<String> argDefs = new ArrayList<String>();
+			List<String> testDefs = new ArrayList<String>();
+			for (Field field : table.getFields()) {
+				String rFieldName = convertToRName(field.getName());
+				String sqlFieldName = convertToSqlName(field.getName());
+				argDefs.add(rFieldName);
+				testDefs.add("  if (!missing(" + rFieldName + ")) {");
+				testDefs.add("    if (first) {");
+				testDefs.add("      first <- FALSE");
+				testDefs.add("    } else {");
+				testDefs.add("      statement <- paste0(statement, \" AND\")");
+				testDefs.add("    }");
+				testDefs.add("    if (is.null(" + rFieldName + ")) {");
+				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
+				testDefs.add("    } else {");
+				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
+				testDefs.add("    }");
+				testDefs.add("  }");
+				testDefs.add("");
+			}
+			line.append("lookup_" + rTableName + " <- function(fetchField, ");
+			line.append(StringUtilities.join(argDefs, ", "));
+			line.append(") {");
+			r.add(line.toString());
+
+			line = new StringBuilder();
+			line.append("  statement <- paste0(\"SELECT \", fetchField , \" FROM ");
+			line.append(sqlTableName);
+			line.append(" WHERE\")");
+			r.add(line.toString());
+			r.add("  first <- TRUE");
+			r.addAll(testDefs);
+			r.add("  class(statement) <- \"subQuery\"");
+			r.add("  return(statement)");
 			r.add("}");
 			r.add("");
 		}
