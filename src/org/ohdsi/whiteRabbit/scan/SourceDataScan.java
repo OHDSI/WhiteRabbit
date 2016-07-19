@@ -47,7 +47,7 @@ import org.ohdsi.whiteRabbit.DbSettings;
 public class SourceDataScan {
 
 	public static int	MAX_VALUES_IN_MEMORY				= 100000;
-	public static int	MAX_VALUES_TO_REPORT				= 25000;
+	// public static int MAX_VALUES_TO_REPORT = 25000;
 	public static int	MIN_CELL_COUNT_FOR_CSV				= 1000000;
 	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
 	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
@@ -56,6 +56,7 @@ public class SourceDataScan {
 	private int			sampleSize;
 	private boolean		scanValues;
 	private int			minCellCount;
+	private int			maxValues;
 	private DbType		dbType;
 	private String		database;
 
@@ -64,12 +65,12 @@ public class SourceDataScan {
 		dbSettings.dataType = DbSettings.DATABASE;
 		dbSettings.dbType = DbType.POSTGRESQL;
 		dbSettings.server = "127.0.0.1/ohdsi";
-		dbSettings.database = "cdm5";
-		dbSettings.tables.add("care_site");
+		dbSettings.database = "ars";
+		dbSettings.tables.add("drugs");
 		dbSettings.user = "postgres";
-		dbSettings.password = "F1r3starter";
+		dbSettings.password = "";
 		SourceDataScan scan = new SourceDataScan();
-		scan.process(dbSettings, 1000000, true, 25, "s:/temp/ScanReport.xlsx");
+		scan.process(dbSettings, 100000, true, 5, 1000, "s:/temp/ScanReport.xlsx");
 
 		// DbSettings dbSettings = new DbSettings();
 		// dbSettings.dataType = DbSettings.DATABASE;
@@ -115,10 +116,11 @@ public class SourceDataScan {
 		// scan.process(dbSettings, 100000, false, 25, "c:/temp/ScanReport.xlsx");
 	}
 
-	public void process(DbSettings dbSettings, int sampleSize, boolean scanValues, int minCellCount, String filename) {
+	public void process(DbSettings dbSettings, int sampleSize, boolean scanValues, int minCellCount, int maxValues, String filename) {
 		this.sampleSize = sampleSize;
 		this.scanValues = scanValues;
 		this.minCellCount = minCellCount;
+		this.maxValues = maxValues;
 		Map<String, List<FieldInfo>> tableToFieldInfos;
 		if (dbSettings.dataType == DbSettings.CSVFILES) {
 			if (!scanValues)
@@ -254,8 +256,7 @@ public class SourceDataScan {
 		if (scanValues) {
 			int actualCount = 0;
 			QueryResult queryResult = null;
-			try
-			{				
+			try {
 				queryResult = fetchRowsFromTable(connection, table, rowCount);
 				for (org.ohdsi.utilities.files.Row row : queryResult) {
 					for (int i = 0; i < fieldInfos.size(); i++)
@@ -271,7 +272,9 @@ public class SourceDataScan {
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
 			} finally {
-				if (queryResult != null) { queryResult.close(); }
+				if (queryResult != null) {
+					queryResult.close();
+				}
 			}
 		}
 
@@ -308,11 +311,11 @@ public class SourceDataScan {
 
 	private List<FieldInfo> fetchTableStructure(RichConnection connection, String table) {
 		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
-		
-		if (dbType == DbType.MSACCESS){
+
+		if (dbType == DbType.MSACCESS) {
 			ResultSet rs = connection.getMsAccessFieldNames(table);
 			try {
-				while (rs.next()){
+				while (rs.next()) {
 					FieldInfo fieldInfo = new FieldInfo(rs.getString("COLUMN_NAME"));
 					fieldInfo.type = rs.getString("TYPE_NAME");
 					fieldInfo.rowCount = connection.getTableSize(table);
@@ -321,7 +324,7 @@ public class SourceDataScan {
 			} catch (SQLException e) {
 				throw new RuntimeException(e.getMessage());
 			}
-		}else{
+		} else {
 			String query = null;
 			if (dbType == DbType.ORACLE)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
@@ -332,11 +335,12 @@ public class SourceDataScan {
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_NAME='" + table
 						+ "';";
 			} else if (dbType == DbType.MYSQL)
-				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table + "';";
+				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table
+						+ "';";
 			else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
 						+ table.toLowerCase() + "' ORDER BY ordinal_position;";
-	
+
 			for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
 				row.upperCaseFieldNames();
 				FieldInfo fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
@@ -401,8 +405,8 @@ public class SourceDataScan {
 		}
 
 		public void trim() {
-			if (valueCounts.size() > MAX_VALUES_TO_REPORT)
-				valueCounts.keepTopN(MAX_VALUES_TO_REPORT);
+			if (valueCounts.size() > maxValues)
+				valueCounts.keepTopN(maxValues);
 		}
 
 		public Double getFractionEmpty() {
@@ -470,7 +474,7 @@ public class SourceDataScan {
 
 			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
 				tooManyValues = true;
-				valueCounts.keepTopN(MAX_VALUES_TO_REPORT);
+				valueCounts.keepTopN(maxValues);
 			}
 		}
 
@@ -483,7 +487,7 @@ public class SourceDataScan {
 					truncated = true;
 				else {
 					result.add(new Pair<String, Integer>(entry.getKey(), entry.getValue().count));
-					if (result.size() > MAX_VALUES_TO_REPORT) {
+					if (result.size() > maxValues) {
 						truncated = true;
 						break;
 					}

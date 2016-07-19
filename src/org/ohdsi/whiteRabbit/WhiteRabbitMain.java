@@ -89,6 +89,7 @@ public class WhiteRabbitMain implements ActionListener {
 	private JTextField			scanReportFileField;
 
 	private JComboBox			scanRowCount;
+	private JComboBox			scanValuesCount;
 	private JCheckBox			scanValueScan;
 	private JSpinner			scanMinCellCount;
 	private JSpinner			generateRowCount;
@@ -334,6 +335,7 @@ public class WhiteRabbitMain implements ActionListener {
 			public void stateChanged(ChangeEvent arg0) {
 				scanMinCellCount.setEnabled(((JCheckBox) arg0.getSource()).isSelected());
 				scanRowCount.setEnabled(((JCheckBox) arg0.getSource()).isSelected());
+				scanValuesCount.setEnabled(((JCheckBox) arg0.getSource()).isSelected());
 			}
 		});
 		scanOptionsPanel.add(scanValueScan);
@@ -341,14 +343,21 @@ public class WhiteRabbitMain implements ActionListener {
 
 		scanOptionsPanel.add(new JLabel("Min cell count "));
 		scanMinCellCount = new JSpinner();
-		scanMinCellCount.setValue(25);
+		scanMinCellCount.setValue(5);
 		scanMinCellCount.setToolTipText("Minimum frequency for a field value to be included in the report");
 		scanOptionsPanel.add(scanMinCellCount);
 		scanOptionsPanel.add(Box.createHorizontalGlue());
 
+		scanOptionsPanel.add(new JLabel("Max distinct values "));
+		scanValuesCount = new JComboBox(new String[] { "100", "1,000", "10,000" });
+		scanValuesCount.setSelectedIndex(1);
+		scanValuesCount.setToolTipText("Maximum number of distinct values per field to be reported");
+		scanOptionsPanel.add(scanValuesCount);
+		scanOptionsPanel.add(Box.createHorizontalGlue());
+
 		scanOptionsPanel.add(new JLabel("Rows per table "));
 		scanRowCount = new JComboBox(new String[] { "100,000", "500,000", "1 million", "all" });
-		scanRowCount.setSelectedIndex(2);
+		scanRowCount.setSelectedIndex(0);
 		scanRowCount.setToolTipText("Maximum number of rows per table to be scanned for field values");
 		scanOptionsPanel.add(scanRowCount);
 
@@ -705,7 +714,7 @@ public class WhiteRabbitMain implements ActionListener {
 						dbSettings.domain = parts[0];
 					}
 				}
-			}else if (sourceType.getSelectedItem().toString().equals("MS Access"))
+			} else if (sourceType.getSelectedItem().toString().equals("MS Access"))
 				dbSettings.dbType = DbType.MSACCESS;
 		}
 		return dbSettings;
@@ -828,7 +837,15 @@ public class WhiteRabbitMain implements ActionListener {
 		if (scanRowCount.getSelectedItem().toString().equals("all"))
 			rowCount = -1;
 
-		ScanThread scanThread = new ScanThread(rowCount, scanValueScan.isSelected(), Integer.parseInt(scanMinCellCount.getValue().toString()));
+		int valuesCount = 0;
+		if (scanValuesCount.getSelectedItem().toString().equals("100"))
+			valuesCount = 100;
+		else if (scanValuesCount.getSelectedItem().toString().equals("1,000"))
+			valuesCount = 1000;
+		else if (scanValuesCount.getSelectedItem().toString().equals("10,000"))
+			valuesCount = 10000;
+
+		ScanThread scanThread = new ScanThread(rowCount, valuesCount, scanValueScan.isSelected(), Integer.parseInt(scanMinCellCount.getValue().toString()));
 		scanThread.start();
 	}
 
@@ -846,13 +863,15 @@ public class WhiteRabbitMain implements ActionListener {
 	private class ScanThread extends Thread {
 
 		private int		maxRows;
+		private int		maxValues;
 		private boolean	scanValues;
 		private int		minCellCount;
 
-		public ScanThread(int maxRows, boolean scanValues, int minCellCount) {
+		public ScanThread(int maxRows, int maxValues, boolean scanValues, int minCellCount) {
 			this.maxRows = maxRows;
 			this.scanValues = scanValues;
 			this.minCellCount = minCellCount;
+			this.maxValues = maxValues;
 		}
 
 		public void run() {
@@ -867,7 +886,7 @@ public class WhiteRabbitMain implements ActionListener {
 							table = folderField.getText() + "/" + table;
 						dbSettings.tables.add(table);
 					}
-					sourceDataScan.process(dbSettings, maxRows, scanValues, minCellCount, folderField.getText() + "/ScanReport.xlsx");
+					sourceDataScan.process(dbSettings, maxRows, scanValues, minCellCount, maxValues, folderField.getText() + "/ScanReport.xlsx");
 				}
 			} catch (Exception e) {
 				handleError(e);
