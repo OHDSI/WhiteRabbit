@@ -121,6 +121,8 @@ public class DBConnector {
 	public static Connection connectToPostgreSQL(String server, String user, String password) {
 		if (!server.contains("/"))
 			throw new RuntimeException("For PostgreSQL, database name must be specified in the server field (<host>/<database>)");
+		if (!server.contains(":"))
+			server = server.replace("/", ":5432/");
 		try {
 			Class.forName("org.postgresql.Driver");
 		} catch (ClassNotFoundException e1) {
