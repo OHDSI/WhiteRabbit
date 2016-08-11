@@ -148,11 +148,11 @@ public class ETLPackageTestFrameWorkGenerator {
 			r.add("  }");
 			r.add("");
 			line = new StringBuilder();
-			line.append("  statement <- paste0(\"INSERT INTO test_results SELECT ");
+			line.append("  statement <- paste0(\"INSERT INTO @cdm_schema.test_results SELECT ");
 			line.append("\", frameworkContext$testId, \" AS id, ");
 			line.append("'\", testName, \"' AS description, ");
 			line.append("'Expect " + table.getName() + "' AS test, ");
-			line.append("CASE WHEN(SELECT COUNT(*) FROM " + sqlTableName + " WHERE \")");
+			line.append("CASE WHEN(SELECT COUNT(*) FROM @cdm_schema." + sqlTableName + " WHERE \")");
 			r.add(line.toString());
 
 			r.add("  whereClauses = NULL;");
@@ -202,7 +202,7 @@ public class ETLPackageTestFrameWorkGenerator {
 
 			r.add("  whereClauses = NULL;");
 			line = new StringBuilder();
-			line.append("  statement <- paste0(\"SELECT \", fetchField , \" FROM ");
+			line.append("  statement <- paste0(\"SELECT \", fetchField , \" FROM @cdm_schema.");
 			line.append(sqlTableName);
 			line.append(" WHERE \")");
 			r.add(line.toString());
@@ -228,15 +228,15 @@ public class ETLPackageTestFrameWorkGenerator {
 	  r.add("  insertSql <- c()");
 		for (Table table : database.getTables()) {
 			String sqlTableName = convertToSqlName(table.getName());
-			r.add("  insertSql <- c(insertSql, \"TRUNCATE TABLE " + sqlTableName + ";\")");
+			r.add("  insertSql <- c(insertSql, \"TRUNCATE TABLE @cdm_schema." + sqlTableName + ";\")");
 		}
 		r.add("  frameworkContext$insertSql <- insertSql;");
 
 		r.add("  testSql <- c()");
-		r.add("  testSql <- c(testSql, \"IF OBJECT_ID('test_results', 'U') IS NOT NULL\")");
-		r.add("  testSql <- c(testSql, \"  DROP TABLE test_results;\")");
+		r.add("  testSql <- c(testSql, \"IF OBJECT_ID('@cdm_schema.test_results', 'U') IS NOT NULL\")");
+		r.add("  testSql <- c(testSql, \"  DROP TABLE @cdm_schema.test_results;\")");
 		r.add("  testSql <- c(testSql, \"\")");
-		r.add("  testSql <- c(testSql, \"CREATE TABLE test_results (id INT, description VARCHAR(512), test VARCHAR(256), status VARCHAR(5));\")");
+		r.add("  testSql <- c(testSql, \"CREATE TABLE @cdm_schema.test_results (id INT, description VARCHAR(512), test VARCHAR(256), status VARCHAR(5));\")");
 		r.add("  testSql <- c(testSql, \"\")");
 
 		r.add("  frameworkContext$testSql <- testSql;");
@@ -251,7 +251,7 @@ public class ETLPackageTestFrameWorkGenerator {
 			for (Field field : table.getFields()) {
 				String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
 				String defaultValue;
-				if (field.getValueCounts().length == 0)
+				if (field.getValueCounts().length == 0 || field.getValueCounts()[0][0].equalsIgnoreCase("List truncated..."))
 					defaultValue = "";
 				else
 					defaultValue = field.getValueCounts()[0][0];
@@ -295,7 +295,7 @@ public class ETLPackageTestFrameWorkGenerator {
 			r.addAll(insertLines);
 
 			line = new StringBuilder();
-			line.append("  statement <- paste0(\"INSERT INTO " + sqlTableName + " (\", ");
+			line.append("  statement <- paste0(\"INSERT INTO @source_schema." + sqlTableName + " (\", ");
 			line.append("paste(insertFields, collapse = \", \"), ");
 			line.append("\") VALUES ('\", ");
 			line.append("paste(insertValues, collapse = \"', '\"), ");
