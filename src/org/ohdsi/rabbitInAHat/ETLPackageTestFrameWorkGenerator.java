@@ -91,17 +91,19 @@ public class ETLPackageTestFrameWorkGenerator {
 		r.add("  frameworkContext$testSql = c(frameworkContext$testSql, sql);");
 		r.add("}");
 		r.add("");
-		r.add("declareTest <- function(description) {");
+		r.add("declareTest <- function(description, source_pid = NULL, cdm_pid = NULL) {");
 		r.add("  frameworkContext$testId = frameworkContext$testId + 1;");
 		r.add("  frameworkContext$testDescription = description;");
+		r.add("  frameworkContext$patient$source_pid = source_pid;");
+		r.add("  frameworkContext$patient$cdm_pid = cdm_pid;");
 		r.add("  if (is.null(frameworkContext$currentGroup)) {  ");
 		r.add("    sql <- c(paste0(\"-- Test \", frameworkContext$testId, \": \", frameworkContext$testDescription));");
 		r.add("  } else {");
 		r.add("    frameworkContext$currentGroup$groupItemIndex = frameworkContext$currentGroup$groupItemIndex + 1;");
 		r.add("    sql <- c(paste0(\"-- \", frameworkContext$groupIndex, \".\", frameworkContext$currentGroup$groupItemIndex, \" \", frameworkContext$testDescription, \" [Test ID: \", frameworkContext$testId, \"]\"));");
 		r.add("  }");
-		r.add("  frameworkContext$insertSql = c(\"\", frameworkContext$insertSql, \"--\",sql,\"--\");");
-		r.add("  frameworkContext$testSql = c(\"\", frameworkContext$testSql, \"--\",sql,\"--\");");
+		r.add("  frameworkContext$insertSql = c(frameworkContext$insertSql, \"--\",sql,\"--\");");
+		r.add("  frameworkContext$testSql = c(frameworkContext$testSql, \"--\",sql,\"--\");");
 		r.add("}");
 		r.add("");
 	}
@@ -147,11 +149,25 @@ public class ETLPackageTestFrameWorkGenerator {
 			r.add("    testName <- paste0(frameworkContext$groupIndex, \".\", frameworkContext$currentGroup$groupItemIndex, \" \", frameworkContext$testDescription);");
 			r.add("  }");
 			r.add("");
+			r.add("  source_pid <- frameworkContext$patient$source_pid;");
+			r.add("  if (is.null(source_pid)) {");
+			r.add("    source_pid <- \"NULL\";");
+			r.add("  } else {");
+			r.add("    source_pid <- paste0(\"'\", as.character(source_pid), \"'\");");
+			r.add("  }");
+			r.add("");
+			r.add("  cdm_pid <- frameworkContext$patient$cdm_pid;");
+			r.add("  if (is.null(cdm_pid)) {");
+			r.add("    cdm_pid <- \"NULL\"");
+			r.add("  }");
+			r.add("");
 			line = new StringBuilder();
-			line.append("  statement <- paste0(\"INSERT INTO @cdm_schema.test_results SELECT ");
+			line.append("  statement <- paste0(\"INSERT INTO @cdm_schema.test_results (id, description, test, source_pid, cdm_pid, status) SELECT ");
 			line.append("\", frameworkContext$testId, \" AS id, ");
 			line.append("'\", testName, \"' AS description, ");
 			line.append("'Expect " + table.getName() + "' AS test, ");
+			line.append("\", source_pid, \" as source_pid, ");
+			line.append("\", cdm_pid, \" as cdm_pid, ");
 			line.append("CASE WHEN(SELECT COUNT(*) FROM @cdm_schema." + sqlTableName + " WHERE \")");
 			r.add(line.toString());
 
@@ -236,12 +252,17 @@ public class ETLPackageTestFrameWorkGenerator {
 		r.add("  testSql <- c(testSql, \"IF OBJECT_ID('@cdm_schema.test_results', 'U') IS NOT NULL\")");
 		r.add("  testSql <- c(testSql, \"  DROP TABLE @cdm_schema.test_results;\")");
 		r.add("  testSql <- c(testSql, \"\")");
-		r.add("  testSql <- c(testSql, \"CREATE TABLE @cdm_schema.test_results (id INT, description VARCHAR(512), test VARCHAR(256), status VARCHAR(5));\")");
+		r.add("  testSql <- c(testSql, \"CREATE TABLE @cdm_schema.test_results (id INT, description VARCHAR(512), test VARCHAR(256), source_pid VARCHAR(50), cdm_pid int, status VARCHAR(5));\")");
 		r.add("  testSql <- c(testSql, \"\")");
 
 		r.add("  frameworkContext$testSql <- testSql;");
 		r.add("  frameworkContext$testId = 0;");
 		r.add("  frameworkContext$testDescription = \"\";");
+		r.add("");
+		r.add("  patient <- {}");
+		r.add("  patient$source_pid <- NULL");
+		r.add("  patient$cdm_pid <- NULL");
+		r.add("  frameworkContext$patient = patient;");
 		r.add("");
 		r.add("  frameworkContext$defaultValues =new.env(parent = emptyenv());");
 		for (Table table : database.getTables()) {
