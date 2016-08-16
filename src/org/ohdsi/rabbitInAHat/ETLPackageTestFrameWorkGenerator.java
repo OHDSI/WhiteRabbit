@@ -368,6 +368,9 @@ public class ETLPackageTestFrameWorkGenerator {
 	}
 
 	private static String convertToRName(String name) {
+		if (name.startsWith("_") )
+			name = "U_" + name.substring(1);
+		
 		name = name.replaceAll(" ", "_").replaceAll("-", "_");
 		return name;
 	}
