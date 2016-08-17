@@ -48,10 +48,9 @@ public class ETLTestFrameWorkGenerator {
 		"WITH", "WITHIN GROUP", "WRITETEXT" };
 
 	private static Set<String>	keywordSet;
-	private static int DEFAULT = 0;
-	private static int NEGATE = 1;
-	private static int COUNT = 2;
-			
+	private static int			DEFAULT		= 0;
+	private static int			NEGATE		= 1;
+	private static int			COUNT		= 2;
 
 	public static void generate(ETL etl, String filename) {
 		keywordSet = new HashSet<String>();
@@ -91,110 +90,114 @@ public class ETLTestFrameWorkGenerator {
 
 	private static void createExpectFunctions(List<String> r, int type, Database database) {
 		for (Table table : database.getTables()) {
-			StringBuilder line = new StringBuilder();
-			String rTableName = convertToRName(table.getName());
-			String sqlTableName = convertToSqlName(table.getName());
-			List<String> argDefs = new ArrayList<String>();
-			List<String> testDefs = new ArrayList<String>();
-			for (Field field : table.getFields()) {
-				String rFieldName = convertToRName(field.getName());
-				String sqlFieldName = convertToSqlName(field.getName());
-				argDefs.add(rFieldName);
-				testDefs.add("  if (!missing(" + rFieldName + ")) {");
-				testDefs.add("    if (first) {");
-				testDefs.add("      first <- FALSE");
-				testDefs.add("    } else {");
-				testDefs.add("      statement <- paste0(statement, \" AND\")");
-				testDefs.add("    }");
-				testDefs.add("    if (is.null(" + rFieldName + ")) {");
-				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
-				testDefs.add("    } else if (is(" + rFieldName + ", \"subQuery\")){");
-				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = (\", as.character(" + rFieldName + "), \")\")");
-				testDefs.add("    } else {");
-				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
-				testDefs.add("    }");
-				testDefs.add("  }");
-				testDefs.add("");
+			if (!table.isStem()) {
+				StringBuilder line = new StringBuilder();
+				String rTableName = convertToRName(table.getName());
+				String sqlTableName = convertToSqlName(table.getName());
+				List<String> argDefs = new ArrayList<String>();
+				List<String> testDefs = new ArrayList<String>();
+				for (Field field : table.getFields()) {
+					String rFieldName = convertToRName(field.getName());
+					String sqlFieldName = convertToSqlName(field.getName());
+					argDefs.add(rFieldName);
+					testDefs.add("  if (!missing(" + rFieldName + ")) {");
+					testDefs.add("    if (first) {");
+					testDefs.add("      first <- FALSE");
+					testDefs.add("    } else {");
+					testDefs.add("      statement <- paste0(statement, \" AND\")");
+					testDefs.add("    }");
+					testDefs.add("    if (is.null(" + rFieldName + ")) {");
+					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
+					testDefs.add("    } else if (is(" + rFieldName + ", \"subQuery\")){");
+					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = (\", as.character(" + rFieldName + "), \")\")");
+					testDefs.add("    } else {");
+					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
+					testDefs.add("    }");
+					testDefs.add("  }");
+					testDefs.add("");
+				}
+
+				if (type == DEFAULT)
+					line.append("expect_" + rTableName + " <- function(");
+				else if (type == NEGATE)
+					line.append("expect_no_" + rTableName + " <- function(");
+				else
+					line.append("expect_count_" + rTableName + " <- function(rowCount, ");
+
+				line.append(StringUtilities.join(argDefs, ", "));
+				line.append(") {");
+				r.add(line.toString());
+
+				line = new StringBuilder();
+				line.append("  statement <- paste0(\"INSERT INTO test_results SELECT ");
+				line.append("\", get(\"testId\", envir = globalenv()), \" AS id, ");
+				line.append("'\", get(\"testDescription\", envir = globalenv()), \"' AS description, ");
+				line.append("'Expect " + table.getName() + "' AS test, ");
+				line.append("CASE WHEN(SELECT COUNT(*) FROM " + sqlTableName + " WHERE\")");
+				r.add(line.toString());
+
+				r.add("  first <- TRUE");
+
+				r.addAll(testDefs);
+
+				if (type == DEFAULT)
+					r.add("  statement <- paste0(statement, \") = 0 THEN 'FAIL' ELSE 'PASS' END AS status;\")");
+				else if (type == NEGATE)
+					r.add("  statement <- paste0(statement, \") != 0 THEN 'FAIL' ELSE 'PASS' END AS status;\")");
+				else
+					r.add("  statement <- paste0(statement, \") != \",rowCount ,\" THEN 'FAIL' ELSE 'PASS' END AS status;\")");
+
+				r.add("  assign(\"testSql\", c(get(\"testSql\", envir = globalenv()), statement), envir = globalenv())");
+				r.add("  invisible(statement)");
+				r.add("}");
+				r.add("");
 			}
-
-			if (type == DEFAULT) 
-				line.append("expect_" + rTableName + " <- function(");
-			else if (type == NEGATE)
-				line.append("expect_no_" + rTableName + " <- function(");
-			else
-				line.append("expect_count_" + rTableName + " <- function(rowCount, ");
-
-			line.append(StringUtilities.join(argDefs, ", "));
-			line.append(") {");
-			r.add(line.toString());
-
-			line = new StringBuilder();
-			line.append("  statement <- paste0(\"INSERT INTO test_results SELECT ");
-			line.append("\", get(\"testId\", envir = globalenv()), \" AS id, ");
-			line.append("'\", get(\"testDescription\", envir = globalenv()), \"' AS description, ");
-			line.append("'Expect " + table.getName() + "' AS test, ");
-			line.append("CASE WHEN(SELECT COUNT(*) FROM " + sqlTableName + " WHERE\")");
-			r.add(line.toString());
-
-			r.add("  first <- TRUE");
-
-			r.addAll(testDefs);
-
-			if (type == DEFAULT) 
-				r.add("  statement <- paste0(statement, \") = 0 THEN 'FAIL' ELSE 'PASS' END AS status;\")");
-			else if (type == NEGATE)
-				r.add("  statement <- paste0(statement, \") != 0 THEN 'FAIL' ELSE 'PASS' END AS status;\")");
-			else
-				r.add("  statement <- paste0(statement, \") != \",rowCount ,\" THEN 'FAIL' ELSE 'PASS' END AS status;\")");
-
-			r.add("  assign(\"testSql\", c(get(\"testSql\", envir = globalenv()), statement), envir = globalenv())");
-			r.add("  invisible(statement)");
-			r.add("}");
-			r.add("");
 		}
 	}
-	
+
 	private static void createLookupFunctions(List<String> r, Database database) {
 		for (Table table : database.getTables()) {
-			StringBuilder line = new StringBuilder();
-			String rTableName = convertToRName(table.getName());
-			String sqlTableName = convertToSqlName(table.getName());
-			List<String> argDefs = new ArrayList<String>();
-			List<String> testDefs = new ArrayList<String>();
-			for (Field field : table.getFields()) {
-				String rFieldName = convertToRName(field.getName());
-				String sqlFieldName = convertToSqlName(field.getName());
-				argDefs.add(rFieldName);
-				testDefs.add("  if (!missing(" + rFieldName + ")) {");
-				testDefs.add("    if (first) {");
-				testDefs.add("      first <- FALSE");
-				testDefs.add("    } else {");
-				testDefs.add("      statement <- paste0(statement, \" AND\")");
-				testDefs.add("    }");
-				testDefs.add("    if (is.null(" + rFieldName + ")) {");
-				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
-				testDefs.add("    } else {");
-				testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
-				testDefs.add("    }");
-				testDefs.add("  }");
-				testDefs.add("");
-			}
-			line.append("lookup_" + rTableName + " <- function(fetchField, ");
-			line.append(StringUtilities.join(argDefs, ", "));
-			line.append(") {");
-			r.add(line.toString());
+			if (!table.isStem()) {
+				StringBuilder line = new StringBuilder();
+				String rTableName = convertToRName(table.getName());
+				String sqlTableName = convertToSqlName(table.getName());
+				List<String> argDefs = new ArrayList<String>();
+				List<String> testDefs = new ArrayList<String>();
+				for (Field field : table.getFields()) {
+					String rFieldName = convertToRName(field.getName());
+					String sqlFieldName = convertToSqlName(field.getName());
+					argDefs.add(rFieldName);
+					testDefs.add("  if (!missing(" + rFieldName + ")) {");
+					testDefs.add("    if (first) {");
+					testDefs.add("      first <- FALSE");
+					testDefs.add("    } else {");
+					testDefs.add("      statement <- paste0(statement, \" AND\")");
+					testDefs.add("    }");
+					testDefs.add("    if (is.null(" + rFieldName + ")) {");
+					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
+					testDefs.add("    } else {");
+					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
+					testDefs.add("    }");
+					testDefs.add("  }");
+					testDefs.add("");
+				}
+				line.append("lookup_" + rTableName + " <- function(fetchField, ");
+				line.append(StringUtilities.join(argDefs, ", "));
+				line.append(") {");
+				r.add(line.toString());
 
-			line = new StringBuilder();
-			line.append("  statement <- paste0(\"SELECT \", fetchField , \" FROM ");
-			line.append(sqlTableName);
-			line.append(" WHERE\")");
-			r.add(line.toString());
-			r.add("  first <- TRUE");
-			r.addAll(testDefs);
-			r.add("  class(statement) <- \"subQuery\"");
-			r.add("  return(statement)");
-			r.add("}");
-			r.add("");
+				line = new StringBuilder();
+				line.append("  statement <- paste0(\"SELECT \", fetchField , \" FROM ");
+				line.append(sqlTableName);
+				line.append(" WHERE\")");
+				r.add(line.toString());
+				r.add("  first <- TRUE");
+				r.addAll(testDefs);
+				r.add("  class(statement) <- \"subQuery\"");
+				r.add("  return(statement)");
+				r.add("}");
+				r.add("");
+			}
 		}
 	}
 
@@ -227,20 +230,22 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  defaultValues <- new.env(parent = globalenv())");
 		r.add("  assign(\"defaultValues\", defaultValues, envir = globalenv())");
 		for (Table table : database.getTables()) {
-			String rTableName = convertToRName(table.getName());
-			r.add("");
-			r.add("  defaults <- list()");
-			for (Field field : table.getFields()) {
-				String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
-				String defaultValue;
-				if (field.getValueCounts().length == 0)
-					defaultValue = "";
-				else
-					defaultValue = field.getValueCounts()[0][0];
-				if (!defaultValue.equals(""))
-					r.add("  defaults$" + rFieldName + " <- \"" + defaultValue + "\"");
+			if (!table.isStem()) {
+				String rTableName = convertToRName(table.getName());
+				r.add("");
+				r.add("  defaults <- list()");
+				for (Field field : table.getFields()) {
+					String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+					String defaultValue;
+					if (field.getValueCounts().length == 0)
+						defaultValue = "";
+					else
+						defaultValue = field.getValueCounts()[0][0];
+					if (!defaultValue.equals(""))
+						r.add("  defaults$" + rFieldName + " <- \"" + defaultValue + "\"");
+				}
+				r.add("  assign(\"" + rTableName + "\", defaults, envir = defaultValues)");
 			}
-			r.add("  assign(\"" + rTableName + "\", defaults, envir = defaultValues)");
 		}
 		r.add("}");
 		r.add("");
@@ -250,79 +255,82 @@ public class ETLTestFrameWorkGenerator {
 
 	private static void createAddFunctions(List<String> r, Database database) {
 		for (Table table : database.getTables()) {
-			StringBuilder line = new StringBuilder();
-			String rTableName = convertToRName(table.getName());
-			String sqlTableName = convertToSqlName(table.getName());
-			List<String> argDefs = new ArrayList<String>();
-			List<String> insertLines = new ArrayList<String>();
-			for (Field field : table.getFields()) {
-				String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
-				String sqlFieldName = convertToSqlName(field.getName());
-				argDefs.add(rFieldName);
-				insertLines.add("  if (missing(" + rFieldName + ")) {");
-				insertLines.add("    " + rFieldName + " <- defaults$" + rFieldName);
-				insertLines.add("  }");
-				insertLines.add("  if (!is.null(" + rFieldName + ")) {");
-				insertLines.add("    insertFields <- c(insertFields, \"" + sqlFieldName + "\")");
-				insertLines.add("    insertValues <- c(insertValues, " + rFieldName + ")");
-				insertLines.add("  }");
-				insertLines.add("");
+			if (!table.isStem()) {
+				StringBuilder line = new StringBuilder();
+				String rTableName = convertToRName(table.getName());
+				String sqlTableName = convertToSqlName(table.getName());
+				List<String> argDefs = new ArrayList<String>();
+				List<String> insertLines = new ArrayList<String>();
+				for (Field field : table.getFields()) {
+					String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+					String sqlFieldName = convertToSqlName(field.getName());
+					argDefs.add(rFieldName);
+					insertLines.add("  if (missing(" + rFieldName + ")) {");
+					insertLines.add("    " + rFieldName + " <- defaults$" + rFieldName);
+					insertLines.add("  }");
+					insertLines.add("  if (!is.null(" + rFieldName + ")) {");
+					insertLines.add("    insertFields <- c(insertFields, \"" + sqlFieldName + "\")");
+					insertLines.add("    insertValues <- c(insertValues, " + rFieldName + ")");
+					insertLines.add("  }");
+					insertLines.add("");
+				}
+
+
+				line.append("add_" + rTableName + " <- function(");
+				line.append(StringUtilities.join(argDefs, ", "));
+				line.append(") {");
+				r.add(line.toString());
+				r.add("  defaults <- get(\"" + rTableName + "\", envir = defaultValues)");
+				r.add("  insertFields <- c()");
+				r.add("  insertValues <- c()");
+				r.addAll(insertLines);
+
+				line = new StringBuilder();
+				line.append("  statement <- paste0(\"INSERT INTO " + sqlTableName + " (\", ");
+				line.append("paste(insertFields, collapse = \", \"), ");
+				line.append("\") VALUES ('\", ");
+				line.append("paste(insertValues, collapse = \"', '\"), ");
+				line.append("\"');\")");
+				r.add(line.toString());
+
+				r.add("  assign(\"insertSql\", c(get(\"insertSql\", envir = globalenv()), statement), envir = globalenv())");
+				r.add("  invisible(statement)");
+				r.add("}");
+				r.add("");
 			}
-
-			line.append("add_" + rTableName + " <- function(");
-			line.append(StringUtilities.join(argDefs, ", "));
-			line.append(") {");
-			r.add(line.toString());
-			r.add("  defaults <- get(\"" + rTableName + "\", envir = defaultValues)");
-			r.add("  insertFields <- c()");
-			r.add("  insertValues <- c()");
-			r.addAll(insertLines);
-
-			line = new StringBuilder();
-			line.append("  statement <- paste0(\"INSERT INTO " + sqlTableName + " (\", ");
-			line.append("paste(insertFields, collapse = \", \"), ");
-			line.append("\") VALUES ('\", ");
-			line.append("paste(insertValues, collapse = \"', '\"), ");
-			line.append("\"');\")");
-			r.add(line.toString());
-
-			r.add("  assign(\"insertSql\", c(get(\"insertSql\", envir = globalenv()), statement), envir = globalenv())");
-			r.add("  invisible(statement)");
-			r.add("}");
-			r.add("");
 		}
 	}
-	
+
 	private static void createSetDefaultFunctions(List<String> r, Database database) {
 		for (Table table : database.getTables()) {
-			StringBuilder line = new StringBuilder();
-			String rTableName = convertToRName(table.getName());
-			List<String> argDefs = new ArrayList<String>();
-			List<String> insertLines = new ArrayList<String>();
-			for (Field field : table.getFields()) {
-				String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
-				argDefs.add(rFieldName);
-				insertLines.add("  if (!missing(" + rFieldName + ")) {");
-				insertLines.add("    defaults$" + rFieldName + " <- " + rFieldName);
-				insertLines.add("  }");
+			if (!table.isStem()) {
+				StringBuilder line = new StringBuilder();
+				String rTableName = convertToRName(table.getName());
+				List<String> argDefs = new ArrayList<String>();
+				List<String> insertLines = new ArrayList<String>();
+				for (Field field : table.getFields()) {
+					String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+					argDefs.add(rFieldName);
+					insertLines.add("  if (!missing(" + rFieldName + ")) {");
+					insertLines.add("    defaults$" + rFieldName + " <- " + rFieldName);
+					insertLines.add("  }");
+				}
+
+				line.append("set_defaults_" + rTableName + " <- function(");
+				line.append(StringUtilities.join(argDefs, ", "));
+				line.append(") {");
+				r.add(line.toString());
+				r.add("  defaults <- get(\"" + rTableName + "\", envir = defaultValues)");
+				r.addAll(insertLines);
+
+				r.add("  assign(\"" + rTableName + "\", defaults, envir = defaultValues)");
+				r.add("  invisible(defaults)");
+				r.add("}");
+				r.add("");
 			}
-
-			line.append("set_defaults_" + rTableName + " <- function(");
-			line.append(StringUtilities.join(argDefs, ", "));
-			line.append(") {");
-			r.add(line.toString());
-			r.add("  defaults <- get(\"" + rTableName + "\", envir = defaultValues)");
-			r.addAll(insertLines);
-
-
-
-			r.add("  assign(\"" + rTableName + "\", defaults, envir = defaultValues)");
-			r.add("  invisible(defaults)");
-			r.add("}");
-			r.add("");
 		}
 	}
-	
+
 	private static void createGetDefaultFunctions(List<String> r, Database database) {
 		for (Table table : database.getTables()) {
 			String rTableName = convertToRName(table.getName());

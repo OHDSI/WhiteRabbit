@@ -35,61 +35,66 @@ import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 public class Database implements Serializable {
 
 	public enum CDMVersion {
-		CDMV4 ("CDMV4.csv"), 
-		CDMV5 ("CDMV5.csv"),
-		CDMV501 ("CDMV5.0.1.csv");
-		
-		private final String fileName;
-		
-		CDMVersion(String fileName){
+		CDMV4("CDMV4.csv"), CDMV5("CDMV5.csv"), CDMV501("CDMV5.0.1.csv");
+
+		private final String	fileName;
+
+		CDMVersion(String fileName) {
 			this.fileName = fileName;
 		}
 	}
-	
+
 	private List<Table>			tables				= new ArrayList<Table>();
 	private static final long	serialVersionUID	= -3912166654601191039L;
-	private String				dbName				= "";				
+	private String				dbName				= "";
 
 	public List<Table> getTables() {
 		return tables;
+	}
+
+	public Table getTableByName(String name) {
+		for (Table table : tables)
+			if (table.getName().toLowerCase().equals(name.toLowerCase()))
+				return table;
+		return null;
 	}
 
 	public void setTables(List<Table> tables) {
 		this.tables = tables;
 	}
 
-	public String getDbName(){
+	public String getDbName() {
 		return dbName;
 	}
 
 	public static Database generateCDMModel(CDMVersion cdmVersion) {
 		return Database.generateModelFromCSV(Database.class.getResourceAsStream(cdmVersion.fileName), cdmVersion.fileName);
 	}
-	
+
 	public static Database generateModelFromCSV(InputStream stream, String dbName) {
 		Database database = new Database();
-		
+
 		database.dbName = dbName.substring(0, dbName.lastIndexOf("."));
-		
+
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
 		try {
-		for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
-			
-			Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
-			
-			if (table == null) {
-				table = new Table();
-				table.setDb(database);
-				table.setName(row.get("TABLE_NAME").toLowerCase());
-				nameToTable.put(row.get("TABLE_NAME").toLowerCase(), table);
-				database.tables.add(table);
+			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
+
+				Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
+
+				if (table == null) {
+					table = new Table();
+					table.setDb(database);
+					table.setName(row.get("TABLE_NAME").toLowerCase());
+					nameToTable.put(row.get("TABLE_NAME").toLowerCase(), table);
+					database.tables.add(table);
+				}
+				Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), table);
+				field.setNullable(row.get("IS_NULLABLE").equals("YES"));
+				field.setType(row.get("DATA_TYPE"));
+				field.setDescription(row.get("DESCRIPTION"));
+				table.getFields().add(field);
 			}
-			Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), table);
-			field.setNullable(row.get("IS_NULLABLE").equals("YES"));
-			field.setType(row.get("DATA_TYPE"));
-			field.setDescription(row.get("DESCRIPTION"));
-			table.getFields().add(field);
-		}
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage());
 		}
