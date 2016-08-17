@@ -48,6 +48,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
+import org.ohdsi.rabbitInAHat.dataModel.StemTableAdd;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.whiteRabbit.ObjectExchange;
 
@@ -69,6 +70,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
 	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5.0.0";
 	public final static String		ACTION_CMD_SET_TARGET_V501			= "CDM v5.0.1";
+	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
 	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
 	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Mark Highlighted As Incomplete";
@@ -80,7 +82,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
 	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
 	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
-	private final static FileFilter	FILE_FILTER_XLSX						= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
+	private final static FileFilter	FILE_FILTER_XLSX					= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
 
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
@@ -261,6 +263,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		setTarget.add(loadTarget);
 		editMenu.add(setTarget);
 
+		JMenuItem addStemTable = new JMenuItem(ACTION_ADD_STEM_TABLE);
+		addStemTable.addActionListener(this);
+		addStemTable.setActionCommand(ACTION_ADD_STEM_TABLE);
+		editMenu.add(addStemTable);
+
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
 
@@ -404,6 +411,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_SET_TARGET_CUSTOM:
 				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
 				break;
+			case ACTION_ADD_STEM_TABLE:
+				doAddStemTable();
+				break;
 			case ACTION_CMD_MARK_COMPLETED:
 				doMarkCompleted();
 				break;
@@ -413,8 +423,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_HELP:
 				doOpenWiki();
 				break;
-
 		}
+	}
+
+	private void doAddStemTable() {
+		ETL etl = ObjectExchange.etl;
+		StemTableAdd.addStemTable(etl);
+		ObjectExchange.etl = etl;
+		tableMappingPanel.setMapping(etl.getTableToTableMapping());
 	}
 
 	private void doGenerateTestFramework(String filename) {
@@ -456,13 +472,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	private void doSetTargetCDM(CDMVersion cdmVersion) {
 		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(), Database.generateCDMModel(cdmVersion));
-
 		etl.copyETLMappings(ObjectExchange.etl);
 		tableMappingPanel.setMapping(etl.getTableToTableMapping());
-		ObjectExchange.etl = etl;
+		ObjectExchange.etl = etl;		
 	}
 
-	// Opens Filter dialog window
 	private void doOpenFilterDialog() {
 		FilterDialog filter;
 		filter = new FilterDialog(frame);
@@ -524,10 +538,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doOpenScanReport(String filename) {
 		if (filename != null) {
 			boolean replace = true;
-			if (ObjectExchange.etl.getSourceDatabase().getTables().size() != 0){
-				Object[] options = {"Replace current data",
-				"Load data on field values only"};
-				int result = JOptionPane.showOptionDialog(frame, "You already have source data loaded. Do you want to", "Replace source data?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			if (ObjectExchange.etl.getSourceDatabase().getTables().size() != 0) {
+				Object[] options = { "Replace current data", "Load data on field values only" };
+				int result = JOptionPane.showOptionDialog(frame, "You already have source data loaded. Do you want to", "Replace source data?",
+						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 				if (result == -1)
 					return;
 				if (result == 1)
@@ -550,10 +564,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 					Database newData = Database.generateModelFromScanReport(filename);
 					Database oldData = ObjectExchange.etl.getSourceDatabase();
 					for (Table newTable : newData.getTables()) {
-						Table oldTable = (Table)findByName(newTable.getName(), oldData.getTables());
+						Table oldTable = (Table) findByName(newTable.getName(), oldData.getTables());
 						if (oldTable != null) {
 							for (Field newField : newTable.getFields()) {
-								Field oldField = (Field)findByName(newField.getName(), oldTable.getFields());
+								Field oldField = (Field) findByName(newField.getName(), oldTable.getFields());
 								if (oldField != null) {
 									oldField.setValueCounts(newField.getValueCounts());
 								}
@@ -569,7 +583,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
-	
+
 	private MappableItem findByName(String name, List<? extends MappableItem> list) {
 		for (MappableItem item : list)
 			if (item.getName().toLowerCase().equals(name.toLowerCase()))
