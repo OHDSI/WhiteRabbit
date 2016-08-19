@@ -28,6 +28,7 @@ public class Field implements MappableItem {
 	private String				type;
 	private String				description			= "";
 	private int					maxLength;
+	private boolean				isStem;
 
 	public Field(String name, Table table) {
 		this.table = table;
@@ -37,7 +38,7 @@ public class Field implements MappableItem {
 	public Database getDb() {
 		return this.table.getDb();
 	}
-	
+
 	public Table getTable() {
 		return table;
 	}
@@ -49,15 +50,15 @@ public class Field implements MappableItem {
 	public String getName() {
 		return name;
 	}
-	
-	public String outputName(){
-		if(!isNullable){
+
+	public String outputName() {
+		if (!isNullable) {
 			return "*" + name;
-		}else{
+		} else {
 			return name;
 		}
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -85,14 +86,15 @@ public class Field implements MappableItem {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
-	public String getDescription(){
+
+	public String getDescription() {
 		return this.description;
 	}
-	
-	public void setDescription(String description){
+
+	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	public String toString() {
 		return table.getName() + "." + name;
 	}
@@ -111,5 +113,13 @@ public class Field implements MappableItem {
 
 	public void setMaxLength(int maxLength) {
 		this.maxLength = maxLength;
+	}
+
+	public boolean isStem() {
+		return isStem;
+	}
+
+	public void setStem(boolean isStem) {
+		this.isStem = isStem;
 	}
 }
