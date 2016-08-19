@@ -318,7 +318,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private JLabel				nameLabel			= new JLabel("");
 		private JLabel				rowCountLabel		= new JLabel("");
-		private RiaH_JTextArea 		description			= new RiaH_JTextArea ("");
+		private DescriptionTextArea 		description			= new DescriptionTextArea ("");
 		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency", "Percent of Total (%)");
 		private JTextArea			commentsArea		= new JTextArea();
 		private Field				field;

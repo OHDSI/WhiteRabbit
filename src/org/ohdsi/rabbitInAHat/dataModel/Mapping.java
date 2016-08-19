@@ -21,46 +21,46 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Mapping <T extends MappableItem>{
-	private List<T>	sourceItems;
-	private List<T>					cdmItems;
-	private List<ItemToItemMap>		sourceToCdmMaps;
-	
+public class Mapping<T extends MappableItem> {
+	private List<T>				sourceItems;
+	private List<T>				cdmItems;
+	private List<ItemToItemMap>	sourceToCdmMaps;
+
 	public Mapping(List<T> sourceItems, List<T> targetItems, List<ItemToItemMap> sourceToTargetMaps) {
 		this.sourceItems = sourceItems;
 		this.cdmItems = targetItems;
 		this.sourceToCdmMaps = sourceToTargetMaps;
 	}
-	
+
 	public void addSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
 		sourceToCdmMaps.add(new ItemToItemMap(sourceItem, targetItem));
 	}
-	
+
 	public void addSourceToTargetMap(ItemToItemMap itemToItemMap) {
 		sourceToCdmMaps.add(itemToItemMap);
 	}
-	
+
 	public List<MappableItem> getSourceItems() {
 		List<MappableItem> list = new ArrayList<MappableItem>();
 		for (MappableItem item : sourceItems)
 			list.add(item);
 		return list;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void setSourceItems(List<MappableItem> sourceItems) {
 		this.sourceItems.clear();
 		for (MappableItem item : sourceItems)
-			this.sourceItems.add((T)item);
+			this.sourceItems.add((T) item);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void setTargetItems(List<? extends MappableItem> targetItems) {
 		this.cdmItems.clear();
 		for (MappableItem item : targetItems)
 			this.cdmItems.add((T) item);
 	}
-	
+
 	public List<MappableItem> getTargetItems() {
 		List<MappableItem> list = new ArrayList<MappableItem>();
 		for (MappableItem item : cdmItems)
@@ -68,11 +68,11 @@ public class Mapping <T extends MappableItem>{
 		return list;
 
 	}
-	
+
 	public List<ItemToItemMap> getSourceToTargetMaps() {
 		return sourceToCdmMaps;
 	}
-	
+
 	public void removeSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
 		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
 		while (iterator.hasNext()) {
@@ -81,7 +81,7 @@ public class Mapping <T extends MappableItem>{
 				iterator.remove();
 		}
 	}
-	
+
 	public ItemToItemMap getSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
 		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
 		while (iterator.hasNext()) {
@@ -91,13 +91,14 @@ public class Mapping <T extends MappableItem>{
 		}
 		return null;
 	}
-	
+
 	public ItemToItemMap getSourceToTargetMapByName(MappableItem sourceItem, MappableItem targetItem) {
 		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
 
 		while (iterator.hasNext()) {
 			ItemToItemMap sourceToTargetMap = iterator.next();
-			if (sourceToTargetMap.getSourceItem().getName().equals(sourceItem.getName()) && sourceToTargetMap.getTargetItem().getName().equals(targetItem.getName()))
+			if (sourceToTargetMap.getSourceItem().getName().equals(sourceItem.getName())
+					&& sourceToTargetMap.getTargetItem().getName().equals(targetItem.getName()))
 				return sourceToTargetMap;
 		}
 		return null;
