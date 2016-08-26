@@ -244,7 +244,7 @@ public class ETLPackageTestFrameWorkGenerator {
 	  r.add("  insertSql <- c()");
 		for (Table table : database.getTables()) {
 			String sqlTableName = convertToSqlName(table.getName());
-			r.add("  insertSql <- c(insertSql, \"TRUNCATE TABLE @cdm_schema." + sqlTableName + ";\")");
+			r.add("  insertSql <- c(insertSql, \"TRUNCATE TABLE @source_schema." + sqlTableName + ";\")");
 		}
 		r.add("  frameworkContext$insertSql <- insertSql;");
 
