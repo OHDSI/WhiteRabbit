@@ -40,6 +40,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -88,13 +89,13 @@ public class WhiteRabbitMain implements ActionListener {
 	private JTextField			folderField;
 	private JTextField			scanReportFileField;
 
-	private JComboBox			scanRowCount;
-	private JComboBox			scanValuesCount;
+	private JComboBox<String>	scanRowCount;
+	private JComboBox<String>	scanValuesCount;
 	private JCheckBox			scanValueScan;
 	private JSpinner			scanMinCellCount;
 	private JSpinner			generateRowCount;
-	private JComboBox			sourceType;
-	private JComboBox			targetType;
+	private JComboBox<String>	sourceType;
+	private JComboBox<String>	targetType;
 	private JTextField			targetUserField;
 	private JTextField			targetPasswordField;
 	private JTextField			targetServerField;
@@ -106,8 +107,8 @@ public class WhiteRabbitMain implements ActionListener {
 	private JTextField			sourcePasswordField;
 	private JTextField			sourceDatabaseField;
 	private JButton				addAllButton;
-	private JList				tableList;
-	private List<String>		tables							= new ArrayList<String>();
+	private JList<String>		tableList;
+	private Vector<String>		tables							= new Vector<String>();
 	private boolean				sourceIsFiles					= true;
 	private boolean				targetIsFiles					= false;
 
@@ -189,7 +190,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
 		sourcePanel.add(new JLabel("Data type"));
-		sourceType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "Redshift" });
+		sourceType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "Redshift" });
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(new ItemListener() {
 
@@ -286,7 +287,7 @@ public class WhiteRabbitMain implements ActionListener {
 		JPanel tablePanel = new JPanel();
 		tablePanel.setLayout(new BorderLayout());
 		tablePanel.setBorder(new TitledBorder("Tables to scan"));
-		tableList = new JList();
+		tableList = new JList<String>();
 		tableList.setToolTipText("Specify the tables (or CSV files) to be scanned here");
 		tablePanel.add(new JScrollPane(tableList), BorderLayout.CENTER);
 
@@ -349,14 +350,14 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsPanel.add(new JLabel("Max distinct values "));
-		scanValuesCount = new JComboBox(new String[] { "100", "1,000", "10,000" });
+		scanValuesCount = new JComboBox<String>(new String[] { "100", "1,000", "10,000" });
 		scanValuesCount.setSelectedIndex(1);
 		scanValuesCount.setToolTipText("Maximum number of distinct values per field to be reported");
 		scanOptionsPanel.add(scanValuesCount);
 		scanOptionsPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsPanel.add(new JLabel("Rows per table "));
-		scanRowCount = new JComboBox(new String[] { "100,000", "500,000", "1 million", "all" });
+		scanRowCount = new JComboBox<String>(new String[] { "100,000", "500,000", "1 million", "all" });
 		scanRowCount.setSelectedIndex(0);
 		scanRowCount.setToolTipText("Maximum number of rows per table to be scanned for field values");
 		scanOptionsPanel.add(scanRowCount);
@@ -419,7 +420,7 @@ public class WhiteRabbitMain implements ActionListener {
 		targetPanel.setLayout(new GridLayout(0, 2));
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
-		targetType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
+		targetType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
 		// targetType = new JComboBox(new String[] { "Delimited text files", "MySQL" });
 		targetType.setToolTipText("Select the type of source data available");
 		targetType.addItemListener(new ItemListener() {
@@ -616,9 +617,9 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	private void removeTables() {
-		for (Object item : tableList.getSelectedValues()) {
+		for (String item : tableList.getSelectedValuesList()) {
 			tables.remove(item);
-			tableList.setListData(tables.toArray());
+			tableList.setListData(tables);
 		}
 	}
 
@@ -630,7 +631,7 @@ public class WhiteRabbitMain implements ActionListener {
 			for (String table : connection.getTableNames(sourceDbSettings.database)) {
 				if (!tables.contains(table))
 					tables.add((String) table);
-				tableList.setListData(tables.toArray());
+				tableList.setListData(tables);
 			}
 			connection.close();
 		}
@@ -652,7 +653,7 @@ public class WhiteRabbitMain implements ActionListener {
 						String tableName = DirectoryUtilities.getRelativePath(new File(folderField.getText()), table);
 						if (!tables.contains(tableName))
 							tables.add(tableName);
-						tableList.setListData(tables.toArray());
+						tableList.setListData(tables);
 					}
 
 				}
@@ -669,7 +670,7 @@ public class WhiteRabbitMain implements ActionListener {
 						for (Object item : selectionDialog.getSelectedItems()) {
 							if (!tables.contains(item))
 								tables.add((String) item);
-							tableList.setListData(tables.toArray());
+							tableList.setListData(tables);
 						}
 					}
 				}
@@ -930,7 +931,7 @@ public class WhiteRabbitMain implements ActionListener {
 		private JButton				yesButton			= null;
 		private JButton				noButton			= null;
 		private boolean				answer				= false;
-		private JList				list;
+		private JList<String>		list;
 
 		public boolean getAnswer() {
 			return answer;
@@ -948,7 +949,7 @@ public class WhiteRabbitMain implements ActionListener {
 			JLabel message = new JLabel("Select tables");
 			panel.add(message, BorderLayout.NORTH);
 
-			list = new JList(tableNames.split("\t"));
+			list = new JList<String>(tableNames.split("\t"));
 			JScrollPane scrollPane = new JScrollPane(list);
 			panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -976,8 +977,8 @@ public class WhiteRabbitMain implements ActionListener {
 			}
 		}
 
-		public Object[] getSelectedItems() {
-			return list.getSelectedValues();
+		public List<String> getSelectedItems() {
+			return list.getSelectedValuesList();
 		}
 	}
 
@@ -1011,9 +1012,6 @@ public class WhiteRabbitMain implements ActionListener {
 
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
-		JMenu fileMenu = new JMenu("File");
-		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
 		JMenuItem helpItem = new JMenuItem(ACTION_CMD_HELP);
