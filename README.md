@@ -49,7 +49,8 @@ WhiteRabbit
 1. Under the [Releases](https://github.com/OHDSI/WhiteRabbit/releases) tab, download WhiteRabbit*.zip
 2. Unzip the download
 3. Double-click on WhiteRabbit.jar to start White Rabbit.
-(See the Wiki for details on how to run from the command prompt instead)
+
+(See the [Wiki](http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#running_from_the_command_line) for details on how to run from the command prompt instead)
 
 Rabbit-In-A-Hat
 
