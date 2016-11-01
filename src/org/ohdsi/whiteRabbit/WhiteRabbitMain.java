@@ -74,6 +74,7 @@ import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.DirectoryUtilities;
 import org.ohdsi.utilities.StringUtilities;
+import org.ohdsi.utilities.files.IniFile;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 
@@ -119,27 +120,86 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	public WhiteRabbitMain(String[] args) {
-		frame = new JFrame("White Rabbit");
+		if (args.length == 2 && args[0].equalsIgnoreCase("-ini"))
+			launchCommandLine(args[1]);
+		else {
+			frame = new JFrame("White Rabbit");
 
-		frame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
+			frame.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent e) {
+					System.exit(0);
+				}
+			});
+			frame.setLayout(new BorderLayout());
+			frame.setJMenuBar(createMenuBar());
+
+			JComponent tabsPanel = createTabsPanel();
+			JComponent consolePanel = createConsolePanel();
+
+			frame.add(consolePanel, BorderLayout.CENTER);
+			frame.add(tabsPanel, BorderLayout.NORTH);
+
+			loadIcons(frame);
+			frame.pack();
+			frame.setVisible(true);
+			ObjectExchange.frame = frame;
+		}
+	}
+
+	private void launchCommandLine(String iniFileName) {
+		IniFile iniFile = new IniFile(iniFileName);
+		DbSettings dbSettings = new DbSettings();
+		if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Delimited text files")) {
+			dbSettings.dataType = DbSettings.CSVFILES;
+			if (iniFile.get("DELIMITER").equalsIgnoreCase("tab"))
+				dbSettings.delimiter = '\t';
+			else
+				dbSettings.delimiter = iniFile.get("DELIMITER").charAt(0);
+		} else {
+			dbSettings.dataType = DbSettings.DATABASE;
+			dbSettings.user = iniFile.get("USER_NAME");
+			dbSettings.password = iniFile.get("PASSWORD");
+			dbSettings.server = iniFile.get("SERVER_LOCATION");
+			dbSettings.database = iniFile.get("DATABASE_NAME");
+			if (iniFile.get("DATA_TYPE").equalsIgnoreCase("MySQL"))
+				dbSettings.dbType = DbType.MYSQL;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Oracle"))
+				dbSettings.dbType = DbType.ORACLE;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("PostgreSQL"))
+				dbSettings.dbType = DbType.POSTGRESQL;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Redshift"))
+				dbSettings.dbType = DbType.REDSHIFT;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("SQL Server")) {
+				dbSettings.dbType = DbType.MSSQL;
+				if (iniFile.get("USER_NAME").length() != 0) { // Not using windows authentication
+					String[] parts = iniFile.get("USER_NAME").split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
+			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("MS Access"))
+				dbSettings.dbType = DbType.MSACCESS;
+		}
+		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
+			RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
+			for (String table : connection.getTableNames(dbSettings.database))
+				dbSettings.tables.add(table);
+			connection.close();
+		} else {
+			for (String table : iniFile.get("TABLES_TO_SCAN").split(",")) {
+				if (dbSettings.dataType == DbSettings.CSVFILES)
+					table = iniFile.get("WORKING_FOLDER") + "/" + table;
+				dbSettings.tables.add(table);
 			}
-		});
-		frame.setLayout(new BorderLayout());
-		frame.setJMenuBar(createMenuBar());
+		}
 
-		JComponent tabsPanel = createTabsPanel();
-		JComponent consolePanel = createConsolePanel();
-
-		frame.add(consolePanel, BorderLayout.CENTER);
-		frame.add(tabsPanel, BorderLayout.NORTH);
-
-		loadIcons(frame);
-		frame.pack();
-		frame.setVisible(true);
-		ObjectExchange.frame = frame;
-		executeParameters(args);
+		SourceDataScan sourceDataScan = new SourceDataScan();
+		int maxRows = Integer.parseInt(iniFile.get("ROWS_PER_TABLE"));
+		boolean scanValues = iniFile.get("SCAN_FIELD_VALUES").equalsIgnoreCase("yes");
+		int minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
+		int maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
+		sourceDataScan.process(dbSettings, maxRows, scanValues, minCellCount, maxValues, iniFile.get("WORKING_FOLDER") + "/ScanReport.xlsx");
 	}
 
 	private JComponent createTabsPanel() {
@@ -565,39 +625,6 @@ public class WhiteRabbitMain implements ActionListener {
 			e1.printStackTrace();
 		}
 		return null;
-	}
-
-	private void executeParameters(String[] args) {
-		String mode = null;
-		for (String arg : args) {
-			if (arg.startsWith("-")) {
-				mode = arg.toLowerCase();
-			} else {
-				if (mode.equals("-folder"))
-					folderField.setText(arg);
-				if (mode.equals("-targetpassword"))
-					targetPasswordField.setText(arg);
-				if (mode.equals("-targetserver"))
-					targetServerField.setText(arg);
-				if (mode.equals("-targettype"))
-					targetType.setSelectedItem(arg);
-				if (mode.equals("-targetdatabase"))
-					targetDatabaseField.setText(arg);
-				if (mode.equals("-targetuser"))
-					targetUserField.setText(arg);
-				if (mode.equals("-sourceserver"))
-					sourceServerField.setText(arg);
-				if (mode.equals("-sourcetype"))
-					sourceType.setSelectedItem(arg);
-				if (mode.equals("-sourcedatabase"))
-					sourceDatabaseField.setText(arg);
-				if (mode.equals("-sourceuser"))
-					sourceUserField.setText(arg);
-				if (mode.equals("-sourcepassword"))
-					sourcePasswordField.setText(arg);
-				mode = null;
-			}
-		}
 	}
 
 	private void pickFolder() {
