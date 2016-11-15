@@ -123,7 +123,7 @@ public class ETLPackageTestFrameWorkGenerator {
 				testDefs.add("    if (is.null(" + rFieldName + ")) {");
 				testDefs.add("      whereClauses <- c(whereClauses, \"" + sqlFieldName + " IS NULL\")");
 				testDefs.add("    } else if (is(" + rFieldName + ", \"subQuery\")){");
-				testDefs.add("      whereClasues <- c(whereClasues, paste0(\"" + sqlFieldName + " = (\", as.character(" + rFieldName + "), \")\"))");
+				testDefs.add("      whereClauses <- c(whereClauses, paste0(\"" + sqlFieldName + " = (\", as.character(" + rFieldName + "), \")\"))");
 				testDefs.add("    } else {");
 				testDefs.add("      whereClauses <- c(whereClauses, paste0(\"" + sqlFieldName + " = '\", " + rFieldName + ",\"'\"))");
 				testDefs.add("    }");
@@ -206,7 +206,7 @@ public class ETLPackageTestFrameWorkGenerator {
 				testDefs.add("    if (is.null(" + rFieldName + ")) {");
 				testDefs.add("      whereClauses <- c(whereClauses, \"" + sqlFieldName + " IS NULL\")");
 				testDefs.add("    } else {");
-				testDefs.add("      whereClauses <- c(whereClauses, \"" + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
+				testDefs.add("      whereClauses <- c(whereClauses, paste0(\"" + sqlFieldName + " = '\", " + rFieldName + ",\"'\"))");
 				testDefs.add("    }");
 				testDefs.add("  }");
 				testDefs.add("");
