@@ -70,6 +70,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.csv.CSVFormat;
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.DirectoryUtilities;
@@ -103,6 +104,7 @@ public class WhiteRabbitMain implements ActionListener {
 	private JTextField			targetDatabaseField;
 	private JTextField			sourceDelimiterField;
 	private JTextField			targetDelimiterField;
+	private JComboBox<String> 	targetCSVFormat;
 	private JTextField			sourceServerField;
 	private JTextField			sourceUserField;
 	private JTextField			sourcePasswordField;
@@ -492,7 +494,7 @@ public class WhiteRabbitMain implements ActionListener {
 				targetUserField.setEnabled(!targetIsFiles);
 				targetPasswordField.setEnabled(!targetIsFiles);
 				targetDatabaseField.setEnabled(!targetIsFiles);
-				targetDelimiterField.setEnabled(targetIsFiles);
+				targetCSVFormat.setEnabled(targetIsFiles);
 
 				if (!targetIsFiles && arg0.getItem().toString().equals("Oracle")) {
 					targetServerField
@@ -537,11 +539,12 @@ public class WhiteRabbitMain implements ActionListener {
 		targetDatabaseField.setEnabled(false);
 		targetPanel.add(targetDatabaseField);
 
-		targetPanel.add(new JLabel("Delimiter"));
-		targetDelimiterField = new JTextField(",");
-		targetDelimiterField.setToolTipText("The delimiter that separates values. Enter 'tab' for tab.");
-		targetDelimiterField.setEnabled(true);
-		targetPanel.add(targetDelimiterField);
+		targetPanel.add(new JLabel("CSV Format"));
+		targetCSVFormat = new JComboBox<>(
+				new String[] { "Default (comma, CRLF)", "TDF (tab, CRLF)", "MySQL (tab, LF)", "RFC4180", "Excel CSV" });
+		targetCSVFormat.setToolTipText("The format of the output");
+		targetCSVFormat.setEnabled(true);
+		targetPanel.add(targetCSVFormat);
 
 		c.gridx = 0;
 		c.gridy = 1;
@@ -799,14 +802,27 @@ public class WhiteRabbitMain implements ActionListener {
 		DbSettings dbSettings = new DbSettings();
 		if (targetType.getSelectedItem().equals("Delimited text files")) {
 			dbSettings.dataType = DbSettings.CSVFILES;
-			if (targetDelimiterField.getText().length() == 0) {
-				JOptionPane.showMessageDialog(frame, "Delimiter field cannot be empty for target files", "Error", JOptionPane.ERROR_MESSAGE);
-				return null;
+
+			switch((String) targetCSVFormat.getSelectedItem()) {
+				case "Default (comma, CRLF)":
+					dbSettings.csvFormat = CSVFormat.DEFAULT;
+					break;
+				case "RFC4180":
+					dbSettings.csvFormat = CSVFormat.RFC4180;
+					break;
+				case "Excel CSV":
+					dbSettings.csvFormat = CSVFormat.EXCEL;
+					break;
+				case "TDF (tab, CRLF)":
+					dbSettings.csvFormat = CSVFormat.TDF;
+					break;
+				case "MySQL (tab, LF)":
+					dbSettings.csvFormat = CSVFormat.MYSQL;
+					break;
+				default:
+					dbSettings.csvFormat = CSVFormat.RFC4180;
 			}
-			if (targetDelimiterField.getText().toLowerCase().equals("tab"))
-				dbSettings.delimiter = '\t';
-			else
-				dbSettings.delimiter = targetDelimiterField.getText().charAt(0);
+
 		} else {
 			dbSettings.dataType = DbSettings.DATABASE;
 			dbSettings.user = targetUserField.getText();
