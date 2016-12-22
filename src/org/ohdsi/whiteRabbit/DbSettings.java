@@ -20,6 +20,7 @@ package org.ohdsi.whiteRabbit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.csv.CSVFormat;
 import org.ohdsi.databases.DbType;
 
 public class DbSettings {
@@ -39,4 +40,5 @@ public class DbSettings {
 	
 	// CSV file settings
 	public char			delimiter	= ',';
+	public CSVFormat	csvFormat	= CSVFormat.RFC4180;
 }
