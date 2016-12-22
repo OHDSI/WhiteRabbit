@@ -15,8 +15,12 @@ public class WriteCSVFileWithHeader {
 	private boolean		headerWritten	= false;
 
 	public WriteCSVFileWithHeader(String fileName) {
+		this(fileName, CSVFormat.RFC4180);
+	}
+
+	public WriteCSVFileWithHeader(String fileName, CSVFormat format) {
 		try {
-			printer = new CSVPrinter(new FileWriter(fileName), CSVFormat.RFC4180);
+			printer = new CSVPrinter(new FileWriter(fileName), format);
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage());
 		}
