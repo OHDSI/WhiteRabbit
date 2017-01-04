@@ -3,7 +3,9 @@ package org.ohdsi.rabbitInAHat;
 import org.ohdsi.rabbitInAHat.dataModel.*;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created 04-01-17.
@@ -35,7 +37,7 @@ public class SQLGenerator {
         System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
 
         int n_mappings = mappings.size();
-
+        Set<Field> targetFieldsSeen = new HashSet<>();
         try (FileOutputStream fout = new FileOutputStream(outFile);
              OutputStreamWriter fwr = new OutputStreamWriter(fout, "UTF-8");
              Writer out = new BufferedWriter(fwr)) {
@@ -48,12 +50,12 @@ public class SQLGenerator {
             out.write('\n');
 
             // To
-            // TODO: handle duplicate target field names (source fields need to be combined)
             out.write("INSERT INTO " + targetTable.getName() + "\n");
             out.write("(\n");
             for (int i=0;i<n_mappings;i++) {
                 ItemToItemMap mapping = mappings.get(i);
                 Field target = targetTable.getFieldByName(mapping.getTargetItem().getName());
+
                 out.write('\t');
                 out.write(target.getName());
 
@@ -62,13 +64,19 @@ public class SQLGenerator {
                     out.write(",");
                 }
 
+                // Warning if this target field has already been used
+                if (!targetFieldsSeen.add(target)) {
+                    out.write(createInLineComment("!#WARNING!# FIELD ALREADY USED"));
+                }
+
                 out.write(createInLineComment(target.getComment()));
 
                 out.write("\n");
             }
 
             // From
-            out.write(")\nSELECT\n");
+            out.write(")\n");
+            out.write("SELECT\n");
             for (int i=0;i<n_mappings;i++) {
                 ItemToItemMap mapping = mappings.get(i);
                 Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
@@ -86,7 +94,8 @@ public class SQLGenerator {
 
                 out.write("\n");
             }
-            out.write("FROM " + sourceTable.getName() + ";");
+            out.write("FROM " + sourceTable.getName());
+            out.write("\n;");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -103,6 +112,9 @@ public class SQLGenerator {
     private static String createBlockComment(String input) {
         if (input.trim().equals(""))
             return "";
+
+        // Let new sentences span multiple lines
+        input = input.replaceAll("\\.\\s","\n");
 
         return String.format("/*%n%s%n*/", input.trim());
     }
