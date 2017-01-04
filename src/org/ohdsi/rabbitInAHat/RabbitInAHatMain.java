@@ -86,7 +86,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
 	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
 	private final static FileFilter	FILE_FILTER_XLSX					= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
-	private final static FileFilter	FILE_FILTER_SQL						= new FileNameExtensionFilter("SQL files (*.sql)", "sql");
 
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
@@ -349,21 +348,37 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	 *            restrict files displayed
 	 * @return if file selected, absolute path of selected file otherwise null
 	 */
-	private String choosePath(boolean saveMode, FileFilter... filter) {
+	private String choosePath(boolean saveMode, boolean directoryMode, FileFilter... filter) {
 		String result = null;
 
 		if (chooser == null) {
 			chooser = new JFileChooser();
 		}
 		chooser.resetChoosableFileFilters();
-		chooser.setFileFilter(filter[0]);
-		for (int i = 1; i < filter.length; i++)
-			chooser.addChoosableFileFilter(filter[i]);
+
+		if (directoryMode) {
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			chooser.setAcceptAllFileFilterUsed(false);
+		} else {
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			chooser.setFileFilter(filter[0]);
+			for (int i = 1; i < filter.length; i++)
+				chooser.addChoosableFileFilter(filter[i]);
+		}
 
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
-		if (dialogResult == JFileChooser.APPROVE_OPTION)
-			result = chooser.getSelectedFile().getAbsolutePath();
+		if (dialogResult == JFileChooser.APPROVE_OPTION) {
+			if (directoryMode)
+				result = chooser.getCurrentDirectory().getAbsolutePath();
+			else
+				result = chooser.getSelectedFile().getAbsolutePath();
+		}
+
 		return result;
+	}
+
+	private String choosePath(boolean saveMode, FileFilter... filter) {
+		return choosePath(saveMode, false, filter);
 	}
 
 	private String chooseSavePath(FileFilter... fileFilter) {
@@ -377,6 +392,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	private String chooseOpenPath(FileFilter... fileFilter) {
 		return choosePath(false, fileFilter);
+	}
+
+	private String chooseSaveDirectory() {
+		return choosePath(true, true, new FileNameExtensionFilter("Directories","."));
 	}
 
 	@Override
@@ -405,7 +424,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doGeneratePackageTestFramework(chooseSavePath(FILE_FILTER_R));
 				break;
 			case ACTION_CMD_GENERATE_SQL:
-				doGenerateSql(chooseSavePath(FILE_FILTER_SQL));
+				doGenerateSql(chooseSaveDirectory());
 				break;
 			case ACTION_CMD_DISCARD_COUNTS:
 				doDiscardCounts();
