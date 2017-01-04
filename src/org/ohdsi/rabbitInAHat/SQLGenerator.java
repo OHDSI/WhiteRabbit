@@ -3,7 +3,6 @@ package org.ohdsi.rabbitInAHat;
 import org.ohdsi.rabbitInAHat.dataModel.*;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,35 +19,17 @@ public class SQLGenerator {
     }
 
     public void generate() {
-        // Generate a sql file for each source table to target table mapping
-        for (Table targetTable : etl.getTargetDatabase().getTables()) {
-            for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
-                if (tableToTableMap.getTargetItem() == targetTable) {
-                    Table sourceTable = (Table) tableToTableMap.getSourceItem();
-                    generateSqlFile(sourceTable, targetTable);
-                }
-            }
+        // Generate a sql file for each source to target table mapping
+        for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
+            writeSqlFile(tableToTableMap);
         }
     }
 
-    private void generateSqlFile(Table sourceTable, Table targetTable) {
-        // Get all source to target field mappings
-        List<ItemToItemMap> mappings = new ArrayList<>();
-        Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
-        for (MappableItem targetField : fieldtoFieldMapping.getTargetItems()) {
-            for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToTargetMaps()) {
-                if (fieldToFieldMap.getTargetItem() == targetField) {
-                    // Add target source pair
-                    mappings.add(fieldToFieldMap);
-                    // TODO: handle many sources to one target
-                }
-            }
-        }
+    private void writeSqlFile(ItemToItemMap tableToTableMap){
+        Table sourceTable = (Table) tableToTableMap.getSourceItem();
+        Table targetTable = (Table) tableToTableMap.getTargetItem();
+        List<ItemToItemMap> mappings = etl.getFieldToFieldMapping(sourceTable, targetTable).getSourceToTargetMaps();
 
-        writeSqlFile(sourceTable, targetTable, mappings);
-    }
-
-    private void writeSqlFile(Table sourceTable, Table targetTable, List<ItemToItemMap> mappings) {
         // Create new sql file in the selected directory
         File outFile = new File( outputDirectory, sourceTable.getName() + "_to_" + targetTable.getName() + ".sql");
         System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
@@ -60,10 +41,14 @@ public class SQLGenerator {
              Writer out = new BufferedWriter(fwr)) {
 
             // Table specific comments
-            createBlockComment(sourceTable.getComment() + "\n" + targetTable.getComment());
-            // TODO: table to table logic
+            out.write(createBlockComment(sourceTable.getComment()));
+            out.write(createBlockComment(targetTable.getComment()));
+            out.write(createBlockComment(tableToTableMap.getComment()));
+            out.write(createBlockComment(tableToTableMap.getLogic()));
+            out.write('\n');
 
             // To
+            // TODO: handle duplicate target field names (source fields need to be combined)
             out.write("INSERT INTO " + targetTable.getName() + "\n");
             out.write("(\n");
             for (int i=0;i<n_mappings;i++) {
@@ -77,7 +62,7 @@ public class SQLGenerator {
                     out.write(",");
                 }
 
-                out.write(createOneLineComment(target.getComment()));
+                out.write(createInLineComment(target.getComment()));
 
                 out.write("\n");
             }
@@ -95,9 +80,9 @@ public class SQLGenerator {
                     out.write(",");
                 }
 
-                out.write(createOneLineComment(source.getComment()));
-                out.write(createOneLineComment(mapping.getComment()));
-                out.write(createOneLineComment(mapping.getLogic()));
+                out.write(createInLineComment(source.getComment()));
+                out.write(createInLineComment(mapping.getComment()));
+                out.write(createInLineComment(mapping.getLogic()));
 
                 out.write("\n");
             }
@@ -108,17 +93,17 @@ public class SQLGenerator {
         }
     }
 
-    private static String createOneLineComment(String input) {
+    private static String createInLineComment(String input) {
         if (input.trim().equals(""))
             return "";
 
-        return "-- " + input.replaceAll("\\s"," ");
+        return " -- " + input.replaceAll("\\s"," ");
     }
 
     private static String createBlockComment(String input) {
         if (input.trim().equals(""))
             return "";
 
-        return String.format("/*%n%s%n*/", input);
+        return String.format("/*%n%s%n*/", input.trim());
     }
 }
