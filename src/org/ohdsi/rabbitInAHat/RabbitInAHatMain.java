@@ -118,9 +118,20 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 
 		frame = new JFrame("Rabbit in a Hat");
+
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				System.exit(0);
+				String ObjButtons[] = {"Yes","No"};
+				int PromptResult = JOptionPane.showOptionDialog(
+						null,
+						"Do you want to exit?\nPlease make sure that any work is saved",
+						"Rabbit In A Hat",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,
+						null,ObjButtons,ObjButtons[1]
+				);
+				if (PromptResult==JOptionPane.YES_OPTION) {
+					System.exit(0);
+				}
 			}
 		});
 		frame.setPreferredSize(new Dimension(700, 600));
