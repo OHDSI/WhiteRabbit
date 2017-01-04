@@ -1,7 +1,5 @@
 package org.ohdsi.rabbitInAHat;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.ohdsi.ooxml.CustomXWPFDocument;
 import org.ohdsi.rabbitInAHat.dataModel.*;
 
 import java.io.*;
@@ -22,24 +20,19 @@ public class SQLGenerator {
     }
 
     public void generate() {
-        // Simple test implementation. TBD
+        // Generate a sql file for each source table to target table mapping
         for (Table targetTable : etl.getTargetDatabase().getTables()) {
-            generateTableToTable(targetTable);
-        }
-    }
-
-    private void generateTableToTable(Table targetTable) {
-        for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
-            if (tableToTableMap.getTargetItem() == targetTable) {
-                Table sourceTable = (Table) tableToTableMap.getSourceItem();
-                writeSqlFile(sourceTable, targetTable);
+            for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
+                if (tableToTableMap.getTargetItem() == targetTable) {
+                    Table sourceTable = (Table) tableToTableMap.getSourceItem();
+                    generateSqlFile(sourceTable, targetTable);
+                }
             }
         }
     }
 
-    private void writeSqlFile(Table sourceTable, Table targetTable) {
-        String sourceTableName = sourceTable.getName();
-        String targetTableName = targetTable.getName();
+    private void generateSqlFile(Table sourceTable, Table targetTable) {
+        // Get all source to target field mappings
         List<ItemToItemMap> sources = new ArrayList<>();
         List<Field> targets = new ArrayList<>();
         Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
@@ -54,7 +47,11 @@ public class SQLGenerator {
             }
         }
 
-        // Write sql file to the selected directory
+        writeSqlFile(sourceTable.getName(), targetTable.getName(), sources, targets);
+    };
+
+    private void writeSqlFile(String sourceTableName, String targetTableName, List<ItemToItemMap> sources, List<Field> targets) {
+        // Create new sql file in the selected directory
         File outFile = new File( outputDirectory, sourceTableName + "_to_" + targetTableName + ".sql");
         System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
 
@@ -74,7 +71,7 @@ public class SQLGenerator {
                     out.write(",");
                 }
 
-                out.write(createComment(target.getComment()));
+                out.write(createOneLineComment(target.getComment()));
 
                 out.write("\n");
             }
@@ -90,8 +87,8 @@ public class SQLGenerator {
                     out.write(",");
                 }
 
-                out.write(createComment(source.getComment()));
-                out.write(createComment(source.getLogic()));
+                out.write(createOneLineComment(source.getComment()));
+                out.write(createOneLineComment(source.getLogic()));
 
                 out.write("\n");
             }
@@ -104,11 +101,17 @@ public class SQLGenerator {
         }
     }
 
-    private static String createComment(String input) {
+    private static String createOneLineComment(String input) {
         if (input.equals(""))
             return "";
 
         return "-- " + input.replaceAll("\\s"," ");
     }
 
+    private static String createBlockComment(String input) {
+        if (input.equals(""))
+            return "";
+
+        return String.format("/*%n%d%n*/", input);
+    }
 }
