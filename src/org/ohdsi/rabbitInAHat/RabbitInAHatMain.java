@@ -699,10 +699,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doGenerateSql(String filename) {
-		if (filename != null) {
+	private void doGenerateSql(String directoryName) {
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			SQLGenerator.generate(ObjectExchange.etl, filename);
+			SQLGenerator sqlGenerator = new SQLGenerator(ObjectExchange.etl, directoryName);
+			sqlGenerator.generate();
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
