@@ -33,41 +33,47 @@ public class SQLGenerator {
 
     private void generateSqlFile(Table sourceTable, Table targetTable) {
         // Get all source to target field mappings
-        List<ItemToItemMap> sources = new ArrayList<>();
-        List<Field> targets = new ArrayList<>();
+        List<ItemToItemMap> mappings = new ArrayList<>();
         Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
         for (MappableItem targetField : fieldtoFieldMapping.getTargetItems()) {
             for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToTargetMaps()) {
                 if (fieldToFieldMap.getTargetItem() == targetField) {
                     // Add target source pair
-                    targets.add((Field) targetField);
-                    sources.add(fieldToFieldMap);
-                    break; // TODO; what if a many to one mapping?
+                    mappings.add(fieldToFieldMap);
+                    // TODO: handle many sources to one target
                 }
             }
         }
 
-        writeSqlFile(sourceTable.getName(), targetTable.getName(), sources, targets);
-    };
+        writeSqlFile(sourceTable, targetTable, mappings);
+    }
 
-    private void writeSqlFile(String sourceTableName, String targetTableName, List<ItemToItemMap> sources, List<Field> targets) {
+    private void writeSqlFile(Table sourceTable, Table targetTable, List<ItemToItemMap> mappings) {
         // Create new sql file in the selected directory
-        File outFile = new File( outputDirectory, sourceTableName + "_to_" + targetTableName + ".sql");
+        File outFile = new File( outputDirectory, sourceTable.getName() + "_to_" + targetTable.getName() + ".sql");
         System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
+
+        int n_mappings = mappings.size();
 
         try (FileOutputStream fout = new FileOutputStream(outFile);
              OutputStreamWriter fwr = new OutputStreamWriter(fout, "UTF-8");
              Writer out = new BufferedWriter(fwr)) {
 
+            // Table specific comments
+            createBlockComment(sourceTable.getComment() + "\n" + targetTable.getComment());
+            // TODO: table to table logic
+
             // To
-            out.write("INSERT INTO " + targetTableName + "\n");
+            out.write("INSERT INTO " + targetTable.getName() + "\n");
             out.write("(\n");
-            for (int i=0;i<targets.size();i++) {
-                Field target = targets.get(i);
+            for (int i=0;i<n_mappings;i++) {
+                ItemToItemMap mapping = mappings.get(i);
+                Field target = targetTable.getFieldByName(mapping.getTargetItem().getName());
                 out.write('\t');
                 out.write(target.getName());
+
                 // Do not print comma if last is reached
-                if (i < targets.size()-1) {
+                if (i != n_mappings-1) {
                     out.write(",");
                 }
 
@@ -78,40 +84,41 @@ public class SQLGenerator {
 
             // From
             out.write(")\nSELECT\n");
-            for (int i=0;i<sources.size();i++) {
-                ItemToItemMap source = sources.get(i);
+            for (int i=0;i<n_mappings;i++) {
+                ItemToItemMap mapping = mappings.get(i);
+                Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
                 out.write('\t');
-                out.write(source.getSourceItem().getName());
+                out.write(source.getName());
+
                 // Do not print comma if last is reached
-                if (i < targets.size()-1) {
+                if (i != n_mappings-1) {
                     out.write(",");
                 }
 
                 out.write(createOneLineComment(source.getComment()));
-                out.write(createOneLineComment(source.getLogic()));
+                out.write(createOneLineComment(mapping.getComment()));
+                out.write(createOneLineComment(mapping.getLogic()));
 
                 out.write("\n");
             }
-            out.write("FROM " + sourceTableName + ";");
+            out.write("FROM " + sourceTable.getName() + ";");
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private static String createOneLineComment(String input) {
-        if (input.equals(""))
+        if (input.trim().equals(""))
             return "";
 
         return "-- " + input.replaceAll("\\s"," ");
     }
 
     private static String createBlockComment(String input) {
-        if (input.equals(""))
+        if (input.trim().equals(""))
             return "";
 
-        return String.format("/*%n%d%n*/", input);
+        return String.format("/*%n%s%n*/", input);
     }
 }
