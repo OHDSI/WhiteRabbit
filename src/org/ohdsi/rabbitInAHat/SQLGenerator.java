@@ -24,62 +24,37 @@ public class SQLGenerator {
     public void generate() {
         // Simple test implementation. TBD
         for (Table targetTable : etl.getTargetDatabase().getTables()) {
-            generateTableToTable(etl, targetTable);
-
+            generateTableToTable(targetTable);
         }
     }
 
-    private void generateTableToTable(ETL etl, Table targetTable) {
+    private void generateTableToTable(Table targetTable) {
         for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
             if (tableToTableMap.getTargetItem() == targetTable) {
-                System.out.println(targetTable.getName());
                 Table sourceTable = (Table) tableToTableMap.getSourceItem();
-                generateSqlFile(etl, sourceTable, targetTable);
+                writeSqlFile(sourceTable, targetTable);
             }
         }
     }
 
-    private void generateSqlFile(ETL etl, Table sourceTable, Table targetTable) {
+    private void writeSqlFile(Table sourceTable, Table targetTable) {
         String sourceTableName = sourceTable.getName();
         String targetTableName = targetTable.getName();
-        List<String> sources = new ArrayList<>();
-        List<String> targets = new ArrayList<>();
+        List<ItemToItemMap> sources = new ArrayList<>();
+        List<Field> targets = new ArrayList<>();
         Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
         for (MappableItem targetField : fieldtoFieldMapping.getTargetItems()) {
-            StringBuilder source = new StringBuilder();
-            StringBuilder logic = new StringBuilder();
-            StringBuilder comment = new StringBuilder();
             for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToTargetMaps()) {
                 if (fieldToFieldMap.getTargetItem() == targetField) {
-                    if (source.length() != 0)
-                        source.append("\n");
-                    source.append(fieldToFieldMap.getSourceItem().getName().trim());
-
-                    if (logic.length() != 0)
-                        logic.append("\n");
-                    logic.append(fieldToFieldMap.getLogic().trim());
-
-                    if (comment.length() != 0)
-                        comment.append("\n");
-                    comment.append(fieldToFieldMap.getComment().trim());
-
                     // Add target source pair
-                    targets.add(targetField.getName());
-                    sources.add(source.toString());
+                    targets.add((Field) targetField);
+                    sources.add(fieldToFieldMap);
                     break; // TODO; what if a many to one mapping?
                 }
             }
-
-            for (Field field : targetTable.getFields()) {
-                if (field.getName().equals(targetField.getName())) {
-                    if (comment.length() != 0)
-                        comment.append("\n");
-                    comment.append(field.getComment().trim());
-                }
-            }
         }
 
-        // Write sql
+        // Write sql file to the selected directory
         File outFile = new File( outputDirectory, sourceTableName + "_to_" + targetTableName + ".sql");
         System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
 
@@ -87,18 +62,39 @@ public class SQLGenerator {
              OutputStreamWriter fwr = new OutputStreamWriter(fout, "UTF-8");
              Writer out = new BufferedWriter(fwr)) {
 
+            // To
             out.write("INSERT INTO " + targetTableName + "\n");
-
             out.write("(\n");
-            for (String colName : targets) {
-                out.write('\t'+colName + ",\n"); // TODO: remove extra comma at the end.
+            for (int i=0;i<targets.size();i++) {
+                Field target = targets.get(i);
+                out.write('\t');
+                out.write(target.getName());
+                // Do not print comma if last is reached
+                if (i < targets.size()-1) {
+                    out.write(",");
+                }
+
+                out.write(createComment(target.getComment()));
+
+                out.write("\n");
             }
 
+            // From
             out.write(")\nSELECT\n");
-            for (String colName : sources) {
-                out.write('\t'+colName + ",\n"); // TODO: remove extra comma at the end.
-            }
+            for (int i=0;i<sources.size();i++) {
+                ItemToItemMap source = sources.get(i);
+                out.write('\t');
+                out.write(source.getSourceItem().getName());
+                // Do not print comma if last is reached
+                if (i < targets.size()-1) {
+                    out.write(",");
+                }
 
+                out.write(createComment(source.getComment()));
+                out.write(createComment(source.getLogic()));
+
+                out.write("\n");
+            }
             out.write("FROM " + sourceTableName + ";");
 
         } catch (FileNotFoundException e) {
@@ -107,4 +103,12 @@ public class SQLGenerator {
             e.printStackTrace();
         }
     }
+
+    private static String createComment(String input) {
+        if (input.equals(""))
+            return "";
+
+        return "-- " + input.replaceAll("\\s"," ");
+    }
+
 }
