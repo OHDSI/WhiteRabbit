@@ -65,7 +65,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT			= "Generate ETL Document";
 	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK			= "Generate ETL Test Framework";
 	public final static String		ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK	= "Generate ETL Test Framework (for R Packages)";
-	public final static String		ACTION_CMD_GENERATE_SQL						= "Generate SQL";
+	public final static String		ACTION_CMD_GENERATE_SQL						= "Generate SQL (beta)";
 
 
 	public final static String		ACTION_CMD_DISCARD_COUNTS					= "Discard Value Counts";
@@ -90,7 +90,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private final static FileFilter	FILE_FILTER_CSV								= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
 	private final static FileFilter	FILE_FILTER_R								= new FileNameExtensionFilter("R script (*.r)", "r");
 	private final static FileFilter	FILE_FILTER_XLSX							= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
-	private final static FileFilter	FILE_FILTER_SQL								= new FileNameExtensionFilter("SQL files (*.sql)", "sql");
 
 	public final static String		DBMS_SQLSERVER								= "SQL Server";
 	public final static String		DBMS_REDSHIFT								= "Redshift";
