@@ -9,37 +9,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Maxim on 04-01-17.
+ * Created 04-01-17.
+ * Generates separate SQL files for each table to table mapping in the given directory.
  */
 public class SQLGenerator {
+    ETL etl;
+    String outputDirectory;
 
-    public static void generate(ETL etl, String filename) {
-        File outFile = new File( filename );
-        System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
+    public SQLGenerator(ETL etl, String directory) {
+        this.etl = etl;
+        this.outputDirectory = directory;
+    }
 
+    public void generate() {
         // Simple test implementation. TBD
         for (Table targetTable : etl.getTargetDatabase().getTables()) {
             generateTableToTable(etl, targetTable);
 
         }
-
-
-        // Read source id
-//        try (FileOutputStream fout = new FileOutputStream(outFile);
-//             OutputStreamWriter fwr = new OutputStreamWriter(fout, "UTF-8");
-//             Writer out = new BufferedWriter(fwr)) {
-//            String insertQuery = String.format("INSERT INTO %s () VALUES ();%n", targetTable.getName());
-//                  out.write(insertQuery);
-//
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
     }
 
-    private static void generateTableToTable(ETL etl, Table targetTable) {
+    private void generateTableToTable(ETL etl, Table targetTable) {
         for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
             if (tableToTableMap.getTargetItem() == targetTable) {
                 System.out.println(targetTable.getName());
@@ -49,16 +39,13 @@ public class SQLGenerator {
         }
     }
 
-    private static void generateSqlFile(ETL etl, Table sourceTable, Table targetTable) {
+    private void generateSqlFile(ETL etl, Table sourceTable, Table targetTable) {
         String sourceTableName = sourceTable.getName();
         String targetTableName = targetTable.getName();
         List<String> sources = new ArrayList<>();
         List<String> targets = new ArrayList<>();
         Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
         for (MappableItem targetField : fieldtoFieldMapping.getTargetItems()) {
-
-            targets.add(targetField.getName());
-
             StringBuilder source = new StringBuilder();
             StringBuilder logic = new StringBuilder();
             StringBuilder comment = new StringBuilder();
@@ -76,11 +63,12 @@ public class SQLGenerator {
                         comment.append("\n");
                     comment.append(fieldToFieldMap.getComment().trim());
 
+                    // Add target source pair
+                    targets.add(targetField.getName());
                     sources.add(source.toString());
                     break; // TODO; what if a many to one mapping?
                 }
             }
-
 
             for (Field field : targetTable.getFields()) {
                 if (field.getName().equals(targetField.getName())) {
@@ -91,19 +79,32 @@ public class SQLGenerator {
             }
         }
 
-//        File outFile = new File( filename + sourceTableName + targetTableName );
-//        System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
+        // Write sql
+        File outFile = new File( outputDirectory, sourceTableName + "_to_" + targetTableName + ".sql");
+        System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
 
-        System.out.println("INSERT INTO");
-        System.out.println(targetTableName);
-        System.out.println("(");
-        for (String colName : targets) {
-            System.out.println('\t'+colName);
+        try (FileOutputStream fout = new FileOutputStream(outFile);
+             OutputStreamWriter fwr = new OutputStreamWriter(fout, "UTF-8");
+             Writer out = new BufferedWriter(fwr)) {
+
+            out.write("INSERT INTO " + targetTableName + "\n");
+
+            out.write("(\n");
+            for (String colName : targets) {
+                out.write('\t'+colName + ",\n"); // TODO: remove extra comma at the end.
+            }
+
+            out.write(")\nSELECT\n");
+            for (String colName : sources) {
+                out.write('\t'+colName + ",\n"); // TODO: remove extra comma at the end.
+            }
+
+            out.write("FROM " + sourceTableName + ";");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        System.out.println(")\nSELECT");
-        for (String colName : sources) {
-            System.out.println('\t'+colName);
-        }
-        System.out.println("FROM " + sourceTableName + ";");
     }
 }
