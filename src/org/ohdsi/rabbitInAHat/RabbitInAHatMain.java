@@ -64,7 +64,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
 	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK	= "Generate ETL Test Framework";
 	public final static String		ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK	= "Generate ETL Test Framework (for R Packages)";
-	
+	public final static String		ACTION_CMD_GENERATE_SQL	= "Generate SQL";
+
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
@@ -85,6 +86,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
 	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
 	private final static FileFilter	FILE_FILTER_XLSX					= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
+	private final static FileFilter	FILE_FILTER_SQL						= new FileNameExtensionFilter("SQL files (*.sql)", "sql");
 
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
@@ -232,7 +234,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generatePackageTestFrameworkItem.addActionListener(this);
 		generatePackageTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK);
 		fileMenu.add(generatePackageTestFrameworkItem);
-		
+
+		JMenuItem generateSql = new JMenuItem(ACTION_CMD_GENERATE_SQL);
+		generateSql.addActionListener(this);
+		generateSql.setActionCommand(ACTION_CMD_GENERATE_SQL);
+		fileMenu.add(generateSql);
+
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
 
@@ -396,6 +403,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK:
 				doGeneratePackageTestFramework(chooseSavePath(FILE_FILTER_R));
+				break;
+			case ACTION_CMD_GENERATE_SQL:
+				doGenerateSql(chooseSavePath(FILE_FILTER_SQL));
 				break;
 			case ACTION_CMD_DISCARD_COUNTS:
 				doDiscardCounts();
@@ -613,6 +623,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLDocumentGenerator.generate(ObjectExchange.etl, filename);
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+
+	private void doGenerateSql(String filename) {
+		if (filename != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			SQLGenerator.generate(ObjectExchange.etl, filename);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
