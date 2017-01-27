@@ -3,6 +3,7 @@ package org.ohdsi.rabbitInAHat;
 import org.ohdsi.rabbitInAHat.dataModel.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,8 @@ public class SQLGenerator {
     private void writeSqlFile(ItemToItemMap tableToTableMap){
         Table sourceTable = (Table) tableToTableMap.getSourceItem();
         Table targetTable = (Table) tableToTableMap.getTargetItem();
-        List<ItemToItemMap> mappings = etl.getFieldToFieldMapping(sourceTable, targetTable).getSourceToTargetMaps();
+        Mapping<Field> fieldToFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
+        List<ItemToItemMap> mappings = fieldToFieldMapping.getSourceToTargetMapsOrderedByCdmItems();
 
         // Create new sql file in the selected directory
         File outFile = new File( outputDirectory, sourceTable.getName() + "_to_" + targetTable.getName() + ".sql");
@@ -55,9 +57,18 @@ public class SQLGenerator {
             // To
             out.write("INSERT INTO " + targetTable.getName() + "\n");
             out.write("(\n");
+            List<Field> targetsWithoutSource = new ArrayList<>();
             for (int i=0;i<n_mappings;i++) {
                 ItemToItemMap mapping = mappings.get(i);
-                Field target = targetTable.getFieldByName(mapping.getTargetItem().getName());
+
+                // If mapping, then get this information.
+                Field target;
+                if (mapping == null) {
+                    target = targetTable.getFieldByName(fieldToFieldMapping.getTargetItems().get(targetFieldsSeen.size()).getName());
+                    targetsWithoutSource.add(target);
+                } else {
+                    target = targetTable.getFieldByName(mapping.getTargetItem().getName());
+                }
 
                 out.write('\t');
                 out.write(target.getName());
@@ -69,7 +80,7 @@ public class SQLGenerator {
 
                 // Warning if this target field has already been used
                 if (!targetFieldsSeen.add(target)) {
-                    out.write(createInLineComment("!#WARNING!# THIS TARGET FIELD WAS ALREADY USED"));
+                    out.write(createInLineComment("[!#WARNING!#] THIS TARGET FIELD WAS ALREADY USED"));
                 }
 
                 out.write(createInLineComment(target.getComment()));
@@ -82,22 +93,35 @@ public class SQLGenerator {
             out.write("SELECT\n");
             for (int i=0;i<n_mappings;i++) {
                 ItemToItemMap mapping = mappings.get(i);
-                Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
+
+                String sourceName;
+                String targetName;
+                if (mapping == null) {
+                    // Set value explicitly to null. Get target from the targetsWithoutSource
+                    sourceName = "NULL";
+                    targetName = targetsWithoutSource.remove(0).getName();
+                    out.write(createInLineComment("[!WARNING!] no source column found. See possible comment at the INSERT INTO"));
+                    out.write("\n");
+                } else {
+                    Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
+                    sourceName = sourceTable.getName() + "." + source.getName();
+                    targetName = mapping.getTargetItem().getName();
+
+                    out.write(createInLineComment("[VALUE   COMMENT]", source.getComment(), "\n"));
+                    out.write(createInLineComment("[MAPPING   LOGIC]", mapping.getLogic(), "\n"));
+                    out.write(createInLineComment("[MAPPING COMMENT]", mapping.getComment(), "\n"));
+                }
+
                 out.write('\t');
-                out.write(source.getName());
+                out.write(sourceName);
                 out.write("\tAS\t");
-                out.write(mapping.getTargetItem().getName());
+                out.write(targetName);
 
                 // Do not print comma if last is reached
-                if (i != n_mappings-1) {
+                if (i != n_mappings-1)
                     out.write(",");
-                }
-                // TODO: add provenance of comment
-                out.write(createInLineComment(source.getComment()));
-                out.write(createInLineComment(mapping.getComment()));
-                out.write(createInLineComment(mapping.getLogic()));
 
-                out.write("\n");
+                out.write("\n\n");
             }
             out.write("FROM " + sourceTable.getName());
             out.write("\n;");
@@ -112,6 +136,13 @@ public class SQLGenerator {
             return "";
 
         return " -- " + input.replaceAll("\\s"," ");
+    }
+
+    private static String createInLineComment(String prefix, String input, String postfix) {
+        if (input.trim().equals(""))
+            return "";
+
+        return String.format(" -- %s %s %s", prefix, input.replaceAll("\\s"," "), postfix);
     }
 
     private static String createBlockComment(String input) {
