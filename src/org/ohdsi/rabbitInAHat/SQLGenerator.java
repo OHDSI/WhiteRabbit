@@ -22,9 +22,12 @@ public class SQLGenerator {
 
     public void generate() {
         // Generate a sql file for each source to target table mapping
+        Integer counter = 0;
         for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
             writeSqlFile(tableToTableMap);
+            counter++;
         }
+        System.out.println(counter.toString() + " sql files were generated"); // TODO report in UI
     }
 
     private void writeSqlFile(ItemToItemMap tableToTableMap){
@@ -66,7 +69,7 @@ public class SQLGenerator {
 
                 // Warning if this target field has already been used
                 if (!targetFieldsSeen.add(target)) {
-                    out.write(createInLineComment("!#WARNING!# FIELD ALREADY USED"));
+                    out.write(createInLineComment("!#WARNING!# THIS TARGET FIELD WAS ALREADY USED"));
                 }
 
                 out.write(createInLineComment(target.getComment()));
@@ -82,12 +85,14 @@ public class SQLGenerator {
                 Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
                 out.write('\t');
                 out.write(source.getName());
+                out.write("\tAS\t");
+                out.write(mapping.getTargetItem().getName());
 
                 // Do not print comma if last is reached
                 if (i != n_mappings-1) {
                     out.write(",");
                 }
-
+                // TODO: add provenance of comment
                 out.write(createInLineComment(source.getComment()));
                 out.write(createInLineComment(mapping.getComment()));
                 out.write(createInLineComment(mapping.getLogic()));
