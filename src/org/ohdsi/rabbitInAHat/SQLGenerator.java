@@ -104,10 +104,10 @@ public class SQLGenerator {
                     out.write("\n");
                 } else {
                     Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
-                    sourceName = source.getName();
+                    sourceName = sourceTable.getName() + "." + source.getName();
                     targetName = mapping.getTargetItem().getName();
 
-                    out.write(createInLineComment("[SOURCE  COMMENT]", source.getComment(), "\n"));
+                    out.write(createInLineComment("[VALUE   COMMENT]", source.getComment(), "\n"));
                     out.write(createInLineComment("[MAPPING   LOGIC]", mapping.getLogic(), "\n"));
                     out.write(createInLineComment("[MAPPING COMMENT]", mapping.getComment(), "\n"));
                 }
@@ -121,7 +121,7 @@ public class SQLGenerator {
                 if (i != n_mappings-1)
                     out.write(",");
 
-                out.write("\n");
+                out.write("\n\n");
             }
             out.write("FROM " + sourceTable.getName());
             out.write("\n;");
