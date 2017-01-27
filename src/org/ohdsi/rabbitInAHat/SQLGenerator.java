@@ -3,6 +3,7 @@ package org.ohdsi.rabbitInAHat;
 import org.ohdsi.rabbitInAHat.dataModel.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,8 @@ public class SQLGenerator {
     private void writeSqlFile(ItemToItemMap tableToTableMap){
         Table sourceTable = (Table) tableToTableMap.getSourceItem();
         Table targetTable = (Table) tableToTableMap.getTargetItem();
-        List<ItemToItemMap> mappings = etl.getFieldToFieldMapping(sourceTable, targetTable).getSourceToTargetMaps();
+        Mapping<Field> fieldToFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
+        List<ItemToItemMap> mappings = fieldToFieldMapping.getSourceToTargetMapsOrderedByCdmItems();
 
         // Create new sql file in the selected directory
         File outFile = new File( outputDirectory, sourceTable.getName() + "_to_" + targetTable.getName() + ".sql");
@@ -55,9 +57,18 @@ public class SQLGenerator {
             // To
             out.write("INSERT INTO " + targetTable.getName() + "\n");
             out.write("(\n");
+            List<Field> targetsWithoutSource = new ArrayList<>();
             for (int i=0;i<n_mappings;i++) {
                 ItemToItemMap mapping = mappings.get(i);
-                Field target = targetTable.getFieldByName(mapping.getTargetItem().getName());
+
+                // If mapping, then get this information.
+                Field target;
+                if (mapping == null) {
+                    target = targetTable.getFieldByName(fieldToFieldMapping.getTargetItems().get(targetFieldsSeen.size()).getName());
+                    targetsWithoutSource.add(target);
+                } else {
+                    target = targetTable.getFieldByName(mapping.getTargetItem().getName());
+                }
 
                 out.write('\t');
                 out.write(target.getName());
@@ -82,6 +93,14 @@ public class SQLGenerator {
             out.write("SELECT\n");
             for (int i=0;i<n_mappings;i++) {
                 ItemToItemMap mapping = mappings.get(i);
+
+                // If no mapping known for the corresponding target, only write a comment.
+                if (mapping == null) {
+                    String targetName = targetsWithoutSource.remove(0).getName();
+                    out.write("\t");
+                    out.write(createInLineComment("No source column for " + targetName.toUpperCase() + ".\n"));
+                    continue;
+                }
                 Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
                 out.write('\t');
                 out.write(source.getName());
