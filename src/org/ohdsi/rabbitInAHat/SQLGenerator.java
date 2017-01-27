@@ -80,7 +80,7 @@ public class SQLGenerator {
 
                 // Warning if this target field has already been used
                 if (!targetFieldsSeen.add(target)) {
-                    out.write(createInLineComment("!#WARNING!# THIS TARGET FIELD WAS ALREADY USED"));
+                    out.write(createInLineComment("[!#WARNING!#] THIS TARGET FIELD WAS ALREADY USED"));
                 }
 
                 out.write(createInLineComment(target.getComment()));
@@ -94,27 +94,32 @@ public class SQLGenerator {
             for (int i=0;i<n_mappings;i++) {
                 ItemToItemMap mapping = mappings.get(i);
 
-                // If no mapping known for the corresponding target, only write a comment.
+                String sourceName;
+                String targetName;
                 if (mapping == null) {
-                    String targetName = targetsWithoutSource.remove(0).getName();
-                    out.write("\t");
-                    out.write(createInLineComment("No source column for " + targetName.toUpperCase() + ".\n"));
-                    continue;
+                    // Set value explicitly to null. Get target from the targetsWithoutSource
+                    sourceName = "NULL";
+                    targetName = targetsWithoutSource.remove(0).getName();
+                    out.write(createInLineComment("[!WARNING!] no source column found. See possible comment at the INSERT INTO"));
+                    out.write("\n");
+                } else {
+                    Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
+                    sourceName = source.getName();
+                    targetName = mapping.getTargetItem().getName();
+
+                    out.write(createInLineComment("[SOURCE  COMMENT]", source.getComment(), "\n"));
+                    out.write(createInLineComment("[MAPPING   LOGIC]", mapping.getLogic(), "\n"));
+                    out.write(createInLineComment("[MAPPING COMMENT]", mapping.getComment(), "\n"));
                 }
-                Field source = sourceTable.getFieldByName(mapping.getSourceItem().getName());
+
                 out.write('\t');
-                out.write(source.getName());
+                out.write(sourceName);
                 out.write("\tAS\t");
-                out.write(mapping.getTargetItem().getName());
+                out.write(targetName);
 
                 // Do not print comma if last is reached
-                if (i != n_mappings-1) {
+                if (i != n_mappings-1)
                     out.write(",");
-                }
-                // TODO: add provenance of comment
-                out.write(createInLineComment(source.getComment()));
-                out.write(createInLineComment(mapping.getComment()));
-                out.write(createInLineComment(mapping.getLogic()));
 
                 out.write("\n");
             }
@@ -131,6 +136,13 @@ public class SQLGenerator {
             return "";
 
         return " -- " + input.replaceAll("\\s"," ");
+    }
+
+    private static String createInLineComment(String prefix, String input, String postfix) {
+        if (input.trim().equals(""))
+            return "";
+
+        return String.format(" -- %s %s %s", prefix, input.replaceAll("\\s"," "), postfix);
     }
 
     private static String createBlockComment(String input) {
