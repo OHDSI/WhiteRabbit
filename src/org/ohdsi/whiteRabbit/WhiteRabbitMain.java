@@ -103,7 +103,6 @@ public class WhiteRabbitMain implements ActionListener {
 	private JTextField			targetServerField;
 	private JTextField			targetDatabaseField;
 	private JTextField			sourceDelimiterField;
-	private JTextField			targetDelimiterField;
 	private JComboBox<String> 	targetCSVFormat;
 	private JTextField			sourceServerField;
 	private JTextField			sourceUserField;
