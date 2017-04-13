@@ -175,6 +175,8 @@ public class ETLTestFrameWorkGenerator {
 					testDefs.add("    }");
 					testDefs.add("    if (is.null(" + rFieldName + ")) {");
 					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
+					testDefs.add("    } else if (is(" + rFieldName + ", \"subQuery\")){");
+					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = (\", as.character(" + rFieldName + "), \")\")");
 					testDefs.add("    } else {");
 					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
 					testDefs.add("    }");
