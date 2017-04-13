@@ -70,6 +70,6 @@ Development
 ===========
 White Rabbit and Rabbit in a Hat are being developed in Eclipse. Contributions are welcome.
 
-###Development status
+### Development status
 
 Production. This program is being used by many people.
