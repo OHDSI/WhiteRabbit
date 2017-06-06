@@ -18,6 +18,7 @@
 package org.ohdsi.rabbitInAHat.dataModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -71,6 +72,25 @@ public class Mapping<T extends MappableItem> {
 
 	public List<ItemToItemMap> getSourceToTargetMaps() {
 		return sourceToCdmMaps;
+	}
+
+	public List<ItemToItemMap> getSourceToTargetMapsOrderedByCdmItems() {
+		List<ItemToItemMap> result = new ArrayList<>();
+		for (MappableItem targetItem : cdmItems) {
+			boolean sourceFound = false;
+			for (MappableItem sourceItem : sourceItems) {
+				ItemToItemMap mapping = getSourceToTargetMap(sourceItem, targetItem);
+				if (mapping != null) {
+					result.add(mapping);
+					sourceFound = true;
+				}
+			}
+			if (!sourceFound)
+				result.add(null);
+		}
+
+//		result.removeAll(Collections.singleton(null));
+		return result;
 	}
 
 	public void removeSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {

@@ -64,7 +64,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
 	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK	= "Generate ETL Test Framework";
 	public final static String		ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK	= "Generate ETL Test Framework (for R Packages)";
-	
+	public final static String		ACTION_CMD_GENERATE_SQL	= "Generate SQL (beta)";
+
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
@@ -232,7 +233,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generatePackageTestFrameworkItem.addActionListener(this);
 		generatePackageTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK);
 		fileMenu.add(generatePackageTestFrameworkItem);
-		
+
+		JMenuItem generateSql = new JMenuItem(ACTION_CMD_GENERATE_SQL);
+		generateSql.addActionListener(this);
+		generateSql.setActionCommand(ACTION_CMD_GENERATE_SQL);
+		fileMenu.add(generateSql);
+
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
 
@@ -342,21 +348,37 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	 *            restrict files displayed
 	 * @return if file selected, absolute path of selected file otherwise null
 	 */
-	private String choosePath(boolean saveMode, FileFilter... filter) {
+	private String choosePath(boolean saveMode, boolean directoryMode, FileFilter... filter) {
 		String result = null;
 
 		if (chooser == null) {
 			chooser = new JFileChooser();
 		}
 		chooser.resetChoosableFileFilters();
-		chooser.setFileFilter(filter[0]);
-		for (int i = 1; i < filter.length; i++)
-			chooser.addChoosableFileFilter(filter[i]);
+
+		if (directoryMode) {
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			chooser.setAcceptAllFileFilterUsed(false);
+		} else {
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			chooser.setFileFilter(filter[0]);
+			for (int i = 1; i < filter.length; i++)
+				chooser.addChoosableFileFilter(filter[i]);
+		}
 
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
-		if (dialogResult == JFileChooser.APPROVE_OPTION)
-			result = chooser.getSelectedFile().getAbsolutePath();
+		if (dialogResult == JFileChooser.APPROVE_OPTION) {
+			if (directoryMode)
+				result = chooser.getCurrentDirectory().getAbsolutePath();
+			else
+				result = chooser.getSelectedFile().getAbsolutePath();
+		}
+
 		return result;
+	}
+
+	private String choosePath(boolean saveMode, FileFilter... filter) {
+		return choosePath(saveMode, false, filter);
 	}
 
 	private String chooseSavePath(FileFilter... fileFilter) {
@@ -370,6 +392,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	private String chooseOpenPath(FileFilter... fileFilter) {
 		return choosePath(false, fileFilter);
+	}
+
+	private String chooseSaveDirectory() {
+		return choosePath(true, true, new FileNameExtensionFilter("Directories","."));
 	}
 
 	@Override
@@ -396,6 +422,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK:
 				doGeneratePackageTestFramework(chooseSavePath(FILE_FILTER_R));
+				break;
+			case ACTION_CMD_GENERATE_SQL:
+				doGenerateSql(chooseSaveDirectory());
 				break;
 			case ACTION_CMD_DISCARD_COUNTS:
 				doDiscardCounts();
@@ -613,6 +642,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLDocumentGenerator.generate(ObjectExchange.etl, filename);
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+
+	private void doGenerateSql(String directoryName) {
+		if (directoryName != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			SQLGenerator sqlGenerator = new SQLGenerator(ObjectExchange.etl, directoryName);
+			sqlGenerator.generate();
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
