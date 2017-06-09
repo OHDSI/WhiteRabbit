@@ -282,25 +282,28 @@ public class SourceDataScan {
 	}
 
 	private QueryResult fetchRowsFromTable(RichConnection connection, String table, long rowCount) {
-		String query;
-		if (dbType == DbType.MSSQL || dbType == DbType.MSACCESS)
+		String query = null;
+		
+		if (sampleSize == -1) {		
+		if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.MSACCESS)
 			query = "SELECT * FROM [" + table + "]";
 		else
 			query = "SELECT * FROM " + table;
-
-		if (sampleSize != -1) {
+		} else {
 			if (dbType == DbType.MSSQL)
-				query += " TABLESAMPLE (" + sampleSize + " ROWS)";
+				query = "SELECT * FROM [" + table + "] TABLESAMPLE (" + sampleSize + " ROWS)";
 			else if (dbType == DbType.MYSQL)
-				query += " ORDER BY RAND() LIMIT " + sampleSize;
+				query = "SELECT * FROM " + table + " ORDER BY RAND() LIMIT " + sampleSize;
+			else if (dbType == DbType.PDW)
+				query = "SELECT TOP " + sampleSize + " * FROM [" + table + "] ORDER BY RAND()";
 			else if (dbType == DbType.ORACLE) {
 				if (sampleSize < rowCount) {
 					double percentage = 100 * sampleSize / (double) rowCount;
 					if (percentage < 100)
-						query += " SAMPLE(" + percentage + ")";
+						query = "SELECT * FROM " + table + " SAMPLE(" + percentage + ")";
 				}
 			} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
-				query += " ORDER BY RANDOM() LIMIT " + sampleSize;
+				query = "SELECT * FROM " + table + " ORDER BY RANDOM() LIMIT " + sampleSize;
 			else if (dbType == DbType.MSACCESS)
 				query = "SELECT " + "TOP " + sampleSize + " * FROM [" + table + "]";
 		}
@@ -328,7 +331,7 @@ public class SourceDataScan {
 			String query = null;
 			if (dbType == DbType.ORACLE)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
-			else if (dbType == DbType.MSSQL) {
+			else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
 				String trimmedDatabase = database;
 				if (database.startsWith("[") && database.endsWith("]"))
 					trimmedDatabase = database.substring(1, database.length() - 1);

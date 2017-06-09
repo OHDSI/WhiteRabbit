@@ -179,6 +179,15 @@ public class WhiteRabbitMain implements ActionListener {
 						dbSettings.domain = parts[0];
 					}
 				}
+			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("PDW")) {
+				dbSettings.dbType = DbType.PDW;
+				if (iniFile.get("USER_NAME").length() != 0) { // Not using windows authentication
+					String[] parts = iniFile.get("USER_NAME").split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
 			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("MS Access"))
 				dbSettings.dbType = DbType.MSACCESS;
 		}
@@ -251,7 +260,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
 		sourcePanel.add(new JLabel("Data type"));
-		sourceType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "Redshift" });
+		sourceType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "PDW", "Redshift" });
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(new ItemListener() {
 
@@ -744,6 +753,15 @@ public class WhiteRabbitMain implements ActionListener {
 						dbSettings.domain = parts[0];
 					}
 				}
+			} if (sourceType.getSelectedItem().toString().equals("PDW")) {
+				dbSettings.dbType = DbType.PDW;
+				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
+					String[] parts = sourceUserField.getText().split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
 			} else if (sourceType.getSelectedItem().toString().equals("MS Access"))
 				dbSettings.dbType = DbType.MSACCESS;
 		}
@@ -836,6 +854,15 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.POSTGRESQL;
 			else if (sourceType.getSelectedItem().toString().equals("SQL Server")) {
 				dbSettings.dbType = DbType.MSSQL;
+				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
+					String[] parts = sourceUserField.getText().split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
+			} else if (sourceType.getSelectedItem().toString().equals("PDW")) {
+				dbSettings.dbType = DbType.PDW;
 				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
 					String[] parts = sourceUserField.getText().split("/");
 					if (parts.length == 2) {
