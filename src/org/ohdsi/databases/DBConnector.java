@@ -74,7 +74,7 @@ public class DBConnector {
 	public static Connection connect(String server, String domain, String user, String password, DbType dbType) {
 		if (dbType.equals(DbType.MYSQL))
 			return DBConnector.connectToMySQL(server, user, password);
-		else if (dbType.equals(DbType.MSSQL))
+		else if (dbType.equals(DbType.MSSQL) || dbType.equals(DbType.PDW))
 			return DBConnector.connectToMSSQL(server, domain, user, password);
 		else if (dbType.equals(DbType.ORACLE))
 			return DBConnector.connectToOracle(server, domain, user, password);
@@ -101,19 +101,19 @@ public class DBConnector {
 			return DriverManager.getConnection(url, user, password);
 		} catch (SQLException e1) {
 			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
-		}		
+		}
 	}
-	
+
 	public static Connection connectToMsAccess(String server, String user, String password) {
-		try{
+		try {
 			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
-		}catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Cannot find ucanaccess driver. Make sure the file ucanaccess-3.0.3.1.jar is in the path");
 		}
 		String url = "jdbc:ucanaccess://" + server + ";sysschema=true";
-		try{
+		try {
 			return DriverManager.getConnection(url, user, password);
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			throw new RuntimeException("Cannot connect to DB server: " + e.getMessage());
 		}
 	}
@@ -182,35 +182,20 @@ public class DBConnector {
 	 * e1.getMessage()); } }
 	 */
 	public static Connection connectToMSSQL(String server, String domain, String user, String password) {
-		if (user == null || user.length() == 0) { // Use Windows integrated security
-			try {
-				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-			} catch (ClassNotFoundException e1) {
-				throw new RuntimeException("Cannot find JDBC driver. Make sure the file sqljdbc4.jar is in the path");
-			}
-			String url = "jdbc:sqlserver://" + server + ";integratedSecurity=true";
-
-			try {
-				return DriverManager.getConnection(url, user, password);
-			} catch (SQLException e1) {
-				throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
-			}
-		} else { // Do not use Windows integrated security
-			try {
-				Class.forName("net.sourceforge.jtds.jdbc.Driver");
-			} catch (ClassNotFoundException e1) {
-				throw new RuntimeException("Cannot find JDBC driver. Make sure the file jtds-1.3.0.jar is in the path");
-			}
-
-			String url = "jdbc:jtds:sqlserver://" + server + ";ssl=required" + ((domain == null || domain.length() == 0) ? "" : ";domain=" + domain);
-
-			try {
-				return DriverManager.getConnection(url, user, password);
-			} catch (SQLException e1) {
-				throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
-			}
+		try {
+			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+		} catch (ClassNotFoundException e1) {
+			throw new RuntimeException("Cannot find JDBC driver. Make sure the file sqljdbc4.jar is in the path");
 		}
-
+		String url = "jdbc:sqlserver://" + server;
+		if (user == null || user.length() == 0) { // Use Windows integrated security
+			url = url + ";integratedSecurity=true";
+		}
+		try {
+			return DriverManager.getConnection(url, user, password);
+		} catch (SQLException e1) {
+			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
+		}
 	}
 
 	public static Connection connectToOracle(String server, String domain, String user, String password) {

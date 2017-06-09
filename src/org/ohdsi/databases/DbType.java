@@ -20,21 +20,22 @@ package org.ohdsi.databases;
 public class DbType {
 	public static DbType	MYSQL		= new DbType("mysql");
 	public static DbType	MSSQL		= new DbType("mssql");
+	public static DbType	PDW			= new DbType("pdw");
 	public static DbType	ORACLE		= new DbType("oracle");
 	public static DbType	POSTGRESQL	= new DbType("postgresql");
 	public static DbType	MSACCESS	= new DbType("msaccess");
-	public static DbType    REDSHIFT    = new DbType("redshift");
-	
+	public static DbType	REDSHIFT	= new DbType("redshift");
+
 	private enum Type {
-		MYSQL, MSSQL, ORACLE, POSTGRESQL, MSACCESS, REDSHIFT
+		MYSQL, MSSQL, PDW, ORACLE, POSTGRESQL, MSACCESS, REDSHIFT
 	};
-	
-	private Type	type;
-	
+
+	private Type type;
+
 	public DbType(String type) {
 		this.type = Type.valueOf(type.toUpperCase());
 	}
-	
+
 	public boolean equals(Object other) {
 		if (other instanceof DbType && ((DbType) other).type == type)
 			return true;
