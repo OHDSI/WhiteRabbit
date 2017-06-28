@@ -20,9 +20,11 @@ package org.ohdsi.rabbitInAHat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.rabbitInAHat.dataModel.Db.DBMS;
 import org.ohdsi.rabbitInAHat.dataModel.Db.DbOperations;
 import org.ohdsi.rabbitInAHat.dataModel.Db.SqlServerDatabase;
 import org.ohdsi.utilities.StringUtilities;
@@ -33,31 +35,59 @@ public class ETLTestFrameWorkGenerator {
 	private static int			DEFAULT		= 0;
 	private static int			NEGATE		= 1;
 	private static int			COUNT		= 2;
+	
+	private ETLTestFrameWorkGenerator() {}	
 
-	public static void generate(ETL etl, String filename) {
-		List<String> r = generateRScript(etl);
+	public static void generate(ETL etl, String filename, DBMS dbms) {
+		List<String> r = generateRScript(etl, dbms);
 		WriteTextFile out = new WriteTextFile(filename);
 		for (String line : r)
 			out.writeln(line);
 		out.close();
 	}
 
-	private static List<String> generateRScript(ETL etl) {
+	private static List<String> generateRScript(ETL etl, DBMS dbms) {
 		List<String> r = new ArrayList<String>();
 		
-		DbOperations sourceDb = new SqlServerDatabase(etl.getSourceDatabase());
-		DbOperations targetDb = new SqlServerDatabase(etl.getTargetDatabase());
+		Database sourceDb = etl.getSourceDatabase();
+		Database targetDb = etl.getTargetDatabase();
+		DbOperations sourceDbOps = getDbOperations(sourceDb, dbms);
+		DbOperations targetDbOps = getDbOperations(targetDb, dbms);
 		
-		createInitFunction(r, sourceDb);
+		createInitFunction(r, sourceDbOps);
 		createDeclareTestFunction(r);
-		createSetDefaultFunctions(r, sourceDb);
-		createGetDefaultFunctions(r, sourceDb);
-		createAddFunctions(r, sourceDb);
-		createExpectFunctions(r, DEFAULT, targetDb);
-		createExpectFunctions(r, NEGATE, targetDb);
-		createExpectFunctions(r, COUNT, targetDb);
-		createLookupFunctions(r, targetDb);
+		createSetDefaultFunctions(r, sourceDbOps);
+		createGetDefaultFunctions(r, sourceDbOps);
+		createAddFunctions(r, sourceDbOps);
+		createExpectFunctions(r, DEFAULT, targetDbOps);
+		createExpectFunctions(r, NEGATE, targetDbOps);
+		createExpectFunctions(r, COUNT, targetDbOps);
+		createLookupFunctions(r, targetDbOps);
 		return r;
+	}
+
+	private static DbOperations getDbOperations(Database db, DBMS dbms) {
+		switch (dbms) {
+			case SQLServer:
+				return new SqlServerDatabase(db);
+			case APS:
+				break;
+			case Access:
+				break;
+			case MySQL:
+				break;
+			case Oracle:
+				break;
+			case PostgreSQL:
+				break;
+			case Redshift:
+				break;
+			case Text:
+				break;
+			default:
+				return null;
+		}
+		return null;
 	}
 
 	private static void createDeclareTestFunction(List<String> r) {
