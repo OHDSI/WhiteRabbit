@@ -50,6 +50,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.StemTableAdd;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.rabbitInAHat.dataModel.Db.DBMS;
 import org.ohdsi.whiteRabbit.ObjectExchange;
 
 /**
@@ -65,6 +66,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK			= "Generate ETL Test Framework";
 	public final static String		ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK	= "Generate ETL Test Framework (for R Packages)";
 
+
 	public final static String		ACTION_CMD_DISCARD_COUNTS					= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER							= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING						= "Make Mappings";
@@ -73,6 +75,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V5					= "CDM v5.0.0";
 	public final static String		ACTION_CMD_SET_TARGET_V501					= "CDM v5.0.1";
 	public final static String		ACTION_CMD_SET_TARGET_V510					= "CDM v5.1.0";
+	public final static String		ACTION_CMD_SET_DBMS_SQLSERVER				= "SQL Server";
+	public final static String		ACTION_CMD_SET_DBMS_REDSHIFT				= "Redshift";
 	public final static String		ACTION_ADD_STEM_TABLE						= "Add stem table";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM				= "Load Custom...";
 	public final static String		ACTION_CMD_MARK_COMPLETED					= "Mark Highlighted As Complete";
@@ -250,37 +254,64 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 		JMenu setTarget = new JMenu("Set Target Database");
 
-		JMenuItem targetCDMV4 = new JMenuItem(ACTION_CMD_SET_TARGET_V4);
+		JRadioButtonMenuItem targetCDMV4 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V4);
 		targetCDMV4.addActionListener(this);
 		targetCDMV4.setActionCommand(ACTION_CMD_SET_TARGET_V4);
 		setTarget.add(targetCDMV4);
 
-		JMenuItem targetCDMV5 = new JMenuItem(ACTION_CMD_SET_TARGET_V5);
+		JRadioButtonMenuItem targetCDMV5 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V5);
 		targetCDMV5.addActionListener(this);
 		targetCDMV5.setActionCommand(ACTION_CMD_SET_TARGET_V5);
 		setTarget.add(targetCDMV5);
 
-		JMenuItem targetCDMV501 = new JMenuItem(ACTION_CMD_SET_TARGET_V501);
+		JRadioButtonMenuItem targetCDMV501 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V501);
 		targetCDMV501.addActionListener(this);
 		targetCDMV501.setActionCommand(ACTION_CMD_SET_TARGET_V501);
 		setTarget.add(targetCDMV501);
 
-		JMenuItem targetCDMV510 = new JMenuItem(ACTION_CMD_SET_TARGET_V510);
+		JRadioButtonMenuItem targetCDMV510 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V510, true);
 		targetCDMV510.addActionListener(this);
 		targetCDMV510.setActionCommand(ACTION_CMD_SET_TARGET_V510);
 		setTarget.add(targetCDMV510);
 
-		JMenuItem loadTarget = new JMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
+		JRadioButtonMenuItem loadTarget = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
+
 		loadTarget.addActionListener(this);
 		loadTarget.setActionCommand(ACTION_CMD_SET_TARGET_CUSTOM);
 		setTarget.add(loadTarget);
 		editMenu.add(setTarget);
+		
+		ButtonGroup targetGroup = new ButtonGroup();
+		targetGroup.add(targetCDMV4);
+		targetGroup.add(targetCDMV5);
+		targetGroup.add(targetCDMV501);
+		targetGroup.add(targetCDMV510);
+		targetGroup.add(loadTarget);
 
 		JMenuItem addStemTable = new JMenuItem(ACTION_ADD_STEM_TABLE);
 		addStemTable.addActionListener(this);
 		addStemTable.setActionCommand(ACTION_ADD_STEM_TABLE);
 		editMenu.add(addStemTable);
 
+		//<< DBMS
+		JMenu setDBMS = new JMenu("Set Database Vendor");
+
+		JRadioButtonMenuItem dbmsSqlServer = new JRadioButtonMenuItem(ACTION_CMD_SET_DBMS_SQLSERVER, true);
+		dbmsSqlServer.addActionListener(this);
+		dbmsSqlServer.setActionCommand(ACTION_CMD_SET_DBMS_SQLSERVER);
+		setDBMS.add(dbmsSqlServer);
+
+		JRadioButtonMenuItem dbmsRedshift = new JRadioButtonMenuItem(ACTION_CMD_SET_DBMS_REDSHIFT);
+		dbmsRedshift.addActionListener(this);
+		dbmsRedshift.setActionCommand(ACTION_CMD_SET_DBMS_REDSHIFT);
+		setDBMS.add(dbmsRedshift);
+		editMenu.add(setDBMS);
+		
+		ButtonGroup dbmsGroup = new ButtonGroup();
+		dbmsGroup.add(dbmsSqlServer);
+		dbmsGroup.add(dbmsRedshift);	    
+		//>>		
+		
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
 
@@ -433,6 +464,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_ADD_STEM_TABLE:
 				doAddStemTable();
 				break;
+			case ACTION_CMD_SET_DBMS_SQLSERVER:
+				doSetDbmsSqlServer();
+				break;
+			case ACTION_CMD_SET_DBMS_REDSHIFT:
+				doSetDbmsRedshift();
+				break;
 			case ACTION_CMD_MARK_COMPLETED:
 				doMarkCompleted();
 				break;
@@ -452,10 +489,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		tableMappingPanel.setMapping(etl.getTableToTableMapping());
 	}
 
+	private void doSetDbmsSqlServer() {		
+		ObjectExchange.dbms = DBMS.SQLServer;
+		
+	}
+	
+	private void doSetDbmsRedshift() {
+		ObjectExchange.dbms = DBMS.Redshift;
+	}
+	
 	private void doGenerateTestFramework(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLTestFrameWorkGenerator.generate(ObjectExchange.etl, filename);
+			ETLTestFrameWorkGenerator.generate(ObjectExchange.etl, filename, ObjectExchange.dbms);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
