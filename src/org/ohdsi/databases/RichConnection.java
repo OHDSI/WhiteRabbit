@@ -143,7 +143,7 @@ public class RichConnection {
 		String query = null;
 		if (dbType == DbType.MYSQL) {
 			query = "SHOW TABLES IN " + database;
-		} else if (dbType == DbType.MSSQL) {
+		} else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
 			query = "SELECT name FROM " + database + ".sys.tables ORDER BY name";
 		} else if (dbType == DbType.ORACLE) {
 			query = "SELECT table_name FROM all_tables WHERE owner='" + database.toUpperCase() + "'";
@@ -160,7 +160,7 @@ public class RichConnection {
 
 	public List<String> getFieldNames(String table) {
 		List<String> names = new ArrayList<String>();
-		if (dbType == DbType.MSSQL) {
+		if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
 			for (Row row : query("SELECT name FROM syscolumns WHERE id=OBJECT_ID('" + table + "')"))
 				names.add(row.get("name"));
 		} else if (dbType == DbType.MYSQL)
@@ -193,16 +193,14 @@ public class RichConnection {
 	public long getTableSize(String tableName) {
 		QueryResult qr = null;
 		Long returnVal = null;
-		if (dbType == DbType.MSSQL || dbType == DbType.MSACCESS)
+		if (dbType == DbType.MSSQL|| dbType == DbType.PDW) 
+			qr = query("SELECT COUNT_BIG(*) FROM [" + tableName + "];");
+		else if (dbType == DbType.MSACCESS )
 			qr = query("SELECT COUNT(*) FROM [" + tableName + "];");
-			//return Long.parseLong(query("SELECT COUNT(*) FROM [" + tableName + "];").iterator().next().getCells().get(0));
 		else
 			qr = query("SELECT COUNT(*) FROM " + tableName + ";");
-		//	return Long.parseLong(query("SELECT COUNT(*) FROM " + tableName + ";").iterator().next().getCells().get(0));
-		
-		// Obtain the value and close the connection
 		try {
-			returnVal = Long.parseLong(query("SELECT COUNT(*) FROM " + tableName + ";").iterator().next().getCells().get(0));
+			returnVal = Long.parseLong(qr.iterator().next().getCells().get(0));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -415,7 +413,7 @@ public class RichConnection {
 					return columnNameToSqlName(name) + " text";
 				else
 					return columnNameToSqlName(name) + " varchar(255)";
-			} else if (dbType == DbType.MSSQL) {
+			} else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
 				if (isNumeric) {
 					if (maxLength < 10)
 						return columnNameToSqlName(name) + " int";

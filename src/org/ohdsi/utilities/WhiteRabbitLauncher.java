@@ -12,7 +12,7 @@ public class WhiteRabbitLauncher {
 
 		float heapSizeMegs = (Runtime.getRuntime().maxMemory() / 1024) / 1024;
 
-		if (heapSizeMegs > MIN_HEAP) {
+		if (heapSizeMegs > MIN_HEAP || args.length > 0) {
 			System.out.println("Launching with current VM");
 			WhiteRabbitMain.main(args);
 		} else {

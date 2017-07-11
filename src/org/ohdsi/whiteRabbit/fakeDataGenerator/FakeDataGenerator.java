@@ -88,7 +88,7 @@ public class FakeDataGenerator {
 				if (!name.toLowerCase().endsWith(".csv"))
 					name = name + ".csv";
 				System.out.println("Generating table " + name);
-				WriteCSVFileWithHeader out = new WriteCSVFileWithHeader(name);
+				WriteCSVFileWithHeader out = new WriteCSVFileWithHeader(name, dbSettings.csvFormat);
 				for (Row row : generateRows(table))
 					out.write(row);
 				out.close();

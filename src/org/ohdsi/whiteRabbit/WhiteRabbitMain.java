@@ -40,6 +40,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -69,10 +70,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.csv.CSVFormat;
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.DirectoryUtilities;
 import org.ohdsi.utilities.StringUtilities;
+import org.ohdsi.utilities.files.IniFile;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 
@@ -88,26 +91,26 @@ public class WhiteRabbitMain implements ActionListener {
 	private JTextField			folderField;
 	private JTextField			scanReportFileField;
 
-	private JComboBox			scanRowCount;
-	private JComboBox			scanValuesCount;
+	private JComboBox<String>	scanRowCount;
+	private JComboBox<String>	scanValuesCount;
 	private JCheckBox			scanValueScan;
 	private JSpinner			scanMinCellCount;
 	private JSpinner			generateRowCount;
-	private JComboBox			sourceType;
-	private JComboBox			targetType;
+	private JComboBox<String>	sourceType;
+	private JComboBox<String>	targetType;
 	private JTextField			targetUserField;
 	private JTextField			targetPasswordField;
 	private JTextField			targetServerField;
 	private JTextField			targetDatabaseField;
 	private JTextField			sourceDelimiterField;
-	private JTextField			targetDelimiterField;
+	private JComboBox<String> 	targetCSVFormat;
 	private JTextField			sourceServerField;
 	private JTextField			sourceUserField;
 	private JTextField			sourcePasswordField;
 	private JTextField			sourceDatabaseField;
 	private JButton				addAllButton;
-	private JList				tableList;
-	private List<String>		tables							= new ArrayList<String>();
+	private JList<String>		tableList;
+	private Vector<String>		tables							= new Vector<String>();
 	private boolean				sourceIsFiles					= true;
 	private boolean				targetIsFiles					= false;
 
@@ -118,27 +121,95 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	public WhiteRabbitMain(String[] args) {
-		frame = new JFrame("White Rabbit");
+		if (args.length == 2 && args[0].equalsIgnoreCase("-ini"))
+			launchCommandLine(args[1]);
+		else {
+			frame = new JFrame("White Rabbit");
 
-		frame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
+			frame.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent e) {
+					System.exit(0);
+				}
+			});
+			frame.setLayout(new BorderLayout());
+			frame.setJMenuBar(createMenuBar());
+
+			JComponent tabsPanel = createTabsPanel();
+			JComponent consolePanel = createConsolePanel();
+
+			frame.add(consolePanel, BorderLayout.CENTER);
+			frame.add(tabsPanel, BorderLayout.NORTH);
+
+			loadIcons(frame);
+			frame.pack();
+			frame.setVisible(true);
+			ObjectExchange.frame = frame;
+		}
+	}
+
+	private void launchCommandLine(String iniFileName) {
+		IniFile iniFile = new IniFile(iniFileName);
+		DbSettings dbSettings = new DbSettings();
+		if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Delimited text files")) {
+			dbSettings.dataType = DbSettings.CSVFILES;
+			if (iniFile.get("DELIMITER").equalsIgnoreCase("tab"))
+				dbSettings.delimiter = '\t';
+			else
+				dbSettings.delimiter = iniFile.get("DELIMITER").charAt(0);
+		} else {
+			dbSettings.dataType = DbSettings.DATABASE;
+			dbSettings.user = iniFile.get("USER_NAME");
+			dbSettings.password = iniFile.get("PASSWORD");
+			dbSettings.server = iniFile.get("SERVER_LOCATION");
+			dbSettings.database = iniFile.get("DATABASE_NAME");
+			if (iniFile.get("DATA_TYPE").equalsIgnoreCase("MySQL"))
+				dbSettings.dbType = DbType.MYSQL;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Oracle"))
+				dbSettings.dbType = DbType.ORACLE;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("PostgreSQL"))
+				dbSettings.dbType = DbType.POSTGRESQL;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Redshift"))
+				dbSettings.dbType = DbType.REDSHIFT;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("SQL Server")) {
+				dbSettings.dbType = DbType.MSSQL;
+				if (iniFile.get("USER_NAME").length() != 0) { // Not using windows authentication
+					String[] parts = iniFile.get("USER_NAME").split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
+			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("PDW")) {
+				dbSettings.dbType = DbType.PDW;
+				if (iniFile.get("USER_NAME").length() != 0) { // Not using windows authentication
+					String[] parts = iniFile.get("USER_NAME").split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
+			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("MS Access"))
+				dbSettings.dbType = DbType.MSACCESS;
+		}
+		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
+			RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
+			for (String table : connection.getTableNames(dbSettings.database))
+				dbSettings.tables.add(table);
+			connection.close();
+		} else {
+			for (String table : iniFile.get("TABLES_TO_SCAN").split(",")) {
+				if (dbSettings.dataType == DbSettings.CSVFILES)
+					table = iniFile.get("WORKING_FOLDER") + "/" + table;
+				dbSettings.tables.add(table);
 			}
-		});
-		frame.setLayout(new BorderLayout());
-		frame.setJMenuBar(createMenuBar());
+		}
 
-		JComponent tabsPanel = createTabsPanel();
-		JComponent consolePanel = createConsolePanel();
-
-		frame.add(consolePanel, BorderLayout.CENTER);
-		frame.add(tabsPanel, BorderLayout.NORTH);
-
-		loadIcons(frame);
-		frame.pack();
-		frame.setVisible(true);
-		ObjectExchange.frame = frame;
-		executeParameters(args);
+		SourceDataScan sourceDataScan = new SourceDataScan();
+		int maxRows = Integer.parseInt(iniFile.get("ROWS_PER_TABLE"));
+		boolean scanValues = iniFile.get("SCAN_FIELD_VALUES").equalsIgnoreCase("yes");
+		int minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
+		int maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
+		sourceDataScan.process(dbSettings, maxRows, scanValues, minCellCount, maxValues, iniFile.get("WORKING_FOLDER") + "/ScanReport.xlsx");
 	}
 
 	private JComponent createTabsPanel() {
@@ -189,7 +260,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
 		sourcePanel.add(new JLabel("Data type"));
-		sourceType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "Redshift" });
+		sourceType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "PDW", "Redshift" });
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(new ItemListener() {
 
@@ -286,7 +357,7 @@ public class WhiteRabbitMain implements ActionListener {
 		JPanel tablePanel = new JPanel();
 		tablePanel.setLayout(new BorderLayout());
 		tablePanel.setBorder(new TitledBorder("Tables to scan"));
-		tableList = new JList();
+		tableList = new JList<String>();
 		tableList.setToolTipText("Specify the tables (or CSV files) to be scanned here");
 		tablePanel.add(new JScrollPane(tableList), BorderLayout.CENTER);
 
@@ -349,14 +420,14 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsPanel.add(new JLabel("Max distinct values "));
-		scanValuesCount = new JComboBox(new String[] { "100", "1,000", "10,000" });
+		scanValuesCount = new JComboBox<String>(new String[] { "100", "1,000", "10,000" });
 		scanValuesCount.setSelectedIndex(1);
 		scanValuesCount.setToolTipText("Maximum number of distinct values per field to be reported");
 		scanOptionsPanel.add(scanValuesCount);
 		scanOptionsPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsPanel.add(new JLabel("Rows per table "));
-		scanRowCount = new JComboBox(new String[] { "100,000", "500,000", "1 million", "all" });
+		scanRowCount = new JComboBox<String>(new String[] { "100,000", "500,000", "1 million", "all" });
 		scanRowCount.setSelectedIndex(0);
 		scanRowCount.setToolTipText("Maximum number of rows per table to be scanned for field values");
 		scanOptionsPanel.add(scanRowCount);
@@ -419,7 +490,7 @@ public class WhiteRabbitMain implements ActionListener {
 		targetPanel.setLayout(new GridLayout(0, 2));
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
-		targetType = new JComboBox(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
+		targetType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
 		// targetType = new JComboBox(new String[] { "Delimited text files", "MySQL" });
 		targetType.setToolTipText("Select the type of source data available");
 		targetType.addItemListener(new ItemListener() {
@@ -431,7 +502,7 @@ public class WhiteRabbitMain implements ActionListener {
 				targetUserField.setEnabled(!targetIsFiles);
 				targetPasswordField.setEnabled(!targetIsFiles);
 				targetDatabaseField.setEnabled(!targetIsFiles);
-				targetDelimiterField.setEnabled(targetIsFiles);
+				targetCSVFormat.setEnabled(targetIsFiles);
 
 				if (!targetIsFiles && arg0.getItem().toString().equals("Oracle")) {
 					targetServerField
@@ -476,11 +547,12 @@ public class WhiteRabbitMain implements ActionListener {
 		targetDatabaseField.setEnabled(false);
 		targetPanel.add(targetDatabaseField);
 
-		targetPanel.add(new JLabel("Delimiter"));
-		targetDelimiterField = new JTextField(",");
-		targetDelimiterField.setToolTipText("The delimiter that separates values. Enter 'tab' for tab.");
-		targetDelimiterField.setEnabled(true);
-		targetPanel.add(targetDelimiterField);
+		targetPanel.add(new JLabel("CSV Format"));
+		targetCSVFormat = new JComboBox<>(
+				new String[] { "Default (comma, CRLF)", "TDF (tab, CRLF)", "MySQL (tab, LF)", "RFC4180", "Excel CSV" });
+		targetCSVFormat.setToolTipText("The format of the output");
+		targetCSVFormat.setEnabled(true);
+		targetPanel.add(targetCSVFormat);
 
 		c.gridx = 0;
 		c.gridy = 1;
@@ -566,39 +638,6 @@ public class WhiteRabbitMain implements ActionListener {
 		return null;
 	}
 
-	private void executeParameters(String[] args) {
-		String mode = null;
-		for (String arg : args) {
-			if (arg.startsWith("-")) {
-				mode = arg.toLowerCase();
-			} else {
-				if (mode.equals("-folder"))
-					folderField.setText(arg);
-				if (mode.equals("-targetpassword"))
-					targetPasswordField.setText(arg);
-				if (mode.equals("-targetserver"))
-					targetServerField.setText(arg);
-				if (mode.equals("-targettype"))
-					targetType.setSelectedItem(arg);
-				if (mode.equals("-targetdatabase"))
-					targetDatabaseField.setText(arg);
-				if (mode.equals("-targetuser"))
-					targetUserField.setText(arg);
-				if (mode.equals("-sourceserver"))
-					sourceServerField.setText(arg);
-				if (mode.equals("-sourcetype"))
-					sourceType.setSelectedItem(arg);
-				if (mode.equals("-sourcedatabase"))
-					sourceDatabaseField.setText(arg);
-				if (mode.equals("-sourceuser"))
-					sourceUserField.setText(arg);
-				if (mode.equals("-sourcepassword"))
-					sourcePasswordField.setText(arg);
-				mode = null;
-			}
-		}
-	}
-
 	private void pickFolder() {
 		JFileChooser fileChooser = new JFileChooser(new File(folderField.getText()));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -616,9 +655,9 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	private void removeTables() {
-		for (Object item : tableList.getSelectedValues()) {
+		for (String item : tableList.getSelectedValuesList()) {
 			tables.remove(item);
-			tableList.setListData(tables.toArray());
+			tableList.setListData(tables);
 		}
 	}
 
@@ -630,7 +669,7 @@ public class WhiteRabbitMain implements ActionListener {
 			for (String table : connection.getTableNames(sourceDbSettings.database)) {
 				if (!tables.contains(table))
 					tables.add((String) table);
-				tableList.setListData(tables.toArray());
+				tableList.setListData(tables);
 			}
 			connection.close();
 		}
@@ -652,7 +691,7 @@ public class WhiteRabbitMain implements ActionListener {
 						String tableName = DirectoryUtilities.getRelativePath(new File(folderField.getText()), table);
 						if (!tables.contains(tableName))
 							tables.add(tableName);
-						tableList.setListData(tables.toArray());
+						tableList.setListData(tables);
 					}
 
 				}
@@ -669,7 +708,7 @@ public class WhiteRabbitMain implements ActionListener {
 						for (Object item : selectionDialog.getSelectedItems()) {
 							if (!tables.contains(item))
 								tables.add((String) item);
-							tableList.setListData(tables.toArray());
+							tableList.setListData(tables);
 						}
 					}
 				}
@@ -707,6 +746,15 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.REDSHIFT;
 			else if (sourceType.getSelectedItem().toString().equals("SQL Server")) {
 				dbSettings.dbType = DbType.MSSQL;
+				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
+					String[] parts = sourceUserField.getText().split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
+			} if (sourceType.getSelectedItem().toString().equals("PDW")) {
+				dbSettings.dbType = DbType.PDW;
 				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
 					String[] parts = sourceUserField.getText().split("/");
 					if (parts.length == 2) {
@@ -771,14 +819,27 @@ public class WhiteRabbitMain implements ActionListener {
 		DbSettings dbSettings = new DbSettings();
 		if (targetType.getSelectedItem().equals("Delimited text files")) {
 			dbSettings.dataType = DbSettings.CSVFILES;
-			if (targetDelimiterField.getText().length() == 0) {
-				JOptionPane.showMessageDialog(frame, "Delimiter field cannot be empty for target files", "Error", JOptionPane.ERROR_MESSAGE);
-				return null;
+
+			switch((String) targetCSVFormat.getSelectedItem()) {
+				case "Default (comma, CRLF)":
+					dbSettings.csvFormat = CSVFormat.DEFAULT;
+					break;
+				case "RFC4180":
+					dbSettings.csvFormat = CSVFormat.RFC4180;
+					break;
+				case "Excel CSV":
+					dbSettings.csvFormat = CSVFormat.EXCEL;
+					break;
+				case "TDF (tab, CRLF)":
+					dbSettings.csvFormat = CSVFormat.TDF;
+					break;
+				case "MySQL (tab, LF)":
+					dbSettings.csvFormat = CSVFormat.MYSQL;
+					break;
+				default:
+					dbSettings.csvFormat = CSVFormat.RFC4180;
 			}
-			if (targetDelimiterField.getText().toLowerCase().equals("tab"))
-				dbSettings.delimiter = '\t';
-			else
-				dbSettings.delimiter = targetDelimiterField.getText().charAt(0);
+
 		} else {
 			dbSettings.dataType = DbSettings.DATABASE;
 			dbSettings.user = targetUserField.getText();
@@ -793,6 +854,15 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.POSTGRESQL;
 			else if (sourceType.getSelectedItem().toString().equals("SQL Server")) {
 				dbSettings.dbType = DbType.MSSQL;
+				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
+					String[] parts = sourceUserField.getText().split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
+			} else if (sourceType.getSelectedItem().toString().equals("PDW")) {
+				dbSettings.dbType = DbType.PDW;
 				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
 					String[] parts = sourceUserField.getText().split("/");
 					if (parts.length == 2) {
@@ -930,7 +1000,7 @@ public class WhiteRabbitMain implements ActionListener {
 		private JButton				yesButton			= null;
 		private JButton				noButton			= null;
 		private boolean				answer				= false;
-		private JList				list;
+		private JList<String>		list;
 
 		public boolean getAnswer() {
 			return answer;
@@ -948,7 +1018,7 @@ public class WhiteRabbitMain implements ActionListener {
 			JLabel message = new JLabel("Select tables");
 			panel.add(message, BorderLayout.NORTH);
 
-			list = new JList(tableNames.split("\t"));
+			list = new JList<String>(tableNames.split("\t"));
 			JScrollPane scrollPane = new JScrollPane(list);
 			panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -976,8 +1046,8 @@ public class WhiteRabbitMain implements ActionListener {
 			}
 		}
 
-		public Object[] getSelectedItems() {
-			return list.getSelectedValues();
+		public List<String> getSelectedItems() {
+			return list.getSelectedValuesList();
 		}
 	}
 
@@ -1011,9 +1081,6 @@ public class WhiteRabbitMain implements ActionListener {
 
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
-		JMenu fileMenu = new JMenu("File");
-		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
 		JMenuItem helpItem = new JMenuItem(ACTION_CMD_HELP);
