@@ -57,35 +57,35 @@ import org.ohdsi.whiteRabbit.ObjectExchange;
  */
 public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
-	public final static String		ACTION_CMD_SAVE						= "Save";
-	public final static String		ACTION_CMD_SAVE_AS					= "Save As";
-	public final static String		ACTION_CMD_OPEN_ETL_SPECS			= "Open ETL Specs";
-	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
-	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
-	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK	= "Generate ETL Test Framework";
+	public final static String		ACTION_CMD_SAVE								= "Save";
+	public final static String		ACTION_CMD_SAVE_AS							= "Save As";
+	public final static String		ACTION_CMD_OPEN_ETL_SPECS					= "Open ETL Specs";
+	public final static String		ACTION_CMD_OPEN_SCAN_REPORT					= "Open Scan Report";
+	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT			= "Generate ETL Document";
+	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK			= "Generate ETL Test Framework";
 	public final static String		ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK	= "Generate ETL Test Framework (for R Packages)";
-	
-	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
-	public final static String		ACTION_CMD_FILTER					= "Filter";
-	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
-	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
-	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
-	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5.0.0";
-	public final static String		ACTION_CMD_SET_TARGET_V501			= "CDM v5.0.1";
-	public final static String              ACTION_CMD_SET_TARGET_V510                      = "CDM v5.1.0";
-	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
-	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
-	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
-	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Mark Highlighted As Incomplete";
-	public final static String		ACTION_CMD_HELP						= "Open help Wiki";
 
-	public final static String		WIKI_URL							= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat";
-	private final static FileFilter	FILE_FILTER_GZ						= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
-	private final static FileFilter	FILE_FILTER_JSON					= new FileNameExtensionFilter("JSON Files (*.json)", "json");
-	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
-	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
-	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
-	private final static FileFilter	FILE_FILTER_XLSX					= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
+	public final static String		ACTION_CMD_DISCARD_COUNTS					= "Discard Value Counts";
+	public final static String		ACTION_CMD_FILTER							= "Filter";
+	public final static String		ACTION_CMD_MAKE_MAPPING						= "Make Mappings";
+	public final static String		ACTION_CMD_REMOVE_MAPPING					= "Remove Mappings";
+	public final static String		ACTION_CMD_SET_TARGET_V4					= "CDM v4";
+	public final static String		ACTION_CMD_SET_TARGET_V5					= "CDM v5.0.0";
+	public final static String		ACTION_CMD_SET_TARGET_V501					= "CDM v5.0.1";
+	public final static String		ACTION_CMD_SET_TARGET_V510					= "CDM v5.1.0";
+	public final static String		ACTION_ADD_STEM_TABLE						= "Add stem table";
+	public final static String		ACTION_CMD_SET_TARGET_CUSTOM				= "Load Custom...";
+	public final static String		ACTION_CMD_MARK_COMPLETED					= "Mark Highlighted As Complete";
+	public final static String		ACTION_CMD_UNMARK_COMPLETED					= "Mark Highlighted As Incomplete";
+	public final static String		ACTION_CMD_HELP								= "Open help Wiki";
+
+	public final static String		WIKI_URL									= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat";
+	private final static FileFilter	FILE_FILTER_GZ								= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
+	private final static FileFilter	FILE_FILTER_JSON							= new FileNameExtensionFilter("JSON Files (*.json)", "json");
+	private final static FileFilter	FILE_FILTER_DOCX							= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
+	private final static FileFilter	FILE_FILTER_CSV								= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
+	private final static FileFilter	FILE_FILTER_R								= new FileNameExtensionFilter("R script (*.r)", "r");
+	private final static FileFilter	FILE_FILTER_XLSX							= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
 
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
@@ -121,7 +121,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV501));
+		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV510));
 
 		ObjectExchange.etl = etl;
 
@@ -233,7 +233,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generatePackageTestFrameworkItem.addActionListener(this);
 		generatePackageTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK);
 		fileMenu.add(generatePackageTestFrameworkItem);
-		
+
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
 
@@ -264,11 +264,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		targetCDMV501.addActionListener(this);
 		targetCDMV501.setActionCommand(ACTION_CMD_SET_TARGET_V501);
 		setTarget.add(targetCDMV501);
-		
+
 		JMenuItem targetCDMV510 = new JMenuItem(ACTION_CMD_SET_TARGET_V510);
-                targetCDMV510.addActionListener(this);
-                targetCDMV510.setActionCommand(ACTION_CMD_SET_TARGET_V510);
-                setTarget.add(targetCDMV510);
+		targetCDMV510.addActionListener(this);
+		targetCDMV510.setActionCommand(ACTION_CMD_SET_TARGET_V510);
+		setTarget.add(targetCDMV510);
 
 		JMenuItem loadTarget = new JMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
 		loadTarget.addActionListener(this);
@@ -425,8 +425,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doSetTargetCDM(CDMVersion.CDMV501);
 				break;
 			case ACTION_CMD_SET_TARGET_V510:
-                                doSetTargetCDM(CDMVersion.CDMV510);
-                                break;
+				doSetTargetCDM(CDMVersion.CDMV510);
+				break;
 			case ACTION_CMD_SET_TARGET_CUSTOM:
 				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
 				break;
@@ -459,7 +459,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
-	
+
 	private void doGeneratePackageTestFramework(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -501,7 +501,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(), Database.generateCDMModel(cdmVersion));
 		etl.copyETLMappings(ObjectExchange.etl);
 		tableMappingPanel.setMapping(etl.getTableToTableMapping());
-		ObjectExchange.etl = etl;		
+		ObjectExchange.etl = etl;
 	}
 
 	private void doOpenFilterDialog() {
@@ -539,8 +539,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doSave(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETL.FileFormat fileFormat = filename.endsWith("json.gz") ? ETL.FileFormat.GzipJson : filename.endsWith("json") ? ETL.FileFormat.Json
-					: ETL.FileFormat.Binary;
+			ETL.FileFormat fileFormat = filename.endsWith("json.gz") ? ETL.FileFormat.GzipJson
+					: filename.endsWith("json") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
 			ObjectExchange.etl.save(filename, fileFormat);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -549,8 +549,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doOpenSpecs(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETL.FileFormat fileFormat = filename.endsWith(".json.gz") ? ETL.FileFormat.GzipJson : filename.endsWith(".json") ? ETL.FileFormat.Json
-					: ETL.FileFormat.Binary;
+			ETL.FileFormat fileFormat = filename.endsWith(".json.gz") ? ETL.FileFormat.GzipJson
+					: filename.endsWith(".json") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
 			try {
 				ObjectExchange.etl = ETL.fromFile(filename, fileFormat);
 				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
