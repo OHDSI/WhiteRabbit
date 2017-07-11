@@ -10,6 +10,7 @@ Features
 - Can scan databases in SQL Server, Oracle, PostgreSQL, MySQL, MS Access, Amazon RedShift, and CSV files
 - The scan report contains information on tables, fields, and frequency distributions of values
 - Cutoff on the minimum frequency of values to protect patient privacy
+- WhiteRabbit can be run with a graphical user interface or from the command prompt
 - Interactive tool (Rabbit in a Hat) for designing the ETL using the scan report as basis
 - Rabbit in a Hat generates ETL specification document according to OMOP template
 
@@ -49,6 +50,8 @@ WhiteRabbit
 2. Unzip the download
 3. Double-click on WhiteRabbit.jar to start White Rabbit.
 
+(See the [Wiki](http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#running_from_the_command_line) for details on how to run from the command prompt instead)
+
 Rabbit-In-A-Hat
 
 1. Using the files downloaded for WhiteRabbit, double-click on RabbitInAHat.jar to start Rabbit-In-A-Hat.
@@ -66,5 +69,7 @@ WhiteRabbit is licensed under Apache License 2.0
 Development
 ===========
 White Rabbit and Rabbit in a Hat are being developed in Eclipse. Contributions are welcome.
-###Development status
-Beta testing - We invite everyone to try the software, and report any issues they may find.
+
+### Development status
+
+Production. This program is being used by many people.

@@ -35,3 +35,8 @@ STEM_TABLE,VALUE_AS_CONCEPT_ID,YES,INTEGER,"A foreign key to a result represente
 STEM_TABLE,VALUE_AS_NUMBER,YES,DECIMAL,A result where the result is expressed as a numeric value.
 STEM_TABLE,VALUE_AS_STRING,YES,CHARACTER VARYING,The result stored as a string. This is applicable where the result is expressed as verbatim text.
 STEM_TABLE,VALUE_SOURCE_VALUE,YES,CHARACTER VARYING,The source value associated with the content of the value_as_number or value_as_concept as stored in the source data.
+STEM_TABLE,ANATOMIC_SITE_CONCEPT_ID,YES,INTEGER,A foreign key to a Standard Concept identifier for the anatomic location of specimen collection.
+STEM_TABLE,DISEASE_STATUS_CONCEPT_ID,YES,INTEGER,A foreign key to a Standard Concept identifier for the Disease Status of specimen collection.
+STEM_TABLE,SPECIMEN_SOURCE_ID,YES,INTEGER,The Specimen identifier as it appears in the source data.
+STEM_TABLE,ANATOMIC_SITE_SOURCE_VALUE,YES,CHARACTER VARYING,The information about the anatomic site as detailed in the source.
+STEM_TABLE,DISEASE_STATUS_SOURCE_VALUE,YES,CHARACTER VARYING,The information about the disease status as detailed in the source.
