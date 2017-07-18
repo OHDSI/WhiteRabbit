@@ -128,6 +128,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV510));
 
 		ObjectExchange.etl = etl;
+		ObjectExchange.dbms = DBMS.SQLServer;
 
 		tableMappingPanel = new MappingPanel(etl.getTableToTableMapping());
 		tableMappingPanel.addResizeListener(this);

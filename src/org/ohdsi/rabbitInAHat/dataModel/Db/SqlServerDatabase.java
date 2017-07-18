@@ -1,9 +1,13 @@
 package org.ohdsi.rabbitInAHat.dataModel.Db;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.ohdsi.rabbitInAHat.dataModel.Database;
+import org.ohdsi.rabbitInAHat.dataModel.Field;
+import org.ohdsi.rabbitInAHat.dataModel.Table;
 
 public class SqlServerDatabase implements DbOperations {
 	
@@ -23,9 +27,9 @@ public class SqlServerDatabase implements DbOperations {
 		"TSEQUAL", "UNION", "UNIQUE", "UNPIVOT", "UPDATE", "UPDATETEXT", "USE", "USER", "VALUES", "VARYING", "VIEW", "WAITFOR", "WHEN", "WHERE", "WHILE",
 		"WITH", "WITHIN GROUP", "WRITETEXT" };
 	
-	private static Set<String>	keywordSet;
+	private static Set<String> keywordSet;
 	
-	private Database database;
+	private Database database;	 
 	
 	public SqlServerDatabase(Database db) {
 		this.database = db;
@@ -41,18 +45,24 @@ public class SqlServerDatabase implements DbOperations {
 		
 	@Override
 	public String dropTableIfExists(String table) {
-		return "IF OBJECT_ID('" + table + "', 'U') IS NOT NULL DROP TABLE [" + table + "];";
+		return String.format(
+				"IF OBJECT_ID('%s', 'U') IS NOT NULL DROP TABLE %s;",
+				convertToSqlName(table),
+				convertToSqlName(table)
+				);
 	}
 
 	@Override
 	public String createTestResults() {
-		return "CREATE TABLE [test_results] (id INT, description VARCHAR(512), test VARCHAR(256), status VARCHAR(5));";
+		return "CREATE TABLE test_results (id INT, description VARCHAR(512), test VARCHAR(256), status VARCHAR(5));";
 	}
 
 	@Override
 	public String convertToSqlName(String name) {
 		if (name.startsWith("[") && name.endsWith("]"))
 			return name;
+		
+		name = name.replace('[', '_').replace(']', '_');
 		
 		if (name.contains(" ") || name.contains(".") || keywordSet.contains(name.toUpperCase()))
 			return "[" + name + "]";
@@ -62,7 +72,60 @@ public class SqlServerDatabase implements DbOperations {
 
 	@Override
 	public String clearTable(String table) {
-		return "TRUNCATE TABLE " + table + ";";		
+		return String.format("TRUNCATE TABLE %s;", convertToSqlName(table));		
 	}
 
+	@Override
+	public String renameTable(String oldName, String newName) {
+		return String.format("EXEC sp_rename '%s', '%s';", 
+				convertToSqlName(oldName), 
+				convertToSqlName(newName)); 
+		
+	}
+
+	@Override
+	public List<String> getInsertLines(Table table) {
+		List<String> result = new ArrayList<String>();
+		for (Field field : table.getFields()) {
+			String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+			String sqlFieldName = this.convertToSqlName(field.getName());
+			
+			result.add("  if (missing(" + rFieldName + ")) {");
+			result.add("    " + rFieldName + " <- defaults$" + rFieldName);
+			result.add("  }");
+			result.add("  if (!is.null(" + rFieldName + ")) {");
+			result.add("    insertFields <- c(insertFields, \"" + sqlFieldName + "\")");
+			result.add("    insertValues <- c(insertValues, " + rFieldName + ")");
+			result.add("  }");
+			result.add("");
+		}
+		return result;
+	}
+
+	@Override
+	public String getInsertStatement(Table table) {
+		StringBuilder line = new StringBuilder();
+		line.append("  statement <- paste0(\"INSERT INTO " +
+				this.convertToSqlName(table.getName()) + " (\", ");
+		line.append("paste(insertFields, collapse = \", \"), ");
+		line.append("\") VALUES ('\", ");
+		line.append("paste(insertValues, collapse = \"', '\"), ");
+		line.append("\"');\")");
+		return line.toString();
+	}
+
+	@Override
+	public String getInsertTestLine() {		
+		return "INSERT INTO test_results SELECT ";
+	}
+
+	@Override
+	public String dropTableIfExists() {
+		return "paste0('IF OBJECT_ID(\'', t, '\', \'U\') IS NOT NULL DROP TABLE ', t, ';')";
+	}
+
+	@Override
+	public String getTableFooter() {
+		return "";
+	}	
 }
