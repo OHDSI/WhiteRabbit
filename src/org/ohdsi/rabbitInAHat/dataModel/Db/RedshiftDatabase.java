@@ -86,12 +86,12 @@ public class RedshiftDatabase implements DbOperations {
 	}
 
 	@Override
-	public String getInsertTestLine() {
+	public String getExpectTestLine() {
 		return "UNION ALL SELECT ";
 	}
 	
 	@Override
-	public List<String> getInsertLines(Table table) {
+	public List<String> getInsertValues(Table table) {
 		List<String> result = new ArrayList<String>();
 		for (Field field : table.getFields()) {
 			String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");

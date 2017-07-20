@@ -84,7 +84,7 @@ public class SqlServerDatabase implements DbOperations {
 	}
 
 	@Override
-	public List<String> getInsertLines(Table table) {
+	public List<String> getInsertValues(Table table) {
 		List<String> result = new ArrayList<String>();
 		for (Field field : table.getFields()) {
 			String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
@@ -115,17 +115,17 @@ public class SqlServerDatabase implements DbOperations {
 	}
 
 	@Override
-	public String getInsertTestLine() {		
+	public String getExpectTestLine() {		
 		return "INSERT INTO test_results SELECT ";
 	}
 
 	@Override
 	public String dropTableIfExists() {
-		return "paste0('IF OBJECT_ID(\'', t, '\', \'U\') IS NOT NULL DROP TABLE ', t, ';')";
+		return "paste0('IF OBJECT_ID(', t, ', \'U\') IS NOT NULL DROP TABLE ', t, ';')";
 	}
 
 	@Override
 	public String getTableFooter() {
 		return "";
-	}	
+	}
 }
