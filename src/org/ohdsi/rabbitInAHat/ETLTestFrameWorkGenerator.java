@@ -66,23 +66,25 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	private static void createWriteSQLFunction(List<String> r, DbOperations dbOps) {
-		r.add("writeSql <- function(df, file)");
+		r.add("writeSql <- function(sql, file)");
 		r.add("{");		
 		r.add("  if (file.exists(file)) file.remove(file)");
-		r.add("  tables <- unique(df$table)");
-		r.add("  lapply(tables, function(t) {");
-		
+		r.add("  if (class(sql) == 'data.frame')");
+		r.add("  {");		
+		r.add("    tables <- unique(sql$table)");
+		r.add("    lapply(tables, function(t) {");
 		String tableFooter = dbOps.getTableFooter();
 		if (tableFooter != null && !tableFooter.isEmpty()) {
-			r.add("    df[nrow(df) + 1,] <<- c(t, \";\")");
-			r.add("    df[nrow(df) + 1,] <<- c(t, " + dbOps.dropTableIfExists() + ")");
-			r.add("    df[nrow(df) + 1,] <<- c(t, " + tableFooter + ")");
+			r.add("      sql[nrow(sql) + 1,] <<- c(t, ';')");
+			r.add("      sql[nrow(sql) + 1,] <<- c(t, " + dbOps.dropTableIfExists() + ")");
+			r.add("      sql[nrow(sql) + 1,] <<- c(t, " + tableFooter + ")");
 		}
-		r.add("    write(subset(df, table == t)$sql, file, append = TRUE)");
-		r.add("    write(\";\", file, append = TRUE)");
-		r.add("    })");
-		r.add("  invisible(df)");
-		r.add("}");		
+		r.add("      write(subset(sql, table == t)$sql, file, append = TRUE)");
+		r.add("      write(';', file, append = TRUE)");
+		r.add("      })");
+		r.add("  } else write(sql, file)");		
+		r.add("  invisible(sql)");
+		r.add("}");
 		r.add("");
 	}
 
@@ -112,10 +114,10 @@ public class ETLTestFrameWorkGenerator {
 
 	private static void createDeclareTestFunction(List<String> r) {
 		r.add("declareTest <- function(id, description) {");
-		r.add("  assign(\"testId\", id, envir = globalenv()) ");
-		r.add("  assign(\"testDescription\", description, envir = globalenv()) ");
-		r.add("  assign(\"testNewAdded\", TRUE, envir = globalenv()) ");
-		r.add("  assign(\"testNewExpected\", TRUE, envir = globalenv()) ");
+		r.add("  assign('testId', id, envir = globalenv()) ");
+		r.add("  assign('testDescription', description, envir = globalenv()) ");
+		r.add("  assign('testNewAdded', TRUE, envir = globalenv()) ");
+		r.add("  assign('testNewExpected', TRUE, envir = globalenv()) ");
 		r.add("}");
 		r.add("");
 	}
@@ -136,13 +138,13 @@ public class ETLTestFrameWorkGenerator {
 					testDefs.add("    if (first) {");
 					testDefs.add("      first <- FALSE");
 					testDefs.add("    } else {");
-					testDefs.add("      statement <- paste0(statement, \" AND\")");
+					testDefs.add("      statement <- paste0(statement, ' AND')");
 					testDefs.add("    }");
 					testDefs.add("    if (is.null(" + rFieldName + ")) {");
-					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
-					testDefs.add("    } else if (is(" + rFieldName + ", \"subQuery\")){");
-					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = (\", as.character(" + rFieldName + "), \")\")");
-					testDefs.add("    } else {");
+					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " IS NULL')");
+					testDefs.add("    } else if (is(" + rFieldName + ", 'subQuery')){");
+					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " = (', as.character(" + rFieldName + "), ')')");
+					testDefs.add("    } else {");					
 					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
 					testDefs.add("    }");
 					testDefs.add("  }");
@@ -177,9 +179,19 @@ public class ETLTestFrameWorkGenerator {
 				else if (type == NEGATE)
 					r.add("  statement <- paste0(statement, \") != 0 THEN 'FAIL' ELSE 'PASS' END AS status\")");
 				else
-					r.add("  statement <- paste0(statement, \") != \",rowCount ,\" THEN 'FAIL' ELSE 'PASS' END AS status\")");
+					r.add("  statement <- paste0(statement, ') != ', rowCount , \" THEN 'FAIL' ELSE 'PASS' END AS status\")");
 
-				r.add("  assign(\"testSql\", c(get(\"testSql\", envir = globalenv()), statement), envir = globalenv())");
+				// add test header
+				r.add("  if (exists('testNewExpected', where = globalenv()) && get('testNewExpected'))");
+				r.add("  {");
+				r.add("    assign('testNewExpected', FALSE, envir = globalenv())");
+				r.add("    id <- get('testId', envir = globalenv())");
+				r.add("    description <- get('testDescription', envir = globalenv())");
+				r.add("    comment <- paste0('-- ', id, ': ', description)");				
+				r.add("    testSql <<- c(testSql, comment)");
+				r.add("  }");
+				
+				r.add("  testSql <<- c(testSql, statement)");
 				r.add("  invisible(statement)");
 				r.add("}");
 				r.add("");
@@ -203,12 +215,12 @@ public class ETLTestFrameWorkGenerator {
 					testDefs.add("    if (first) {");
 					testDefs.add("      first <- FALSE");
 					testDefs.add("    } else {");
-					testDefs.add("      statement <- paste0(statement, \" AND\")");
+					testDefs.add("      statement <- paste0(statement, ' AND')");
 					testDefs.add("    }");
 					testDefs.add("    if (is.null(" + rFieldName + ")) {");
-					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " IS NULL\")");
-					testDefs.add("    } else if (is(" + rFieldName + ", \"subQuery\")){");
-					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = (\", as.character(" + rFieldName + "), \")\")");
+					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " IS NULL')");
+					testDefs.add("    } else if (is(" + rFieldName + ", 'subQuery')){");
+					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " = (', as.character(" + rFieldName + "), ')')");
 					testDefs.add("    } else {");
 					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
 					testDefs.add("    }");
@@ -221,13 +233,13 @@ public class ETLTestFrameWorkGenerator {
 				r.add(line.toString());
 
 				line = new StringBuilder();
-				line.append("  statement <- paste0(\"SELECT \", fetchField , \" FROM ");
+				line.append("  statement <- paste0('SELECT ', fetchField , ' FROM ");
 				line.append(sqlTableName);
-				line.append(" WHERE\")");
+				line.append(" WHERE')");
 				r.add(line.toString());
 				r.add("  first <- TRUE");
 				r.addAll(testDefs);
-				r.add("  class(statement) <- \"subQuery\"");
+				r.add("  class(statement) <- 'subQuery'");
 				r.add("  return(statement)");
 				r.add("}");
 				r.add("");
@@ -240,22 +252,22 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  insertDf <- data.frame(table = character(), sql = character(), stringsAsFactors = FALSE)");
 		for (Table table : dbOps.getDatabase().getTables()) {
 			String sqlTableName = dbOps.convertToSqlName(table.getName());
-			r.add("  insertDf[nrow(insertDf) + 1,] <- c(\"" + sqlTableName + "\", \"" + dbOps.clearTable(sqlTableName) + "\")");
+			r.add("  insertDf[nrow(insertDf) + 1,] <- c('" + sqlTableName + "', '" + dbOps.clearTable(sqlTableName) + "')");
 		}
-		r.add("  assign(\"insertDf\", insertDf, envir = globalenv())");
+		r.add("  assign('insertDf', insertDf, envir = globalenv())");
 
-		r.add("  testSql <- c()");
+		r.add("  testSql <- c()");		
 		r.add("  testSql <- c(testSql, \"" + dbOps.dropTableIfExists("test_results") + "\")");
-		r.add("  testSql <- c(testSql, \"\")");
+		r.add("  testSql <- c(testSql, '')");
 		r.add("  testSql <- c(testSql, \"" + dbOps.createTestResults() + "\")");
-		r.add("  testSql <- c(testSql, \"\")");
+		r.add("  testSql <- c(testSql, '')");
 
-		r.add("  assign(\"testSql\", testSql, envir = globalenv())");
-		r.add("  assign(\"testId\", 1, envir = globalenv())");
-		r.add("  assign(\"testDescription\", \"\", envir = globalenv())");
+		r.add("  assign('testSql', testSql, envir = globalenv())");
+		r.add("  assign('testId', 1, envir = globalenv())");
+		r.add("  assign('testDescription', '', envir = globalenv())");
 		r.add("");
 		r.add("  defaultValues <- new.env(parent = globalenv())");
-		r.add("  assign(\"defaultValues\", defaultValues, envir = globalenv())");
+		r.add("  assign('defaultValues', defaultValues, envir = globalenv())");
 		for (Table table : dbOps.getDatabase().getTables()) {
 			if (!table.isStem()) {
 				String rTableName = convertToRName(table.getName());
@@ -269,9 +281,9 @@ public class ETLTestFrameWorkGenerator {
 					else
 						defaultValue = field.getValueCounts()[0][0];
 					if (!defaultValue.equals("") && !defaultValue.equals("List truncated..."))
-						r.add("  defaults$" + rFieldName + " <- \"" + defaultValue + "\"");
+						r.add("  defaults$" + rFieldName + " <- '" + defaultValue + "'");
 				}
-				r.add("  assign(\"" + rTableName + "\", defaults, envir = defaultValues)");
+				r.add("  assign('" + rTableName + "', defaults, envir = defaultValues)");
 			}
 		}
 		r.add("}");
@@ -296,26 +308,24 @@ public class ETLTestFrameWorkGenerator {
 				line.append(StringUtilities.join(argDefs, ", "));
 				line.append(") {");
 				r.add(line.toString());
-				r.add("  defaults <- get(\"" + rTableName + "\", envir = defaultValues)");
+				r.add("  defaults <- get('" + rTableName + "', envir = defaultValues)");
 				r.add("  insertFields <- c()");
 				r.add("  insertValues <- c()");
 				r.addAll(insertLines);
 
-				r.add("  insertDf <- get(\"insertDf\", envir = globalenv())");
 				// add test header
-				r.add("  if (exists(\"testNewAdded\", where = globalenv()) && get(\"testNewAdded\"))");
+				r.add("  if (exists('testNewAdded', where = globalenv()) && get('testNewAdded'))");
 				r.add("  {");
-				r.add("    assign(\"testNewAdded\", FALSE, envir = globalenv())");
-				r.add("    id <- get(\"testId\", envir = globalenv())");
-				r.add("    description <- get(\"testDescription\", envir = globalenv())");
-				r.add("    comment <- paste0(\"-- \", id, \": \", description)");				
-				r.add("    insertDf[nrow(insertDf) + 1,] <- c(\"" + table + "\", comment)");
+				r.add("    assign('testNewAdded', FALSE, envir = globalenv())");
+				r.add("    id <- get('testId', envir = globalenv())");
+				r.add("    description <- get('testDescription', envir = globalenv())");
+				r.add("    comment <- paste0('-- ', id, ': ', description)");				
+				r.add("    insertDf[nrow(insertDf) + 1,] <<- c('" + table + "', comment)");
 				r.add("  }");
 					
 				r.add(dbOps.getInsertStatement(table));
 				
-				r.add("  insertDf[nrow(insertDf) + 1,] <- c(\"" + table + "\", statement)");
-				r.add("  assign(\"insertDf\", insertDf, envir = globalenv())");
+				r.add("  insertDf[nrow(insertDf) + 1,] <<- c('" + table + "', statement)");
 				r.add("  invisible(statement)");
 				r.add("}");
 				r.add("");
@@ -342,10 +352,10 @@ public class ETLTestFrameWorkGenerator {
 				line.append(StringUtilities.join(argDefs, ", "));
 				line.append(") {");
 				r.add(line.toString());
-				r.add("  defaults <- get(\"" + rTableName + "\", envir = defaultValues)");
+				r.add("  defaults <- get('" + rTableName + "', envir = defaultValues)");
 				r.addAll(insertLines);
 
-				r.add("  assign(\"" + rTableName + "\", defaults, envir = defaultValues)");
+				r.add("  assign('" + rTableName + "', defaults, envir = defaultValues)");
 				r.add("  invisible(defaults)");
 				r.add("}");
 				r.add("");
@@ -357,7 +367,7 @@ public class ETLTestFrameWorkGenerator {
 		for (Table table : dbOps.getDatabase().getTables()) {
 			String rTableName = convertToRName(table.getName());
 			r.add("get_defaults_" + rTableName + " <- function() {");
-			r.add("  defaults <- get(\"" + rTableName + "\", envir = defaultValues)");
+			r.add("  defaults <- get('" + rTableName + "', envir = defaultValues)");
 			r.add("  return(defaults)");
 			r.add("}");
 			r.add("");
