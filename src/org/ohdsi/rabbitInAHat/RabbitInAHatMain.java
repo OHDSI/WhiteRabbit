@@ -294,7 +294,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		addStemTable.setActionCommand(ACTION_ADD_STEM_TABLE);
 		editMenu.add(addStemTable);
 
-		//<< DBMS
+
 		JMenu setDBMS = new JMenu("Set Database Vendor");
 
 		JRadioButtonMenuItem dbmsSqlServer = new JRadioButtonMenuItem(ACTION_CMD_SET_DBMS_SQLSERVER, true);
@@ -311,7 +311,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		ButtonGroup dbmsGroup = new ButtonGroup();
 		dbmsGroup.add(dbmsSqlServer);
 		dbmsGroup.add(dbmsRedshift);	    
-		//>>		
+		
 		
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
@@ -510,7 +510,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doGeneratePackageTestFramework(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLPackageTestFrameWorkGenerator.generate(ObjectExchange.etl, filename);
+			ETLPackageTestFrameWorkGenerator.generate(ObjectExchange.etl, filename, ObjectExchange.dbms);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
