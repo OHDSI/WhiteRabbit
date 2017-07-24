@@ -30,11 +30,12 @@ import org.ohdsi.utilities.files.WriteTextFile;
 
 public class ETLTestFrameWorkGenerator {
 
-	private static int			DEFAULT		= 0;
-	private static int			NEGATE		= 1;
-	private static int			COUNT		= 2;
-	
-	private ETLTestFrameWorkGenerator() {}	
+	private static int DEFAULT = 0;
+	private static int NEGATE = 1;
+	private static int COUNT = 2;
+
+	private ETLTestFrameWorkGenerator() {
+	}
 
 	public static void generate(ETL etl, String filename, DBMS dbms) {
 		List<String> r = generateRScript(etl, dbms);
@@ -44,14 +45,38 @@ public class ETLTestFrameWorkGenerator {
 		out.close();
 	}
 
+	private static DbOperations getDbOperations(Database db, DBMS dbms) {
+		switch (dbms) {
+		case SQLServer:
+			return new SqlServerDatabase(db);
+		case Redshift:
+			return new RedshiftDatabase(db);
+		case APS:
+			break;
+		case Access:
+			break;
+		case MySQL:
+			break;
+		case Oracle:
+			break;
+		case PostgreSQL:
+			break;
+		case Text:
+			break;
+		default:
+			return null;
+		}
+		return null;
+	}
+
 	private static List<String> generateRScript(ETL etl, DBMS dbms) {
 		List<String> r = new ArrayList<String>();
-		
+
 		Database sourceDb = etl.getSourceDatabase();
 		Database targetDb = etl.getTargetDatabase();
 		DbOperations sourceDbOps = getDbOperations(sourceDb, dbms);
 		DbOperations targetDbOps = getDbOperations(targetDb, dbms);
-		
+
 		createInitFunction(r, sourceDbOps);
 		createWriteSQLFunction(r, sourceDbOps);
 		createDeclareTestFunction(r);
@@ -62,15 +87,16 @@ public class ETLTestFrameWorkGenerator {
 		createExpectFunctions(r, NEGATE, targetDbOps);
 		createExpectFunctions(r, COUNT, targetDbOps);
 		createLookupFunctions(r, targetDbOps);
+
 		return r;
 	}
 
 	private static void createWriteSQLFunction(List<String> r, DbOperations dbOps) {
 		r.add("writeSql <- function(sql, file)");
-		r.add("{");		
+		r.add("{");
 		r.add("  if (file.exists(file)) file.remove(file)");
 		r.add("  if (class(sql) == 'data.frame')");
-		r.add("  {");		
+		r.add("  {");
 		r.add("    tables <- unique(sql$table)");
 		r.add("    lapply(tables, function(t) {");
 		String tableFooter = dbOps.getTableFooter();
@@ -80,36 +106,11 @@ public class ETLTestFrameWorkGenerator {
 			r.add("      sql[nrow(sql) + 1,] <<- c(t, " + tableFooter + ")");
 		}
 		r.add("      write(subset(sql, table == t)$sql, file, append = TRUE)");
-		r.add("      write(';', file, append = TRUE)");
 		r.add("      })");
-		r.add("  } else write(sql, file)");		
+		r.add("  } else write(sql, file)");
 		r.add("  invisible(sql)");
 		r.add("}");
 		r.add("");
-	}
-
-	private static DbOperations getDbOperations(Database db, DBMS dbms) {
-		switch (dbms) {
-			case SQLServer:
-				return new SqlServerDatabase(db);
-			case Redshift:
-				return new RedshiftDatabase(db);	
-			case APS:
-				break;
-			case Access:
-				break;
-			case MySQL:
-				break;
-			case Oracle:
-				break;
-			case PostgreSQL:
-				break;
-			case Text:
-				break;
-			default:
-				return null;
-		}
-		return null;
 	}
 
 	private static void createDeclareTestFunction(List<String> r) {
@@ -143,9 +144,11 @@ public class ETLTestFrameWorkGenerator {
 					testDefs.add("    if (is.null(" + rFieldName + ")) {");
 					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " IS NULL')");
 					testDefs.add("    } else if (is(" + rFieldName + ", 'subQuery')){");
-					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " = (', as.character(" + rFieldName + "), ')')");
-					testDefs.add("    } else {");					
-					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
+					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " = (', as.character("
+							+ rFieldName + "), ')')");
+					testDefs.add("    } else {");
+					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName
+							+ ",\"'\")");
 					testDefs.add("    }");
 					testDefs.add("  }");
 					testDefs.add("");
@@ -163,7 +166,7 @@ public class ETLTestFrameWorkGenerator {
 				r.add(line.toString());
 
 				line = new StringBuilder();
-				line.append("  statement <- paste0(\"" + dbOps.getExpectTestLine());				
+				line.append("  statement <- paste0(\"" + dbOps.getExpectTestLine());
 				line.append("\", get(\"testId\", envir = globalenv()), \" AS id, ");
 				line.append("'\", get(\"testDescription\", envir = globalenv()), \"' AS description, ");
 				line.append("'Expect " + table.getName() + "' AS test, ");
@@ -187,10 +190,10 @@ public class ETLTestFrameWorkGenerator {
 				r.add("    assign('testNewExpected', FALSE, envir = globalenv())");
 				r.add("    id <- get('testId', envir = globalenv())");
 				r.add("    description <- get('testDescription', envir = globalenv())");
-				r.add("    comment <- paste0('-- ', id, ': ', description)");				
+				r.add("    comment <- paste0('-- ', id, ': ', description)");
 				r.add("    testSql <<- c(testSql, comment)");
 				r.add("  }");
-				
+
 				r.add("  testSql <<- c(testSql, statement)");
 				r.add("  invisible(statement)");
 				r.add("}");
@@ -220,9 +223,11 @@ public class ETLTestFrameWorkGenerator {
 					testDefs.add("    if (is.null(" + rFieldName + ")) {");
 					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " IS NULL')");
 					testDefs.add("    } else if (is(" + rFieldName + ", 'subQuery')){");
-					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " = (', as.character(" + rFieldName + "), ')')");
+					testDefs.add("      statement <- paste0(statement, ' " + sqlFieldName + " = (', as.character("
+							+ rFieldName + "), ')')");
 					testDefs.add("    } else {");
-					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName + ",\"'\")");
+					testDefs.add("      statement <- paste0(statement, \" " + sqlFieldName + " = '\", " + rFieldName
+							+ ",\"'\")");
 					testDefs.add("    }");
 					testDefs.add("  }");
 					testDefs.add("");
@@ -252,11 +257,12 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  insertDf <- data.frame(table = character(), sql = character(), stringsAsFactors = FALSE)");
 		for (Table table : dbOps.getDatabase().getTables()) {
 			String sqlTableName = dbOps.convertToSqlName(table.getName());
-			r.add("  insertDf[nrow(insertDf) + 1,] <- c('" + sqlTableName + "', '" + dbOps.clearTable(sqlTableName) + "')");
+			r.add("  insertDf[nrow(insertDf) + 1,] <- c('" + sqlTableName + "', '" + dbOps.clearTable(sqlTableName)
+					+ "')");
 		}
 		r.add("  assign('insertDf', insertDf, envir = globalenv())");
 
-		r.add("  testSql <- c()");		
+		r.add("  testSql <- c()");
 		r.add("  testSql <- c(testSql, \"" + dbOps.dropTableIfExists("test_results") + "\")");
 		r.add("  testSql <- c(testSql, '')");
 		r.add("  testSql <- c(testSql, \"" + dbOps.createTestResults() + "\")");
@@ -299,11 +305,11 @@ public class ETLTestFrameWorkGenerator {
 				String rTableName = convertToRName(table.getName());
 				List<String> argDefs = new ArrayList<String>();
 				for (Field field : table.getFields()) {
-					String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");					
+					String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
 					argDefs.add(rFieldName);
 				}
 				List<String> insertLines = dbOps.getInsertValues(table);
-				
+
 				line.append("add_" + rTableName + " <- function(");
 				line.append(StringUtilities.join(argDefs, ", "));
 				line.append(") {");
@@ -319,12 +325,12 @@ public class ETLTestFrameWorkGenerator {
 				r.add("    assign('testNewAdded', FALSE, envir = globalenv())");
 				r.add("    id <- get('testId', envir = globalenv())");
 				r.add("    description <- get('testDescription', envir = globalenv())");
-				r.add("    comment <- paste0('-- ', id, ': ', description)");				
+				r.add("    comment <- paste0('-- ', id, ': ', description)");
 				r.add("    insertDf[nrow(insertDf) + 1,] <<- c('" + table + "', comment)");
 				r.add("  }");
-					
+
 				r.add(dbOps.getInsertStatement(table));
-				
+
 				r.add("  insertDf[nrow(insertDf) + 1,] <<- c('" + table + "', statement)");
 				r.add("  invisible(statement)");
 				r.add("}");
