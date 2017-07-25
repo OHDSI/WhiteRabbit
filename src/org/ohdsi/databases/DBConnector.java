@@ -84,8 +84,24 @@ public class DBConnector {
 			return DBConnector.connectToMsAccess(server, user, password);
 		else if (dbType.equals(DbType.REDSHIFT))
 			return DBConnector.connectToRedshift(server, user, password);
+		else if (dbType.equals(DbType.TERADATA))
+			return DBConnector.connectToTeradata(server, user, password);
 		else
 			return null;
+	}
+
+	public static Connection connectToTeradata(String server, String user, String password) {
+		try {
+			Class.forName("com.teradata.jdbc.TeraDriver");
+		} catch(ClassNotFoundException e) {
+			throw new RuntimeException("Cannot find JDBC driver. Make sure the terajdbc4.jar and tdgssconfig.jar are in the path");
+		}
+		String url = "jdbc:teradata://" + server;
+		try {
+			return DriverManager.getConnection(url, user, password);
+		} catch (SQLException e1) {
+			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
+		}
 	}
 
 	public static Connection connectToRedshift(String server, String user, String password) {
