@@ -19,8 +19,8 @@ package org.ohdsi.whiteRabbit;
 
 import javax.swing.JFrame;
 
+import org.ohdsi.databases.DbType;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
-import org.ohdsi.rabbitInAHat.dataModel.Db.DBMS;
 
 /**
  * This class is used to hold global variables
@@ -29,5 +29,5 @@ public class ObjectExchange {
 	public static JFrame	frame;
 	public static Console	console;
 	public static ETL		etl;
-	public static DBMS		dbms;
+	public static DbType	dbms;
 }
