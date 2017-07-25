@@ -20,10 +20,8 @@ package org.ohdsi.rabbitInAHat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ohdsi.rabbitInAHat.dataModel.Database;
-import org.ohdsi.rabbitInAHat.dataModel.ETL;
-import org.ohdsi.rabbitInAHat.dataModel.Field;
-import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.databases.DbType;
+import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.rabbitInAHat.dataModel.Db.*;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.WriteTextFile;
@@ -37,7 +35,7 @@ public class ETLTestFrameWorkGenerator {
 	private ETLTestFrameWorkGenerator() {
 	}
 
-	public static void generate(ETL etl, String filename, DBMS dbms) {
+	public static void generate(ETL etl, String filename, DbType dbms) {
 		List<String> r = generateRScript(etl, dbms);
 		WriteTextFile out = new WriteTextFile(filename);
 		for (String line : r)
@@ -45,31 +43,16 @@ public class ETLTestFrameWorkGenerator {
 		out.close();
 	}
 
-	private static DbOperations getDbOperations(Database db, DBMS dbms) {
-		switch (dbms) {
-		case SQLServer:
+	private static DbOperations getDbOperations(Database db, DbType dbms) {
+		if (dbms == DbType.MSSQL)
 			return new SqlServerDatabase(db);
-		case Redshift:
+		else if (dbms == DbType.REDSHIFT)
 			return new RedshiftDatabase(db);
-		case APS:
-			break;
-		case Access:
-			break;
-		case MySQL:
-			break;
-		case Oracle:
-			break;
-		case PostgreSQL:
-			break;
-		case Text:
-			break;
-		default:
-			return null;
-		}
+		
 		return null;
 	}
 
-	private static List<String> generateRScript(ETL etl, DBMS dbms) {
+	private static List<String> generateRScript(ETL etl, DbType dbms) {
 		List<String> r = new ArrayList<String>();
 
 		Database sourceDb = etl.getSourceDatabase();

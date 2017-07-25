@@ -43,6 +43,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.ohdsi.databases.DbType;
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
@@ -50,7 +51,6 @@ import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.StemTableAdd;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
-import org.ohdsi.rabbitInAHat.dataModel.Db.DBMS;
 import org.ohdsi.whiteRabbit.ObjectExchange;
 
 /**
@@ -128,7 +128,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV510));
 
 		ObjectExchange.etl = etl;
-		ObjectExchange.dbms = DBMS.SQLServer;
+		ObjectExchange.dbms = DbType.MSSQL;
 
 		tableMappingPanel = new MappingPanel(etl.getTableToTableMapping());
 		tableMappingPanel.addResizeListener(this);
@@ -491,12 +491,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 
 	private void doSetDbmsSqlServer() {		
-		ObjectExchange.dbms = DBMS.SQLServer;
+		ObjectExchange.dbms = DbType.MSSQL;
 		
 	}
 	
 	private void doSetDbmsRedshift() {
-		ObjectExchange.dbms = DBMS.Redshift;
+		ObjectExchange.dbms = DbType.REDSHIFT;
 	}
 	
 	private void doGenerateTestFramework(String filename) {
