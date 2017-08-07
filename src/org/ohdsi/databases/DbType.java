@@ -25,9 +25,10 @@ public class DbType {
 	public static DbType	POSTGRESQL	= new DbType("postgresql");
 	public static DbType	MSACCESS	= new DbType("msaccess");
 	public static DbType	REDSHIFT	= new DbType("redshift");
+	public static DbType	TERADATA	= new DbType("teradata");
 
 	private enum Type {
-		MYSQL, MSSQL, PDW, ORACLE, POSTGRESQL, MSACCESS, REDSHIFT
+		MYSQL, MSSQL, PDW, ORACLE, POSTGRESQL, MSACCESS, REDSHIFT, TERADATA
 	};
 
 	private Type type;

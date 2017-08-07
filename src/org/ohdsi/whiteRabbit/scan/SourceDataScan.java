@@ -343,11 +343,25 @@ public class SourceDataScan {
 			else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
 						+ table.toLowerCase() + "' ORDER BY ordinal_position;";
+			else if (dbType == DbType.TERADATA) {
+				query = "SELECT ColumnName, ColumnType FROM dbc.columns WHERE DatabaseName= '" + database.toLowerCase()
+						+ "' AND TableName = '"
+						+ table.toLowerCase() + "';";
+			}
 
 			for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
 				row.upperCaseFieldNames();
-				FieldInfo fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
-				fieldInfo.type = row.get("DATA_TYPE");
+				FieldInfo fieldInfo;
+				if (dbType == DbType.TERADATA) {
+					fieldInfo = new FieldInfo(row.get("COLUMNNAME"));
+				} else {
+					fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
+				}
+				if (dbType == DbType.TERADATA) {
+					fieldInfo.type = row.get("COLUMNTYPE");
+				} else {
+					fieldInfo.type = row.get("DATA_TYPE");
+				}
 				fieldInfo.rowCount = connection.getTableSize(table);
 				;
 				fieldInfos.add(fieldInfo);
