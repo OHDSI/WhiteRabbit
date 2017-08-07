@@ -132,8 +132,10 @@ public class RichConnection {
 			execute("ALTER SESSION SET current_schema = " + database);
 		else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 			execute("SET search_path TO " + database);
-		else if (dbType == DbType.MSACCESS)
-			;
+		else if (dbType == DbType.MSACCESS); // NOOP
+		else if (dbType == DbType.TERADATA) {
+			execute("database " + database);
+		}
 		else
 			execute("USE " + database);
 	}
@@ -151,6 +153,8 @@ public class RichConnection {
 			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database.toLowerCase() + "' ORDER BY table_name";
 		} else if (dbType == DbType.MSACCESS) {
 			query = "SELECT Name FROM sys.MSysObjects WHERE Type=1 AND Flags=0;";
+		} else if (dbType == DbType.TERADATA) {
+			query = "SELECT TableName from dbc.tables WHERE tablekind = 'T' and databasename='" + database + "'";
 		}
 
 		for (Row row : query(query))

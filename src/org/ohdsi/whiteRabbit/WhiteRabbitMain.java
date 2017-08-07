@@ -190,6 +190,8 @@ public class WhiteRabbitMain implements ActionListener {
 				}
 			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("MS Access"))
 				dbSettings.dbType = DbType.MSACCESS;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Teradata"))
+				dbSettings.dbType = DbType.TERADATA;
 		}
 		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
 			RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
@@ -260,7 +262,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
 		sourcePanel.add(new JLabel("Data type"));
-		sourceType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "PDW", "Redshift" });
+		sourceType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "PDW", "Redshift", "Teradata" });
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(new ItemListener() {
 
@@ -764,6 +766,8 @@ public class WhiteRabbitMain implements ActionListener {
 				}
 			} else if (sourceType.getSelectedItem().toString().equals("MS Access"))
 				dbSettings.dbType = DbType.MSACCESS;
+			else if (sourceType.getSelectedItem().toString().equals("Teradata"))
+				dbSettings.dbType = DbType.TERADATA;
 		}
 		return dbSettings;
 	}
