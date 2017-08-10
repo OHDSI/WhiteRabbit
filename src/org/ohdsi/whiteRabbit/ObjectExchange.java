@@ -29,5 +29,4 @@ public class ObjectExchange {
 	public static JFrame	frame;
 	public static Console	console;
 	public static ETL		etl;
-	public static DbType	dbms;
 }
