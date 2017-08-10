@@ -75,8 +75,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V5					= "CDM v5.0.0";
 	public final static String		ACTION_CMD_SET_TARGET_V501					= "CDM v5.0.1";
 	public final static String		ACTION_CMD_SET_TARGET_V510					= "CDM v5.1.0";
-	public final static String		ACTION_CMD_SET_DBMS_SQLSERVER				= "SQL Server";
-	public final static String		ACTION_CMD_SET_DBMS_REDSHIFT				= "Redshift";
 	public final static String		ACTION_ADD_STEM_TABLE						= "Add stem table";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM				= "Load Custom...";
 	public final static String		ACTION_CMD_MARK_COMPLETED					= "Mark Highlighted As Complete";
@@ -91,6 +89,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private final static FileFilter	FILE_FILTER_R								= new FileNameExtensionFilter("R script (*.r)", "r");
 	private final static FileFilter	FILE_FILTER_XLSX							= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
 
+	public final static String		DBMS_SQLSERVER								= "SQL Server";
+	public final static String		DBMS_REDSHIFT								= "Redshift";
+	
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
 	private JScrollPane				scrollPane2;
@@ -128,7 +129,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV510));
 
 		ObjectExchange.etl = etl;
-		ObjectExchange.dbms = DbType.MSSQL;
 
 		tableMappingPanel = new MappingPanel(etl.getTableToTableMapping());
 		tableMappingPanel.addResizeListener(this);
@@ -293,25 +293,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		addStemTable.addActionListener(this);
 		addStemTable.setActionCommand(ACTION_ADD_STEM_TABLE);
 		editMenu.add(addStemTable);
-
-
-		JMenu setDBMS = new JMenu("Set Database Vendor");
-
-		JRadioButtonMenuItem dbmsSqlServer = new JRadioButtonMenuItem(ACTION_CMD_SET_DBMS_SQLSERVER, true);
-		dbmsSqlServer.addActionListener(this);
-		dbmsSqlServer.setActionCommand(ACTION_CMD_SET_DBMS_SQLSERVER);
-		setDBMS.add(dbmsSqlServer);
-
-		JRadioButtonMenuItem dbmsRedshift = new JRadioButtonMenuItem(ACTION_CMD_SET_DBMS_REDSHIFT);
-		dbmsRedshift.addActionListener(this);
-		dbmsRedshift.setActionCommand(ACTION_CMD_SET_DBMS_REDSHIFT);
-		setDBMS.add(dbmsRedshift);
-		editMenu.add(setDBMS);
-		
-		ButtonGroup dbmsGroup = new ButtonGroup();
-		dbmsGroup.add(dbmsSqlServer);
-		dbmsGroup.add(dbmsRedshift);	    
-		
 		
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
@@ -465,12 +446,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_ADD_STEM_TABLE:
 				doAddStemTable();
 				break;
-			case ACTION_CMD_SET_DBMS_SQLSERVER:
-				doSetDbmsSqlServer();
-				break;
-			case ACTION_CMD_SET_DBMS_REDSHIFT:
-				doSetDbmsRedshift();
-				break;
 			case ACTION_CMD_MARK_COMPLETED:
 				doMarkCompleted();
 				break;
@@ -489,20 +464,31 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		ObjectExchange.etl = etl;
 		tableMappingPanel.setMapping(etl.getTableToTableMapping());
 	}
-
-	private void doSetDbmsSqlServer() {		
-		ObjectExchange.dbms = DbType.MSSQL;
-		
-	}
 	
-	private void doSetDbmsRedshift() {
-		ObjectExchange.dbms = DbType.REDSHIFT;
+	private DbType chooseDbmsVendor()
+	{
+		Object[] vendors = {DBMS_SQLSERVER, DBMS_REDSHIFT};
+		String vendor = (String)JOptionPane.showInputDialog(
+		                    frame,
+		                    "Pick database vendor:",
+		                    "Database vendor",			                    
+		                    JOptionPane.QUESTION_MESSAGE,
+		                    null,
+		                    vendors,
+		                    DBMS_SQLSERVER);
+		
+		DbType dbms = DbType.MSSQL;
+		if (vendor != null) {
+			if (vendor.equals(vendors[1]))
+				dbms = DbType.REDSHIFT;
+		}
+		return dbms;
 	}
 	
 	private void doGenerateTestFramework(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLTestFrameWorkGenerator.generate(ObjectExchange.etl, filename, ObjectExchange.dbms);
+			ETLTestFrameWorkGenerator.generate(ObjectExchange.etl, filename, chooseDbmsVendor());
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
@@ -510,7 +496,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doGeneratePackageTestFramework(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLPackageTestFrameWorkGenerator.generate(ObjectExchange.etl, filename, ObjectExchange.dbms);
+			ETLPackageTestFrameWorkGenerator.generate(ObjectExchange.etl, filename, chooseDbmsVendor());
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
