@@ -19,7 +19,6 @@ package org.ohdsi.whiteRabbit;
 
 import javax.swing.JFrame;
 
-import org.ohdsi.databases.DbType;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 
 /**
