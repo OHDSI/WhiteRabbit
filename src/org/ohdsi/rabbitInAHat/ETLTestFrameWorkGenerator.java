@@ -61,7 +61,7 @@ public class ETLTestFrameWorkGenerator {
 		DbOperations targetDbOps = getDbOperations(targetDb, dbms);
 
 		createInitFunction(r, sourceDbOps);
-		createWriteSQLFunction(r, sourceDbOps);
+		createGenerateInsertSqlFunction(r, sourceDbOps);
 		createDeclareTestFunction(r);
 		createSetDefaultFunctions(r, sourceDbOps);
 		createGetDefaultFunctions(r, sourceDbOps);
@@ -74,28 +74,25 @@ public class ETLTestFrameWorkGenerator {
 		return r;
 	}
 
-	private static void createWriteSQLFunction(List<String> r, DbOperations dbOps) {
-		r.add("writeSql <- function(sql, file)");
+	private static void createGenerateInsertSqlFunction(List<String> r, DbOperations dbOps) {
+		r.add("generateInsertSql <- function()");
 		r.add("{");
-		r.add("  if (file.exists(file)) file.remove(file)");
-		r.add("  if (class(sql) == 'data.frame')");
-		r.add("  {");
-		r.add("    tables <- unique(sql$table)");
-		r.add("    lapply(tables, function(t) {");
+		r.add("  insertSql <<- c()");
+		r.add("  tables <- unique(insertDf$table)");
+		r.add("  lapply(tables, function(t) {");
 		String tableFooter = dbOps.getTableFooter();
 		if (tableFooter != null && !tableFooter.isEmpty()) {
-			r.add("      sql[nrow(sql) + 1,] <<- c(t, ';')");
-			r.add("      sql[nrow(sql) + 1,] <<- c(t, " + dbOps.dropTableIfExists() + ")");
-			r.add("      sql[nrow(sql) + 1,] <<- c(t, " + tableFooter + ")");
+			r.add("    insertDf[nrow(insertDf) + 1,] <<- c(t, ';')");
+			r.add("    insertDf[nrow(insertDf) + 1,] <<- c(t, " + dbOps.dropTableIfExists() + ")");
+			r.add("    insertDf[nrow(insertDf) + 1,] <<- c(t, " + tableFooter + ")");
 		}
-		r.add("      write(subset(sql, table == t)$sql, file, append = TRUE)");
-		r.add("      })");
-		r.add("  } else write(sql, file)");
-		r.add("  invisible(sql)");
+		r.add("    insertSql <<- c(insertSql, subset(insertDf, table == t)$sql)");
+		r.add("  })");
+		r.add("  insertSql");
 		r.add("}");
 		r.add("");
 	}
-
+	
 	private static void createDeclareTestFunction(List<String> r) {
 		r.add("declareTest <- function(id, description) {");
 		r.add("  assign('testId', id, envir = globalenv()) ");
