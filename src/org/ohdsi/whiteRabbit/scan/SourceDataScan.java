@@ -186,8 +186,8 @@ public class SourceDataScan {
 			addRow(sheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
 			for (String table : tables) {
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
-					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength),
-							Long.valueOf(fieldInfo.rowCount), Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
+					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
+							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
 				addRow(sheet, "");
 			}
 
@@ -260,7 +260,7 @@ public class SourceDataScan {
 				queryResult = fetchRowsFromTable(connection, table, rowCount);
 				for (org.ohdsi.utilities.files.Row row : queryResult) {
 					for (int i = 0; i < fieldInfos.size(); i++)
-						fieldInfos.get(i).processValue(row.getCells().get(i));
+						fieldInfos.get(i).processValue(row.get(fieldInfos.get(i).name));
 					actualCount++;
 					if (sampleSize != -1 && actualCount >= sampleSize) {
 						System.out.println("Stopped after " + actualCount + " rows");
@@ -283,12 +283,12 @@ public class SourceDataScan {
 
 	private QueryResult fetchRowsFromTable(RichConnection connection, String table, long rowCount) {
 		String query = null;
-		
-		if (sampleSize == -1) {		
-		if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.MSACCESS)
-			query = "SELECT * FROM [" + table + "]";
-		else
-			query = "SELECT * FROM " + table;
+
+		if (sampleSize == -1) {
+			if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.MSACCESS)
+				query = "SELECT * FROM [" + table + "]";
+			else
+				query = "SELECT * FROM " + table;
 		} else {
 			if (dbType == DbType.MSSQL)
 				query = "SELECT * FROM [" + table + "] TABLESAMPLE (" + sampleSize + " ROWS)";
@@ -346,8 +346,7 @@ public class SourceDataScan {
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
 						+ table.toLowerCase() + "' ORDER BY ordinal_position;";
 			else if (dbType == DbType.TERADATA) {
-				query = "SELECT ColumnName, ColumnType FROM dbc.columns WHERE DatabaseName= '" + database.toLowerCase()
-						+ "' AND TableName = '"
+				query = "SELECT ColumnName, ColumnType FROM dbc.columns WHERE DatabaseName= '" + database.toLowerCase() + "' AND TableName = '"
 						+ table.toLowerCase() + "';";
 			}
 
