@@ -133,7 +133,7 @@ public class Row {
 	}
 	
 	public void remove(String field) {
-		Integer index = fieldName2ColumnIndex.remove(field);
+		int index = fieldName2ColumnIndex.remove(field);
 		cells.remove(index);
 		Map<String, Integer> tempMap = new HashMap<String, Integer>();
 		for (Map.Entry<String, Integer> entry : fieldName2ColumnIndex.entrySet())

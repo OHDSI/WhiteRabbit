@@ -301,6 +301,8 @@ public class SourceDataScan {
 					double percentage = 100 * sampleSize / (double) rowCount;
 					if (percentage < 100)
 						query = "SELECT * FROM " + table + " SAMPLE(" + percentage + ")";
+				} else {
+					query = "SELECT * FROM " + table;
 				}
 			} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 				query = "SELECT * FROM " + table + " ORDER BY RANDOM() LIMIT " + sampleSize;

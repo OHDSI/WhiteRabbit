@@ -82,11 +82,10 @@ public class RichConnection {
 			System.err.println(sql);
 			e.printStackTrace();
 		} finally {
-			if (statement != null) { 
+			if (statement != null) {
 				try {
 					statement.close();
-				}
-				catch (SQLException e) {
+				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					System.err.println(e.getMessage());
 				}
@@ -132,11 +131,11 @@ public class RichConnection {
 			execute("ALTER SESSION SET current_schema = " + database);
 		else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 			execute("SET search_path TO " + database);
-		else if (dbType == DbType.MSACCESS); // NOOP
+		else if (dbType == DbType.MSACCESS)
+			; // NOOP
 		else if (dbType == DbType.TERADATA) {
 			execute("database " + database);
-		}
-		else
+		} else
 			execute("USE " + database);
 	}
 
@@ -175,16 +174,16 @@ public class RichConnection {
 
 		return names;
 	}
-	
-	public ResultSet getMsAccessFieldNames(String table){
-		if(dbType == DbType.MSACCESS){
+
+	public ResultSet getMsAccessFieldNames(String table) {
+		if (dbType == DbType.MSACCESS) {
 			try {
 				DatabaseMetaData metadata = connection.getMetaData();
 				return metadata.getColumns(null, null, table, null);
 			} catch (SQLException e) {
 				throw new RuntimeException(e.getMessage());
 			}
-		}else
+		} else
 			throw new RuntimeException("DB is not of type MS Access");
 	}
 
@@ -197,9 +196,9 @@ public class RichConnection {
 	public long getTableSize(String tableName) {
 		QueryResult qr = null;
 		Long returnVal = null;
-		if (dbType == DbType.MSSQL|| dbType == DbType.PDW) 
+		if (dbType == DbType.MSSQL || dbType == DbType.PDW)
 			qr = query("SELECT COUNT_BIG(*) FROM [" + tableName + "];");
-		else if (dbType == DbType.MSACCESS )
+		else if (dbType == DbType.MSACCESS)
 			qr = query("SELECT COUNT(*) FROM [" + tableName + "];");
 		else
 			qr = query("SELECT COUNT(*) FROM " + tableName + ";");
@@ -208,9 +207,11 @@ public class RichConnection {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
-			if (qr != null) { qr.close(); }
+			if (qr != null) {
+				qr.close();
+			}
 		}
-		return returnVal;			
+		return returnVal;
 	}
 
 	/**
@@ -493,7 +494,12 @@ public class RichConnection {
 				for (int i = 1; i < metaData.getColumnCount() + 1; i++) {
 					String columnName = metaData.getColumnName(i);
 					if (columnNames.add(columnName)) {
-						String value = resultSet.getString(i);
+						String value;
+						try {
+							value = resultSet.getString(i);
+						} catch (Exception e) {
+							value = "";
+						}
 						if (value == null)
 							value = "";
 
