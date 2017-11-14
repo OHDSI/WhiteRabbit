@@ -75,6 +75,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V5					= "CDM v5.0.0";
 	public final static String		ACTION_CMD_SET_TARGET_V501					= "CDM v5.0.1";
 	public final static String		ACTION_CMD_SET_TARGET_V510					= "CDM v5.1.0";
+	public final static String		ACTION_CMD_SET_TARGET_V520					= "CDM v5.2.0";
 	public final static String		ACTION_ADD_STEM_TABLE						= "Add stem table";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM				= "Load Custom...";
 	public final static String		ACTION_CMD_MARK_COMPLETED					= "Mark Highlighted As Complete";
@@ -126,7 +127,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV510));
+		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV520));
 
 		ObjectExchange.etl = etl;
 
@@ -270,10 +271,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		targetCDMV501.setActionCommand(ACTION_CMD_SET_TARGET_V501);
 		setTarget.add(targetCDMV501);
 
-		JRadioButtonMenuItem targetCDMV510 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V510, true);
+		JRadioButtonMenuItem targetCDMV510 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V510);
 		targetCDMV510.addActionListener(this);
 		targetCDMV510.setActionCommand(ACTION_CMD_SET_TARGET_V510);
 		setTarget.add(targetCDMV510);
+		
+		JRadioButtonMenuItem targetCDMV520 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V520, true);
+		targetCDMV520.addActionListener(this);
+		targetCDMV520.setActionCommand(ACTION_CMD_SET_TARGET_V520);
+		setTarget.add(targetCDMV520);
 
 		JRadioButtonMenuItem loadTarget = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
 
@@ -287,6 +293,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		targetGroup.add(targetCDMV5);
 		targetGroup.add(targetCDMV501);
 		targetGroup.add(targetCDMV510);
+		targetGroup.add(targetCDMV520);
 		targetGroup.add(loadTarget);
 
 		JMenuItem addStemTable = new JMenuItem(ACTION_ADD_STEM_TABLE);
@@ -440,6 +447,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_SET_TARGET_V510:
 				doSetTargetCDM(CDMVersion.CDMV510);
 				break;
+			case ACTION_CMD_SET_TARGET_V520:
+				doSetTargetCDM(CDMVersion.CDMV520);
+				break;				
 			case ACTION_CMD_SET_TARGET_CUSTOM:
 				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
 				break;
