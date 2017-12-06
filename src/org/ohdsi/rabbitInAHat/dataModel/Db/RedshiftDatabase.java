@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.ohdsi.rabbitInAHat.ETLTestFrameWorkGenerator;
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
@@ -46,12 +47,12 @@ public class RedshiftDatabase implements DbOperations {
 
 	@Override
 	public String dropTableIfExists(String table) {
-		return String.format("DROP TABLE IF EXISTS %s;", convertToSqlName(table));
+		return String.format("DROP TABLE IF EXISTS @cdm_database_schema.%s;", convertToSqlName(table));
 	}
 
 	@Override
 	public String createTestResults() {
-		return "CREATE TABLE test_results "
+		return "CREATE TABLE @cdm_database_schema.test_results "
 				+ "AS SELECT TOP 0 * FROM (SELECT 0 as id, cast('' as varchar(512)) as description, "
 				+ "cast('' as varchar(256)) as test, cast('' as varchar(5)) as status)";
 	}
@@ -71,13 +72,13 @@ public class RedshiftDatabase implements DbOperations {
 
 	@Override
 	public String clearTable(String table) {
-		return dropTableIfExists(table + "_ctas") + "\n" + String.format("CREATE TABLE %s AS SELECT TOP 0 * FROM %s",
+		return dropTableIfExists(table + "_ctas") + "\n" + String.format("CREATE TABLE @cdm_database_schema.%s AS SELECT TOP 0 * FROM %s",
 				convertToSqlName(table + "_ctas"), convertToSqlName(table));
 	}
 
 	@Override
 	public String renameTable(String oldName, String newName) {
-		return String.format("ALTER TABLE %s RENAME to %s;", convertToSqlName(oldName), convertToSqlName(newName));
+		return String.format("ALTER TABLE @cdm_database_schema.%s RENAME to @cdm_database_schema.%s;", convertToSqlName(oldName), convertToSqlName(newName));
 	}
 
 	@Override
@@ -89,7 +90,7 @@ public class RedshiftDatabase implements DbOperations {
 	public List<String> getInsertValues(Table table) {
 		List<String> result = new ArrayList<String>();
 		for (Field field : table.getFields()) {
-			String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+			String rFieldName = ETLTestFrameWorkGenerator.convertToRName(field.getName());
 
 			result.add("  if (missing(" + rFieldName + ")) {");
 			result.add("    " + rFieldName + " <- defaults$" + rFieldName);
@@ -115,11 +116,11 @@ public class RedshiftDatabase implements DbOperations {
 
 	@Override
 	public String getTableFooter() {
-		return "paste0('ALTER TABLE ', t, '_ctas', ' RENAME to ', t, ';')";
+		return "paste0('ALTER TABLE @cdm_database_schema.', t, '_ctas', ' RENAME to @cdm_database_schema.', t, ';')";
 	}
 
 	@Override
 	public String dropTableIfExists() {
-		return "paste0('DROP TABLE IF EXISTS ', t, ';')";
+		return "paste0('DROP TABLE IF EXISTS @cdm_database_schema.', t, ';')";
 	}
 }

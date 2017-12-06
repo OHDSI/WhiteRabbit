@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.ohdsi.rabbitInAHat.ETLTestFrameWorkGenerator;
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
@@ -50,13 +51,13 @@ public class SqlServerDatabase implements DbOperations {
 
 	@Override
 	public String dropTableIfExists(String table) {
-		return String.format("IF OBJECT_ID('%s', 'U') IS NOT NULL DROP TABLE %s;", convertToSqlName(table),
+		return String.format("IF OBJECT_ID('@cdm_database_schema.%s', 'U') IS NOT NULL DROP TABLE @cdm_database_schema.%s;", convertToSqlName(table),
 				convertToSqlName(table));
 	}
 
 	@Override
 	public String createTestResults() {
-		return "CREATE TABLE test_results (id INT, description VARCHAR(512), test VARCHAR(256), status VARCHAR(5));";
+		return "CREATE TABLE @cdm_database_schema.test_results (id INT, description VARCHAR(512), test VARCHAR(256), status VARCHAR(5));";
 	}
 
 	@Override
@@ -74,7 +75,7 @@ public class SqlServerDatabase implements DbOperations {
 
 	@Override
 	public String clearTable(String table) {
-		return String.format("TRUNCATE TABLE %s;", convertToSqlName(table));
+		return String.format("TRUNCATE TABLE @cdm_database_schema.%s;", convertToSqlName(table));
 	}
 
 	@Override
@@ -87,7 +88,7 @@ public class SqlServerDatabase implements DbOperations {
 	public List<String> getInsertValues(Table table) {
 		List<String> result = new ArrayList<String>();
 		for (Field field : table.getFields()) {
-			String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+			String rFieldName = ETLTestFrameWorkGenerator.convertToRName(field.getName());
 			String sqlFieldName = this.convertToSqlName(field.getName());
 
 			result.add("  if (missing(" + rFieldName + ")) {");
@@ -105,7 +106,7 @@ public class SqlServerDatabase implements DbOperations {
 	@Override
 	public String getInsertStatement(Table table) {
 		StringBuilder line = new StringBuilder();
-		line.append("  statement <- paste0(\"INSERT INTO " + this.convertToSqlName(table.getName()) + " (\", ");
+		line.append("  statement <- paste0(\"INSERT INTO @cdm_database_schema." + this.convertToSqlName(table.getName()) + " (\", ");
 		line.append("paste(insertFields, collapse = \", \"), ");
 		line.append("\") VALUES ('\", ");
 		line.append("paste(insertValues, collapse = \"', '\"), ");
@@ -115,12 +116,12 @@ public class SqlServerDatabase implements DbOperations {
 
 	@Override
 	public String getExpectTestLine() {
-		return "INSERT INTO test_results SELECT ";
+		return "INSERT INTO @cdm_database_schema.test_results SELECT ";
 	}
 
 	@Override
 	public String dropTableIfExists() {
-		return "paste0('IF OBJECT_ID(', t, ', \'U\') IS NOT NULL DROP TABLE ', t, ';')";
+		return "paste0('IF OBJECT_ID(\'@cdm_database_schema.', t, '\', \'U\') IS NOT NULL DROP TABLE @cdm_database_schema.', t, ';')";
 	}
 
 	@Override

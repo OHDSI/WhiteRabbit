@@ -75,8 +75,7 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	private static void createGenerateInsertSqlFunction(List<String> r, DbOperations dbOps) {
-		r.add("generateInsertSql <- function()");
-		r.add("{");
+		r.add("generateInsertSql <- function(databaseSchema = NULL) {");
 		r.add("  insertSql <<- c()");
 		r.add("  tables <- unique(insertDf$table)");
 		r.add("  lapply(tables, function(t) {");
@@ -88,10 +87,26 @@ public class ETLTestFrameWorkGenerator {
 		}
 		r.add("    insertSql <<- c(insertSql, subset(insertDf, table == t)$sql)");
 		r.add("  })");
-		r.add("  insertSql");
+		r.add("  if (is.null(databaseSchema)) {");
+		r.add("  	insertSql <<- gsub('@cdm_database_schema.', '', insertSql)");
+		r.add("  } else {");
+		r.add("  	insertSql <<- gsub('@cdm_database_schema', databaseSchema, insertSql)");
+		r.add("  }");
+		r.add("  return(insertSql)");
+		r.add("}");
+		r.add("");
+		r.add("generateTestSql <- function(databaseSchema = NULL) {");
+		r.add("  if (is.null(databaseSchema)) {");
+		r.add("  	testSql <- gsub('@cdm_database_schema.', '', testSql)");
+		r.add("  } else {");
+		r.add("  	testSql <- gsub('@cdm_database_schema', databaseSchema, testSql)");
+		r.add("  }");
+		r.add("  return(testSql)");
 		r.add("}");
 		r.add("");
 	}
+	
+
 	
 	private static void createDeclareTestFunction(List<String> r) {
 		r.add("declareTest <- function(id, description) {");
@@ -260,7 +275,7 @@ public class ETLTestFrameWorkGenerator {
 				r.add("");
 				r.add("  defaults <- list()");
 				for (Field field : table.getFields()) {
-					String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+					String rFieldName = convertToRName(field.getName());
 					String defaultValue;
 					if (field.getValueCounts().length == 0)
 						defaultValue = "";
@@ -285,7 +300,7 @@ public class ETLTestFrameWorkGenerator {
 				String rTableName = convertToRName(table.getName());
 				List<String> argDefs = new ArrayList<String>();
 				for (Field field : table.getFields()) {
-					String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+					String rFieldName = convertToRName(field.getName());
 					argDefs.add(rFieldName);
 				}
 				List<String> insertLines = dbOps.getInsertValues(table);
@@ -327,7 +342,7 @@ public class ETLTestFrameWorkGenerator {
 				List<String> argDefs = new ArrayList<String>();
 				List<String> insertLines = new ArrayList<String>();
 				for (Field field : table.getFields()) {
-					String rFieldName = field.getName().replaceAll(" ", "_").replaceAll("-", "_");
+					String rFieldName = convertToRName(field.getName());
 					argDefs.add(rFieldName);
 					insertLines.add("  if (!missing(" + rFieldName + ")) {");
 					insertLines.add("    defaults$" + rFieldName + " <- " + rFieldName);
@@ -360,8 +375,8 @@ public class ETLTestFrameWorkGenerator {
 		}
 	}
 
-	private static String convertToRName(String name) {
-		name = name.replaceAll(" ", "_").replaceAll("-", "_");
+	public static String convertToRName(String name) {
+		name = name.replaceAll(" ", "_").replaceAll("-", "_").replaceAll("^_+", "");
 		return name;
 	}
 }
