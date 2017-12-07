@@ -38,12 +38,24 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.ohdsi.databases.DbType;
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
@@ -64,9 +76,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_OPEN_SCAN_REPORT					= "Open Scan Report";
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT			= "Generate ETL Document";
 	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK			= "Generate ETL Test Framework";
-	public final static String		ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK	= "Generate ETL Test Framework (for R Packages)";
-
-
 	public final static String		ACTION_CMD_DISCARD_COUNTS					= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER							= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING						= "Make Mappings";
@@ -234,11 +243,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateTestFrameworkItem.addActionListener(this);
 		generateTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_TEST_FRAMEWORK);
 		fileMenu.add(generateTestFrameworkItem);
-
-		JMenuItem generatePackageTestFrameworkItem = new JMenuItem(ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK);
-		generatePackageTestFrameworkItem.addActionListener(this);
-		generatePackageTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK);
-		fileMenu.add(generatePackageTestFrameworkItem);
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
@@ -420,9 +424,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_GENERATE_TEST_FRAMEWORK:
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
 				break;
-			case ACTION_CMD_GENERATE_PACKAGE_TEST_FRAMEWORK:
-				doGeneratePackageTestFramework(chooseSavePath(FILE_FILTER_R));
-				break;
 			case ACTION_CMD_DISCARD_COUNTS:
 				doDiscardCounts();
 				break;
@@ -475,38 +476,31 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		tableMappingPanel.setMapping(etl.getTableToTableMapping());
 	}
 	
-	private DbType chooseDbmsVendor()
-	{
-		Object[] vendors = {DBMS_SQLSERVER, DBMS_REDSHIFT};
-		String vendor = (String)JOptionPane.showInputDialog(
-		                    frame,
-		                    "Pick database vendor:",
-		                    "Database vendor",			                    
-		                    JOptionPane.QUESTION_MESSAGE,
-		                    null,
-		                    vendors,
-		                    DBMS_SQLSERVER);
-		
-		DbType dbms = DbType.MSSQL;
-		if (vendor != null) {
-			if (vendor.equals(vendors[1]))
-				dbms = DbType.REDSHIFT;
-		}
-		return dbms;
-	}
+//	private DbType chooseDbmsVendor()
+//	{
+//		Object[] vendors = {DBMS_SQLSERVER, DBMS_REDSHIFT};
+//		String vendor = (String)JOptionPane.showInputDialog(
+//		                    frame,
+//		                    "Pick database vendor:",
+//		                    "Database vendor",			                    
+//		                    JOptionPane.QUESTION_MESSAGE,
+//		                    null,
+//		                    vendors,
+//		                    DBMS_SQLSERVER);
+//		
+//		DbType dbms = DbType.MSSQL;
+//		if (vendor != null) {
+//			if (vendor.equals(vendors[1]))
+//				dbms = DbType.REDSHIFT;
+//		}
+//		return dbms;
+//	}
 	
 	private void doGenerateTestFramework(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLTestFrameWorkGenerator.generate(ObjectExchange.etl, filename, chooseDbmsVendor());
-			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		}
-	}
-
-	private void doGeneratePackageTestFramework(String filename) {
-		if (filename != null) {
-			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLPackageTestFrameWorkGenerator.generate(ObjectExchange.etl, filename, chooseDbmsVendor());
+			ETLTestFrameWorkGenerator etlTestFrameWorkGenerator = new ETLTestFrameWorkGenerator();
+			etlTestFrameWorkGenerator.generate(ObjectExchange.etl, filename);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
