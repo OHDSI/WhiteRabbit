@@ -58,7 +58,7 @@ public class ETLTestFrameWorkGenerator {
 	public static void main(String[] args) {
 		ETL etl = ETL.fromFile("C:\\Home\\Research\\ETLs\\JMDC ETL\\JMDC ETL CDMv5\\JMDC to CDMv5 ETL v08.json.gz", FileFormat.GzipJson);
 		ETLTestFrameWorkGenerator generator = new ETLTestFrameWorkGenerator();
-		generator.generate(etl, "c:/temp/tf.R");
+		generator.generate(etl, "C:\\Home\\Research\\ETLs\\JMDC ETL\\JMDC ETL CDMv5\\JmdcTestFramework.R");
 	}
 
 	public ETLTestFrameWorkGenerator() {
@@ -273,7 +273,7 @@ public class ETLTestFrameWorkGenerator {
 				line.append(") {");
 				r.add(line.toString());
 				line = new StringBuilder();
-				line.append("  statement <- paste0('SELECT ', fetchField , ' FROM ");
+				line.append("  statement <- paste0('SELECT ', fetchField , ' FROM @cdm_database_schema.");
 				line.append(sqlTableName);
 				line.append(" WHERE')");
 				r.add(line.toString());
@@ -305,7 +305,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  insertSql <- c()");
 		for (Table table : sourceDb.getTables())
 			if (!table.isStem())
-				r.add("  insertSql <- c(insertSql, \"TRUNCATE TABLE " + convertToSqlName(table.getName()) + ";\")");
+				r.add("  insertSql <- c(insertSql, \"TRUNCATE TABLE @cdm_database_schema." + convertToSqlName(table.getName()) + ";\")");
 		r.add("  createInsertStatement <- function(insert, env) {");
 		r.add("    s <- c()");
 		r.add("    if (env$testId != insert$testId) {");
