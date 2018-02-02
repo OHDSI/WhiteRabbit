@@ -28,7 +28,7 @@ import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 public class Arrow implements MappingComponent {
 
 	public enum HighlightStatus {
-		IS_SELECTED (new Color(204, 255, 204, 192)),
+		IS_SELECTED (new Color(128, 128, 128, 192)),
 		BOTH_SELECTED (new Color(255, 255, 0, 192)),
 		SOURCE_SELECTED (new Color(255, 128, 0, 192)),
 		TARGET_SELECTED (new Color(0, 0, 255, 192)),
