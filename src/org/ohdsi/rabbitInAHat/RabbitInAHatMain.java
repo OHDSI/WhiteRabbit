@@ -55,6 +55,7 @@ import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.undo.UndoManager;
 
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
@@ -63,6 +64,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.StemTableAdd;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.rabbitInAHat.edits.AddStemTableEdit;
 import org.ohdsi.whiteRabbit.ObjectExchange;
 
 /**
@@ -105,9 +107,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
 	private JScrollPane				scrollPane2;
-	private MappingPanel			tableMappingPanel;
-	private MappingPanel			fieldMappingPanel;
-	private DetailsPanel			detailsPanel;
 	private JSplitPane				tableFieldSplitPane;
 
 	private JFileChooser			chooser;
@@ -139,20 +138,21 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV520));
 
 		ObjectExchange.etl = etl;
+		ObjectExchange.undoManager = new UndoManager();
 
-		tableMappingPanel = new MappingPanel(etl.getTableToTableMapping());
-		tableMappingPanel.addResizeListener(this);
-		scrollPane1 = new JScrollPane(tableMappingPanel);
+		ObjectExchange.tableMappingPanel = new MappingPanel();
+		ObjectExchange.tableMappingPanel.addResizeListener(this);
+		scrollPane1 = new JScrollPane(ObjectExchange.tableMappingPanel);
 		scrollPane1.setBorder(new TitledBorder("Tables"));
 		scrollPane1.getVerticalScrollBar().setUnitIncrement(16);
 		scrollPane1.setAutoscrolls(true);
 		scrollPane1.setOpaque(true);
 		scrollPane1.setBackground(Color.WHITE);
 
-		fieldMappingPanel = new MappingPanel(etl.getTableToTableMapping());
-		tableMappingPanel.setSlaveMappingPanel(fieldMappingPanel);
-		fieldMappingPanel.addResizeListener(this);
-		scrollPane2 = new JScrollPane(fieldMappingPanel);
+	    ObjectExchange.fieldMappingPanel = new MappingPanel();
+	    ObjectExchange.tableMappingPanel.setSlaveMappingPanel(ObjectExchange.fieldMappingPanel);
+		ObjectExchange.fieldMappingPanel.addResizeListener(this);
+		scrollPane2 = new JScrollPane(ObjectExchange.fieldMappingPanel);
 		scrollPane2.getVerticalScrollBar().setUnitIncrement(16);
 		scrollPane2.setVisible(false);
 		scrollPane2.setBorder(new TitledBorder("Fields"));
@@ -161,13 +161,13 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		tableFieldSplitPane.setDividerLocation(600);
 		tableFieldSplitPane.setDividerSize(0);
 
-		detailsPanel = new DetailsPanel();
-		detailsPanel.setBorder(new TitledBorder("Details"));
-		detailsPanel.setPreferredSize(new Dimension(200, 500));
-		detailsPanel.setMinimumSize(new Dimension(0, 0));
-		tableMappingPanel.setDetailsListener(detailsPanel);
-		fieldMappingPanel.setDetailsListener(detailsPanel);
-		JSplitPane leftRightSplinePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, detailsPanel);
+		ObjectExchange.detailsPanel = new DetailsPanel();
+		ObjectExchange.detailsPanel.setBorder(new TitledBorder("Details"));
+		ObjectExchange.detailsPanel.setPreferredSize(new Dimension(200, 500));
+		ObjectExchange.detailsPanel.setMinimumSize(new Dimension(0, 0));
+		ObjectExchange.tableMappingPanel.setDetailsListener(ObjectExchange.detailsPanel);
+		ObjectExchange.fieldMappingPanel.setDetailsListener(ObjectExchange.detailsPanel);
+		JSplitPane leftRightSplinePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableFieldSplitPane, ObjectExchange.detailsPanel);
 		leftRightSplinePane.setResizeWeight(0.40);
 		frame.add(leftRightSplinePane);
 
@@ -470,31 +470,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 
 	private void doAddStemTable() {
-		ETL etl = ObjectExchange.etl;
-		StemTableAdd.addStemTable(etl);
-		ObjectExchange.etl = etl;
-		tableMappingPanel.setMapping(etl.getTableToTableMapping());
+		UndoableEtlEdit undoableEtlEdit = new UndoableEtlEdit(true);
+		StemTableAdd.addStemTable(ObjectExchange.etl);
+		ObjectExchange.tableMappingPanel.renderModel();
+		undoableEtlEdit.commit();	
 	}
-	
-//	private DbType chooseDbmsVendor()
-//	{
-//		Object[] vendors = {DBMS_SQLSERVER, DBMS_REDSHIFT};
-//		String vendor = (String)JOptionPane.showInputDialog(
-//		                    frame,
-//		                    "Pick database vendor:",
-//		                    "Database vendor",			                    
-//		                    JOptionPane.QUESTION_MESSAGE,
-//		                    null,
-//		                    vendors,
-//		                    DBMS_SQLSERVER);
-//		
-//		DbType dbms = DbType.MSSQL;
-//		if (vendor != null) {
-//			if (vendor.equals(vendors[1]))
-//				dbms = DbType.REDSHIFT;
-//		}
-//		return dbms;
-//	}
 	
 	private void doGenerateTestFramework(String filename) {
 		if (filename != null) {
@@ -525,8 +505,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(), Database.generateModelFromCSV(stream, file.getName()));
 
 				etl.copyETLMappings(ObjectExchange.etl);
-				tableMappingPanel.setMapping(etl.getTableToTableMapping());
 				ObjectExchange.etl = etl;
+				ObjectExchange.tableMappingPanel.renderModel();				
 			} catch (IOException e) {
 				// Do nothing if error
 			}
@@ -537,40 +517,40 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private void doSetTargetCDM(CDMVersion cdmVersion) {
 		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(), Database.generateCDMModel(cdmVersion));
 		etl.copyETLMappings(ObjectExchange.etl);
-		tableMappingPanel.setMapping(etl.getTableToTableMapping());
 		ObjectExchange.etl = etl;
+		ObjectExchange.tableMappingPanel.renderModel();
 	}
 
 	private void doOpenFilterDialog() {
 		FilterDialog filter;
 		filter = new FilterDialog(frame);
 
-		filter.setFilterPanel(tableMappingPanel);
+		filter.setFilterPanel(ObjectExchange.tableMappingPanel);
 
 		filter.setVisible(true);
 	}
 
 	private void doMakeMappings() {
-		if (this.tableMappingPanel.isMaximized()) {
-			this.tableMappingPanel.makeMapSelectedSourceAndTarget();
+		if (ObjectExchange.tableMappingPanel.isMaximized()) {
+			ObjectExchange.tableMappingPanel.makeMapSelectedSourceAndTarget();
 		} else {
-			this.fieldMappingPanel.makeMapSelectedSourceAndTarget();
+			ObjectExchange.fieldMappingPanel.makeMapSelectedSourceAndTarget();
 		}
 
 	}
 
 	private void doRemoveMappings() {
-		if (this.tableMappingPanel.isMaximized()) {
-			this.tableMappingPanel.removeMapSelectedSourceAndTarget();
+		if (ObjectExchange.tableMappingPanel.isMaximized()) {
+			ObjectExchange.tableMappingPanel.removeMapSelectedSourceAndTarget();
 		} else {
-			this.fieldMappingPanel.removeMapSelectedSourceAndTarget();
+			ObjectExchange.fieldMappingPanel.removeMapSelectedSourceAndTarget();
 		}
 
 	}
 
 	private void doDiscardCounts() {
 		ObjectExchange.etl.discardCounts();
-		detailsPanel.refresh();
+		ObjectExchange.detailsPanel.refresh();
 	}
 
 	private void doSave(String filename) {
@@ -590,7 +570,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 					: filename.endsWith(".json") ? ETL.FileFormat.Json : ETL.FileFormat.Binary;
 			try {
 				ObjectExchange.etl = ETL.fromFile(filename, fileFormat);
-				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+				ObjectExchange.tableMappingPanel.renderModel();
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
@@ -617,8 +597,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				try {
 					etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
 					etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());
-					tableMappingPanel.setMapping(etl.getTableToTableMapping());
 					ObjectExchange.etl = etl;
+					ObjectExchange.tableMappingPanel.renderModel();
 				} catch (Exception e) {
 					e.printStackTrace();
 					JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
@@ -664,12 +644,12 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 
 	private void doMarkCompleted() {
-		this.tableMappingPanel.markCompleted();
-		this.fieldMappingPanel.markCompleted();
+		ObjectExchange.tableMappingPanel.markCompleted();
+		ObjectExchange.fieldMappingPanel.markCompleted();
 	}
 
 	private void doUnmarkCompleted() {
-		this.tableMappingPanel.unmarkCompleted();
-		this.fieldMappingPanel.unmarkCompleted();
+		ObjectExchange.tableMappingPanel.unmarkCompleted();
+		ObjectExchange.fieldMappingPanel.unmarkCompleted();
 	}
 }

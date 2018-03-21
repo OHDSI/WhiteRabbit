@@ -33,6 +33,18 @@ import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 
 public class Database implements Serializable {
+	
+	private List<Table>			tables				= new ArrayList<Table>();
+	private static final long	serialVersionUID	= -3912166654601191039L;
+	private String				dbName				= "";
+
+	public Database() {
+	}
+	
+	public Database(Database database) {
+		tables = new ArrayList<Table>(database.tables);
+		dbName = database.dbName;
+	}
 
 	public enum CDMVersion {
 		CDMV4("CDMV4.csv"), CDMV5("CDMV5.csv"), CDMV501("CDMV5.0.1.csv"), CDMV510("CDMV5.1.0.csv"), CDMV520("CDMV5.2.0.csv");
@@ -43,10 +55,6 @@ public class Database implements Serializable {
 			this.fileName = fileName;
 		}
 	}
-
-	private List<Table>			tables				= new ArrayList<Table>();
-	private static final long	serialVersionUID	= -3912166654601191039L;
-	private String				dbName				= "";
 
 	public List<Table> getTables() {
 		return tables;

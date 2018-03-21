@@ -18,14 +18,21 @@
 package org.ohdsi.whiteRabbit;
 
 import javax.swing.JFrame;
+import javax.swing.undo.UndoManager;
 
+import org.ohdsi.rabbitInAHat.DetailsPanel;
+import org.ohdsi.rabbitInAHat.MappingPanel;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 
 /**
  * This class is used to hold global variables
  */
 public class ObjectExchange {
-	public static JFrame	frame;
-	public static Console	console;
-	public static ETL		etl;
+	public static JFrame		frame;
+	public static UndoManager	undoManager;
+	public static MappingPanel	tableMappingPanel;
+	public static MappingPanel	fieldMappingPanel;
+	public static DetailsPanel	detailsPanel;
+	public static Console		console;
+	public static ETL			etl;
 }

@@ -29,6 +29,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -37,9 +38,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
@@ -94,23 +95,58 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	private DetailsListener			detailsListener;
 
-	@SuppressWarnings("serial")
-	public MappingPanel(Mapping<?> mapping) {
+	private Table sourceTable;
+	private Table cdmTable;
+
+	/**
+	 *  Use this constructor to create the mapping panel for the table-table mapping
+	 */
+	public MappingPanel() {
 		super();
-		this.mapping = mapping;
+		sourceTable = null;
+		cdmTable = null;
+		init();
+	}
+
+	/**
+	 * Use this constructor to create a mapping panel for field-to-field mappings for a specific table pair
+	 * @param sourceTable
+	 * @param cdmTable
+	 */
+	public MappingPanel(Table sourceTable, Table cdmTable) {	
+		super();
+		this.sourceTable = sourceTable;
+		this.cdmTable = cdmTable;
+		init();	
+	}
+	private void init() {	
 		this.setFocusable(true);
 		addMouseListener(this);
 		addMouseMotionListener(this);
-
-		// Add keybindings to delete arrows
-		this.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false), "del pressed");
-		this.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0, false), "del pressed");
-		this.getActionMap().put("del pressed", new AbstractAction() {
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false), "del pressed");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0, false), "del pressed");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK), "undo");
+		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK), "redo");
+		getActionMap().put("del pressed", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedArrow != null) {
 					removeArrow(selectedArrow);
 				}
+			}
+		});
+		getActionMap().put("undo", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (ObjectExchange.undoManager.canUndo())
+					ObjectExchange.undoManager.undo();
+			}
+		});
+		getActionMap().put("redo", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (ObjectExchange.undoManager.canRedo())
+					ObjectExchange.undoManager.redo();
 			}
 		});
 
@@ -129,9 +165,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		return minimized;
 	}
 
-	public void setMapping(Mapping<?> mapping) {
+	public void setTables(Table sourceTable, Table cdmTable) {
 		maximize();
-		this.mapping = mapping;
+		this.sourceTable = sourceTable;
+		this.cdmTable = cdmTable;
 		renderModel();
 	}
 
@@ -156,7 +193,12 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		renderModel();
 	}
 
-	private void renderModel() {
+	public void renderModel() {
+		if (sourceTable == null) {
+			mapping = ObjectExchange.etl.getTableToTableMapping();
+		} else {
+			mapping = ObjectExchange.etl.getFieldToFieldMapping(sourceTable, cdmTable);
+		}
 		sourceComponents.clear();
 		cdmComponents.clear();
 		arrows.clear();
@@ -397,10 +439,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				if (event.getClickCount() == 2) { // double click
 					zoomArrow = clickedArrow;
 					if (slaveMappingPanel != null) {
-						slaveMappingPanel.setMapping(ObjectExchange.etl.getFieldToFieldMapping((Table) zoomArrow.getSource().getItem(), (Table) zoomArrow
-								.getTarget().getItem()));
+						slaveMappingPanel.setTables((Table) zoomArrow.getSource().getItem(), (Table) zoomArrow.getTarget().getItem());
 						new AnimateThread(true).start();
-
 						slaveMappingPanel.filterComponents("", false);
 						slaveMappingPanel.filterComponents("", true);
 					}
@@ -507,7 +547,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 	}
 
-	private void maximize() {
+	public void maximize() {
 		maxHeight = Integer.MAX_VALUE;
 		minimized = false;
 		for (ResizeListener resizeListener : resizeListeners)
@@ -603,7 +643,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					}
 				}
 			if (dragArrowPreviousTarget != null && dragArrow.getTarget() != dragArrowPreviousTarget) { // Retargeted an existing arrow, remove old map from
-																										// model
+				// model
 				mapping.removeSourceToTargetMap(dragArrow.getSource().getItem(), dragArrowPreviousTarget.getItem());
 			}
 			dragArrowPreviousTarget = null;
@@ -668,7 +708,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	}
 
-	private List<ResizeListener>	resizeListeners	= new ArrayList<ResizeListener>();
+	private List<ResizeListener> resizeListeners = new ArrayList<ResizeListener>();
 
 	public void addResizeListener(ResizeListener resizeListener) {
 		resizeListeners.add(resizeListener);
@@ -771,9 +811,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 
 		if (isNew) {
+			UndoableEtlEdit undoableEtlEdit = new UndoableEtlEdit(sourceTable == null);
+			mapping.addSourceToTargetMap(source.getItem(), target.getItem());
+			undoableEtlEdit.commit();
 			Arrow arrow = new Arrow(source);
 			arrow.setTarget(target);
-			mapping.addSourceToTargetMap(source.getItem(), target.getItem());
 			arrow.setItemToItemMap(mapping.getSourceToTargetMap(source.getItem(), target.getItem()));
 			arrows.add(arrow);
 		}
@@ -848,4 +890,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public boolean isBeingFiltered() {
 		return lastSourceFilter != "" || lastTargetFilter != "";
 	}
+
+	public Mapping<?> getMapping() {
+		return mapping;
+	}
+
+
 }

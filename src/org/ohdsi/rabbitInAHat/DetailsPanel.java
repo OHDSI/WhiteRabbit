@@ -63,6 +63,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
+import org.ohdsi.whiteRabbit.ObjectExchange;
 import org.ohdsi.rabbitInAHat.dataModel.TableCellLongTextRenderer;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
@@ -75,8 +76,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 	private FieldPanel			fieldPanel;
 	private ItemToItemMapPanel	itemToItemMapPanel;
 	private CardLayout			cardLayout			= new CardLayout();
-
-	private UndoManager			undoManager;
 	
 	public DetailsPanel() {
 		UIManager.put("Label.font", font);
@@ -95,10 +94,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		JPanel nullPanel = new JPanel();
 		add(nullPanel, "");
 
-		cardLayout.show(this, "");
-		
-		undoManager = new UndoManager();
-		
+		cardLayout.show(this, "");		
 	}
 
 	@Override
@@ -116,9 +112,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			cardLayout.show(this, ItemToItemMap.class.getName());
 		} else
 			cardLayout.show(this, "");
-		
-		// Discard edits made by showing a new details view
-		undoManager.discardAllEdits();
 	}
 
 	public void refresh() {
@@ -130,51 +123,51 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		doc.addUndoableEditListener(new UndoableEditListener() {
 		    @Override
 		    public void undoableEditHappened(UndoableEditEvent e) {
-		        undoManager.addEdit(e.getEdit());
+		        ObjectExchange.undoManager.addEdit(e.getEdit());
 		    }
 		});
 		
-		InputMap im = jta.getInputMap(JComponent.WHEN_FOCUSED);
-		ActionMap am = jta.getActionMap();
-
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo");
-
-		am.put("Undo", new AbstractAction() {
-		    /**
-			 * 
-			 */
-			private static final long serialVersionUID = -3363877112423623107L;
-
-			@Override
-		    public void actionPerformed(ActionEvent e) {
-		        try {
-		            if (undoManager.canUndo()) {
-		                undoManager.undo();
-		            }
-		        } catch (CannotUndoException exp) {
-		            exp.printStackTrace();
-		        }
-		    }
-		});
-		
-		am.put("Redo", new AbstractAction() {
-		    /**
-			 * 
-			 */
-			private static final long serialVersionUID = -5581878642285644039L;
-
-			@Override
-		    public void actionPerformed(ActionEvent e) {
-		        try {
-		            if (undoManager.canRedo()) {
-		                undoManager.redo();
-		            }
-		        } catch (CannotUndoException exp) {
-		            exp.printStackTrace();
-		        }
-		    }
-		});
+//		InputMap im = jta.getInputMap(JComponent.WHEN_FOCUSED);
+//		ActionMap am = jta.getActionMap();
+//
+//		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo");
+//		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo");
+//
+//		am.put("Undo", new AbstractAction() {
+//		    /**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = -3363877112423623107L;
+//
+//			@Override
+//		    public void actionPerformed(ActionEvent e) {
+//		        try {
+//		            if (undoManager.canUndo()) {
+//		                undoManager.undo();
+//		            }
+//		        } catch (CannotUndoException exp) {
+//		            exp.printStackTrace();
+//		        }
+//		    }
+//		});
+//		
+//		am.put("Redo", new AbstractAction() {
+//		    /**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = -5581878642285644039L;
+//
+//			@Override
+//		    public void actionPerformed(ActionEvent e) {
+//		        try {
+//		            if (undoManager.canRedo()) {
+//		                undoManager.redo();
+//		            }
+//		        } catch (CannotUndoException exp) {
+//		            exp.printStackTrace();
+//		        }
+//		    }
+//		});
 	}
 	private class TablePanel extends JPanel implements DocumentListener {
 

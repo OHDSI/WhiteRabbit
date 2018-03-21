@@ -128,7 +128,7 @@ public class ETLDocumentGenerator {
 				createDocumentParagraph(document, tableToTableMap.getComment());
 				
 				// Add picture of field to field mapping
-				MappingPanel mappingPanel = new MappingPanel(fieldtoFieldMapping);
+				MappingPanel mappingPanel = new MappingPanel(sourceTable, targetTable);
 				mappingPanel.setShowOnlyConnectedItems(true);
 				int height = mappingPanel.getMinimumSize().height;
 				mappingPanel.setSize(800, height);
@@ -202,7 +202,7 @@ public class ETLDocumentGenerator {
 		XWPFParagraph tmpParagraph = document.createParagraph();
 		XWPFRun tmpRun = tmpParagraph.createRun();
 		
-		MappingPanel mappingPanel = new MappingPanel(etl.getTableToTableMapping());
+		MappingPanel mappingPanel = new MappingPanel();
 		mappingPanel.setShowOnlyConnectedItems(true);
 		int height = mappingPanel.getMinimumSize().height;
 		mappingPanel.setSize(800, height);

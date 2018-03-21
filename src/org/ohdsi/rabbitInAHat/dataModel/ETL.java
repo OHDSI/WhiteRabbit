@@ -53,6 +53,17 @@ public class ETL implements Serializable {
 		this.setSourceDatabase(sourceDB);
 		this.setTargetDatabase(targetDb);
 	}
+	
+	public ETL(ETL etl) {
+		filename = etl.filename;
+		cdmDb = new Database(etl.cdmDb);
+		sourceDb = new Database(etl.sourceDb);
+		tableToTableMaps = new ArrayList<ItemToItemMap>(etl.tableToTableMaps);
+		tableMapToFieldToFieldMaps = new HashMap<ItemToItemMap, List<ItemToItemMap>>();
+		for (Map.Entry<ItemToItemMap, List<ItemToItemMap>> entry : etl.tableMapToFieldToFieldMaps.entrySet()) {
+			tableMapToFieldToFieldMaps.put(entry.getKey(), new ArrayList<ItemToItemMap>(entry.getValue()));
+		}
+	}
 
 	public void copyETLMappings(ETL etl) {
 		Mapping<Table> oldTableMapping = etl.getTableToTableMapping();
@@ -87,18 +98,6 @@ public class ETL implements Serializable {
 				}
 			}
 		}
-	}
-
-	public void saveCurrentState() {
-
-	}
-
-	public void revertToPreviousState() {
-
-	}
-
-	public void revertToNextState() {
-
 	}
 
 	public Mapping<Table> getTableToTableMapping() {
