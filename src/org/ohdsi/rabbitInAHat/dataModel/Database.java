@@ -35,9 +35,9 @@ import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 public class Database implements Serializable {
 
 	public enum CDMVersion {
-		CDMV4("CDMV4.csv"), CDMV5("CDMV5.csv"), CDMV501("CDMV5.0.1.csv"), CDMV510("CDMV5.1.0.csv"), CDMV520("CDMV5.2.0.csv");
+		CDMV4("CDMV4.csv"), CDMV5("CDMV5.csv"), CDMV501("CDMV5.0.1.csv"), CDMV510("CDMV5.1.0.csv"), CDMV520("CDMV5.2.0.csv"), CDMV530("CDMV5.3.0.csv");
 
-		private final String	fileName;
+		private final String fileName;
 
 		CDMVersion(String fileName) {
 			this.fileName = fileName;
@@ -78,26 +78,53 @@ public class Database implements Serializable {
 
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
 		try {
+			
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
-
-				Table table = nameToTable.get(row.get("TABLE_NAME").toLowerCase());
+				String tableNameColumn;
+				String fieldNameColumn;
+				String isNullableColumn;
+				String nullableValue;
+				String dataTypeColumn;
+				String descriptionColumn;
+				if (row.isSet("TABLE_NAME")) {
+					tableNameColumn = "TABLE_NAME";
+					fieldNameColumn = "COLUMN_NAME";
+					isNullableColumn = "IS_NULLABLE";
+					nullableValue = "YES";
+					dataTypeColumn = "DATA_TYPE";
+					descriptionColumn = "DESCRIPTION";
+				} else {
+					tableNameColumn = "table";
+					fieldNameColumn = "field";
+					isNullableColumn = "required";
+					nullableValue = "No";
+					dataTypeColumn = "type";
+					descriptionColumn = "description";
+				}
+				Table table = nameToTable.get(row.get(tableNameColumn).toLowerCase());
 
 				if (table == null) {
 					table = new Table();
 					table.setDb(database);
-					table.setName(row.get("TABLE_NAME").toLowerCase());
-					nameToTable.put(row.get("TABLE_NAME").toLowerCase(), table);
+					table.setName(row.get(tableNameColumn).toLowerCase());
+					nameToTable.put(row.get(tableNameColumn).toLowerCase(), table);
 					database.tables.add(table);
 				}
-				Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), table);
-				field.setNullable(row.get("IS_NULLABLE").equals("YES"));
-				field.setType(row.get("DATA_TYPE"));
-				field.setDescription(row.get("DESCRIPTION"));
+				Field field = new Field(row.get(fieldNameColumn).toLowerCase(), table);
+				field.setNullable(row.get(isNullableColumn).equals(nullableValue));
+				field.setType(row.get(dataTypeColumn));
+				field.setDescription(row.get(descriptionColumn));
 				table.getFields().add(field);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage());
 		}
+//		Collections.sort(database.tables, new Comparator<Table>() {
+//
+//			@Override
+//			public int compare(Table o1, Table o2) {
+//				return o1.getName().compareTo(o2.getName());
+//			}});
 		return database;
 	}
 

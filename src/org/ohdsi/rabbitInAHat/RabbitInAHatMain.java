@@ -85,6 +85,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_SET_TARGET_V501					= "CDM v5.0.1";
 	public final static String		ACTION_CMD_SET_TARGET_V510					= "CDM v5.1.0";
 	public final static String		ACTION_CMD_SET_TARGET_V520					= "CDM v5.2.0";
+	public final static String		ACTION_CMD_SET_TARGET_V530					= "CDM v5.3.0";
 	public final static String		ACTION_ADD_STEM_TABLE						= "Add stem table";
 	public final static String		ACTION_CMD_SET_TARGET_CUSTOM				= "Load Custom...";
 	public final static String		ACTION_CMD_MARK_COMPLETED					= "Mark Highlighted As Complete";
@@ -136,7 +137,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV520));
+		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV530));
 
 		ObjectExchange.etl = etl;
 
@@ -280,11 +281,16 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		targetCDMV510.setActionCommand(ACTION_CMD_SET_TARGET_V510);
 		setTarget.add(targetCDMV510);
 		
-		JRadioButtonMenuItem targetCDMV520 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V520, true);
+		JRadioButtonMenuItem targetCDMV520 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V520);
 		targetCDMV520.addActionListener(this);
 		targetCDMV520.setActionCommand(ACTION_CMD_SET_TARGET_V520);
 		setTarget.add(targetCDMV520);
 
+		JRadioButtonMenuItem targetCDMV530 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V530, true);
+		targetCDMV530.addActionListener(this);
+		targetCDMV530.setActionCommand(ACTION_CMD_SET_TARGET_V530);
+		setTarget.add(targetCDMV530);
+		
 		JRadioButtonMenuItem loadTarget = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
 
 		loadTarget.addActionListener(this);
@@ -450,7 +456,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_CMD_SET_TARGET_V520:
 				doSetTargetCDM(CDMVersion.CDMV520);
-				break;				
+				break;			
+			case ACTION_CMD_SET_TARGET_V530:
+				doSetTargetCDM(CDMVersion.CDMV530);
+				break;	
 			case ACTION_CMD_SET_TARGET_CUSTOM:
 				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
 				break;
