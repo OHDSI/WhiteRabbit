@@ -70,39 +70,40 @@ import org.ohdsi.whiteRabbit.ObjectExchange;
  */
 public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
-	public final static String		ACTION_CMD_SAVE								= "Save";
-	public final static String		ACTION_CMD_SAVE_AS							= "Save As";
-	public final static String		ACTION_CMD_OPEN_ETL_SPECS					= "Open ETL Specs";
-	public final static String		ACTION_CMD_OPEN_SCAN_REPORT					= "Open Scan Report";
-	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT			= "Generate ETL Document";
-	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK			= "Generate ETL Test Framework";
-	public final static String		ACTION_CMD_DISCARD_COUNTS					= "Discard Value Counts";
-	public final static String		ACTION_CMD_FILTER							= "Filter";
-	public final static String		ACTION_CMD_MAKE_MAPPING						= "Make Mappings";
-	public final static String		ACTION_CMD_REMOVE_MAPPING					= "Remove Mappings";
-	public final static String		ACTION_CMD_SET_TARGET_V4					= "CDM v4";
-	public final static String		ACTION_CMD_SET_TARGET_V5					= "CDM v5.0.0";
-	public final static String		ACTION_CMD_SET_TARGET_V501					= "CDM v5.0.1";
-	public final static String		ACTION_CMD_SET_TARGET_V510					= "CDM v5.1.0";
-	public final static String		ACTION_CMD_SET_TARGET_V520					= "CDM v5.2.0";
-	public final static String		ACTION_CMD_SET_TARGET_V530					= "CDM v5.3.0";
-	public final static String		ACTION_ADD_STEM_TABLE						= "Add stem table";
-	public final static String		ACTION_CMD_SET_TARGET_CUSTOM				= "Load Custom...";
-	public final static String		ACTION_CMD_MARK_COMPLETED					= "Mark Highlighted As Complete";
-	public final static String		ACTION_CMD_UNMARK_COMPLETED					= "Mark Highlighted As Incomplete";
-	public final static String		ACTION_CMD_HELP								= "Open help Wiki";
+	public final static String		ACTION_CMD_SAVE						= "Save";
+	public final static String		ACTION_CMD_SAVE_AS					= "Save As";
+	public final static String		ACTION_CMD_OPEN_ETL_SPECS			= "Open ETL Specs";
+	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
+	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
+	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK	= "Generate ETL Test Framework";
+	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
+	public final static String		ACTION_CMD_FILTER					= "Filter";
+	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
+	public final static String		ACTION_CMD_REMOVE_MAPPING			= "Remove Mappings";
+	public final static String		ACTION_CMD_SET_TARGET_V4			= "CDM v4";
+	public final static String		ACTION_CMD_SET_TARGET_V5			= "CDM v5.0.0";
+	public final static String		ACTION_CMD_SET_TARGET_V501			= "CDM v5.0.1";
+	public final static String		ACTION_CMD_SET_TARGET_V510			= "CDM v5.1.0";
+	public final static String		ACTION_CMD_SET_TARGET_V520			= "CDM v5.2.0";
+	public final static String		ACTION_CMD_SET_TARGET_V530			= "CDM v5.3.0";
+	public final static String		ACTION_CMD_SET_TARGET_V531			= "CDM v5.3.1";
+	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
+	public final static String		ACTION_CMD_SET_TARGET_CUSTOM		= "Load Custom...";
+	public final static String		ACTION_CMD_MARK_COMPLETED			= "Mark Highlighted As Complete";
+	public final static String		ACTION_CMD_UNMARK_COMPLETED			= "Mark Highlighted As Incomplete";
+	public final static String		ACTION_CMD_HELP						= "Open help Wiki";
 
-	public final static String		WIKI_URL									= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat";
-	private final static FileFilter	FILE_FILTER_GZ								= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
-	private final static FileFilter	FILE_FILTER_JSON							= new FileNameExtensionFilter("JSON Files (*.json)", "json");
-	private final static FileFilter	FILE_FILTER_DOCX							= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
-	private final static FileFilter	FILE_FILTER_CSV								= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
-	private final static FileFilter	FILE_FILTER_R								= new FileNameExtensionFilter("R script (*.r)", "r");
-	private final static FileFilter	FILE_FILTER_XLSX							= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
+	public final static String		WIKI_URL							= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat";
+	private final static FileFilter	FILE_FILTER_GZ						= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
+	private final static FileFilter	FILE_FILTER_JSON					= new FileNameExtensionFilter("JSON Files (*.json)", "json");
+	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
+	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
+	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
+	private final static FileFilter	FILE_FILTER_XLSX					= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
 
-	public final static String		DBMS_SQLSERVER								= "SQL Server";
-	public final static String		DBMS_REDSHIFT								= "Redshift";
-	
+	public final static String		DBMS_SQLSERVER						= "SQL Server";
+	public final static String		DBMS_REDSHIFT						= "Redshift";
+
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
 	private JScrollPane				scrollPane2;
@@ -110,7 +111,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private MappingPanel			fieldMappingPanel;
 	private DetailsPanel			detailsPanel;
 	private JSplitPane				tableFieldSplitPane;
-
 	private JFileChooser			chooser;
 
 	public static void main(String[] args) {
@@ -137,7 +137,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV530));
+		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV531));
 
 		ObjectExchange.etl = etl;
 
@@ -177,8 +177,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
 
-		if (args.length > 0) {
+		if (args.length == 1) {
 			doOpenSpecs(args[0]);
+		}
+		if (args.length > 1 && args[0].equals("-folder")) {
+			chooser = new JFileChooser(args[1]);
 		}
 	}
 
@@ -280,37 +283,44 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		targetCDMV510.addActionListener(this);
 		targetCDMV510.setActionCommand(ACTION_CMD_SET_TARGET_V510);
 		setTarget.add(targetCDMV510);
-		
+
 		JRadioButtonMenuItem targetCDMV520 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V520);
 		targetCDMV520.addActionListener(this);
 		targetCDMV520.setActionCommand(ACTION_CMD_SET_TARGET_V520);
 		setTarget.add(targetCDMV520);
 
-		JRadioButtonMenuItem targetCDMV530 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V530, true);
+		JRadioButtonMenuItem targetCDMV530 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V530);
 		targetCDMV530.addActionListener(this);
 		targetCDMV530.setActionCommand(ACTION_CMD_SET_TARGET_V530);
 		setTarget.add(targetCDMV530);
 		
+		JRadioButtonMenuItem targetCDMV531 = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_V531, true);
+		targetCDMV531.addActionListener(this);
+		targetCDMV531.setActionCommand(ACTION_CMD_SET_TARGET_V531);
+		setTarget.add(targetCDMV531);
+
 		JRadioButtonMenuItem loadTarget = new JRadioButtonMenuItem(ACTION_CMD_SET_TARGET_CUSTOM);
 
 		loadTarget.addActionListener(this);
 		loadTarget.setActionCommand(ACTION_CMD_SET_TARGET_CUSTOM);
 		setTarget.add(loadTarget);
 		editMenu.add(setTarget);
-		
+
 		ButtonGroup targetGroup = new ButtonGroup();
 		targetGroup.add(targetCDMV4);
 		targetGroup.add(targetCDMV5);
 		targetGroup.add(targetCDMV501);
 		targetGroup.add(targetCDMV510);
 		targetGroup.add(targetCDMV520);
+		targetGroup.add(targetCDMV530);
+		targetGroup.add(targetCDMV531);
 		targetGroup.add(loadTarget);
 
 		JMenuItem addStemTable = new JMenuItem(ACTION_ADD_STEM_TABLE);
 		addStemTable.addActionListener(this);
 		addStemTable.setActionCommand(ACTION_ADD_STEM_TABLE);
 		editMenu.add(addStemTable);
-		
+
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
 
@@ -456,10 +466,13 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_CMD_SET_TARGET_V520:
 				doSetTargetCDM(CDMVersion.CDMV520);
-				break;			
+				break;
 			case ACTION_CMD_SET_TARGET_V530:
 				doSetTargetCDM(CDMVersion.CDMV530);
-				break;	
+				break;
+			case ACTION_CMD_SET_TARGET_V531:
+				doSetTargetCDM(CDMVersion.CDMV531);
+				break;
 			case ACTION_CMD_SET_TARGET_CUSTOM:
 				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
 				break;
@@ -484,27 +497,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		ObjectExchange.etl = etl;
 		tableMappingPanel.setMapping(etl.getTableToTableMapping());
 	}
-	
-//	private DbType chooseDbmsVendor()
-//	{
-//		Object[] vendors = {DBMS_SQLSERVER, DBMS_REDSHIFT};
-//		String vendor = (String)JOptionPane.showInputDialog(
-//		                    frame,
-//		                    "Pick database vendor:",
-//		                    "Database vendor",			                    
-//		                    JOptionPane.QUESTION_MESSAGE,
-//		                    null,
-//		                    vendors,
-//		                    DBMS_SQLSERVER);
-//		
-//		DbType dbms = DbType.MSSQL;
-//		if (vendor != null) {
-//			if (vendor.equals(vendors[1]))
-//				dbms = DbType.REDSHIFT;
-//		}
-//		return dbms;
-//	}
-	
+
 	private void doGenerateTestFramework(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

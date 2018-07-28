@@ -30,6 +30,9 @@ public class StemTableAdd {
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.0")) {
 			tableStream = StemTableAdd.class.getResourceAsStream("StemTableV5.3.0.csv");
 			mappingStream = StemTableAdd.class.getResourceAsStream("StemTableDefaultMappingV5.3.0.csv");
+		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1")) {
+			tableStream = StemTableAdd.class.getResourceAsStream("StemTableV5.3.1.csv");
+			mappingStream = StemTableAdd.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
 		} else {
 			JOptionPane.showMessageDialog(null, "No stem table definition available for " + targetDatabase.getDbName(), "Error", JOptionPane.ERROR_MESSAGE);
 			return;

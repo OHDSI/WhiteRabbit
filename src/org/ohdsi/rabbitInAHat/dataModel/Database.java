@@ -35,7 +35,7 @@ import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 public class Database implements Serializable {
 
 	public enum CDMVersion {
-		CDMV4("CDMV4.csv"), CDMV5("CDMV5.csv"), CDMV501("CDMV5.0.1.csv"), CDMV510("CDMV5.1.0.csv"), CDMV520("CDMV5.2.0.csv"), CDMV530("CDMV5.3.0.csv");
+		CDMV4("CDMV4.csv"), CDMV5("CDMV5.csv"), CDMV501("CDMV5.0.1.csv"), CDMV510("CDMV5.1.0.csv"), CDMV520("CDMV5.2.0.csv"), CDMV530("CDMV5.3.0.csv"), CDMV531("CDMV5.3.1.csv");
 
 		private final String fileName;
 
@@ -78,7 +78,7 @@ public class Database implements Serializable {
 
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
 		try {
-			
+
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
 				String tableNameColumn;
 				String fieldNameColumn;
@@ -119,12 +119,12 @@ public class Database implements Serializable {
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage());
 		}
-//		Collections.sort(database.tables, new Comparator<Table>() {
-//
-//			@Override
-//			public int compare(Table o1, Table o2) {
-//				return o1.getName().compareTo(o2.getName());
-//			}});
+		// Collections.sort(database.tables, new Comparator<Table>() {
+		//
+		// @Override
+		// public int compare(Table o1, Table o2) {
+		// return o1.getName().compareTo(o2.getName());
+		// }});
 		return database;
 	}
 
