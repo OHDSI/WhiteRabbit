@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -172,6 +173,8 @@ public class SourceDataScan {
 		Collections.sort(tables);
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+		CellStyle percentageStyle = workbook.createCellStyle();
+		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0%"));
 
 		// Create overview sheet
 		Sheet sheet = workbook.createSheet("Overview");
@@ -185,9 +188,11 @@ public class SourceDataScan {
 		} else {
 			addRow(sheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "N unique values", "Fraction unique values");
 			for (String table : tables) {
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
+				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
 					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
 							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.getnUniques(), fieldInfo.getFractionUnique());
+					this.setCellStyles(sheet, percentageStyle, 6, 8);
+				}
 				addRow(sheet, "");
 			}
 
@@ -544,6 +549,15 @@ public class SourceDataScan {
 			else
 				cell.setCellValue(value.toString());
 
+		}
+	}
+
+	private void setCellStyles(Sheet sheet, CellStyle style, int... colNums) {
+		Row row = sheet.getRow(sheet.getLastRowNum());
+		for(int i : colNums) {
+			Cell cell = row.getCell(i);
+			if (cell != null)
+				cell.setCellStyle(style);
 		}
 	}
 }
