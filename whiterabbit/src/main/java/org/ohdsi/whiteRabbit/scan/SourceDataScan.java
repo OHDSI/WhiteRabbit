@@ -126,11 +126,11 @@ public class SourceDataScan {
 				addRow(sheet, "");
 			}
 		} else {
-			addRow(sheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
+			addRow(sheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "N unique values", "Fraction unique values");
 			for (String table : tables) {
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
 					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
+							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.getnUniques(), fieldInfo.getFractionUnique());
 				addRow(sheet, "");
 			}
 
@@ -395,6 +395,17 @@ public class SourceDataScan {
 				return "real";
 			else
 				return "varchar";
+		}
+
+		public int getnUniques() {
+			return this.valueCounts.size();
+		}
+
+		public Double getFractionUnique() {
+			if (this.nProcessed == 0 || this.valueCounts.size() == 1)
+				return 0d;
+			else
+				return this.valueCounts.size() / (double) this.nProcessed;
 		}
 
 		public void processValue(String value) {
