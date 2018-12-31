@@ -23,8 +23,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.BreakType;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -38,6 +45,9 @@ import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.Mapping;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.utilities.StringUtilities;
+import org.ohdsi.utilities.collections.Pair;
+import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 
 public class ETLDocumentGenerator {
 	
@@ -64,6 +74,33 @@ public class ETLDocumentGenerator {
 
 	public static void generate(ETL etl, String filename) {
 		generate(etl, filename, true);
+	}
+
+	public static void generateSourceMaps(ETL etl, String filename) {
+		System.out.println("Generating source mappings");
+
+		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+
+		// Create overview sheet
+		Sheet sheet = workbook.createSheet("All source fields");
+		SourceDataScan.addRow(sheet,  "Source Table", "Source Field", "Description", "Mapped?");
+		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
+			System.out.println(sourceTable.getName());
+			for (Field sourceField : sourceTable.getFields()) {
+				System.out.println(sourceField.getName());
+				boolean isMapped = etl.getSourceField(sourceField);
+				SourceDataScan.addRow(sheet,  sourceTable.getName(), sourceField.getName(), sourceField.getComment(), isMapped ? "X" : "");
+			}
+		}
+
+		try {
+			FileOutputStream out = new FileOutputStream(new File(filename));
+			workbook.write(out);
+			out.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage());
+		}
+
 	}
 	
 	private static void addSourceTablesAppendix(CustomXWPFDocument document, ETL etl) {

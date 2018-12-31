@@ -215,4 +215,15 @@ public class ETL implements Serializable {
 			for (Field field : table.getFields())
 				field.setValueCounts(new String[0][]);
 	}
+
+	public boolean getSourceField(Field sourceField) {
+		for (List<ItemToItemMap> fieldToFieldList : tableMapToFieldToFieldMaps.values()) {
+			for (ItemToItemMap fieldToField : fieldToFieldList) {
+				if (fieldToField.getSourceItem() == sourceField) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

@@ -523,7 +523,7 @@ public class SourceDataScan {
 		}
 	}
 
-	private void addRow(Sheet sheet, Object... values) {
+	public static void addRow(Sheet sheet, Object... values) {
 		Row row = sheet.createRow(sheet.getPhysicalNumberOfRows());
 		for (Object value : values) {
 			Cell cell = row.createCell(row.getPhysicalNumberOfCells());
