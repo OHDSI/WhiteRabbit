@@ -190,7 +190,8 @@ public class SourceDataScan {
 			for (String table : tables) {
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
 					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.getnUniques(), fieldInfo.getFractionUnique());
+							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.uniqueCount, fieldInfo.getFractionUnique()
+					);
 					this.setCellStyles(sheet, percentageStyle, 6, 8);
 				}
 				addRow(sheet, "");
@@ -416,6 +417,7 @@ public class SourceDataScan {
 		public int					maxLength		= 0;
 		public long					nProcessed		= 0;
 		public long					emptyCount		= 0;
+		public long					uniqueCount		= 0;
 		public long					rowCount		= -1;
 		public boolean				isInteger		= true;
 		public boolean				isReal			= true;
@@ -456,15 +458,11 @@ public class SourceDataScan {
 				return "varchar";
 		}
 
-		public int getnUniques() {
-			return this.valueCounts.size();
-		}
-
 		public Double getFractionUnique() {
-			if (this.nProcessed == 0 || this.valueCounts.size() == 1)
+			if (nProcessed == 0 || uniqueCount == 1)
 				return 0d;
 			else
-				return this.valueCounts.size() / (double) this.nProcessed;
+				return uniqueCount / (double) nProcessed;
 		}
 
 		public void processValue(String value) {
@@ -478,6 +476,8 @@ public class SourceDataScan {
 				emptyCount++;
 
 			if (!isFreeText) {
+				if (!valueCounts.contains(value))
+					uniqueCount++;
 				valueCounts.add(value);
 
 				if (trimValue.length() != 0) {
