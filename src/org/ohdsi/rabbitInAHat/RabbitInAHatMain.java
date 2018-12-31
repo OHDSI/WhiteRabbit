@@ -76,7 +76,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_CMD_OPEN_SCAN_REPORT			= "Open Scan Report";
 	public final static String		ACTION_CMD_GENERATE_ETL_DOCUMENT	= "Generate ETL Document";
 	public final static String		ACTION_CMD_GENERATE_TEST_FRAMEWORK	= "Generate ETL Test Framework";
-	public final static String		ACTION_CMD_GENERATE_SOURCE_MAPS		= "Generate Source Maps";
+	public final static String 		GENERATE_SOURCE_FIELD_LIST = "Generate Source Field list";
 	public final static String		ACTION_CMD_DISCARD_COUNTS			= "Discard Value Counts";
 	public final static String		ACTION_CMD_FILTER					= "Filter";
 	public final static String		ACTION_CMD_MAKE_MAPPING				= "Make Mappings";
@@ -249,9 +249,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateTestFrameworkItem.setActionCommand(ACTION_CMD_GENERATE_TEST_FRAMEWORK);
 		fileMenu.add(generateTestFrameworkItem);
 
-		JMenuItem generateSourceMaps = new JMenuItem(ACTION_CMD_GENERATE_SOURCE_MAPS);
+		JMenuItem generateSourceMaps = new JMenuItem(GENERATE_SOURCE_FIELD_LIST);
 		generateSourceMaps.addActionListener(this);
-		generateSourceMaps.setActionCommand(ACTION_CMD_GENERATE_SOURCE_MAPS);
+		generateSourceMaps.setActionCommand(GENERATE_SOURCE_FIELD_LIST);
 		fileMenu.add(generateSourceMaps);
 
 		JMenu editMenu = new JMenu("Edit");
@@ -446,8 +446,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_CMD_GENERATE_TEST_FRAMEWORK:
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
 				break;
-			case ACTION_CMD_GENERATE_SOURCE_MAPS:
-				doGenerateSourceMaps(chooseSavePath(FILE_FILTER_XLSX));
+			case GENERATE_SOURCE_FIELD_LIST:
+				doGenerateSourceFields(chooseSavePath(FILE_FILTER_XLSX));
 				break;
 			case ACTION_CMD_DISCARD_COUNTS:
 				doDiscardCounts();
@@ -516,10 +516,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doGenerateSourceMaps(String filename) {
+	private void doGenerateSourceFields(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			ETLDocumentGenerator.generateSourceMaps(ObjectExchange.etl, filename);
+			ETLDocumentGenerator.generateSourceFieldList(ObjectExchange.etl, filename);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}

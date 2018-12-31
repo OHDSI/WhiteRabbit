@@ -76,7 +76,7 @@ public class ETLDocumentGenerator {
 		generate(etl, filename, true);
 	}
 
-	public static void generateSourceMaps(ETL etl, String filename) {
+	public static void generateSourceFieldList(ETL etl, String filename) {
 		System.out.println("Generating source mappings");
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
@@ -85,9 +85,7 @@ public class ETLDocumentGenerator {
 		Sheet sheet = workbook.createSheet("All source fields");
 		SourceDataScan.addRow(sheet,  "Source Table", "Source Field", "Description", "Mapped?");
 		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
-			System.out.println(sourceTable.getName());
 			for (Field sourceField : sourceTable.getFields()) {
-				System.out.println(sourceField.getName());
 				boolean isMapped = etl.getSourceField(sourceField);
 				SourceDataScan.addRow(sheet,  sourceTable.getName(), sourceField.getName(), sourceField.getComment(), isMapped ? "X" : "");
 			}
