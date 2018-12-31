@@ -23,13 +23,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.BreakType;
@@ -45,8 +41,6 @@ import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.Mapping;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
-import org.ohdsi.utilities.StringUtilities;
-import org.ohdsi.utilities.collections.Pair;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 
 public class ETLDocumentGenerator {
@@ -83,11 +77,19 @@ public class ETLDocumentGenerator {
 
 		// Create overview sheet
 		Sheet sheet = workbook.createSheet("All source fields");
-		SourceDataScan.addRow(sheet,  "Source Table", "Source Field", "Description", "Mapped?");
+		SourceDataScan.addRow(sheet,  "Source Table", "Source Field", "Description", "Mapped?", "Number of mappings", "Mappings");
 		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
 			for (Field sourceField : sourceTable.getFields()) {
-				boolean isMapped = etl.getSourceField(sourceField);
-				SourceDataScan.addRow(sheet,  sourceTable.getName(), sourceField.getName(), sourceField.getComment(), isMapped ? "X" : "");
+				List<String> fieldMappings = etl.getMappingsforSourceField(sourceField);
+				int nMappings = fieldMappings.size();
+				SourceDataScan.addRow(sheet,
+						sourceTable.getName(),
+						sourceField.getName(),
+						sourceField.getComment(),
+						nMappings > 0 ? "X" : "",
+						nMappings > 0 ? nMappings : "",
+						String.join(",", fieldMappings)
+				);
 			}
 		}
 

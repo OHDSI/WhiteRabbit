@@ -216,14 +216,17 @@ public class ETL implements Serializable {
 				field.setValueCounts(new String[0][]);
 	}
 
-	public boolean getSourceField(Field sourceField) {
-		for (List<ItemToItemMap> fieldToFieldList : tableMapToFieldToFieldMaps.values()) {
-			for (ItemToItemMap fieldToField : fieldToFieldList) {
+	public List<String> getMappingsforSourceField(Field sourceField) {
+		List<String> result = new ArrayList<>();
+		for (Map.Entry<ItemToItemMap, List<ItemToItemMap>> tableMapToFieldToField : tableMapToFieldToFieldMaps.entrySet()) {
+			String targetTableName = tableMapToFieldToField.getKey().getTargetItem().getName();
+			for (ItemToItemMap fieldToField : tableMapToFieldToField.getValue()) {
 				if (fieldToField.getSourceItem() == sourceField) {
-					return true;
+					String targetFieldName = fieldToField.getTargetItem().getName();
+					result.add(String.format("%s-%s", targetTableName, targetFieldName));
 				}
 			}
 		}
-		return false;
+		return result;
 	}
 }
