@@ -136,7 +136,15 @@ public class SourceDataScan {
 
 			// Create per table sheets
 			for (String table : tables) {
-				sheet = workbook.createSheet(table);
+				String sheetname = table.substring(0, Math.min(table.length(), 31));
+				sheetname = sheetname.replace('/','_');
+
+				if (workbook.getSheet(sheetname) != null) {
+					System.out.println("Worksheet already exists in the scan report, the current table is skipped: " + sheetname);
+					continue;
+				}
+
+				sheet = workbook.createSheet(sheetname);
 				List<FieldInfo> fieldInfos = tableToFieldInfos.get(table);
 				List<List<Pair<String, Integer>>> valueCounts = new ArrayList<List<Pair<String, Integer>>>();
 				Object[] header = new Object[fieldInfos.size() * 2];
