@@ -47,7 +47,6 @@ import org.ohdsi.whiteRabbit.DbSettings;
 public class SourceDataScan {
 
 	public static int	MAX_VALUES_IN_MEMORY				= 100000;
-	// public static int MAX_VALUES_TO_REPORT = 25000;
 	public static int	MIN_CELL_COUNT_FOR_CSV				= 1000000;
 	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
 	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
@@ -59,62 +58,6 @@ public class SourceDataScan {
 	private int			maxValues;
 	private DbType		dbType;
 	private String		database;
-
-	public static void main(String[] args) {
-		DbSettings dbSettings = new DbSettings();
-		dbSettings.dataType = DbSettings.DATABASE;
-		dbSettings.dbType = DbType.POSTGRESQL;
-		dbSettings.server = "127.0.0.1/ohdsi";
-		dbSettings.database = "ars";
-		dbSettings.tables.add("drugs");
-		dbSettings.user = "postgres";
-		dbSettings.password = "";
-		SourceDataScan scan = new SourceDataScan();
-		scan.process(dbSettings, 100000, true, 5, 1000, "s:/temp/ScanReport.xlsx");
-
-		// DbSettings dbSettings = new DbSettings();
-		// dbSettings.dataType = DbSettings.DATABASE;
-		// dbSettings.dbType = DbType.ORACLE;
-		// dbSettings.server = "127.0.0.1/xe";
-		// dbSettings.database = "test";
-		// dbSettings.tables.add("test_table");
-		// dbSettings.user = "system";
-		// dbSettings.password = "F1r3starter";
-		// SourceDataScan scan = new SourceDataScan();
-		// scan.process(dbSettings, 1000000, "s:/data/ScanReport.xlsx");
-
-		// DbSettings dbSettings = new DbSettings();
-		// dbSettings.dataType = DbSettings.DATABASE;
-		// dbSettings.dbType = DbType.MSSQL;
-		// dbSettings.server = "RNDUSRDHIT04";
-		// dbSettings.database = "[HCUP-NIS]";
-		// dbSettings.tables.add("hospital");
-		// dbSettings.tables.add("severity");
-		// dbSettings.tables.add("dx_pr_grps");
-		// dbSettings.tables.add("core");
-		// SourceDataScan scan = new SourceDataScan();
-		// scan.process(dbSettings, 1000000, true, 25, "s:/data/ScanReport.xlsx");
-
-		// DbSettings dbSettings = new DbSettings();
-		// dbSettings.dataType = DbSettings.DATABASE;
-		// dbSettings.dbType = DbType.MYSQL;
-		// dbSettings.server = "127.0.0.1";
-		// dbSettings.database = "CDM_v4";
-		// dbSettings.user = "root";
-		// dbSettings.password = "F1r3starter";
-		// dbSettings.tables.add("person");
-		// dbSettings.tables.add("provider");
-		// SourceDataScan scan = new SourceDataScan();
-		// scan.process(dbSettings, 100000, true, 25, "c:/temp/ScanReport.xlsx");
-		//
-		// DbSettings dbSettings = new DbSettings();
-		// dbSettings.dataType = DbSettings.CSVFILES;
-		// dbSettings.delimiter = ',';
-		// dbSettings.tables.add("S:/Data/ARS/Simulation/DDRUG.csv");
-		// dbSettings.tables.add("S:/Data/ARS/Simulation/HOSP.csv");
-		// SourceDataScan scan = new SourceDataScan();
-		// scan.process(dbSettings, 100000, false, 25, "c:/temp/ScanReport.xlsx");
-	}
 
 	public void process(DbSettings dbSettings, int sampleSize, boolean scanValues, int minCellCount, int maxValues, String filename) {
 		this.sampleSize = sampleSize;
