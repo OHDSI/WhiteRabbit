@@ -39,7 +39,7 @@ import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.Mapping;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 
-public class ETLDocumentGenerator {
+public class ETLWordDocumentGenerator {
 	
 	public static void generate(ETL etl, String filename, boolean includeCounts) {
 		try {
