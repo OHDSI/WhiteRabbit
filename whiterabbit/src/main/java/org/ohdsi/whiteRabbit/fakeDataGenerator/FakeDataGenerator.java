@@ -39,7 +39,7 @@ public class FakeDataGenerator {
 	private RichConnection					connection;
 	// private DbType dbType;
 	private int								targetType;
-	private OneToManySet<String, String>	primaryKeyToValues;
+	private OneToManySet<Field, String>	primaryKeyToValues;
 	private int								maxRowsPerTable	= 1000;
 
 	private static int						REGULAR			= 0;
@@ -98,22 +98,22 @@ public class FakeDataGenerator {
 	}
 
 	private void findValuesForPrimaryKeys(Database database) {
-		Set<String> primaryKeys = new HashSet<String>();
+		Set<Field> primaryKeys = new HashSet<>();
 		for (Table table : database.getTables()) {
 			for (Field field : table.getFields()) {
 				if (field.getValueCounts()[0][0].equals("List truncated...")) {
-					primaryKeys.add(field.getName());
+					primaryKeys.add(field);
 				}
 			}
 		}
 
-		primaryKeyToValues = new OneToManySet<String, String>();
+		primaryKeyToValues = new OneToManySet<>();
 		for (Table table : database.getTables()) {
 			for (Field field : table.getFields()) {
-				if (primaryKeys.contains(field.getName()) && !field.getValueCounts()[0][0].equals("List truncated...")) {
+				if (primaryKeys.contains(field) && !field.getValueCounts()[0][0].equals("List truncated...")) {
 					for (int i = 0; i < field.getValueCounts().length; i++)
 						if (!field.getValueCounts()[i][0].equals("") && !field.getValueCounts()[i][0].equals("List truncated..."))
-							primaryKeyToValues.put(field.getName(), field.getValueCounts()[i][0]);
+							primaryKeyToValues.put(field, field.getValueCounts()[i][0]);
 				}
 			}
 		}
@@ -223,7 +223,7 @@ public class FakeDataGenerator {
 			String[][] valueCounts = field.getValueCounts();
 			type = field.getType();
 			if (valueCounts[0][0].equals("List truncated...")) {
-				Set<String> values = primaryKeyToValues.get(field.getName());
+				Set<String> values = primaryKeyToValues.get(field);
 				if (values.size() != 0) {
 					this.values = convertToArray(values);
 					cursor = 0;
