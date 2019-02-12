@@ -39,7 +39,6 @@ public class FakeDataGenerator {
 	private RichConnection					connection;
 	// private DbType dbType;
 	private int								targetType;
-	private OneToManySet<Field, String>	primaryKeyToValues;
 	private int								maxRowsPerTable	= 1000;
 
 	private static int						REGULAR			= 0;
@@ -69,7 +68,6 @@ public class FakeDataGenerator {
 		StringUtilities.outputWithTime("Starting creation of fake data");
 		System.out.println("Loading scan report from " + filename);
 		Database database = Database.generateModelFromScanReport(filename);
-		findValuesForPrimaryKeys(database);
 
 		if (targetType == DbSettings.DATABASE) {
 			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
@@ -95,28 +93,6 @@ public class FakeDataGenerator {
 			}
 		}
 		StringUtilities.outputWithTime("Done");
-	}
-
-	private void findValuesForPrimaryKeys(Database database) {
-		Set<Field> primaryKeys = new HashSet<>();
-		for (Table table : database.getTables()) {
-			for (Field field : table.getFields()) {
-				if (field.getValueCounts()[0][0].equals("List truncated...")) {
-					primaryKeys.add(field);
-				}
-			}
-		}
-
-		primaryKeyToValues = new OneToManySet<>();
-		for (Table table : database.getTables()) {
-			for (Field field : table.getFields()) {
-				if (primaryKeys.contains(field) && !field.getValueCounts()[0][0].equals("List truncated...")) {
-					for (int i = 0; i < field.getValueCounts().length; i++)
-						if (!field.getValueCounts()[i][0].equals("") && !field.getValueCounts()[i][0].equals("List truncated..."))
-							primaryKeyToValues.put(field, field.getValueCounts()[i][0]);
-				}
-			}
-		}
 	}
 
 	private List<Row> generateRows(Table table) {
@@ -223,15 +199,8 @@ public class FakeDataGenerator {
 			String[][] valueCounts = field.getValueCounts();
 			type = field.getType();
 			if (valueCounts[0][0].equals("List truncated...")) {
-				Set<String> values = primaryKeyToValues.get(field);
-				if (values.size() != 0) {
-					this.values = convertToArray(values);
-					cursor = 0;
-					generatorType = PRIMARY_KEY;
-				} else {
-					length = field.getMaxLength();
-					generatorType = RANDOM;
-				}
+				length = field.getMaxLength();
+				generatorType = RANDOM;
 			} else {
 				int length = valueCounts.length;
 				if (valueCounts[length - 1][1].equals("")) // Last value could be "List truncated..."
