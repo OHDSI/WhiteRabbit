@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 
@@ -176,11 +177,13 @@ public class Database implements Serializable {
 
 	private static String[][] getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
 		Sheet tableSheet = null;
-		for (Sheet sheet : workbook)
-			if (sheet.getName().equals(tableName)) {
+		String targetSheetName = SourceDataScan.createSheetName(tableName);
+		for (Sheet sheet : workbook) {
+			if (sheet.getName().equals(targetSheetName)) {
 				tableSheet = sheet;
 				break;
 			}
+		}
 		if (tableSheet == null) // Sheet not found for table, return empty array
 			return new String[0][0];
 

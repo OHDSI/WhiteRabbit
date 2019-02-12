@@ -136,15 +136,14 @@ public class SourceDataScan {
 
 			// Create per table sheets
 			for (String table : tables) {
-				String sheetname = table.substring(0, Math.min(table.length(), 31));
-				sheetname = sheetname.replace('/','_');
+				String sheetName = createSheetName(table);
 
-				if (workbook.getSheet(sheetname) != null) {
-					System.out.println("Worksheet already exists in the scan report, the current table is skipped: " + sheetname);
+				if (workbook.getSheet(sheetName) != null) {
+					System.out.println("Worksheet already exists in the scan report, the current table is skipped: " + sheetName);
 					continue;
 				}
 
-				sheet = workbook.createSheet(sheetname);
+				sheet = workbook.createSheet(sheetName);
 				List<FieldInfo> fieldInfos = tableToFieldInfos.get(table);
 				List<List<Pair<String, Integer>>> valueCounts = new ArrayList<List<Pair<String, Integer>>>();
 				Object[] header = new Object[fieldInfos.size() * 2];
@@ -488,5 +487,13 @@ public class SourceDataScan {
 				cell.setCellValue(value.toString());
 
 		}
+	}
+
+	public static String createSheetName(String name) {
+		// Excel sheet names have a maximum of 31 characters
+		if (name.length() > 31) {
+			name = name.substring(0, 31);
+		}
+		return name.replace('/','_');
 	}
 }
