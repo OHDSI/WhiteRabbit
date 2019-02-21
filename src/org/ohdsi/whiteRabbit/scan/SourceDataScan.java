@@ -228,17 +228,19 @@ public class SourceDataScan {
 		String query = null;
 
 		if (sampleSize == -1) {
-			if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.MSACCESS)
+			if (dbType == DbType.MSACCESS)
 				query = "SELECT * FROM [" + table + "]";
+			else if (dbType == DbType.MSSQL || dbType == DbType.PDW)
+				query = "SELECT * FROM [" + table.replaceAll("\\.", "].[") + "]";
 			else
 				query = "SELECT * FROM " + table;
 		} else {
 			if (dbType == DbType.MSSQL)
-				query = "SELECT * FROM [" + table + "] TABLESAMPLE (" + sampleSize + " ROWS)";
+				query = "SELECT * FROM [" + table.replaceAll("\\.", "].[") + "] TABLESAMPLE (" + sampleSize + " ROWS)";
 			else if (dbType == DbType.MYSQL)
 				query = "SELECT * FROM " + table + " ORDER BY RAND() LIMIT " + sampleSize;
 			else if (dbType == DbType.PDW)
-				query = "SELECT TOP " + sampleSize + " * FROM [" + table + "] ORDER BY RAND()";
+				query = "SELECT TOP " + sampleSize + " * FROM [" + table.replaceAll("\\.", "].[") + "] ORDER BY RAND()";
 			else if (dbType == DbType.ORACLE) {
 				if (sampleSize < rowCount) {
 					double percentage = 100 * sampleSize / (double) rowCount;
@@ -280,8 +282,9 @@ public class SourceDataScan {
 				String trimmedDatabase = database;
 				if (database.startsWith("[") && database.endsWith("]"))
 					trimmedDatabase = database.substring(1, database.length() - 1);
-				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_NAME='" + table
-						+ "';";
+				String[] parts = table.split("\\.");
+				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_SCHEMA='" + parts[0] +
+						"' AND TABLE_NAME='" + parts[1]	+ "';";
 			} else if (dbType == DbType.MYSQL)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table
 						+ "';";

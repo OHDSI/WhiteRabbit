@@ -145,7 +145,7 @@ public class RichConnection {
 		if (dbType == DbType.MYSQL) {
 			query = "SHOW TABLES IN " + database;
 		} else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
-			query = "SELECT name FROM " + database + ".sys.tables ORDER BY name";
+			query = "SELECT CONCAT(schemas.name, '.', tables.name) FROM " + database + ".sys.tables INNER JOIN " + database + ".sys.schemas ON tables.schema_id = schemas.schema_id ORDER BY schemas.name, tables.name";
 		} else if (dbType == DbType.ORACLE) {
 			query = "SELECT table_name FROM all_tables WHERE owner='" + database.toUpperCase() + "'";
 		} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) {
@@ -161,19 +161,19 @@ public class RichConnection {
 		return names;
 	}
 
-	public List<String> getFieldNames(String table) {
-		List<String> names = new ArrayList<String>();
-		if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
-			for (Row row : query("SELECT name FROM syscolumns WHERE id=OBJECT_ID('" + table + "')"))
-				names.add(row.get("name"));
-		} else if (dbType == DbType.MYSQL)
-			for (Row row : query("SHOW COLUMNS FROM " + table))
-				names.add(row.get("COLUMN_NAME"));
-		else
-			throw new RuntimeException("DB type not supported");
-
-		return names;
-	}
+//	public List<String> getFieldNames(String table) {
+//		List<String> names = new ArrayList<String>();
+//		if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
+//			for (Row row : query("SELECT name FROM syscolumns WHERE id=OBJECT_ID('" + table + "')"))
+//				names.add(row.get("name"));
+//		} else if (dbType == DbType.MYSQL)
+//			for (Row row : query("SHOW COLUMNS FROM " + table))
+//				names.add(row.get("COLUMN_NAME"));
+//		else
+//			throw new RuntimeException("DB type not supported");
+//
+//		return names;
+//	}
 
 	public ResultSet getMsAccessFieldNames(String table) {
 		if (dbType == DbType.MSACCESS) {
@@ -197,7 +197,7 @@ public class RichConnection {
 		QueryResult qr = null;
 		Long returnVal = null;
 		if (dbType == DbType.MSSQL || dbType == DbType.PDW)
-			qr = query("SELECT COUNT_BIG(*) FROM [" + tableName + "];");
+			qr = query("SELECT COUNT_BIG(*) FROM [" + tableName.replaceAll("\\.", "].[") + "];");
 		else if (dbType == DbType.MSACCESS)
 			qr = query("SELECT COUNT(*) FROM [" + tableName + "];");
 		else
