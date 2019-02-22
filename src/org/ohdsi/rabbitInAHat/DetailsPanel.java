@@ -387,14 +387,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			valueTable.clear();
 			
 			if (field.getValueCounts() != null) {
-				double valueCountTotal = 0.0;
-				for (String[] total : field.getValueCounts()) {
-					String temp = total[1];
-					if (StringUtilities.isNumber(temp)) {
-						double valueCountTemp = Double.parseDouble(temp);
-						valueCountTotal += valueCountTemp;
-					}
-				}
+				int valueCountTotal = field.getRowsCheckedCount();
+
 				DecimalFormat formatter = new DecimalFormat("#,###");
 				DecimalFormat formatterPercent = new DecimalFormat("#,##0.0");
 				for (String[] valueCount : field.getValueCounts()) {
@@ -403,7 +397,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 					if (StringUtilities.isNumber(nr)) {
 						double number = Double.parseDouble(nr);
 						nr = formatter.format(number);
-						double valueCountPercent = number / valueCountTotal * 100;
+						double valueCountPercent = number / (double) valueCountTotal * 100;
 						if (valueCountPercent < 0.1) {
 							vp = "< 0.1";
 						}
