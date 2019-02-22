@@ -287,8 +287,14 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			this.table = table;
 			nameLabel.setText(table.getName());
 			DecimalFormat formatter = new DecimalFormat("#,###");
-			rowCountLabel.setText(formatter.format(table.getRowCount()));
-			fieldTable.clear();			
+
+			if (table.getRowCount() > 0) {
+				rowCountLabel.setText(formatter.format(table.getRowCount()));
+			} else {
+				rowCountLabel.setText(">= " + formatter.format(table.getRowsCheckedCount()));
+			}
+
+			fieldTable.clear();
 			
 			for (Field field : table.getFields()){
 				fieldTable.add(field.outputName(), field.getType(),field.getDescription());
