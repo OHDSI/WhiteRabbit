@@ -1,5 +1,7 @@
 package org.ohdsi.utilities;
 
+import java.io.File;
+
 import org.ohdsi.whiteRabbit.WhiteRabbitMain;
 
 /* Adapted from code found on:
@@ -19,6 +21,8 @@ public class WhiteRabbitLauncher {
 			System.out.println("Starting new VM");
 			String pathToJar = WhiteRabbitMain.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 			ProcessBuilder pb = new ProcessBuilder("java", "-Xmx" + MIN_HEAP + "m", "-classpath", pathToJar, "org.ohdsi.whiteRabbit.WhiteRabbitMain");
+			pb.inheritIO();
+			pb.redirectError(new File("ErrorStream.txt"));
 			pb.start();
 		}
 	}

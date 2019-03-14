@@ -3,6 +3,7 @@ package org.ohdsi.utilities;
 import org.ohdsi.rabbitInAHat.RabbitInAHatMain;
 
 import java.util.Arrays;
+import java.io.File;
 import java.util.ArrayList;
 
 /* Adapted from code found on:
@@ -25,6 +26,8 @@ public class RabbitInAHatLauncher {
 			command.addAll(Arrays.asList("java", "-Xmx" + MIN_HEAP + "m", "-classpath", pathToJar, "org.ohdsi.rabbitInAHat.RabbitInAHatMain"));
 			command.addAll(Arrays.asList(args));
 			ProcessBuilder pb = new ProcessBuilder(command);
+			pb.inheritIO();
+			pb.redirectError(new File("ErrorStream.txt"));
 			pb.start();
 		}
 	}
