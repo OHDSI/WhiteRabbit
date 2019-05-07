@@ -6,7 +6,8 @@ dist/
 /Error1.txt
 /ScanReport.xlsx
 /.classpath
-/bin/
+bin/
 target/
-/repo
+repo/
 *.iml
+.idea/
