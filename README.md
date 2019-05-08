@@ -1,4 +1,4 @@
-![alt text](https://github.com/OHDSI/WhiteRabbit/blob/master/src/org/ohdsi/whiteRabbit/WhiteRabbit64.png) WhiteRabbit
+![alt text](https://github.com/OHDSI/WhiteRabbit/blob/master/whiterabbit/src/main/resources/org/ohdsi/whiteRabbit/WhiteRabbit64.png) WhiteRabbit
 ===========
 
 Introduction
@@ -35,26 +35,28 @@ White Rabbit and Rabbit in a Hat are pure Java applications. Both applications u
 
 System Requirements
 ============
-Requires Java 1.7 or higher, and read access to the database to be scanned. Java can be downloaded from
+Requires Java 1.8 or higher, and read access to the database to be scanned. Java can be downloaded from
 <a href="http://www.java.com" target="_blank">http://www.java.com</a>.
 
 Dependencies
 ============
- * There are no dependencies.
+For the distributable packages, the only requirement is Java 8. For building the package, also Maven is needed.
 
 Getting Started
 ===============
 WhiteRabbit
 
-1. Under the [Releases](https://github.com/OHDSI/WhiteRabbit/releases) tab, download WhiteRabbit*.zip
+1. Under the [Releases](https://github.com/OHDSI/WhiteRabbit/releases) tab, download `WhiteRabbit*.zip`
 2. Unzip the download
-3. Double-click on WhiteRabbit.jar to start White Rabbit.
+3. Double-click on `bin/whiterabbit.bat` on Windows to start White Rabbit, and `bin/whiterabbit.sh` on macOS and Linux.
 
 (See the [Wiki](http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#running_from_the_command_line) for details on how to run from the command prompt instead)
 
 Rabbit-In-A-Hat
 
-1. Using the files downloaded for WhiteRabbit, double-click on RabbitInAHat.jar to start Rabbit-In-A-Hat.
+1. Using the files downloaded for WhiteRabbit, double-click on bin/rabbitinahat.bat to start Rabbit-In-A-Hat on Windows, and `bin/rabbitinahat.sh` on macOS and Linux.
+
+Note: on releases earlier than 0.8.0, open the respective `WhiteRabbit.jar` or `RabbitInAHat.jar` files instead.
 
 Getting Involved
 =============
@@ -68,7 +70,9 @@ WhiteRabbit is licensed under Apache License 2.0
 
 Development
 ===========
-White Rabbit and Rabbit in a Hat are being developed in Eclipse. Contributions are welcome.
+White Rabbit and Rabbit in a Hat are structured as a Maven package and can be developed in Eclipse. Contributions are welcome.
+
+To generate the files ready for distribution, run `mvn install`.
 
 ### Development status
 
