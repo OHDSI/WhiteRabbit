@@ -97,13 +97,37 @@
                     <artifactId>appassembler-maven-plugin</artifactId>
                     <version>1.10</version>
                     <configuration>
-                        <assembleDirectory>${project.parent.basedir}</assembleDirectory>
                         <programs>
                         </programs>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>install:install</id>
+                            <goals>
+                                <goal>assemble</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
-
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>dist</directory>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>
