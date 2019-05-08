@@ -97,13 +97,12 @@
                     <artifactId>appassembler-maven-plugin</artifactId>
                     <version>1.10</version>
                     <configuration>
-                        <binFolder>.</binFolder>
                         <programs>
                         </programs>
                     </configuration>
                     <executions>
                         <execution>
-                            <id>install:install</id>
+                            <id>jar:jar</id>
                             <goals>
                                 <goal>assemble</goal>
                             </goals>

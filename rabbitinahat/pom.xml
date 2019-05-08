@@ -20,17 +20,16 @@
                 <artifactId>appassembler-maven-plugin</artifactId>
                 <configuration>
                     <assembleDirectory>${project.parent.basedir}/dist</assembleDirectory>
+                    <extraJvmArguments>-Xmx1200m</extraJvmArguments>
                     <programs>
                         <program>
-                            <mainClass>org.ohdsi.utilities.RabbitInAHatLauncher</mainClass>
+                            <mainClass>org.ohdsi.rabbitInAHat.RabbitInAHatMain</mainClass>
                             <id>rabbitInAHat</id>
                         </program>
                     </programs>
                 </configuration>
             </plugin>
-
         </plugins>
-
     </build>
 
     <dependencies>
