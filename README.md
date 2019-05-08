@@ -48,15 +48,15 @@ WhiteRabbit
 
 1. Under the [Releases](https://github.com/OHDSI/WhiteRabbit/releases) tab, download `WhiteRabbit*.zip`
 2. Unzip the download
-3. Double-click on `bin/whiterabbit.bat` on Windows to start White Rabbit, and `bin/whiterabbit.sh` on macOS and Linux.
+3. Double-click on `whiterabbit.bat` on Windows to start White Rabbit, and `whiterabbit` on macOS and Linux.
 
 (See the [Wiki](http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#running_from_the_command_line) for details on how to run from the command prompt instead)
 
 Rabbit-In-A-Hat
 
-1. Using the files downloaded for WhiteRabbit, double-click on bin/rabbitinahat.bat to start Rabbit-In-A-Hat on Windows, and `bin/rabbitinahat.sh` on macOS and Linux.
+1. Using the files downloaded for WhiteRabbit, double-click on `rabbitinahat.bat` to start Rabbit-In-A-Hat on Windows, and `rabbitinahat` on macOS and Linux.
 
-Note: on releases earlier than 0.8.0, open the respective `WhiteRabbit.jar` or `RabbitInAHat.jar` files instead.
+Note: on releases earlier than version 0.8.0, open the respective `WhiteRabbit.jar` or `RabbitInAHat.jar` files instead.
 
 Getting Involved
 =============

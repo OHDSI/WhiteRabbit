@@ -97,6 +97,7 @@
                     <artifactId>appassembler-maven-plugin</artifactId>
                     <version>1.10</version>
                     <configuration>
+                        <binFolder>.</binFolder>
                         <programs>
                         </programs>
                     </configuration>
