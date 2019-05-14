@@ -299,6 +299,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JRadioButtonMenuItem targetCDMV531 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V531, true);
 		targetCDMV531.addActionListener(this);
 		setTarget.add(targetCDMV531);
+		
+		JRadioButtonMenuItem targetCDMV60 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V60, true);
+		targetCDMV60.addActionListener(this);
+		setTarget.add(targetCDMV60);
 
 		JRadioButtonMenuItem loadTarget = new JRadioButtonMenuItem(ACTION_SET_TARGET_CUSTOM);
 		loadTarget.addActionListener(this);
@@ -313,6 +317,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		targetGroup.add(targetCDMV520);
 		targetGroup.add(targetCDMV530);
 		targetGroup.add(targetCDMV531);
+		targetGroup.add(targetCDMV60);
 		targetGroup.add(loadTarget);
 
 		JMenuItem addStemTable = new JMenuItem(ACTION_ADD_STEM_TABLE);
