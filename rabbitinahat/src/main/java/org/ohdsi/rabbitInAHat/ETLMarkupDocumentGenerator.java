@@ -133,11 +133,20 @@ public class ETLMarkupDocumentGenerator {
 							comment.append(fieldToFieldMap.getComment().trim());
 						}
 					}
+					for (Field field : targetTable.getFields()) {
+						if (field.getName().equals(targetField.getName())) {
+							if (comment.length() != 0)
+								comment.append("\n");
+							comment.append(field.getComment().trim());
+						}
+					}
 					row.add("Source field", source.toString().trim());
 					row.add("Logic", logic.toString().trim());
 					row.add("Comment field", comment.toString().trim());
 					rows.add(row);
 				}
+			
+				
 				document.addTable(rows);
 			}
 	}
