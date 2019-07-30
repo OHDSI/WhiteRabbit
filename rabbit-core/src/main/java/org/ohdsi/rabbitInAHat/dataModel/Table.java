@@ -102,4 +102,13 @@ public class Table implements MappableItem {
 	public void setStem(boolean isStem) {
 		this.isStem = isStem;
 	}
+
+	public static String createSheetNameFromTableName(String name) {
+		// Excel sheet names have a maximum of 31 characters
+		if (name.length() > 31) {
+			name = name.substring(0, 31);
+		}
+		// Backslash causes issues in excel
+		return name.replace('/','_');
+	}
 }

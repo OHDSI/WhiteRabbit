@@ -37,6 +37,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.databases.RichConnection.QueryResult;
+import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.collections.CountingSet;
 import org.ohdsi.utilities.collections.CountingSet.Count;
@@ -136,10 +137,10 @@ public class SourceDataScan {
 
 			// Create per table sheets
 			for (String table : tables) {
-				String sheetName = createSheetName(table);
+				String sheetName = Table.createSheetNameFromTableName(table);
 
 				if (workbook.getSheet(sheetName) != null) {
-					System.out.println("Worksheet already exists in the scan report, the current table is skipped: " + sheetName);
+					System.out.println("Found duplicate worksheet name. Note that table names are truncated to 31 characters. The current table is skipped: " + sheetName);
 					continue;
 				}
 
@@ -487,13 +488,5 @@ public class SourceDataScan {
 				cell.setCellValue(value.toString());
 
 		}
-	}
-
-	public static String createSheetName(String name) {
-		// Excel sheet names have a maximum of 31 characters
-		if (name.length() > 31) {
-			name = name.substring(0, 31);
-		}
-		return name.replace('/','_');
 	}
 }
