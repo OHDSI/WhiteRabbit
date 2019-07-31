@@ -103,12 +103,26 @@ public class Table implements MappableItem {
 		this.isStem = isStem;
 	}
 
-	public static String createSheetNameFromTableName(String name) {
+	public static String createSheetNameFromTableName(String tableName, String index) {
+		String name = tableName;
 		// Excel sheet names have a maximum of 31 characters
 		if (name.length() > 31) {
-			name = name.substring(0, 31);
+			// If index given, prepend that to the name to make tablename unique after truncation.
+			if (index == null || index.length() == 0) {
+				name = name.substring(0, 31);
+			} else {
+				name = name.substring(0, 30 - index.length());
+				name = index + "_" + name;
+			}
 		}
+
 		// Backslash causes issues in excel
-		return name.replace('/','_');
+		name = name.replace('/','_');
+		return name;
+	}
+
+	public static String createSheetNameFromTableName(String tableName, int index) {
+		String indexString = Integer.toString(index);
+		return createSheetNameFromTableName(tableName, indexString);
 	}
 }

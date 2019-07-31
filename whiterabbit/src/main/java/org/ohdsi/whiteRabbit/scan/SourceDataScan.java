@@ -118,35 +118,43 @@ public class SourceDataScan {
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 
 		// Create overview sheet
-		Sheet sheet = workbook.createSheet("Overview");
+		Sheet overviewSheet = workbook.createSheet("Overview");
 		if (!scanValues) {
-			addRow(sheet, "Table", "Field", "Type", "N rows");
+			addRow(overviewSheet, "Table", "Field", "Type", "N rows");
 			for (String table : tables) {
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
-					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Long.valueOf(fieldInfo.rowCount));
-				addRow(sheet, "");
+					addRow(overviewSheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Long.valueOf(fieldInfo.rowCount));
+				addRow(overviewSheet, "");
 			}
 		} else {
-			addRow(sheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
-			for (String table : tables) {
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
-					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
-				addRow(sheet, "");
-			}
+			List<Sheet> valueSheets = new ArrayList<>();
 
-			// Create per table sheets
-			for (String table : tables) {
-				String sheetName = Table.createSheetNameFromTableName(table);
+			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
+			int sheetIndex = 0;
+			Map<String, String> sheetNameLookup = new HashMap<>();
+			for (String tableName : tables) {
+				// Create unique sheetNames from table name and index.
+				String sheetName = Table.createSheetNameFromTableName(tableName, sheetIndex);
+				sheetNameLookup.put(tableName, sheetName);
 
-				if (workbook.getSheet(sheetName) != null) {
-					System.out.println("Found duplicate worksheet name. Note that table names are truncated to 31 characters. The current table is skipped: " + sheetName);
-					continue;
+				String tableNameIndexed = tableName;
+				if (tableName.length() > 31) {
+					tableNameIndexed = Integer.toString(sheetIndex) + '_' + tableName;
 				}
 
-				sheet = workbook.createSheet(sheetName);
-				List<FieldInfo> fieldInfos = tableToFieldInfos.get(table);
-				List<List<Pair<String, Integer>>> valueCounts = new ArrayList<List<Pair<String, Integer>>>();
+				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName))
+					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
+							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
+				addRow(overviewSheet, "");
+				sheetIndex += 1;
+			}
+
+			// Create per table scan values
+			for (String tableName : tables) {
+				Sheet valueSheet = workbook.createSheet(sheetNameLookup.get(tableName));
+
+				List<FieldInfo> fieldInfos = tableToFieldInfos.get(tableName);
+				List<List<Pair<String, Integer>>> valueCounts = new ArrayList<>();
 				Object[] header = new Object[fieldInfos.size() * 2];
 				int maxCount = 0;
 				for (int i = 0; i < fieldInfos.size(); i++) {
@@ -161,7 +169,7 @@ public class SourceDataScan {
 					if (counts.size() > maxCount)
 						maxCount = counts.size();
 				}
-				addRow(sheet, header);
+				addRow(valueSheet, header);
 				for (int i = 0; i < maxCount; i++) {
 					Object[] row = new Object[fieldInfos.size() * 2];
 					for (int j = 0; j < fieldInfos.size(); j++) {
@@ -174,10 +182,10 @@ public class SourceDataScan {
 							row[(j * 2) + 1] = "";
 						}
 					}
-					addRow(sheet, row);
+					addRow(valueSheet, row);
 				}
 				// Save some memory by derefencing tables already included in the report:
-				tableToFieldInfos.remove(table);
+				tableToFieldInfos.remove(tableName);
 			}
 		}
 

@@ -176,7 +176,7 @@ public class Database implements Serializable {
 
 	private static String[][] getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
 		Sheet tableSheet = null;
-		String targetSheetName = Table.createSheetNameFromTableName(tableName);
+		String targetSheetName = Table.createSheetNameFromTableName(tableName, null); // Index is already in tableName
 		for (Sheet sheet : workbook) {
 			if (sheet.getName().equals(targetSheetName)) {
 				tableSheet = sheet;
