@@ -127,20 +127,15 @@ public class SourceDataScan {
 				addRow(overviewSheet, "");
 			}
 		} else {
-			List<Sheet> valueSheets = new ArrayList<>();
-
 			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
 			int sheetIndex = 0;
 			Map<String, String> sheetNameLookup = new HashMap<>();
 			for (String tableName : tables) {
-				// Create unique sheetNames from table name and index.
-				String sheetName = Table.createSheetNameFromTableName(tableName, sheetIndex);
-				sheetNameLookup.put(tableName, sheetName);
+				// Make tablename unique
+				String tableNameIndexed = Table.indexTableNameForSheet(tableName, sheetIndex);
 
-				String tableNameIndexed = tableName;
-				if (tableName.length() > 31) {
-					tableNameIndexed = Integer.toString(sheetIndex) + '_' + tableName;
-				}
+				String sheetName = Table.createSheetNameFromTableName(tableNameIndexed);
+				sheetNameLookup.put(tableName, sheetName);
 
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName))
 					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
