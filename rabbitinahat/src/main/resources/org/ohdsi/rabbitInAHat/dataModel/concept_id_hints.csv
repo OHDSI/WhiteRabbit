@@ -1,0 +1,55 @@
+omop_cdm_table,omop_cdm_field,concept_id,concept_name
+person,gender_concept_id,8507,MALE
+person,gender_concept_id,8532,FEMALE
+person,ethnicity_concept_id,38003563,Hispanic or Latino
+person,ethnicity_concept_id,38003564,Not Hispanic or Latino
+person,race_concept_id,8515,Asian
+person,race_concept_id,8516,Black or African American
+person,race_concept_id,8527,White
+person,race_concept_id,8557,Native Hawaiian or Other Pacific Islander
+person,race_concept_id,8657,American Indian or Alaska Native
+person,race_concept_id,38003572,American Indian
+person,race_concept_id,38003573,Alaska Native
+person,race_concept_id,38003574,Asian Indian
+person,race_concept_id,38003575,Bangladeshi
+person,race_concept_id,38003576,Bhutanese
+person,race_concept_id,38003577,Burmese
+person,race_concept_id,38003578,Cambodian
+person,race_concept_id,38003579,Chinese
+person,race_concept_id,38003580,Taiwanese
+person,race_concept_id,38003581,Filipino
+person,race_concept_id,38003582,Hmong
+person,race_concept_id,38003583,Indonesian
+person,race_concept_id,38003584,Japanese
+person,race_concept_id,38003585,Korean
+person,race_concept_id,38003586,Laotian
+person,race_concept_id,38003587,Malaysian
+person,race_concept_id,38003588,Okinawan
+person,race_concept_id,38003589,Pakistani
+person,race_concept_id,38003590,Sri Lankan
+person,race_concept_id,38003591,Thai
+person,race_concept_id,38003592,Vietnamese
+person,race_concept_id,38003593,Iwo Jiman
+person,race_concept_id,38003594,Maldivian
+person,race_concept_id,38003595,Nepalese
+person,race_concept_id,38003596,Singaporean
+person,race_concept_id,38003597,Madagascar
+person,race_concept_id,38003598,Black
+person,race_concept_id,38003599,African American
+person,race_concept_id,38003600,African
+person,race_concept_id,38003601,Bahamian
+person,race_concept_id,38003602,Barbadian
+person,race_concept_id,38003603,Dominican
+person,race_concept_id,38003604,Dominica Islander
+person,race_concept_id,38003605,Haitian
+person,race_concept_id,38003606,Jamaican
+person,race_concept_id,38003607,Tobagoan
+person,race_concept_id,38003608,Trinidadian
+person,race_concept_id,38003609,West Indian
+person,race_concept_id,38003610,Polynesian
+person,race_concept_id,38003611,Micronesian
+person,race_concept_id,38003612,Melanesian
+person,race_concept_id,38003613,Other Pacific Islander
+person,race_concept_id,38003614,European
+person,race_concept_id,38003615,Middle Eastern or North African
+person,race_concept_id,38003616,Arab
