@@ -83,7 +83,7 @@ public class Database implements Serializable {
 
 				String conceptId = conceptRow.get("concept_id");
 				String conceptName = conceptRow.get("concept_name");
-				String valueName = conceptId + ' ' + conceptName;
+				String valueName = conceptId + " | " + conceptName;
 
 				if (!conceptsMap.containsKey(keyName)) {
 					conceptsMap.put(keyName, new ArrayList<>());
@@ -134,9 +134,10 @@ public class Database implements Serializable {
 				field.setDescription(row.get(descriptionColumn));
 
 				// Add hints for standard concept ids.
-				// TODO: make copiable
+				// TODO: make concept_id copiable
 				// TODO: priority with frequency
-				// TODO:
+				// TODO: both standard and non-standard concepts
+				// TODO: sorting on concept_name
 				List<String> concepts = conceptsMap.get(row.get(tableNameColumn) + row.get(fieldNameColumn));
 				if (concepts != null) {
 					String[][] valueCounts = new String[concepts.size()][2];
