@@ -28,64 +28,77 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConceptMap {
+public class ConceptsMap {
 
     private Map<String, Map<String, List<Concept>>> conceptMap;
 
-    public ConceptMap() {
+    public ConceptsMap() {
         this.conceptMap = new HashMap<>();
     }
 
-    public void put(String targetTable, String targetField) {
+    public void put(String targetTable, String targetField, Concept concept) {
         if (!this.conceptMap.containsKey(targetTable)) {
             this.conceptMap.put(targetTable, new HashMap<>());
         }
-        this.conceptMap.put(targetTable)
+        if (!this.conceptMap.get(targetTable).containsKey(targetField)) {
+            this.conceptMap.get(targetTable).put(targetField, new ArrayList<>());
+        }
+        this.conceptMap.get(targetTable).get(targetField).add(concept);
     }
 
-    public Concept get(String targetTable, String targetField) {
+    public List<Concept> get(String targetTable, String targetField) {
+        if (!this.containsKey(targetTable, targetField)) {
+            return null;
+        }
         return this.conceptMap.get(targetTable).get(targetField);
     }
 
+    public boolean containsKey(String targetTable, String targetField) {
+        if (!this.conceptMap.containsKey(targetTable)) {
+            return false;
+        }
+        if (!this.conceptMap.get(targetTable).containsKey(targetField)) {
+            return false;
+        }
+        return true;
+    }
+
     public void load(String filename) {
-        InputStream conceptStream = Database.class.getResourceAsStream("concept_id_hints.csv");
-        Map<String, List<String>> conceptsMap = new HashMap<>();
+        InputStream conceptStream = Database.class.getResourceAsStream(filename);
+
         try {
             for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(conceptStream))) {
                 String tableName = conceptRow.get("omop_cdm_table");
                 String fieldName = conceptRow.get("omop_cdm_field");
-                String key = tableName + fieldName;
 
                 String conceptId = conceptRow.get("concept_id");
                 String conceptName = conceptRow.get("concept_name");
-                String value = conceptId + " | " + conceptName;
 
-                if (!conceptsMap.containsKey(key)) {
-                    conceptsMap.put(key, new ArrayList<>());
-                }
-                conceptsMap.get(key).add(value);
+                Concept concept = new Concept(conceptId, conceptName);
+
+                this.put(tableName, fieldName, concept);
             }
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
-    private class Concept {
-        private int conceptId;
+    public class Concept {
+        private String conceptId;
         private String conceptName;
-        private String targetTable;
-        private String targetField;
+        private String standardConcept;
 
-        public Concept(int conceptId, String conceptName) {
+        public Concept(String conceptId, String conceptName) {
             this.conceptId = conceptId;
             this.conceptName = conceptName;
+            this.standardConcept = "S";
         }
 
-        public int getConceptId() {
+        public String getConceptId() {
             return conceptId;
         }
 
-        public void setConceptId(int conceptId) {
+        public void setConceptId(String conceptId) {
             this.conceptId = conceptId;
         }
 
@@ -97,24 +110,16 @@ public class ConceptMap {
             this.conceptName = conceptName;
         }
 
-        public String getTargetTable() {
-            return targetTable;
+        public String getStandardConcept() {
+            return standardConcept;
         }
 
-        public void setTargetTable(String targetTable) {
-            this.targetTable = targetTable;
-        }
-
-        public String getTargetField() {
-            return targetField;
-        }
-
-        public void setTargetField(String targetField) {
-            this.targetField = targetField;
+        public void setStandardConcept(String standardConcept) {
+            this.standardConcept = standardConcept;
         }
 
         public String toString() {
-            return this.conceptId + ' --' + this.conceptName;
+            return this.conceptId + " -- " + this.conceptName;
         }
     }
 }

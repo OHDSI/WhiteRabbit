@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -54,6 +55,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.text.Document;
 import javax.swing.undo.CannotUndoException;
@@ -319,7 +321,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private JLabel				nameLabel			= new JLabel("");
 		private JLabel				rowCountLabel		= new JLabel("");
 		private DescriptionTextArea 		description			= new DescriptionTextArea ("");
-		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency", "Percent of Total (%)");
+		private SimpleTableModel	valueTable			= new SimpleTableModel("ID", "Value", "Frequency", "Percent of Total (%)");
 		private JTextArea			commentsArea		= new JTextArea();
 		private Field				field;
 
@@ -357,6 +359,18 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			table.setFont(font);
 			table.setRowHeight(24);
 			table.setBorder(new MatteBorder(1, 0, 1, 0, Color.BLACK));
+			table.setCellSelectionEnabled(true);
+
+			// Make second column (value) wider than the others by default
+			TableColumn column;
+			for (int i = 0; i < table.getColumnCount(); i++) {
+				column = table.getColumnModel().getColumn(i);
+				if (i == 1) {
+					column.setPreferredWidth(500);
+				} else {
+					column.setPreferredWidth(50);
+				}
+			}
 			
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder("Fields"));
 			add(fieldListPanel, BorderLayout.CENTER);
@@ -397,24 +411,30 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 				}
 				DecimalFormat formatter = new DecimalFormat("#,###");
 				DecimalFormat formatterPercent = new DecimalFormat("#,##0.0");
+				// TODO: refactor, valueCount object as new class
 				for (String[] valueCount : field.getValueCounts()) {
-					String nr = valueCount[1];
-					String vp = "";
-					if (StringUtilities.isNumber(nr)) {
-						double number = Double.parseDouble(nr);
-						nr = formatter.format(number);
+					String frequency = valueCount[1];
+					String valuePercentage = "";
+					if (StringUtilities.isNumber(frequency)) {
+						double number = Double.parseDouble(frequency);
+						frequency = formatter.format(number);
 						double valueCountPercent = number / valueCountTotal * 100;
 						if (valueCountPercent < 0.1) {
-							vp = "< 0.1";
+							valuePercentage = "< 0.1";
 						}
 						else if (valueCountPercent > 99) {
-							vp = "> 99.0";
+							valuePercentage = "> 99.0";
 						}
 						else {
-							vp = formatterPercent.format(valueCountPercent);
+							valuePercentage = formatterPercent.format(valueCountPercent);
 						}
 					}
-					valueTable.add(valueCount[0], nr, vp);
+					// If identifier present, include it as first column
+					String valueIdentifier = "-";
+					if (valueCount.length == 3) {
+						valueIdentifier = valueCount[2];
+					}
+					valueTable.add(valueIdentifier, valueCount[0], frequency, valuePercentage);
 				}
 			}
 			commentsArea.setText(field.getComment());

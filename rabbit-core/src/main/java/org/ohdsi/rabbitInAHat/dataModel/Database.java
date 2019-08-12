@@ -72,27 +72,9 @@ public class Database implements Serializable {
 
 		database.dbName = dbName.substring(0, dbName.lastIndexOf("."));
 
-		// Concept id hints
-		InputStream conceptStream = Database.class.getResourceAsStream("concept_id_hints.csv");
-		Map<String,List<String>> conceptsMap = new HashMap<>();
-		try {
-			for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(conceptStream))) {
-				String tableName = conceptRow.get("omop_cdm_table");
-				String fieldName = conceptRow.get("omop_cdm_field");
-				String keyName = tableName + fieldName;
-
-				String conceptId = conceptRow.get("concept_id");
-				String conceptName = conceptRow.get("concept_name");
-				String valueName = conceptId + " | " + conceptName;
-
-				if (!conceptsMap.containsKey(keyName)) {
-					conceptsMap.put(keyName, new ArrayList<>());
-				}
-				conceptsMap.get(keyName).add(valueName);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		// ConceptsMap id hints
+		ConceptsMap conceptsMap = new ConceptsMap();
+		conceptsMap.load("concept_id_hints.csv");
 
 		Map<String, Table> nameToTable = new HashMap<String, Table>();
 		try {
@@ -138,11 +120,12 @@ public class Database implements Serializable {
 				// TODO: priority with frequency
 				// TODO: both standard and non-standard concepts
 				// TODO: sorting on concept_name
-				List<String> concepts = conceptsMap.get(row.get(tableNameColumn) + row.get(fieldNameColumn));
+				List<ConceptsMap.Concept> concepts = conceptsMap.get(row.get(tableNameColumn), row.get(fieldNameColumn));
 				if (concepts != null) {
 					String[][] valueCounts = new String[concepts.size()][2];
 					for (int i = 0; i < concepts.size(); i++) {
-						valueCounts[i] = new String[] {concepts.get(i), "1"};
+						ConceptsMap.Concept concept = concepts.get(i);
+						valueCounts[i] = new String[] {concept.getConceptName(), concept.getStandardConcept(), concept.getConceptId()};
 					}
 					field.setValueCounts(valueCounts);
 				}
