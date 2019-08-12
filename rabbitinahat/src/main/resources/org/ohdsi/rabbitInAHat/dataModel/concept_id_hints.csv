@@ -1,580 +1,597 @@
-omop_cdm_table,omop_cdm_field,concept_id,concept_name
-person,gender_concept_id,8507,MALE
-person,gender_concept_id,8532,FEMALE
-person,ethnicity_concept_id,38003563,Hispanic or Latino
-person,ethnicity_concept_id,38003564,Not Hispanic or Latino
-person,race_concept_id,8515,Asian
-person,race_concept_id,8516,Black or African American
-person,race_concept_id,8527,White
-person,race_concept_id,8557,Native Hawaiian or Other Pacific Islander
-person,race_concept_id,8657,American Indian or Alaska Native
-person,race_concept_id,38003572,American Indian
-person,race_concept_id,38003573,Alaska Native
-person,race_concept_id,38003574,Asian Indian
-person,race_concept_id,38003575,Bangladeshi
-person,race_concept_id,38003576,Bhutanese
-person,race_concept_id,38003577,Burmese
-person,race_concept_id,38003578,Cambodian
-person,race_concept_id,38003579,Chinese
-person,race_concept_id,38003580,Taiwanese
-person,race_concept_id,38003581,Filipino
-person,race_concept_id,38003582,Hmong
-person,race_concept_id,38003583,Indonesian
-person,race_concept_id,38003584,Japanese
-person,race_concept_id,38003585,Korean
-person,race_concept_id,38003586,Laotian
-person,race_concept_id,38003587,Malaysian
-person,race_concept_id,38003588,Okinawan
-person,race_concept_id,38003589,Pakistani
-person,race_concept_id,38003590,Sri Lankan
-person,race_concept_id,38003591,Thai
-person,race_concept_id,38003592,Vietnamese
-person,race_concept_id,38003593,Iwo Jiman
-person,race_concept_id,38003594,Maldivian
-person,race_concept_id,38003595,Nepalese
-person,race_concept_id,38003596,Singaporean
-person,race_concept_id,38003597,Madagascar
-person,race_concept_id,38003598,Black
-person,race_concept_id,38003599,African American
-person,race_concept_id,38003600,African
-person,race_concept_id,38003601,Bahamian
-person,race_concept_id,38003602,Barbadian
-person,race_concept_id,38003603,Dominican
-person,race_concept_id,38003604,Dominica Islander
-person,race_concept_id,38003605,Haitian
-person,race_concept_id,38003606,Jamaican
-person,race_concept_id,38003607,Tobagoan
-person,race_concept_id,38003608,Trinidadian
-person,race_concept_id,38003609,West Indian
-person,race_concept_id,38003610,Polynesian
-person,race_concept_id,38003611,Micronesian
-person,race_concept_id,38003612,Melanesian
-person,race_concept_id,38003613,Other Pacific Islander
-person,race_concept_id,38003614,European
-person,race_concept_id,38003615,Middle Eastern or North African
-person,race_concept_id,38003616,Arab
-condition_occurrence,condition_type_concept_id,5086,Condition tested for by diagnostic procedure
-condition_occurrence,condition_type_concept_id,32019,EHR billing diagnosis
-condition_occurrence,condition_type_concept_id,32020,EHR encounter diagnosis
-condition_occurrence,condition_type_concept_id,38000245,EHR problem list entry
-condition_occurrence,condition_type_concept_id,38000246,Condition era - 0 days persistence window
-condition_occurrence,condition_type_concept_id,38000247,Condition era - 30 days persistence window
-condition_occurrence,condition_type_concept_id,42894222,EHR Chief Complaint
-condition_occurrence,condition_type_concept_id,42898140,Referral record
-condition_occurrence,condition_type_concept_id,43542353,Observation recorded from EHR
-condition_occurrence,condition_type_concept_id,45754805,EHR Episode Entry
-condition_occurrence,condition_type_concept_id,45905770,Patient Self-Reported Condition
-condition_occurrence,condition_type_concept_id,44786627,Primary Condition
-condition_occurrence,condition_type_concept_id,44786628,First Position Condition
-condition_occurrence,condition_type_concept_id,44786629,Secondary Condition
-condition_occurrence,condition_type_concept_id,45756843,Carrier claim detail - 1st position
-condition_occurrence,condition_type_concept_id,45756844,Carrier claim detail - 2nd position
-condition_occurrence,condition_type_concept_id,45756845,Carrier claim detail - 3rd position
-condition_occurrence,condition_type_concept_id,45756846,Carrier claim detail - 4th position
-condition_occurrence,condition_type_concept_id,45756847,Carrier claim detail - 5th position
-condition_occurrence,condition_type_concept_id,45756848,Carrier claim detail - 6th position
-condition_occurrence,condition_type_concept_id,45756849,Carrier claim detail - 7th position
-condition_occurrence,condition_type_concept_id,45756850,Carrier claim detail - 8th position
-condition_occurrence,condition_type_concept_id,45756851,Carrier claim detail - 9th position
-condition_occurrence,condition_type_concept_id,45756852,Carrier claim detail - 10th position
-condition_occurrence,condition_type_concept_id,45756853,Carrier claim detail - 11th position
-condition_occurrence,condition_type_concept_id,45756854,Carrier claim detail - 12th position
-condition_occurrence,condition_type_concept_id,45756855,Carrier claim detail - 13th position
-condition_occurrence,condition_type_concept_id,45756835,Carrier claim header - 1st position
-condition_occurrence,condition_type_concept_id,45756836,Carrier claim header - 2nd position
-condition_occurrence,condition_type_concept_id,45756837,Carrier claim header - 3rd position
-condition_occurrence,condition_type_concept_id,45756838,Carrier claim header - 4th position
-condition_occurrence,condition_type_concept_id,45756839,Carrier claim header - 5th position
-condition_occurrence,condition_type_concept_id,45756840,Carrier claim header - 6th position
-condition_occurrence,condition_type_concept_id,45756841,Carrier claim header - 7th position
-condition_occurrence,condition_type_concept_id,45756842,Carrier claim header - 8th position
-condition_occurrence,condition_type_concept_id,38000183,Inpatient detail - primary
-condition_occurrence,condition_type_concept_id,38000184,Inpatient detail - 1st position
-condition_occurrence,condition_type_concept_id,38000185,Inpatient detail - 2nd position
-condition_occurrence,condition_type_concept_id,38000186,Inpatient detail - 3rd position
-condition_occurrence,condition_type_concept_id,38000187,Inpatient detail - 4th position
-condition_occurrence,condition_type_concept_id,38000188,Inpatient detail - 5th position
-condition_occurrence,condition_type_concept_id,38000189,Inpatient detail - 6th position
-condition_occurrence,condition_type_concept_id,38000190,Inpatient detail - 7th position
-condition_occurrence,condition_type_concept_id,38000191,Inpatient detail - 8th position
-condition_occurrence,condition_type_concept_id,38000192,Inpatient detail - 9th position
-condition_occurrence,condition_type_concept_id,38000193,Inpatient detail - 10th position
-condition_occurrence,condition_type_concept_id,38000194,Inpatient detail - 11th position
-condition_occurrence,condition_type_concept_id,38000195,Inpatient detail - 12th position
-condition_occurrence,condition_type_concept_id,38000196,Inpatient detail - 13th position
-condition_occurrence,condition_type_concept_id,38000197,Inpatient detail - 14th position
-condition_occurrence,condition_type_concept_id,38000198,Inpatient detail - 15th position
-condition_occurrence,condition_type_concept_id,44818709,Inpatient detail - 16th position
-condition_occurrence,condition_type_concept_id,44818710,Inpatient detail - 17th position
-condition_occurrence,condition_type_concept_id,44818711,Inpatient detail - 18th position
-condition_occurrence,condition_type_concept_id,44818712,Inpatient detail - 19th position
-condition_occurrence,condition_type_concept_id,44818713,Inpatient detail - 20th position
-condition_occurrence,condition_type_concept_id,38000199,Inpatient header - primary
-condition_occurrence,condition_type_concept_id,38000200,Inpatient header - 1st position
-condition_occurrence,condition_type_concept_id,38000201,Inpatient header - 2nd position
-condition_occurrence,condition_type_concept_id,38000202,Inpatient header - 3rd position
-condition_occurrence,condition_type_concept_id,38000203,Inpatient header - 4th position
-condition_occurrence,condition_type_concept_id,38000204,Inpatient header - 5th position
-condition_occurrence,condition_type_concept_id,38000205,Inpatient header - 6th position
-condition_occurrence,condition_type_concept_id,38000206,Inpatient header - 7th position
-condition_occurrence,condition_type_concept_id,38000207,Inpatient header - 8th position
-condition_occurrence,condition_type_concept_id,38000208,Inpatient header - 9th position
-condition_occurrence,condition_type_concept_id,38000209,Inpatient header - 10th position
-condition_occurrence,condition_type_concept_id,38000210,Inpatient header - 11th position
-condition_occurrence,condition_type_concept_id,38000211,Inpatient header - 12th position
-condition_occurrence,condition_type_concept_id,38000212,Inpatient header - 13th position
-condition_occurrence,condition_type_concept_id,38000213,Inpatient header - 14th position
-condition_occurrence,condition_type_concept_id,38000214,Inpatient header - 15th position
-condition_occurrence,condition_type_concept_id,38000215,Outpatient detail - 1st position
-condition_occurrence,condition_type_concept_id,38000216,Outpatient detail - 2nd position
-condition_occurrence,condition_type_concept_id,38000217,Outpatient detail - 3rd position
-condition_occurrence,condition_type_concept_id,38000218,Outpatient detail - 4th position
-condition_occurrence,condition_type_concept_id,38000219,Outpatient detail - 5th position
-condition_occurrence,condition_type_concept_id,38000220,Outpatient detail - 6th position
-condition_occurrence,condition_type_concept_id,38000221,Outpatient detail - 7th position
-condition_occurrence,condition_type_concept_id,38000222,Outpatient detail - 8th position
-condition_occurrence,condition_type_concept_id,38000223,Outpatient detail - 9th position
-condition_occurrence,condition_type_concept_id,38000224,Outpatient detail - 10th position
-condition_occurrence,condition_type_concept_id,38000225,Outpatient detail - 11th position
-condition_occurrence,condition_type_concept_id,38000226,Outpatient detail - 12th position
-condition_occurrence,condition_type_concept_id,38000227,Outpatient detail - 13th position
-condition_occurrence,condition_type_concept_id,38000228,Outpatient detail - 14th position
-condition_occurrence,condition_type_concept_id,38000229,Outpatient detail - 15th position
-condition_occurrence,condition_type_concept_id,38000230,Outpatient header - 1st position
-condition_occurrence,condition_type_concept_id,38000231,Outpatient header - 2nd position
-condition_occurrence,condition_type_concept_id,38000232,Outpatient header - 3rd position
-condition_occurrence,condition_type_concept_id,38000233,Outpatient header - 4th position
-condition_occurrence,condition_type_concept_id,38000234,Outpatient header - 5th position
-condition_occurrence,condition_type_concept_id,38000235,Outpatient header - 6th position
-condition_occurrence,condition_type_concept_id,38000236,Outpatient header - 7th position
-condition_occurrence,condition_type_concept_id,38000237,Outpatient header - 8th position
-condition_occurrence,condition_type_concept_id,38000238,Outpatient header - 9th position
-condition_occurrence,condition_type_concept_id,38000239,Outpatient header - 10th position
-condition_occurrence,condition_type_concept_id,38000240,Outpatient header - 11th position
-condition_occurrence,condition_type_concept_id,38000241,Outpatient header - 12th position
-condition_occurrence,condition_type_concept_id,38000242,Outpatient header - 13th position
-condition_occurrence,condition_type_concept_id,38000243,Outpatient header - 14th position
-condition_occurrence,condition_type_concept_id,38000244,Outpatient header - 15th position
-death,death_type_concept_id,242,Other government reported or identified death
-death,death_type_concept_id,254,EHR Record immediate cause
-death,death_type_concept_id,255,EHR Record contributory cause
-death,death_type_concept_id,256,EHR Record underlying cause
-death,death_type_concept_id,261,US Social Security Death Master File record
-death,death_type_concept_id,38003617,Death Certificate contributory cause
-death,death_type_concept_id,38003618,Death Certificate underlying cause
-death,death_type_concept_id,38003565,Payer enrollment status "Deceased"
-death,death_type_concept_id,38003566,Medical claim discharge status "Died"
-death,death_type_concept_id,38003567,Medical claim diagnostic code indicating death
-death,death_type_concept_id,38003568,Medical claim DRG code indicating death
-death,death_type_concept_id,38003569,EHR record patient status "Deceased"
-death,death_type_concept_id,38003570,Death Certificate immediate cause
-death,death_type_concept_id,44818516,EHR discharge status "Expired"
-device_exposure,device_type_concept_id,44818705,Inferred from procedure claim
-device_exposure,device_type_concept_id,44818706,Patient reported device
-device_exposure,device_type_concept_id,44818707,EHR Detail
-drug_exposure,drug_type_concept_id,581452,Dispensed in Outpatient office
-drug_exposure,drug_type_concept_id,44777970,Randomized Drug
-drug_exposure,drug_type_concept_id,44787730,Patient Self-Reported Medication
-drug_exposure,drug_type_concept_id,38000175,Prescription dispensed in pharmacy
-drug_exposure,drug_type_concept_id,38000176,Prescription dispensed through mail order
-drug_exposure,drug_type_concept_id,38000177,Prescription written
-drug_exposure,drug_type_concept_id,38000178,Medication list entry
-drug_exposure,drug_type_concept_id,38000180,Inpatient administration
-drug_exposure,drug_type_concept_id,38000181,Drug era - 0 days persistence window
-drug_exposure,drug_type_concept_id,38000182,Drug era - 30 days persistence window
-drug_exposure,drug_type_concept_id,581373,Physician administered drug (identified from EHR order)
-drug_exposure,drug_type_concept_id,38000179,Physician administered drug (identified as procedure)
-drug_exposure,drug_type_concept_id,43542358,Physician administered drug (identified from EHR observation)
-drug_exposure,drug_type_concept_id,43542356,Physician administered drug (identified from EHR problem list)
-drug_exposure,drug_type_concept_id,43542357,Physician administered drug (identified from referral record)
-measurement,measurement_type_concept_id,5001,Test ordered through EHR
-measurement,measurement_type_concept_id,44818701,From physical examination
-measurement,measurement_type_concept_id,44818702,Lab result
-measurement,measurement_type_concept_id,44818703,Pathology finding
-measurement,measurement_type_concept_id,44818704,Patient reported value
-measurement,measurement_type_concept_id,45754907,Derived value
-note,note_type_concept_id,44814637,Discharge summary
-note,note_type_concept_id,44814638,Admission note
-note,note_type_concept_id,44814639,Inpatient note
-note,note_type_concept_id,44814640,Outpatient note
-note,note_type_concept_id,44814641,Radiology report
-note,note_type_concept_id,44814642,Pathology report
-note,note_type_concept_id,44814643,Ancillary report
-note,note_type_concept_id,44814644,Nursing report
-note,note_type_concept_id,44814645,Note
-note,note_type_concept_id,44814646,Emergency department note
-observation_period,period_type_concept_id,44814722,Period while enrolled in insurance
-observation_period,period_type_concept_id,44814723,Period while enrolled in study
-observation_period,period_type_concept_id,44814724,Period covering healthcare encounters
-observation_period,period_type_concept_id,44814725,Period inferred by algorithm
-observation_period,period_type_concept_id,45747656,Pre-qualification time period
-observation_period,period_type_concept_id,45890994,Period of complete data capture based on geographic isolation
-observation,observation_type_concept_id,581413,Observation from measurement
-observation,observation_type_concept_id,38000276,Problem list from EHR
-observation,observation_type_concept_id,38000277,Lab observation numeric result
-observation,observation_type_concept_id,38000278,Lab observation text
-observation,observation_type_concept_id,38000279,Lab observation concept code result
-observation,observation_type_concept_id,38000280,Observation recorded from EHR
-observation,observation_type_concept_id,38000281,Observation recorded from EHR with text result
-observation,observation_type_concept_id,38000282,Chief complaint
-observation,observation_type_concept_id,43542355,Referral Record
-observation,observation_type_concept_id,44786633,HRA Observation Numeric Result
-observation,observation_type_concept_id,44786634,HRA Observation Text
-observation,observation_type_concept_id,44814721,Patient reported
-observation,observation_type_concept_id,45905771,Observation Recorded from a Survey
-procedure_occurrence,procedure_type_concept_id,257,Hospitalization Cost Record
-procedure_occurrence,procedure_type_concept_id,44786630,Primary Procedure
-procedure_occurrence,procedure_type_concept_id,44786631,Secondary Procedure
-procedure_occurrence,procedure_type_concept_id,581412,Procedure Recorded from a Survey
-procedure_occurrence,procedure_type_concept_id,42865905,Facility header
-procedure_occurrence,procedure_type_concept_id,42865906,Condition Procedure
-procedure_occurrence,procedure_type_concept_id,42898141,Referral record
-procedure_occurrence,procedure_type_concept_id,43542354,Physician administered drug (identified as procedure)
-procedure_occurrence,procedure_type_concept_id,38000275,EHR order list entry
-procedure_occurrence,procedure_type_concept_id,38003621,Procedure recorded as lab test
-procedure_occurrence,procedure_type_concept_id,38003622,Procedure recorded as diagnostic code
-procedure_occurrence,procedure_type_concept_id,38000250,Inpatient header - primary position
-procedure_occurrence,procedure_type_concept_id,38000251,Inpatient header - 1st position
-procedure_occurrence,procedure_type_concept_id,38000252,Inpatient header - 2nd position
-procedure_occurrence,procedure_type_concept_id,38000253,Inpatient header - 3rd position
-procedure_occurrence,procedure_type_concept_id,38000254,Inpatient header - 4th position
-procedure_occurrence,procedure_type_concept_id,38000255,Inpatient header - 5th position
-procedure_occurrence,procedure_type_concept_id,38000256,Inpatient header - 6th position
-procedure_occurrence,procedure_type_concept_id,38000257,Inpatient header - 7th position
-procedure_occurrence,procedure_type_concept_id,38000258,Inpatient header - 8th position
-procedure_occurrence,procedure_type_concept_id,38000259,Inpatient header - 9th position
-procedure_occurrence,procedure_type_concept_id,38000260,Inpatient header - 10th position
-procedure_occurrence,procedure_type_concept_id,38000261,Inpatient header - 11th position
-procedure_occurrence,procedure_type_concept_id,38000262,Inpatient header - 12th position
-procedure_occurrence,procedure_type_concept_id,38000263,Inpatient header - 13th position
-procedure_occurrence,procedure_type_concept_id,38000264,Inpatient header - 14th position
-procedure_occurrence,procedure_type_concept_id,38000265,Inpatient header - 15th position
-procedure_occurrence,procedure_type_concept_id,38000248,Inpatient detail - primary position
-procedure_occurrence,procedure_type_concept_id,38000249,Inpatient detail - 1st position
-procedure_occurrence,procedure_type_concept_id,45756900,Carrier claim detail - 1st position
-procedure_occurrence,procedure_type_concept_id,45756901,Carrier claim detail - 2nd position
-procedure_occurrence,procedure_type_concept_id,45756902,Carrier claim detail - 3rd position
-procedure_occurrence,procedure_type_concept_id,45756903,Carrier claim detail - 4th position
-procedure_occurrence,procedure_type_concept_id,45756904,Carrier claim detail - 5th position
-procedure_occurrence,procedure_type_concept_id,45756905,Carrier claim detail - 6th position
-procedure_occurrence,procedure_type_concept_id,45756906,Carrier claim detail - 7th position
-procedure_occurrence,procedure_type_concept_id,45756907,Carrier claim detail - 8th position
-procedure_occurrence,procedure_type_concept_id,45756908,Carrier claim detail - 9th position
-procedure_occurrence,procedure_type_concept_id,45756909,Carrier claim detail - 10th position
-procedure_occurrence,procedure_type_concept_id,45756910,Carrier claim detail - 11th position
-procedure_occurrence,procedure_type_concept_id,45756911,Carrier claim detail - 12th position
-procedure_occurrence,procedure_type_concept_id,45756912,Carrier claim detail - 13th position
-procedure_occurrence,procedure_type_concept_id,38000268,Outpatient header - primary position
-procedure_occurrence,procedure_type_concept_id,38000269,Outpatient header - 1st position
-procedure_occurrence,procedure_type_concept_id,38000270,Outpatient header - 2nd position
-procedure_occurrence,procedure_type_concept_id,38000271,Outpatient header - 3rd position
-procedure_occurrence,procedure_type_concept_id,38000272,Outpatient header - 4th position
-procedure_occurrence,procedure_type_concept_id,38000273,Outpatient header - 5th position
-procedure_occurrence,procedure_type_concept_id,38000274,Outpatient header - 6th position
-procedure_occurrence,procedure_type_concept_id,38000266,Outpatient detail - primary position
-procedure_occurrence,procedure_type_concept_id,38000267,Outpatient detail - 1st position
-procedure_occurrence,procedure_type_concept_id,45756856,Outpatient detail - 2nd position
-procedure_occurrence,procedure_type_concept_id,45756857,Outpatient detail - 3rd position
-procedure_occurrence,procedure_type_concept_id,45756858,Outpatient detail - 4th position
-procedure_occurrence,procedure_type_concept_id,45756859,Outpatient detail - 5th position
-procedure_occurrence,procedure_type_concept_id,45756860,Outpatient detail - 6th position
-procedure_occurrence,procedure_type_concept_id,45756861,Outpatient detail - 7th position
-procedure_occurrence,procedure_type_concept_id,45756862,Outpatient detail - 8th position
-procedure_occurrence,procedure_type_concept_id,45756863,Outpatient detail - 9th position
-procedure_occurrence,procedure_type_concept_id,45756864,Outpatient detail - 10th position
-procedure_occurrence,procedure_type_concept_id,45756865,Outpatient detail - 11th position
-procedure_occurrence,procedure_type_concept_id,45756866,Outpatient detail - 12th position
-procedure_occurrence,procedure_type_concept_id,45756867,Outpatient detail - 13th position
-procedure_occurrence,procedure_type_concept_id,45756868,Outpatient detail - 14th position
-procedure_occurrence,procedure_type_concept_id,45756869,Outpatient detail - 15th position
-procedure_occurrence,procedure_type_concept_id,45756870,Outpatient detail - 16th position
-procedure_occurrence,procedure_type_concept_id,45756871,Outpatient detail - 17th position
-procedure_occurrence,procedure_type_concept_id,45756872,Outpatient detail - 18th position
-procedure_occurrence,procedure_type_concept_id,45756873,Outpatient detail - 19th position
-procedure_occurrence,procedure_type_concept_id,45756874,Outpatient detail - 20th position
-procedure_occurrence,procedure_type_concept_id,45756875,Outpatient detail - 21th position
-procedure_occurrence,procedure_type_concept_id,45756876,Outpatient detail - 22th position
-procedure_occurrence,procedure_type_concept_id,45756877,Outpatient detail - 23th position
-procedure_occurrence,procedure_type_concept_id,45756878,Outpatient detail - 24th position
-procedure_occurrence,procedure_type_concept_id,45756879,Outpatient detail - 25th position
-procedure_occurrence,procedure_type_concept_id,45756880,Outpatient detail - 26th position
-procedure_occurrence,procedure_type_concept_id,45756881,Outpatient detail - 27th position
-procedure_occurrence,procedure_type_concept_id,45756882,Outpatient detail - 28th position
-procedure_occurrence,procedure_type_concept_id,45756883,Outpatient detail - 29th position
-procedure_occurrence,procedure_type_concept_id,45756884,Outpatient detail - 30th position
-procedure_occurrence,procedure_type_concept_id,45756885,Outpatient detail - 31th position
-procedure_occurrence,procedure_type_concept_id,45756886,Outpatient detail - 32th position
-procedure_occurrence,procedure_type_concept_id,45756887,Outpatient detail - 33th position
-procedure_occurrence,procedure_type_concept_id,45756888,Outpatient detail - 34th position
-procedure_occurrence,procedure_type_concept_id,45756889,Outpatient detail - 35th position
-procedure_occurrence,procedure_type_concept_id,45756890,Outpatient detail - 36th position
-procedure_occurrence,procedure_type_concept_id,45756891,Outpatient detail - 37th position
-procedure_occurrence,procedure_type_concept_id,45756892,Outpatient detail - 38th position
-procedure_occurrence,procedure_type_concept_id,45756893,Outpatient detail - 39th position
-procedure_occurrence,procedure_type_concept_id,45756894,Outpatient detail - 40th position
-procedure_occurrence,procedure_type_concept_id,45756895,Outpatient detail - 41th position
-procedure_occurrence,procedure_type_concept_id,45756896,Outpatient detail - 42th position
-procedure_occurrence,procedure_type_concept_id,45756897,Outpatient detail - 43th position
-procedure_occurrence,procedure_type_concept_id,45756898,Outpatient detail - 44th position
-procedure_occurrence,procedure_type_concept_id,45756899,Outpatient detail - 45th position
-specimen,specimen_type_concept_id,581378,EHR Detail
-visit_occurrence,visit_type_concept_id,32021,Visit derived from encounter on medical claim
-visit_occurrence,visit_type_concept_id,32022,Visit derived from encounter on pharmacy claim
-visit_occurrence,visit_type_concept_id,32023,Visit derived from encounter on medical facility claim
-visit_occurrence,visit_type_concept_id,32024,Visit derived from encounter on medical professional claim
-visit_occurrence,visit_type_concept_id,32025,Visit derived from encounter on medical facility claim paid
-visit_occurrence,visit_type_concept_id,32026,Visit derived from encounter on medical facility claim denied
-visit_occurrence,visit_type_concept_id,32027,Visit derived from encounter on medical facility claim deferred
-visit_occurrence,visit_type_concept_id,32028,Visit derived from encounter on medical professional claim paid
-visit_occurrence,visit_type_concept_id,32029,Visit derived from encounter on medical professional claim denied
-visit_occurrence,visit_type_concept_id,32030,Visit derived from encounter on medical professional claim deferred
-visit_occurrence,visit_type_concept_id,32031,Visit derived from encounter on claim authorization
-visit_occurrence,visit_type_concept_id,32032,Visit derived from encounter on vision claim
-visit_occurrence,visit_type_concept_id,32033,Visit derived from encounter on dental claim
-visit_occurrence,visit_type_concept_id,32034,Visit derived from EHR billing record
-visit_occurrence,visit_type_concept_id,32035,Visit derived from EHR encounter record
-visit_occurrence,visit_type_concept_id,44818517,Visit derived from encounter on claim
-visit_occurrence,visit_type_concept_id,44818518,Visit derived from EHR record
-visit_occurrence,visit_type_concept_id,44818519,Clinical Study visit
-visit_occurrence,visit_concept_id,262,Emergency Room and Inpatient Visit
-visit_occurrence,visit_concept_id,9201,Inpatient Visit
-visit_occurrence,visit_concept_id,9202,Outpatient Visit
-visit_occurrence,visit_concept_id,9203,Emergency Room Visit
-visit_occurrence,visit_concept_id,32036,Laboratory Visit
-visit_occurrence,visit_concept_id,32037,Intensive Care
-visit_occurrence,visit_concept_id,581458,Pharmacy visit
-visit_occurrence,visit_concept_id,581476,Home Visit
-visit_occurrence,visit_concept_id,581477,Office Visit
-visit_occurrence,visit_concept_id,581478,Ambulance Visit
-visit_occurrence,visit_concept_id,581479,Rehabilitation Visit
-visit_occurrence,visit_concept_id,42898160,Long Term Care Visit
-cost,cost_concept_id,31996,Copayment
-cost,cost_concept_id,31997,Coinsurance
-cost,cost_concept_id,31998,Deductible
-cost,cost_concept_id,31999,Recovered
-cost,cost_concept_id,32000,Allowed
-cost,cost_concept_id,32001,Allowed (calculated)
-cost,cost_concept_id,32002,Paid
-cost,cost_concept_id,32003,Out of pocket
-cost,cost_concept_id,32004,Fee
-cost,cost_concept_id,32005,Pharmacy ingredient
-cost,cost_concept_id,32006,Average Wholesale
-cost,cost_concept_id,32007,Cost
-cost,cost_concept_id,32008,Usual, customary and reasonable
-cost,cost_concept_id,32009,Balance bill
-cost,cost_concept_id,32010,Incentive
-cost,cost_concept_id,32011,Capitation
-cost,cost_concept_id,32012,Lifetime limit
-cost,cost_concept_id,32013,Net costs
-cost,cost_concept_id,32014,Care Coordination Fee
-cost,cost_concept_id,32015,Bundled payment
-cost,cost_concept_id,32016,Rebate payment
-cost,cost_concept_id,31995,Charged
-cost,cost_concept_id,31993,Bundled payment
-cost,cost_concept_id,31971,Premium, member contribution
-cost,cost_concept_id,32017,Accumulated Deductible
-cost,cost_concept_id,31994,Rebate payment
-cost,cost_concept_id,31972,Premium, employer contribution
-cost,cost_concept_id,31973,Charged
-cost,cost_concept_id,31974,Copayment
-cost,cost_concept_id,31975,Coinsurance
-cost,cost_concept_id,31976,Deductible
-cost,cost_concept_id,31977,Recovered
-cost,cost_concept_id,31978,Allowed
-cost,cost_concept_id,31979,Allowed (calculated)
-cost,cost_concept_id,31980,Paid
-cost,cost_concept_id,31981,Out of pocket
-cost,cost_concept_id,31982,Fee
-cost,cost_concept_id,31983,Pharmacy ingredient
-cost,cost_concept_id,31984,Average Wholesale
-cost,cost_concept_id,31985,Cost
-cost,cost_concept_id,31986,Usual, customary and reasonable
-cost,cost_concept_id,31987,Balance bill
-cost,cost_concept_id,31988,Incentive
-cost,cost_concept_id,31989,Capitation
-cost,cost_concept_id,31990,Lifetime limit
-cost,cost_concept_id,31991,Net costs
-cost,cost_concept_id,31992,Care Coordination Fee
-cost,cost_type_concept_id,31968,Payer system (Primary payer)
-cost,cost_type_concept_id,31969,Payer system (Secondary payer)
-cost,cost_type_concept_id,31970,Payer system (Paid premium)
-cost,cost_type_concept_id,32504,Person (self) reported
-cost,cost_type_concept_id,32505,Provider System
-payer_plan_period,plan_concept_id,263,Bronze Health Plan with 60% actuarial plan value
-payer_plan_period,plan_concept_id,264,Silver Health Plan with 70% actuarial plan value
-payer_plan_period,plan_concept_id,265,Gold Health Plan with 80% actuarial plan value
-payer_plan_period,plan_concept_id,266,Platinum Health Plan with 90% actuarial plan value
-payer_plan_period,plan_concept_id,267,Catastrophic Health Plan with <60% actuarial plan value
-payer_plan_period,plan_concept_id,268,Broad Benefit (Medical, Drug, Dental, Vision) plan
-payer_plan_period,plan_concept_id,269,Minimal Benefit (Medical and Drug) plan
-payer_plan_period,plan_concept_id,270,Medical only plan
-payer_plan_period,plan_concept_id,271,Dental only plan
-payer_plan_period,plan_concept_id,272,Vision only plan
-payer_plan_period,plan_concept_id,273,Drug only plan
-drug_exposure,route_concept_id,44783786,Arteriovenous fistula route
-drug_exposure,route_concept_id,762840,Arteriovenous graft route
-drug_exposure,route_concept_id,4023156,Auricular
-drug_exposure,route_concept_id,4222254,Body cavity use
-drug_exposure,route_concept_id,4181897,Buccal
-drug_exposure,route_concept_id,4220455,Caudal route
-drug_exposure,route_concept_id,4168047,Colostomy route
-drug_exposure,route_concept_id,40486444,Conjunctival route
-drug_exposure,route_concept_id,40490507,Cutaneous route
-drug_exposure,route_concept_id,4163765,Dental
-drug_exposure,route_concept_id,40487501,Digestive tract route
-drug_exposure,route_concept_id,4186831,Endocervical
-drug_exposure,route_concept_id,4157756,Endosinusial
-drug_exposure,route_concept_id,4186832,Endotracheopulmonary
-drug_exposure,route_concept_id,4167540,Enteral route
-drug_exposure,route_concept_id,4225555,Epidural
-drug_exposure,route_concept_id,45956880,Epilesional
-drug_exposure,route_concept_id,4172191,Esophagostomy route
-drug_exposure,route_concept_id,4186833,Extraamniotic
-drug_exposure,route_concept_id,37018288,Extracorporeal route
-drug_exposure,route_concept_id,4304277,Fistula route
-drug_exposure,route_concept_id,4168665,Gastro-intestinal stoma route
-drug_exposure,route_concept_id,4186834,Gastroenteral
-drug_exposure,route_concept_id,4132254,Gastrostomy route
-drug_exposure,route_concept_id,4156704,Gingival
-drug_exposure,route_concept_id,44801748,Haemodiafiltration route
-drug_exposure,route_concept_id,45956871,Haemodialysis
-drug_exposure,route_concept_id,45956877,Haemofiltration
-drug_exposure,route_concept_id,4305679,Ileostomy route
-drug_exposure,route_concept_id,37397638,Infiltration route
-drug_exposure,route_concept_id,45956874,Inhalation
-drug_exposure,route_concept_id,4327128,Interstitial route
-drug_exposure,route_concept_id,37103746,Intestinal use
-drug_exposure,route_concept_id,4304882,Intraabdominal route
-drug_exposure,route_concept_id,4163767,Intraamniotic
-drug_exposure,route_concept_id,4240824,Intraarterial
-drug_exposure,route_concept_id,4006860,Intraarticular
-drug_exposure,route_concept_id,4223965,Intrabiliary route
-drug_exposure,route_concept_id,4303263,Intrabronchial route
-drug_exposure,route_concept_id,4163768,Intrabursal
-drug_exposure,route_concept_id,4303409,Intracameral
-drug_exposure,route_concept_id,4156705,Intracardiac
-drug_exposure,route_concept_id,4303676,Intracartilaginous route
-drug_exposure,route_concept_id,4157757,Intracavernous
-drug_exposure,route_concept_id,40488317,Intracerebral route
-drug_exposure,route_concept_id,4224886,Intracerebroventricular
-drug_exposure,route_concept_id,45956872,Intracervical
-drug_exposure,route_concept_id,4305993,Intracisternal route
-drug_exposure,route_concept_id,40489990,Intracolonic route
-drug_exposure,route_concept_id,4305690,Intracorneal route
-drug_exposure,route_concept_id,4303667,Intracoronal route
-drug_exposure,route_concept_id,4186836,Intracoronary
-drug_exposure,route_concept_id,40492302,Intracorpus cavernosum route
-drug_exposure,route_concept_id,4171079,Intracranial route
-drug_exposure,route_concept_id,4156706,Intradermal
-drug_exposure,route_concept_id,4163769,Intradiscal
-drug_exposure,route_concept_id,4170083,Intraductal route
-drug_exposure,route_concept_id,4302354,Intraduodenal route
-drug_exposure,route_concept_id,40492288,Intradural route
-drug_exposure,route_concept_id,40487473,Intraepicardial route
-drug_exposure,route_concept_id,40487983,Intraepidermal
-drug_exposure,route_concept_id,40492284,Intraesophageal route
-drug_exposure,route_concept_id,40492301,Intragastric route
-drug_exposure,route_concept_id,40492286,Intragingival route
-drug_exposure,route_concept_id,40493258,Intrahepatic route
-drug_exposure,route_concept_id,40490837,Intraileal route
-drug_exposure,route_concept_id,40489989,Intrajejunal route
-drug_exposure,route_concept_id,4157758,Intralesional
-drug_exposure,route_concept_id,40493227,Intralingual route
-drug_exposure,route_concept_id,4292410,Intraluminal route
-drug_exposure,route_concept_id,4157759,Intralymphatic
-drug_exposure,route_concept_id,40491321,Intramammary route
-drug_exposure,route_concept_id,4246511,Intramedullary route
-drug_exposure,route_concept_id,40492300,Intrameningeal route
-drug_exposure,route_concept_id,46272926,Intramural route
-drug_exposure,route_concept_id,4302612,Intramuscular
-drug_exposure,route_concept_id,4168038,Intramyometrial route
-drug_exposure,route_concept_id,46272911,Intraneural route
-drug_exposure,route_concept_id,4157760,Intraocular
-drug_exposure,route_concept_id,4213522,Intraosseous
-drug_exposure,route_concept_id,4306657,Intraovarian route
-drug_exposure,route_concept_id,40492305,Intrapericardial route
-drug_exposure,route_concept_id,4243022,Intraperitoneal
-drug_exposure,route_concept_id,4156707,Intrapleural
-drug_exposure,route_concept_id,4171725,Intraprostatic route
-drug_exposure,route_concept_id,4169270,Intrapulmonary route
-drug_exposure,route_concept_id,4169440,Intrasinal route
-drug_exposure,route_concept_id,4302788,Intraspinal route
-drug_exposure,route_concept_id,4186837,Intrasternal
-drug_exposure,route_concept_id,4302352,Intrasynovial route
-drug_exposure,route_concept_id,4303939,Intratendinous route
-drug_exposure,route_concept_id,4171067,Intratesticular route
-drug_exposure,route_concept_id,4217202,Intrathecal
-drug_exposure,route_concept_id,4167393,Intrathoracic route
-drug_exposure,route_concept_id,4229543,Intratracheal route
-drug_exposure,route_concept_id,40491322,Intratumoral
-drug_exposure,route_concept_id,4168656,Intratympanic route
-drug_exposure,route_concept_id,4269621,Intrauterine
-drug_exposure,route_concept_id,40492287,Intravascular route
-drug_exposure,route_concept_id,4171047,Intravenous
-drug_exposure,route_concept_id,4170113,Intravenous central route
-drug_exposure,route_concept_id,4171884,Intravenous peripheral route
-drug_exposure,route_concept_id,4222259,Intraventricular cardiac
-drug_exposure,route_concept_id,4186838,Intravesical
-drug_exposure,route_concept_id,4302785,Intravitreal
-drug_exposure,route_concept_id,45956881,Iontophoresis
-drug_exposure,route_concept_id,4133177,Jejunostomy route
-drug_exposure,route_concept_id,4170440,Laryngeal route
-drug_exposure,route_concept_id,40490898,Lower respiratory tract route
-drug_exposure,route_concept_id,4171243,Mucous fistula route
-drug_exposure,route_concept_id,4262914,Nasal
-drug_exposure,route_concept_id,4172316,Nasoduodenal route
-drug_exposure,route_concept_id,4132711,Nasogastric route
-drug_exposure,route_concept_id,4305834,Nasojejunal route
-drug_exposure,route_concept_id,4184451,Ocular
-drug_exposure,route_concept_id,4132161,Oral
-drug_exposure,route_concept_id,4303795,Orogastric route
-drug_exposure,route_concept_id,4186839,Oromucosal
-drug_exposure,route_concept_id,4303277,Oropharyngeal route
-drug_exposure,route_concept_id,4303515,Paracervical route
-drug_exposure,route_concept_id,4170267,Paravertebral route
-drug_exposure,route_concept_id,4177987,Percutaneous route
-drug_exposure,route_concept_id,4156708,Periarticular
-drug_exposure,route_concept_id,4304274,Peribulbar route
-drug_exposure,route_concept_id,40490896,Peridural route
-drug_exposure,route_concept_id,4157761,Perineural
-drug_exposure,route_concept_id,40490866,Periodontal route
-drug_exposure,route_concept_id,4171893,Periosteal route
-drug_exposure,route_concept_id,4305564,Peritendinous route
-drug_exposure,route_concept_id,4303646,Periurethral route
-drug_exposure,route_concept_id,4290759,Rectal
-drug_exposure,route_concept_id,45956879,Regional perfusion
-drug_exposure,route_concept_id,40486069,Respiratory tract route
-drug_exposure,route_concept_id,4303673,Retrobulbar route
-drug_exposure,route_concept_id,45956875,Route of administration not applicable
-drug_exposure,route_concept_id,4106215,Route of administration value
-drug_exposure,route_concept_id,4163770,Subconjunctival
-drug_exposure,route_concept_id,4142048,Subcutaneous
-drug_exposure,route_concept_id,4306649,Subgingival route
-drug_exposure,route_concept_id,46270168,Sublesional route
-drug_exposure,route_concept_id,4292110,Sublingual
-drug_exposure,route_concept_id,45956878,Submucosal rectal
-drug_exposure,route_concept_id,4169634,Submucosal route
-drug_exposure,route_concept_id,4166865,Suborbital route
-drug_exposure,route_concept_id,36703536,Subretinal
-drug_exposure,route_concept_id,4302493,Subtendinous route
-drug_exposure,route_concept_id,4170771,Surgical cavity route
-drug_exposure,route_concept_id,4304412,Surgical drain route
-drug_exposure,route_concept_id,4263689,Topical route
-drug_exposure,route_concept_id,4304730,Transcervical route
-drug_exposure,route_concept_id,4262099,Transdermal
-drug_exposure,route_concept_id,40487850,Transendocardial route
-drug_exposure,route_concept_id,4232601,Transmucosal route
-drug_exposure,route_concept_id,40487858,Transplacental route
-drug_exposure,route_concept_id,40491832,Transtracheal route
-drug_exposure,route_concept_id,40491830,Transtympanic route
-drug_exposure,route_concept_id,4305382,Transurethral route
-drug_exposure,route_concept_id,4169472,Tumor cavity route
-drug_exposure,route_concept_id,4304571,Ureteral route
-drug_exposure,route_concept_id,4233974,Urethral
-drug_exposure,route_concept_id,4170435,Urostomy route
-drug_exposure,route_concept_id,4057765,Vaginal
-measurement,operator_concept_id,4171754,<=
-measurement,operator_concept_id,4171755,>=
-measurement,operator_concept_id,4171756,<
-measurement,operator_concept_id,4172703,=
-measurement,operator_concept_id,4172704,>
+omop_cdm_table,omop_cdm_field,concept_id,concept_name,standard_concept
+person,gender_concept_id,8507,MALE,S
+person,gender_concept_id,8532,FEMALE,S
+person,gender_concept_id,8521,OTHER,
+person,gender_concept_id,8551,UNKNOWN,
+person,gender_concept_id,8570,AMBIGUOUS,
+person,gender_concept_id,1585842,Transgender,
+person,gender_concept_id,4214687,Gender unknown,
+person,gender_concept_id,4215271,Gender unspecified,
+person,gender_concept_id,4231242,"Surgically transgendered transsexual, female-to-male",
+person,gender_concept_id,4234363,Surgically transgendered transsexual,
+person,gender_concept_id,4251434,"Surgically transgendered transsexual, male-to-female",
+person,gender_concept_id,4268709,Gender finding,
+person,gender_concept_id,36712829,Transgender identity,
+person,gender_concept_id,42689678,Non-binary gender,
+person,gender_concept_id,45438358,Male,
+person,gender_concept_id,45454912,Gender unspecified,
+person,gender_concept_id,45518388,Gender unknown,
+person,gender_concept_id,45766034,Masculine gender,
+person,gender_concept_id,45766035,Feminine gender,
+person,ethnicity_concept_id,38003563,Hispanic or Latino,S
+person,ethnicity_concept_id,38003564,Not Hispanic or Latino,S
+person,race_concept_id,8515,Asian,S
+person,race_concept_id,8516,Black or African American,S
+person,race_concept_id,8527,White,S
+person,race_concept_id,8557,Native Hawaiian or Other Pacific Islander,S
+person,race_concept_id,8657,American Indian or Alaska Native,S
+person,race_concept_id,38003572,American Indian,S
+person,race_concept_id,38003573,Alaska Native,S
+person,race_concept_id,38003574,Asian Indian,S
+person,race_concept_id,38003575,Bangladeshi,S
+person,race_concept_id,38003576,Bhutanese,S
+person,race_concept_id,38003577,Burmese,S
+person,race_concept_id,38003578,Cambodian,S
+person,race_concept_id,38003579,Chinese,S
+person,race_concept_id,38003580,Taiwanese,S
+person,race_concept_id,38003581,Filipino,S
+person,race_concept_id,38003582,Hmong,S
+person,race_concept_id,38003583,Indonesian,S
+person,race_concept_id,38003584,Japanese,S
+person,race_concept_id,38003585,Korean,S
+person,race_concept_id,38003586,Laotian,S
+person,race_concept_id,38003587,Malaysian,S
+person,race_concept_id,38003588,Okinawan,S
+person,race_concept_id,38003589,Pakistani,S
+person,race_concept_id,38003590,Sri Lankan,S
+person,race_concept_id,38003591,Thai,S
+person,race_concept_id,38003592,Vietnamese,S
+person,race_concept_id,38003593,Iwo Jiman,S
+person,race_concept_id,38003594,Maldivian,S
+person,race_concept_id,38003595,Nepalese,S
+person,race_concept_id,38003596,Singaporean,S
+person,race_concept_id,38003597,Madagascar,S
+person,race_concept_id,38003598,Black,S
+person,race_concept_id,38003599,African American,S
+person,race_concept_id,38003600,African,S
+person,race_concept_id,38003601,Bahamian,S
+person,race_concept_id,38003602,Barbadian,S
+person,race_concept_id,38003603,Dominican,S
+person,race_concept_id,38003604,Dominica Islander,S
+person,race_concept_id,38003605,Haitian,S
+person,race_concept_id,38003606,Jamaican,S
+person,race_concept_id,38003607,Tobagoan,S
+person,race_concept_id,38003608,Trinidadian,S
+person,race_concept_id,38003609,West Indian,S
+person,race_concept_id,38003610,Polynesian,S
+person,race_concept_id,38003611,Micronesian,S
+person,race_concept_id,38003612,Melanesian,S
+person,race_concept_id,38003613,Other Pacific Islander,S
+person,race_concept_id,38003614,European,S
+person,race_concept_id,38003615,Middle Eastern or North African,S
+person,race_concept_id,38003616,Arab,S
+condition_occurrence,condition_type_concept_id,5086,Condition tested for by diagnostic procedure,S
+condition_occurrence,condition_type_concept_id,32019,EHR billing diagnosis,S
+condition_occurrence,condition_type_concept_id,32020,EHR encounter diagnosis,S
+condition_occurrence,condition_type_concept_id,38000245,EHR problem list entry,S
+condition_occurrence,condition_type_concept_id,38000246,Condition era - 0 days persistence window,S
+condition_occurrence,condition_type_concept_id,38000247,Condition era - 30 days persistence window,S
+condition_occurrence,condition_type_concept_id,42894222,EHR Chief Complaint,S
+condition_occurrence,condition_type_concept_id,42898140,Referral record,S
+condition_occurrence,condition_type_concept_id,43542353,Observation recorded from EHR,S
+condition_occurrence,condition_type_concept_id,45754805,EHR Episode Entry,S
+condition_occurrence,condition_type_concept_id,45905770,Patient Self-Reported Condition,S
+condition_occurrence,condition_type_concept_id,44786627,Primary Condition,S
+condition_occurrence,condition_type_concept_id,44786628,First Position Condition,S
+condition_occurrence,condition_type_concept_id,44786629,Secondary Condition,S
+condition_occurrence,condition_type_concept_id,45756843,Carrier claim detail - 1st position,S
+condition_occurrence,condition_type_concept_id,45756844,Carrier claim detail - 2nd position,S
+condition_occurrence,condition_type_concept_id,45756845,Carrier claim detail - 3rd position,S
+condition_occurrence,condition_type_concept_id,45756846,Carrier claim detail - 4th position,S
+condition_occurrence,condition_type_concept_id,45756847,Carrier claim detail - 5th position,S
+condition_occurrence,condition_type_concept_id,45756848,Carrier claim detail - 6th position,S
+condition_occurrence,condition_type_concept_id,45756849,Carrier claim detail - 7th position,S
+condition_occurrence,condition_type_concept_id,45756850,Carrier claim detail - 8th position,S
+condition_occurrence,condition_type_concept_id,45756851,Carrier claim detail - 9th position,S
+condition_occurrence,condition_type_concept_id,45756852,Carrier claim detail - 10th position,S
+condition_occurrence,condition_type_concept_id,45756853,Carrier claim detail - 11th position,S
+condition_occurrence,condition_type_concept_id,45756854,Carrier claim detail - 12th position,S
+condition_occurrence,condition_type_concept_id,45756855,Carrier claim detail - 13th position,S
+condition_occurrence,condition_type_concept_id,45756835,Carrier claim header - 1st position,S
+condition_occurrence,condition_type_concept_id,45756836,Carrier claim header - 2nd position,S
+condition_occurrence,condition_type_concept_id,45756837,Carrier claim header - 3rd position,S
+condition_occurrence,condition_type_concept_id,45756838,Carrier claim header - 4th position,S
+condition_occurrence,condition_type_concept_id,45756839,Carrier claim header - 5th position,S
+condition_occurrence,condition_type_concept_id,45756840,Carrier claim header - 6th position,S
+condition_occurrence,condition_type_concept_id,45756841,Carrier claim header - 7th position,S
+condition_occurrence,condition_type_concept_id,45756842,Carrier claim header - 8th position,S
+condition_occurrence,condition_type_concept_id,38000183,Inpatient detail - primary,S
+condition_occurrence,condition_type_concept_id,38000184,Inpatient detail - 1st position,S
+condition_occurrence,condition_type_concept_id,38000185,Inpatient detail - 2nd position,S
+condition_occurrence,condition_type_concept_id,38000186,Inpatient detail - 3rd position,S
+condition_occurrence,condition_type_concept_id,38000187,Inpatient detail - 4th position,S
+condition_occurrence,condition_type_concept_id,38000188,Inpatient detail - 5th position,S
+condition_occurrence,condition_type_concept_id,38000189,Inpatient detail - 6th position,S
+condition_occurrence,condition_type_concept_id,38000190,Inpatient detail - 7th position,S
+condition_occurrence,condition_type_concept_id,38000191,Inpatient detail - 8th position,S
+condition_occurrence,condition_type_concept_id,38000192,Inpatient detail - 9th position,S
+condition_occurrence,condition_type_concept_id,38000193,Inpatient detail - 10th position,S
+condition_occurrence,condition_type_concept_id,38000194,Inpatient detail - 11th position,S
+condition_occurrence,condition_type_concept_id,38000195,Inpatient detail - 12th position,S
+condition_occurrence,condition_type_concept_id,38000196,Inpatient detail - 13th position,S
+condition_occurrence,condition_type_concept_id,38000197,Inpatient detail - 14th position,S
+condition_occurrence,condition_type_concept_id,38000198,Inpatient detail - 15th position,S
+condition_occurrence,condition_type_concept_id,44818709,Inpatient detail - 16th position,S
+condition_occurrence,condition_type_concept_id,44818710,Inpatient detail - 17th position,S
+condition_occurrence,condition_type_concept_id,44818711,Inpatient detail - 18th position,S
+condition_occurrence,condition_type_concept_id,44818712,Inpatient detail - 19th position,S
+condition_occurrence,condition_type_concept_id,44818713,Inpatient detail - 20th position,S
+condition_occurrence,condition_type_concept_id,38000199,Inpatient header - primary,S
+condition_occurrence,condition_type_concept_id,38000200,Inpatient header - 1st position,S
+condition_occurrence,condition_type_concept_id,38000201,Inpatient header - 2nd position,S
+condition_occurrence,condition_type_concept_id,38000202,Inpatient header - 3rd position,S
+condition_occurrence,condition_type_concept_id,38000203,Inpatient header - 4th position,S
+condition_occurrence,condition_type_concept_id,38000204,Inpatient header - 5th position,S
+condition_occurrence,condition_type_concept_id,38000205,Inpatient header - 6th position,S
+condition_occurrence,condition_type_concept_id,38000206,Inpatient header - 7th position,S
+condition_occurrence,condition_type_concept_id,38000207,Inpatient header - 8th position,S
+condition_occurrence,condition_type_concept_id,38000208,Inpatient header - 9th position,S
+condition_occurrence,condition_type_concept_id,38000209,Inpatient header - 10th position,S
+condition_occurrence,condition_type_concept_id,38000210,Inpatient header - 11th position,S
+condition_occurrence,condition_type_concept_id,38000211,Inpatient header - 12th position,S
+condition_occurrence,condition_type_concept_id,38000212,Inpatient header - 13th position,S
+condition_occurrence,condition_type_concept_id,38000213,Inpatient header - 14th position,S
+condition_occurrence,condition_type_concept_id,38000214,Inpatient header - 15th position,S
+condition_occurrence,condition_type_concept_id,38000215,Outpatient detail - 1st position,S
+condition_occurrence,condition_type_concept_id,38000216,Outpatient detail - 2nd position,S
+condition_occurrence,condition_type_concept_id,38000217,Outpatient detail - 3rd position,S
+condition_occurrence,condition_type_concept_id,38000218,Outpatient detail - 4th position,S
+condition_occurrence,condition_type_concept_id,38000219,Outpatient detail - 5th position,S
+condition_occurrence,condition_type_concept_id,38000220,Outpatient detail - 6th position,S
+condition_occurrence,condition_type_concept_id,38000221,Outpatient detail - 7th position,S
+condition_occurrence,condition_type_concept_id,38000222,Outpatient detail - 8th position,S
+condition_occurrence,condition_type_concept_id,38000223,Outpatient detail - 9th position,S
+condition_occurrence,condition_type_concept_id,38000224,Outpatient detail - 10th position,S
+condition_occurrence,condition_type_concept_id,38000225,Outpatient detail - 11th position,S
+condition_occurrence,condition_type_concept_id,38000226,Outpatient detail - 12th position,S
+condition_occurrence,condition_type_concept_id,38000227,Outpatient detail - 13th position,S
+condition_occurrence,condition_type_concept_id,38000228,Outpatient detail - 14th position,S
+condition_occurrence,condition_type_concept_id,38000229,Outpatient detail - 15th position,S
+condition_occurrence,condition_type_concept_id,38000230,Outpatient header - 1st position,S
+condition_occurrence,condition_type_concept_id,38000231,Outpatient header - 2nd position,S
+condition_occurrence,condition_type_concept_id,38000232,Outpatient header - 3rd position,S
+condition_occurrence,condition_type_concept_id,38000233,Outpatient header - 4th position,S
+condition_occurrence,condition_type_concept_id,38000234,Outpatient header - 5th position,S
+condition_occurrence,condition_type_concept_id,38000235,Outpatient header - 6th position,S
+condition_occurrence,condition_type_concept_id,38000236,Outpatient header - 7th position,S
+condition_occurrence,condition_type_concept_id,38000237,Outpatient header - 8th position,S
+condition_occurrence,condition_type_concept_id,38000238,Outpatient header - 9th position,S
+condition_occurrence,condition_type_concept_id,38000239,Outpatient header - 10th position,S
+condition_occurrence,condition_type_concept_id,38000240,Outpatient header - 11th position,S
+condition_occurrence,condition_type_concept_id,38000241,Outpatient header - 12th position,S
+condition_occurrence,condition_type_concept_id,38000242,Outpatient header - 13th position,S
+condition_occurrence,condition_type_concept_id,38000243,Outpatient header - 14th position,S
+condition_occurrence,condition_type_concept_id,38000244,Outpatient header - 15th position,S
+death,death_type_concept_id,242,Other government reported or identified death,S
+death,death_type_concept_id,254,EHR Record immediate cause,S
+death,death_type_concept_id,255,EHR Record contributory cause,S
+death,death_type_concept_id,256,EHR Record underlying cause,S
+death,death_type_concept_id,261,US Social Security Death Master File record,S
+death,death_type_concept_id,38003617,Death Certificate contributory cause,S
+death,death_type_concept_id,38003618,Death Certificate underlying cause,S
+death,death_type_concept_id,38003565,Payer enrollment status "Deceased",S
+death,death_type_concept_id,38003566,Medical claim discharge status "Died",S
+death,death_type_concept_id,38003567,Medical claim diagnostic code indicating death,S
+death,death_type_concept_id,38003568,Medical claim DRG code indicating death,S
+death,death_type_concept_id,38003569,EHR record patient status "Deceased",S
+death,death_type_concept_id,38003570,Death Certificate immediate cause,S
+death,death_type_concept_id,44818516,EHR discharge status "Expired",S
+device_exposure,device_type_concept_id,44818705,Inferred from procedure claim,S
+device_exposure,device_type_concept_id,44818706,Patient reported device,S
+device_exposure,device_type_concept_id,44818707,EHR Detail,S
+drug_exposure,drug_type_concept_id,581452,Dispensed in Outpatient office,S
+drug_exposure,drug_type_concept_id,44777970,Randomized Drug,S
+drug_exposure,drug_type_concept_id,44787730,Patient Self-Reported Medication,S
+drug_exposure,drug_type_concept_id,38000175,Prescription dispensed in pharmacy,S
+drug_exposure,drug_type_concept_id,38000176,Prescription dispensed through mail order,S
+drug_exposure,drug_type_concept_id,38000177,Prescription written,S
+drug_exposure,drug_type_concept_id,38000178,Medication list entry,S
+drug_exposure,drug_type_concept_id,38000180,Inpatient administration,S
+drug_exposure,drug_type_concept_id,38000181,Drug era - 0 days persistence window,S
+drug_exposure,drug_type_concept_id,38000182,Drug era - 30 days persistence window,S
+drug_exposure,drug_type_concept_id,581373,Physician administered drug (identified from EHR order),S
+drug_exposure,drug_type_concept_id,38000179,Physician administered drug (identified as procedure),S
+drug_exposure,drug_type_concept_id,43542358,Physician administered drug (identified from EHR observation),S
+drug_exposure,drug_type_concept_id,43542356,Physician administered drug (identified from EHR problem list),S
+drug_exposure,drug_type_concept_id,43542357,Physician administered drug (identified from referral record),S
+measurement,measurement_type_concept_id,5001,Test ordered through EHR,S
+measurement,measurement_type_concept_id,44818701,From physical examination,S
+measurement,measurement_type_concept_id,44818702,Lab result,S
+measurement,measurement_type_concept_id,44818703,Pathology finding,S
+measurement,measurement_type_concept_id,44818704,Patient reported value,S
+measurement,measurement_type_concept_id,45754907,Derived value,S
+note,note_type_concept_id,44814637,Discharge summary,S
+note,note_type_concept_id,44814638,Admission note,S
+note,note_type_concept_id,44814639,Inpatient note,S
+note,note_type_concept_id,44814640,Outpatient note,S
+note,note_type_concept_id,44814641,Radiology report,S
+note,note_type_concept_id,44814642,Pathology report,S
+note,note_type_concept_id,44814643,Ancillary report,S
+note,note_type_concept_id,44814644,Nursing report,S
+note,note_type_concept_id,44814645,Note,S
+note,note_type_concept_id,44814646,Emergency department note,S
+observation_period,period_type_concept_id,44814722,Period while enrolled in insurance,S
+observation_period,period_type_concept_id,44814723,Period while enrolled in study,S
+observation_period,period_type_concept_id,44814724,Period covering healthcare encounters,S
+observation_period,period_type_concept_id,44814725,Period inferred by algorithm,S
+observation_period,period_type_concept_id,45747656,Pre-qualification time period,S
+observation_period,period_type_concept_id,45890994,Period of complete data capture based on geographic isolation,S
+observation,observation_type_concept_id,581413,Observation from measurement,S
+observation,observation_type_concept_id,38000276,Problem list from EHR,S
+observation,observation_type_concept_id,38000277,Lab observation numeric result,S
+observation,observation_type_concept_id,38000278,Lab observation text,S
+observation,observation_type_concept_id,38000279,Lab observation concept code result,S
+observation,observation_type_concept_id,38000280,Observation recorded from EHR,S
+observation,observation_type_concept_id,38000281,Observation recorded from EHR with text result,S
+observation,observation_type_concept_id,38000282,Chief complaint,S
+observation,observation_type_concept_id,43542355,Referral Record,S
+observation,observation_type_concept_id,44786633,HRA Observation Numeric Result,S
+observation,observation_type_concept_id,44786634,HRA Observation Text,S
+observation,observation_type_concept_id,44814721,Patient reported,S
+observation,observation_type_concept_id,45905771,Observation Recorded from a Survey,S
+procedure_occurrence,procedure_type_concept_id,257,Hospitalization Cost Record,S
+procedure_occurrence,procedure_type_concept_id,44786630,Primary Procedure,S
+procedure_occurrence,procedure_type_concept_id,44786631,Secondary Procedure,S
+procedure_occurrence,procedure_type_concept_id,581412,Procedure Recorded from a Survey,S
+procedure_occurrence,procedure_type_concept_id,42865905,Facility header,S
+procedure_occurrence,procedure_type_concept_id,42865906,Condition Procedure,S
+procedure_occurrence,procedure_type_concept_id,42898141,Referral record,S
+procedure_occurrence,procedure_type_concept_id,43542354,Physician administered drug (identified as procedure),S
+procedure_occurrence,procedure_type_concept_id,38000275,EHR order list entry,S
+procedure_occurrence,procedure_type_concept_id,38003621,Procedure recorded as lab test,S
+procedure_occurrence,procedure_type_concept_id,38003622,Procedure recorded as diagnostic code,S
+procedure_occurrence,procedure_type_concept_id,38000250,Inpatient header - primary position,S
+procedure_occurrence,procedure_type_concept_id,38000251,Inpatient header - 1st position,S
+procedure_occurrence,procedure_type_concept_id,38000252,Inpatient header - 2nd position,S
+procedure_occurrence,procedure_type_concept_id,38000253,Inpatient header - 3rd position,S
+procedure_occurrence,procedure_type_concept_id,38000254,Inpatient header - 4th position,S
+procedure_occurrence,procedure_type_concept_id,38000255,Inpatient header - 5th position,S
+procedure_occurrence,procedure_type_concept_id,38000256,Inpatient header - 6th position,S
+procedure_occurrence,procedure_type_concept_id,38000257,Inpatient header - 7th position,S
+procedure_occurrence,procedure_type_concept_id,38000258,Inpatient header - 8th position,S
+procedure_occurrence,procedure_type_concept_id,38000259,Inpatient header - 9th position,S
+procedure_occurrence,procedure_type_concept_id,38000260,Inpatient header - 10th position,S
+procedure_occurrence,procedure_type_concept_id,38000261,Inpatient header - 11th position,S
+procedure_occurrence,procedure_type_concept_id,38000262,Inpatient header - 12th position,S
+procedure_occurrence,procedure_type_concept_id,38000263,Inpatient header - 13th position,S
+procedure_occurrence,procedure_type_concept_id,38000264,Inpatient header - 14th position,S
+procedure_occurrence,procedure_type_concept_id,38000265,Inpatient header - 15th position,S
+procedure_occurrence,procedure_type_concept_id,38000248,Inpatient detail - primary position,S
+procedure_occurrence,procedure_type_concept_id,38000249,Inpatient detail - 1st position,S
+procedure_occurrence,procedure_type_concept_id,45756900,Carrier claim detail - 1st position,S
+procedure_occurrence,procedure_type_concept_id,45756901,Carrier claim detail - 2nd position,S
+procedure_occurrence,procedure_type_concept_id,45756902,Carrier claim detail - 3rd position,S
+procedure_occurrence,procedure_type_concept_id,45756903,Carrier claim detail - 4th position,S
+procedure_occurrence,procedure_type_concept_id,45756904,Carrier claim detail - 5th position,S
+procedure_occurrence,procedure_type_concept_id,45756905,Carrier claim detail - 6th position,S
+procedure_occurrence,procedure_type_concept_id,45756906,Carrier claim detail - 7th position,S
+procedure_occurrence,procedure_type_concept_id,45756907,Carrier claim detail - 8th position,S
+procedure_occurrence,procedure_type_concept_id,45756908,Carrier claim detail - 9th position,S
+procedure_occurrence,procedure_type_concept_id,45756909,Carrier claim detail - 10th position,S
+procedure_occurrence,procedure_type_concept_id,45756910,Carrier claim detail - 11th position,S
+procedure_occurrence,procedure_type_concept_id,45756911,Carrier claim detail - 12th position,S
+procedure_occurrence,procedure_type_concept_id,45756912,Carrier claim detail - 13th position,S
+procedure_occurrence,procedure_type_concept_id,38000268,Outpatient header - primary position,S
+procedure_occurrence,procedure_type_concept_id,38000269,Outpatient header - 1st position,S
+procedure_occurrence,procedure_type_concept_id,38000270,Outpatient header - 2nd position,S
+procedure_occurrence,procedure_type_concept_id,38000271,Outpatient header - 3rd position,S
+procedure_occurrence,procedure_type_concept_id,38000272,Outpatient header - 4th position,S
+procedure_occurrence,procedure_type_concept_id,38000273,Outpatient header - 5th position,S
+procedure_occurrence,procedure_type_concept_id,38000274,Outpatient header - 6th position,S
+procedure_occurrence,procedure_type_concept_id,38000266,Outpatient detail - primary position,S
+procedure_occurrence,procedure_type_concept_id,38000267,Outpatient detail - 1st position,S
+procedure_occurrence,procedure_type_concept_id,45756856,Outpatient detail - 2nd position,S
+procedure_occurrence,procedure_type_concept_id,45756857,Outpatient detail - 3rd position,S
+procedure_occurrence,procedure_type_concept_id,45756858,Outpatient detail - 4th position,S
+procedure_occurrence,procedure_type_concept_id,45756859,Outpatient detail - 5th position,S
+procedure_occurrence,procedure_type_concept_id,45756860,Outpatient detail - 6th position,S
+procedure_occurrence,procedure_type_concept_id,45756861,Outpatient detail - 7th position,S
+procedure_occurrence,procedure_type_concept_id,45756862,Outpatient detail - 8th position,S
+procedure_occurrence,procedure_type_concept_id,45756863,Outpatient detail - 9th position,S
+procedure_occurrence,procedure_type_concept_id,45756864,Outpatient detail - 10th position,S
+procedure_occurrence,procedure_type_concept_id,45756865,Outpatient detail - 11th position,S
+procedure_occurrence,procedure_type_concept_id,45756866,Outpatient detail - 12th position,S
+procedure_occurrence,procedure_type_concept_id,45756867,Outpatient detail - 13th position,S
+procedure_occurrence,procedure_type_concept_id,45756868,Outpatient detail - 14th position,S
+procedure_occurrence,procedure_type_concept_id,45756869,Outpatient detail - 15th position,S
+procedure_occurrence,procedure_type_concept_id,45756870,Outpatient detail - 16th position,S
+procedure_occurrence,procedure_type_concept_id,45756871,Outpatient detail - 17th position,S
+procedure_occurrence,procedure_type_concept_id,45756872,Outpatient detail - 18th position,S
+procedure_occurrence,procedure_type_concept_id,45756873,Outpatient detail - 19th position,S
+procedure_occurrence,procedure_type_concept_id,45756874,Outpatient detail - 20th position,S
+procedure_occurrence,procedure_type_concept_id,45756875,Outpatient detail - 21th position,S
+procedure_occurrence,procedure_type_concept_id,45756876,Outpatient detail - 22th position,S
+procedure_occurrence,procedure_type_concept_id,45756877,Outpatient detail - 23th position,S
+procedure_occurrence,procedure_type_concept_id,45756878,Outpatient detail - 24th position,S
+procedure_occurrence,procedure_type_concept_id,45756879,Outpatient detail - 25th position,S
+procedure_occurrence,procedure_type_concept_id,45756880,Outpatient detail - 26th position,S
+procedure_occurrence,procedure_type_concept_id,45756881,Outpatient detail - 27th position,S
+procedure_occurrence,procedure_type_concept_id,45756882,Outpatient detail - 28th position,S
+procedure_occurrence,procedure_type_concept_id,45756883,Outpatient detail - 29th position,S
+procedure_occurrence,procedure_type_concept_id,45756884,Outpatient detail - 30th position,S
+procedure_occurrence,procedure_type_concept_id,45756885,Outpatient detail - 31th position,S
+procedure_occurrence,procedure_type_concept_id,45756886,Outpatient detail - 32th position,S
+procedure_occurrence,procedure_type_concept_id,45756887,Outpatient detail - 33th position,S
+procedure_occurrence,procedure_type_concept_id,45756888,Outpatient detail - 34th position,S
+procedure_occurrence,procedure_type_concept_id,45756889,Outpatient detail - 35th position,S
+procedure_occurrence,procedure_type_concept_id,45756890,Outpatient detail - 36th position,S
+procedure_occurrence,procedure_type_concept_id,45756891,Outpatient detail - 37th position,S
+procedure_occurrence,procedure_type_concept_id,45756892,Outpatient detail - 38th position,S
+procedure_occurrence,procedure_type_concept_id,45756893,Outpatient detail - 39th position,S
+procedure_occurrence,procedure_type_concept_id,45756894,Outpatient detail - 40th position,S
+procedure_occurrence,procedure_type_concept_id,45756895,Outpatient detail - 41th position,S
+procedure_occurrence,procedure_type_concept_id,45756896,Outpatient detail - 42th position,S
+procedure_occurrence,procedure_type_concept_id,45756897,Outpatient detail - 43th position,S
+procedure_occurrence,procedure_type_concept_id,45756898,Outpatient detail - 44th position,S
+procedure_occurrence,procedure_type_concept_id,45756899,Outpatient detail - 45th position,S
+specimen,specimen_type_concept_id,581378,EHR Detail,S
+visit_occurrence,visit_type_concept_id,32021,Visit derived from encounter on medical claim,S
+visit_occurrence,visit_type_concept_id,32022,Visit derived from encounter on pharmacy claim,S
+visit_occurrence,visit_type_concept_id,32023,Visit derived from encounter on medical facility claim,S
+visit_occurrence,visit_type_concept_id,32024,Visit derived from encounter on medical professional claim,S
+visit_occurrence,visit_type_concept_id,32025,Visit derived from encounter on medical facility claim paid,S
+visit_occurrence,visit_type_concept_id,32026,Visit derived from encounter on medical facility claim denied,S
+visit_occurrence,visit_type_concept_id,32027,Visit derived from encounter on medical facility claim deferred,S
+visit_occurrence,visit_type_concept_id,32028,Visit derived from encounter on medical professional claim paid,S
+visit_occurrence,visit_type_concept_id,32029,Visit derived from encounter on medical professional claim denied,S
+visit_occurrence,visit_type_concept_id,32030,Visit derived from encounter on medical professional claim deferred,S
+visit_occurrence,visit_type_concept_id,32031,Visit derived from encounter on claim authorization,S
+visit_occurrence,visit_type_concept_id,32032,Visit derived from encounter on vision claim,S
+visit_occurrence,visit_type_concept_id,32033,Visit derived from encounter on dental claim,S
+visit_occurrence,visit_type_concept_id,32034,Visit derived from EHR billing record,S
+visit_occurrence,visit_type_concept_id,32035,Visit derived from EHR encounter record,S
+visit_occurrence,visit_type_concept_id,44818517,Visit derived from encounter on claim,S
+visit_occurrence,visit_type_concept_id,44818518,Visit derived from EHR record,S
+visit_occurrence,visit_type_concept_id,44818519,Clinical Study visit,S
+visit_occurrence,visit_concept_id,262,Emergency Room and Inpatient Visit,S
+visit_occurrence,visit_concept_id,9201,Inpatient Visit,S
+visit_occurrence,visit_concept_id,9202,Outpatient Visit,S
+visit_occurrence,visit_concept_id,9203,Emergency Room Visit,S
+visit_occurrence,visit_concept_id,32036,Laboratory Visit,S
+visit_occurrence,visit_concept_id,32037,Intensive Care,S
+visit_occurrence,visit_concept_id,581458,Pharmacy visit,S
+visit_occurrence,visit_concept_id,581476,Home Visit,S
+visit_occurrence,visit_concept_id,581477,Office Visit,S
+visit_occurrence,visit_concept_id,581478,Ambulance Visit,S
+visit_occurrence,visit_concept_id,581479,Rehabilitation Visit,S
+visit_occurrence,visit_concept_id,42898160,Long Term Care Visit,S
+cost,cost_concept_id,31996,Copayment,S
+cost,cost_concept_id,31997,Coinsurance,S
+cost,cost_concept_id,31998,Deductible,S
+cost,cost_concept_id,31999,Recovered,S
+cost,cost_concept_id,32000,Allowed,S
+cost,cost_concept_id,32001,Allowed (calculated),S
+cost,cost_concept_id,32002,Paid,S
+cost,cost_concept_id,32003,Out of pocket,S
+cost,cost_concept_id,32004,Fee,S
+cost,cost_concept_id,32005,Pharmacy ingredient,S
+cost,cost_concept_id,32006,Average Wholesale,S
+cost,cost_concept_id,32007,Cost,S
+cost,cost_concept_id,32008,Usual, customary and reasonable,S
+cost,cost_concept_id,32009,Balance bill,S
+cost,cost_concept_id,32010,Incentive,S
+cost,cost_concept_id,32011,Capitation,S
+cost,cost_concept_id,32012,Lifetime limit,S
+cost,cost_concept_id,32013,Net costs,S
+cost,cost_concept_id,32014,Care Coordination Fee,S
+cost,cost_concept_id,32015,Bundled payment,S
+cost,cost_concept_id,32016,Rebate payment,S
+cost,cost_concept_id,31995,Charged,S
+cost,cost_concept_id,31993,Bundled payment,S
+cost,cost_concept_id,31971,Premium, member contribution,S
+cost,cost_concept_id,32017,Accumulated Deductible,S
+cost,cost_concept_id,31994,Rebate payment,S
+cost,cost_concept_id,31972,Premium, employer contribution,S
+cost,cost_concept_id,31973,Charged,S
+cost,cost_concept_id,31974,Copayment,S
+cost,cost_concept_id,31975,Coinsurance,S
+cost,cost_concept_id,31976,Deductible,S
+cost,cost_concept_id,31977,Recovered,S
+cost,cost_concept_id,31978,Allowed,S
+cost,cost_concept_id,31979,Allowed (calculated),S
+cost,cost_concept_id,31980,Paid,S
+cost,cost_concept_id,31981,Out of pocket,S
+cost,cost_concept_id,31982,Fee,S
+cost,cost_concept_id,31983,Pharmacy ingredient,S
+cost,cost_concept_id,31984,Average Wholesale,S
+cost,cost_concept_id,31985,Cost,S
+cost,cost_concept_id,31986,Usual, customary and reasonable,S
+cost,cost_concept_id,31987,Balance bill,S
+cost,cost_concept_id,31988,Incentive,S
+cost,cost_concept_id,31989,Capitation,S
+cost,cost_concept_id,31990,Lifetime limit,S
+cost,cost_concept_id,31991,Net costs,S
+cost,cost_concept_id,31992,Care Coordination Fee,S
+cost,cost_type_concept_id,31968,Payer system (Primary payer),S
+cost,cost_type_concept_id,31969,Payer system (Secondary payer),S
+cost,cost_type_concept_id,31970,Payer system (Paid premium),S
+cost,cost_type_concept_id,32504,Person (self) reported,S
+cost,cost_type_concept_id,32505,Provider System,S
+payer_plan_period,plan_concept_id,263,Bronze Health Plan with 60% actuarial plan value,S
+payer_plan_period,plan_concept_id,264,Silver Health Plan with 70% actuarial plan value,S
+payer_plan_period,plan_concept_id,265,Gold Health Plan with 80% actuarial plan value,S
+payer_plan_period,plan_concept_id,266,Platinum Health Plan with 90% actuarial plan value,S
+payer_plan_period,plan_concept_id,267,Catastrophic Health Plan with <60% actuarial plan value,S
+payer_plan_period,plan_concept_id,268,Broad Benefit (Medical, Drug, Dental, Vision) plan,S
+payer_plan_period,plan_concept_id,269,Minimal Benefit (Medical and Drug) plan,S
+payer_plan_period,plan_concept_id,270,Medical only plan,S
+payer_plan_period,plan_concept_id,271,Dental only plan,S
+payer_plan_period,plan_concept_id,272,Vision only plan,S
+payer_plan_period,plan_concept_id,273,Drug only plan,S
+drug_exposure,route_concept_id,44783786,Arteriovenous fistula route,S
+drug_exposure,route_concept_id,762840,Arteriovenous graft route,S
+drug_exposure,route_concept_id,4023156,Auricular,S
+drug_exposure,route_concept_id,4222254,Body cavity use,S
+drug_exposure,route_concept_id,4181897,Buccal,S
+drug_exposure,route_concept_id,4220455,Caudal route,S
+drug_exposure,route_concept_id,4168047,Colostomy route,S
+drug_exposure,route_concept_id,40486444,Conjunctival route,S
+drug_exposure,route_concept_id,40490507,Cutaneous route,S
+drug_exposure,route_concept_id,4163765,Dental,S
+drug_exposure,route_concept_id,40487501,Digestive tract route,S
+drug_exposure,route_concept_id,4186831,Endocervical,S
+drug_exposure,route_concept_id,4157756,Endosinusial,S
+drug_exposure,route_concept_id,4186832,Endotracheopulmonary,S
+drug_exposure,route_concept_id,4167540,Enteral route,S
+drug_exposure,route_concept_id,4225555,Epidural,S
+drug_exposure,route_concept_id,45956880,Epilesional,S
+drug_exposure,route_concept_id,4172191,Esophagostomy route,S
+drug_exposure,route_concept_id,4186833,Extraamniotic,S
+drug_exposure,route_concept_id,37018288,Extracorporeal route,S
+drug_exposure,route_concept_id,4304277,Fistula route,S
+drug_exposure,route_concept_id,4168665,Gastro-intestinal stoma route,S
+drug_exposure,route_concept_id,4186834,Gastroenteral,S
+drug_exposure,route_concept_id,4132254,Gastrostomy route,S
+drug_exposure,route_concept_id,4156704,Gingival,S
+drug_exposure,route_concept_id,44801748,Haemodiafiltration route,S
+drug_exposure,route_concept_id,45956871,Haemodialysis,S
+drug_exposure,route_concept_id,45956877,Haemofiltration,S
+drug_exposure,route_concept_id,4305679,Ileostomy route,S
+drug_exposure,route_concept_id,37397638,Infiltration route,S
+drug_exposure,route_concept_id,45956874,Inhalation,S
+drug_exposure,route_concept_id,4327128,Interstitial route,S
+drug_exposure,route_concept_id,37103746,Intestinal use,S
+drug_exposure,route_concept_id,4304882,Intraabdominal route,S
+drug_exposure,route_concept_id,4163767,Intraamniotic,S
+drug_exposure,route_concept_id,4240824,Intraarterial,S
+drug_exposure,route_concept_id,4006860,Intraarticular,S
+drug_exposure,route_concept_id,4223965,Intrabiliary route,S
+drug_exposure,route_concept_id,4303263,Intrabronchial route,S
+drug_exposure,route_concept_id,4163768,Intrabursal,S
+drug_exposure,route_concept_id,4303409,Intracameral,S
+drug_exposure,route_concept_id,4156705,Intracardiac,S
+drug_exposure,route_concept_id,4303676,Intracartilaginous route,S
+drug_exposure,route_concept_id,4157757,Intracavernous,S
+drug_exposure,route_concept_id,40488317,Intracerebral route,S
+drug_exposure,route_concept_id,4224886,Intracerebroventricular,S
+drug_exposure,route_concept_id,45956872,Intracervical,S
+drug_exposure,route_concept_id,4305993,Intracisternal route,S
+drug_exposure,route_concept_id,40489990,Intracolonic route,S
+drug_exposure,route_concept_id,4305690,Intracorneal route,S
+drug_exposure,route_concept_id,4303667,Intracoronal route,S
+drug_exposure,route_concept_id,4186836,Intracoronary,S
+drug_exposure,route_concept_id,40492302,Intracorpus cavernosum route,S
+drug_exposure,route_concept_id,4171079,Intracranial route,S
+drug_exposure,route_concept_id,4156706,Intradermal,S
+drug_exposure,route_concept_id,4163769,Intradiscal,S
+drug_exposure,route_concept_id,4170083,Intraductal route,S
+drug_exposure,route_concept_id,4302354,Intraduodenal route,S
+drug_exposure,route_concept_id,40492288,Intradural route,S
+drug_exposure,route_concept_id,40487473,Intraepicardial route,S
+drug_exposure,route_concept_id,40487983,Intraepidermal,S
+drug_exposure,route_concept_id,40492284,Intraesophageal route,S
+drug_exposure,route_concept_id,40492301,Intragastric route,S
+drug_exposure,route_concept_id,40492286,Intragingival route,S
+drug_exposure,route_concept_id,40493258,Intrahepatic route,S
+drug_exposure,route_concept_id,40490837,Intraileal route,S
+drug_exposure,route_concept_id,40489989,Intrajejunal route,S
+drug_exposure,route_concept_id,4157758,Intralesional,S
+drug_exposure,route_concept_id,40493227,Intralingual route,S
+drug_exposure,route_concept_id,4292410,Intraluminal route,S
+drug_exposure,route_concept_id,4157759,Intralymphatic,S
+drug_exposure,route_concept_id,40491321,Intramammary route,S
+drug_exposure,route_concept_id,4246511,Intramedullary route,S
+drug_exposure,route_concept_id,40492300,Intrameningeal route,S
+drug_exposure,route_concept_id,46272926,Intramural route,S
+drug_exposure,route_concept_id,4302612,Intramuscular,S
+drug_exposure,route_concept_id,4168038,Intramyometrial route,S
+drug_exposure,route_concept_id,46272911,Intraneural route,S
+drug_exposure,route_concept_id,4157760,Intraocular,S
+drug_exposure,route_concept_id,4213522,Intraosseous,S
+drug_exposure,route_concept_id,4306657,Intraovarian route,S
+drug_exposure,route_concept_id,40492305,Intrapericardial route,S
+drug_exposure,route_concept_id,4243022,Intraperitoneal,S
+drug_exposure,route_concept_id,4156707,Intrapleural,S
+drug_exposure,route_concept_id,4171725,Intraprostatic route,S
+drug_exposure,route_concept_id,4169270,Intrapulmonary route,S
+drug_exposure,route_concept_id,4169440,Intrasinal route,S
+drug_exposure,route_concept_id,4302788,Intraspinal route,S
+drug_exposure,route_concept_id,4186837,Intrasternal,S
+drug_exposure,route_concept_id,4302352,Intrasynovial route,S
+drug_exposure,route_concept_id,4303939,Intratendinous route,S
+drug_exposure,route_concept_id,4171067,Intratesticular route,S
+drug_exposure,route_concept_id,4217202,Intrathecal,S
+drug_exposure,route_concept_id,4167393,Intrathoracic route,S
+drug_exposure,route_concept_id,4229543,Intratracheal route,S
+drug_exposure,route_concept_id,40491322,Intratumoral,S
+drug_exposure,route_concept_id,4168656,Intratympanic route,S
+drug_exposure,route_concept_id,4269621,Intrauterine,S
+drug_exposure,route_concept_id,40492287,Intravascular route,S
+drug_exposure,route_concept_id,4171047,Intravenous,S
+drug_exposure,route_concept_id,4170113,Intravenous central route,S
+drug_exposure,route_concept_id,4171884,Intravenous peripheral route,S
+drug_exposure,route_concept_id,4222259,Intraventricular cardiac,S
+drug_exposure,route_concept_id,4186838,Intravesical,S
+drug_exposure,route_concept_id,4302785,Intravitreal,S
+drug_exposure,route_concept_id,45956881,Iontophoresis,S
+drug_exposure,route_concept_id,4133177,Jejunostomy route,S
+drug_exposure,route_concept_id,4170440,Laryngeal route,S
+drug_exposure,route_concept_id,40490898,Lower respiratory tract route,S
+drug_exposure,route_concept_id,4171243,Mucous fistula route,S
+drug_exposure,route_concept_id,4262914,Nasal,S
+drug_exposure,route_concept_id,4172316,Nasoduodenal route,S
+drug_exposure,route_concept_id,4132711,Nasogastric route,S
+drug_exposure,route_concept_id,4305834,Nasojejunal route,S
+drug_exposure,route_concept_id,4184451,Ocular,S
+drug_exposure,route_concept_id,4132161,Oral,S
+drug_exposure,route_concept_id,4303795,Orogastric route,S
+drug_exposure,route_concept_id,4186839,Oromucosal,S
+drug_exposure,route_concept_id,4303277,Oropharyngeal route,S
+drug_exposure,route_concept_id,4303515,Paracervical route,S
+drug_exposure,route_concept_id,4170267,Paravertebral route,S
+drug_exposure,route_concept_id,4177987,Percutaneous route,S
+drug_exposure,route_concept_id,4156708,Periarticular,S
+drug_exposure,route_concept_id,4304274,Peribulbar route,S
+drug_exposure,route_concept_id,40490896,Peridural route,S
+drug_exposure,route_concept_id,4157761,Perineural,S
+drug_exposure,route_concept_id,40490866,Periodontal route,S
+drug_exposure,route_concept_id,4171893,Periosteal route,S
+drug_exposure,route_concept_id,4305564,Peritendinous route,S
+drug_exposure,route_concept_id,4303646,Periurethral route,S
+drug_exposure,route_concept_id,4290759,Rectal,S
+drug_exposure,route_concept_id,45956879,Regional perfusion,S
+drug_exposure,route_concept_id,40486069,Respiratory tract route,S
+drug_exposure,route_concept_id,4303673,Retrobulbar route,S
+drug_exposure,route_concept_id,45956875,Route of administration not applicable,S
+drug_exposure,route_concept_id,4106215,Route of administration value,S
+drug_exposure,route_concept_id,4163770,Subconjunctival,S
+drug_exposure,route_concept_id,4142048,Subcutaneous,S
+drug_exposure,route_concept_id,4306649,Subgingival route,S
+drug_exposure,route_concept_id,46270168,Sublesional route,S
+drug_exposure,route_concept_id,4292110,Sublingual,S
+drug_exposure,route_concept_id,45956878,Submucosal rectal,S
+drug_exposure,route_concept_id,4169634,Submucosal route,S
+drug_exposure,route_concept_id,4166865,Suborbital route,S
+drug_exposure,route_concept_id,36703536,Subretinal,S
+drug_exposure,route_concept_id,4302493,Subtendinous route,S
+drug_exposure,route_concept_id,4170771,Surgical cavity route,S
+drug_exposure,route_concept_id,4304412,Surgical drain route,S
+drug_exposure,route_concept_id,4263689,Topical route,S
+drug_exposure,route_concept_id,4304730,Transcervical route,S
+drug_exposure,route_concept_id,4262099,Transdermal,S
+drug_exposure,route_concept_id,40487850,Transendocardial route,S
+drug_exposure,route_concept_id,4232601,Transmucosal route,S
+drug_exposure,route_concept_id,40487858,Transplacental route,S
+drug_exposure,route_concept_id,40491832,Transtracheal route,S
+drug_exposure,route_concept_id,40491830,Transtympanic route,S
+drug_exposure,route_concept_id,4305382,Transurethral route,S
+drug_exposure,route_concept_id,4169472,Tumor cavity route,S
+drug_exposure,route_concept_id,4304571,Ureteral route,S
+drug_exposure,route_concept_id,4233974,Urethral,S
+drug_exposure,route_concept_id,4170435,Urostomy route,S
+drug_exposure,route_concept_id,4057765,Vaginal,S
+measurement,operator_concept_id,4171754,<=,S
+measurement,operator_concept_id,4171755,>=,S
+measurement,operator_concept_id,4171756,<,S
+measurement,operator_concept_id,4172703,=,S
+measurement,operator_concept_id,4172704,>,S

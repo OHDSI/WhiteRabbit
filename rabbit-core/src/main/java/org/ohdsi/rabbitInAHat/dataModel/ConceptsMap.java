@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Observational Health Data Sciences and Informatics
+ * Copyright 2019 Observational Health Data Sciences and Informatics & The Hyve
  *
  * This file is part of WhiteRabbit
  *
@@ -71,10 +71,10 @@ public class ConceptsMap {
                 String tableName = conceptRow.get("omop_cdm_table");
                 String fieldName = conceptRow.get("omop_cdm_field");
 
-                String conceptId = conceptRow.get("concept_id");
-                String conceptName = conceptRow.get("concept_name");
-
-                Concept concept = new Concept(conceptId, conceptName);
+                Concept concept = new Concept();
+                concept.setConceptId(conceptRow.get("concept_id"));
+                concept.setConceptName(conceptRow.get("concept_name"));
+                concept.setStandardConcept(conceptRow.get("standard_concept"));
 
                 this.put(tableName, fieldName, concept);
             }
@@ -88,10 +88,12 @@ public class ConceptsMap {
         private String conceptName;
         private String standardConcept;
 
+        public Concept() {
+        }
+
         public Concept(String conceptId, String conceptName) {
             this.conceptId = conceptId;
             this.conceptName = conceptName;
-            this.standardConcept = "S";
         }
 
         public String getConceptId() {
