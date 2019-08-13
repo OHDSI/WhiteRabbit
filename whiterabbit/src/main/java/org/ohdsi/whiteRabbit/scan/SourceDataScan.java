@@ -133,7 +133,7 @@ public class SourceDataScan {
 			for (String table : tables) {
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
 					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.uniqueCount, fieldInfo.getFractionUnique()
+							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.getUniqueCount(), fieldInfo.getFractionUnique()
 					);
 					this.setCellStyles(sheet, percentageStyle, 6, 8);
 				}
@@ -404,11 +404,29 @@ public class SourceDataScan {
 				return "varchar";
 		}
 
-		public Double getFractionUnique() {
-			if (nProcessed == 0 || uniqueCount == 1)
+		public Object getFractionUnique() {
+			if (nProcessed == 0 || uniqueCount == 1) {
 				return 0d;
-			else
-				return uniqueCount / (double) nProcessed;
+			}
+			else {
+				double fractionUnique = uniqueCount / (double) nProcessed;
+				if (tooManyValues) {
+					// Due to trimming, the unique count could be an overestimation
+					return String.format("<= %.3f", fractionUnique);
+				} else {
+					return fractionUnique;
+				}
+			}
+
+		}
+
+		public Object getUniqueCount() {
+			if (tooManyValues) {
+				// Due to trimming, the unique count could be an overestimation
+				return String.format("<= %d", uniqueCount);
+			} else {
+				return uniqueCount;
+			}
 		}
 
 		public void processValue(String value) {
@@ -454,7 +472,7 @@ public class SourceDataScan {
 
 			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
 				tooManyValues = true;
-				valueCounts.keepTopN(maxValues);
+				this.trim();
 			}
 		}
 
