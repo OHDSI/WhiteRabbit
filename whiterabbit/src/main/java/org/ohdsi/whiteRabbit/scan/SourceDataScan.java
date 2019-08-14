@@ -127,7 +127,7 @@ public class SourceDataScan {
 				addRow(overviewSheet, "");
 			}
 		} else {
-			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "Average", "Min", "25% (q1)", "Median (q3)", "75% (q2)", "Max");
+			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "Average", "Standard Deviation", "Min", "25% (q1)", "Median (q3)", "75% (q2)", "Max");
 			int sheetIndex = 0;
 			Map<String, String> sheetNameLookup = new HashMap<>();
 			for (String tableName : tables) {
@@ -139,7 +139,7 @@ public class SourceDataScan {
 
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName))
 					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.mean, fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max);
+							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.mean, fieldInfo.stdev, fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max);
 				addRow(overviewSheet, "");
 				sheetIndex += 1;
 			}
@@ -374,9 +374,10 @@ public class SourceDataScan {
 		public boolean				isDate			= true;
 		public boolean				isFreeText		= false;
 		public boolean				tooManyValues	= false;
+		public double				mean			= Double.NaN;
+		public double				stdev			= Double.NaN;
 		public double				min				= Double.NEGATIVE_INFINITY;
 		public double				max				= Double.POSITIVE_INFINITY;
-		public double				mean			= Double.NaN;
 		public Double				q1				= Double.NaN;
 		public Double				q2				= Double.NaN;
 		public Double				q3				= Double.NaN;
@@ -511,12 +512,14 @@ public class SourceDataScan {
 				totalCount += count;
 			}
 
+			mean = sum / totalCount;
+
 			// Sort by the numeric values
 			valueCountPairs.sort(Comparator.comparing(Pair::getItem1));
 
 			// TODO: validate the percentile calculations with an even and odd total count
-			// TODO: standard deviation or variance
 			int runningTotal = 0;
+			double varianceSum = 0;
 			for (Pair<Double, Integer> valueCount : valueCountPairs) {
 				runningTotal += valueCount.getItem2();
 				if (q1.isNaN() && runningTotal >= totalCount / 4) {
@@ -528,11 +531,12 @@ public class SourceDataScan {
 				if (q3.isNaN() && runningTotal >= totalCount / 4 * 3) {
 					q3 = valueCount.getItem1();
 				}
+				varianceSum += Math.pow(valueCount.getItem1() - mean, 2d) * valueCount.getItem2();
 			}
 
-			mean = sum / totalCount;
 			min = valueCountPairs.get(0).getItem1();
 			max = valueCountPairs.get(valueCountPairs.size()-1).getItem1();
+			stdev = Math.sqrt(varianceSum/totalCount);
 		}
 	}
 
