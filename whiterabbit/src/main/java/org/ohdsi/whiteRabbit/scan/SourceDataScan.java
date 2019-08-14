@@ -127,7 +127,7 @@ public class SourceDataScan {
 				addRow(overviewSheet, "");
 			}
 		} else {
-			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "min", "q1", "median", "q3", "max", "mean");
+			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "Average", "Min", "25% (q1)", "Median (q3)", "75% (q2)", "Max");
 			int sheetIndex = 0;
 			Map<String, String> sheetNameLookup = new HashMap<>();
 			for (String tableName : tables) {
@@ -137,10 +137,9 @@ public class SourceDataScan {
 				String sheetName = Table.createSheetNameFromTableName(tableNameIndexed);
 				sheetNameLookup.put(tableName, sheetName);
 
-				// TODO: if not numeric field, do not display the summary statistics
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName))
 					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max, fieldInfo.mean);
+							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.mean, fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max);
 				addRow(overviewSheet, "");
 				sheetIndex += 1;
 			}
@@ -377,7 +376,7 @@ public class SourceDataScan {
 		public boolean				tooManyValues	= false;
 		public double				min				= Double.NEGATIVE_INFINITY;
 		public double				max				= Double.POSITIVE_INFINITY;
-		public double				mean			= 0;
+		public double				mean			= Double.NaN;
 		public Double				q1				= Double.NaN;
 		public Double				q2				= Double.NaN;
 		public Double				q3				= Double.NaN;
@@ -516,6 +515,7 @@ public class SourceDataScan {
 			valueCountPairs.sort(Comparator.comparing(Pair::getItem1));
 
 			// TODO: validate the percentile calculations with an even and odd total count
+			// TODO: standard deviation or variance
 			int runningTotal = 0;
 			for (Pair<Double, Integer> valueCount : valueCountPairs) {
 				runningTotal += valueCount.getItem2();
@@ -541,10 +541,17 @@ public class SourceDataScan {
 		for (Object value : values) {
 			Cell cell = row.createCell(row.getPhysicalNumberOfCells());
 
-			if (value instanceof Integer || value instanceof Long || value instanceof Double)
-				cell.setCellValue(Double.parseDouble(value.toString()));
-			else
+			if (value instanceof Integer || value instanceof Long || value instanceof Double) {
+				Double numVal = Double.parseDouble(value.toString());
+				if (numVal.isNaN() || numVal.isInfinite()) {
+					cell.setCellValue("");
+				} else {
+					cell.setCellValue(numVal);
+				}
+			}
+			else {
 				cell.setCellValue(value.toString());
+			}
 
 		}
 	}
