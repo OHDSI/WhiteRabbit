@@ -127,7 +127,7 @@ public class SourceDataScan {
 				addRow(overviewSheet, "");
 			}
 		} else {
-			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
+			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "min", "q1", "median", "q3", "max", "mean");
 			int sheetIndex = 0;
 			Map<String, String> sheetNameLookup = new HashMap<>();
 			for (String tableName : tables) {
@@ -137,9 +137,10 @@ public class SourceDataScan {
 				String sheetName = Table.createSheetNameFromTableName(tableNameIndexed);
 				sheetNameLookup.put(tableName, sheetName);
 
+				// TODO: if not numeric field, do not display the summary statistics
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName))
 					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
+							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max, fieldInfo.mean);
 				addRow(overviewSheet, "");
 				sheetIndex += 1;
 			}
@@ -374,12 +375,20 @@ public class SourceDataScan {
 		public boolean				isDate			= true;
 		public boolean				isFreeText		= false;
 		public boolean				tooManyValues	= false;
+		public double				min				= Double.NEGATIVE_INFINITY;
+		public double				max				= Double.POSITIVE_INFINITY;
+		public double				mean			= 0;
+		public Double				q1				= Double.NaN;
+		public Double				q2				= Double.NaN;
+		public Double				q3				= Double.NaN;
+
 
 		public FieldInfo(String name) {
 			this.name = name;
 		}
 
 		public void trim() {
+			calculateNumericMetrics();
 			if (valueCounts.size() > maxValues)
 				valueCounts.keepTopN(maxValues);
 		}
@@ -477,6 +486,53 @@ public class SourceDataScan {
 			if (truncated)
 				result.add(new Pair<String, Integer>("List truncated...", -1));
 			return result;
+		}
+
+		public void calculateNumericMetrics() {
+			// Only numeric columns
+			if (!(isReal || isInteger)) {
+				return;
+			}
+
+			if (tooManyValues) {
+				System.out.println("Estimations! Increase 'maxValues' for a better estimate");
+			}
+
+			int totalCount = 0;
+			double sum = 0d;
+			List<Pair<Double, Integer>> valueCountPairs = new ArrayList<>();
+			for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet()) {
+				if (entry.getKey().isEmpty()) {
+					continue;
+				}
+				double value = Double.parseDouble(entry.getKey());
+				int count = entry.getValue().count;
+				valueCountPairs.add(new Pair<>(value, count));
+				sum += value * count;
+				totalCount += count;
+			}
+
+			// Sort by the numeric values
+			valueCountPairs.sort(Comparator.comparing(Pair::getItem1));
+
+			// TODO: validate the percentile calculations with an even and odd total count
+			int runningTotal = 0;
+			for (Pair<Double, Integer> valueCount : valueCountPairs) {
+				runningTotal += valueCount.getItem2();
+				if (q1.isNaN() && runningTotal >= totalCount / 4) {
+					q1 = valueCount.getItem1();
+				}
+				if (q2.isNaN() && runningTotal >= totalCount / 2) {
+					q2 = valueCount.getItem1();
+				}
+				if (q3.isNaN() && runningTotal >= totalCount / 4 * 3) {
+					q3 = valueCount.getItem1();
+				}
+			}
+
+			mean = sum / totalCount;
+			min = valueCountPairs.get(0).getItem1();
+			max = valueCountPairs.get(valueCountPairs.size()-1).getItem1();
 		}
 	}
 
