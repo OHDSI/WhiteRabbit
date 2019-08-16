@@ -145,7 +145,11 @@ public class Database implements Serializable {
 				if (table == null) {
 					table = new Table();
 					table.setName(tableName.toLowerCase());
-					table.setRowCount(row.getIntByHeaderName(ScanFieldName.N_ROWS));
+
+					Integer nRows =  row.getIntByHeaderName(ScanFieldName.N_ROWS);
+					Integer nRowChecked =  row.getIntByHeaderName(ScanFieldName.N_ROWS_CHECKED);
+					table.setRowCount((nRows == null || nRows == -1) ? nRowChecked : nRows);
+
 					nameToTable.put(tableName, table);
 					database.tables.add(table);
 				}
