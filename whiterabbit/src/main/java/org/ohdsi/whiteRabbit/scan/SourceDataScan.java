@@ -498,6 +498,7 @@ public class SourceDataScan {
 				System.out.println("Estimations! Increase 'maxValues' for a better estimate");
 			}
 
+			// Unpack the values to  a list of pairs; calculate sum, total count and mean
 			int totalCount = 0;
 			double sum = 0d;
 			List<Pair<Double, Integer>> valueCountPairs = new ArrayList<>();
@@ -517,18 +518,20 @@ public class SourceDataScan {
 			// Sort by the numeric values
 			valueCountPairs.sort(Comparator.comparing(Pair::getItem1));
 
-			// TODO: validate the percentile calculations with an even and odd total count
+			// TODO: handle the case where quartile is the average of two values.
+			//  Then the previous runningTotal is just below the quartile and the current is just above.
+			// Calculate quartiles and total variance
 			int runningTotal = 0;
 			double varianceSum = 0;
 			for (Pair<Double, Integer> valueCount : valueCountPairs) {
 				runningTotal += valueCount.getItem2();
-				if (q1.isNaN() && runningTotal >= totalCount / 4) {
+				if (q1.isNaN() && runningTotal >= 0.25 * (totalCount + 1)) {
 					q1 = valueCount.getItem1();
 				}
-				if (q2.isNaN() && runningTotal >= totalCount / 2) {
+				if (q2.isNaN() && runningTotal >= 0.5 * (totalCount + 1)) {
 					q2 = valueCount.getItem1();
 				}
-				if (q3.isNaN() && runningTotal >= totalCount / 4 * 3) {
+				if (q3.isNaN() && runningTotal >= 0.75 * (totalCount + 1)) {
 					q3 = valueCount.getItem1();
 				}
 				varianceSum += Math.pow(valueCount.getItem1() - mean, 2d) * valueCount.getItem2();
