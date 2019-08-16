@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.ohdsi.utilities.ScanFieldName;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 
@@ -138,23 +139,23 @@ public class Database implements Serializable {
 		iterator.next();  // Skip header
 		while (iterator.hasNext()) {
 			org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row row = iterator.next();
-			String tableName = row.getStringByHeaderName("Table");
+			String tableName = row.getStringByHeaderName(ScanFieldName.TABLE);
 			if (tableName.length() != 0) {
 				Table table = nameToTable.get(tableName);
 				if (table == null) {
 					table = new Table();
 					table.setName(tableName.toLowerCase());
-					table.setRowCount(row.getIntByHeaderName("N rows"));
+					table.setRowCount(row.getIntByHeaderName(ScanFieldName.N_ROWS));
 					nameToTable.put(tableName, table);
 					database.tables.add(table);
 				}
-				String fieldName = row.getStringByHeaderName("Field");
+				String fieldName = row.getStringByHeaderName(ScanFieldName.FIELD);
 				Field field = new Field(fieldName.toLowerCase(), table);
 
-				String fractionEmpty = row.getByHeaderName("Fraction empty");
-				field.setNullable(!fractionEmpty.equals("0"));
-				field.setType(row.getByHeaderName("Type"));
-				field.setMaxLength(row.getIntByHeaderName("Max length"));
+				String fractionEmpty = row.getByHeaderName(ScanFieldName.FRACTION_EMPTY);
+				field.setNullable(fractionEmpty == null || !fractionEmpty.equals("0"));
+				field.setType(row.getByHeaderName(ScanFieldName.TYPE));
+				field.setMaxLength(row.getIntByHeaderName(ScanFieldName.MAX_LENGTH));
 
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 				table.getFields().add(field);
