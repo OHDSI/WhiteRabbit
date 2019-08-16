@@ -130,42 +130,32 @@ public class Database implements Serializable {
 
 	public static Database generateModelFromScanReport(String filename) {
 		Database database = new Database();
-		Map<String, Table> nameToTable = new HashMap<String, Table>();
+		Map<String, Table> nameToTable = new HashMap<>();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
 		Sheet sheet = workbook.get(0);
 		Iterator<org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row> iterator = sheet.iterator();
-		Map<String, Integer> fieldName2ColumnIndex = new HashMap<String, Integer>();
-		for (String header : iterator.next())
-			fieldName2ColumnIndex.put(header, fieldName2ColumnIndex.size());
 
+		iterator.next();  // Skip header
 		while (iterator.hasNext()) {
 			org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row row = iterator.next();
-			String tableName = row.get(fieldName2ColumnIndex.get("Table"));
+			String tableName = row.getStringByHeaderName("Table");
 			if (tableName.length() != 0) {
 				Table table = nameToTable.get(tableName);
 				if (table == null) {
 					table = new Table();
 					table.setName(tableName.toLowerCase());
-					table.setRowCount((int) Double.parseDouble(row.get(fieldName2ColumnIndex.get("N rows"))));
+					table.setRowCount(row.getIntByHeaderName("N rows"));
 					nameToTable.put(tableName, table);
 					database.tables.add(table);
 				}
-				String fieldName = row.get(fieldName2ColumnIndex.get("Field"));
+				String fieldName = row.getStringByHeaderName("Field");
 				Field field = new Field(fieldName.toLowerCase(), table);
-				Integer index;
-				// Someone may have manually deleted data, so can't assume this
-				// is always there:
-				index = fieldName2ColumnIndex.get("Fraction empty");
-				if (index != null && index < row.size())
-					field.setNullable(!row.get(index).equals("0"));
 
-				index = fieldName2ColumnIndex.get("Type");
-				if (index != null && index < row.size())
-					field.setType(row.get(index));
+				String fractionEmpty = row.getByHeaderName("Fraction empty");
+				field.setNullable(!fractionEmpty.equals("0"));
+				field.setType(row.getByHeaderName("Type"));
+				field.setMaxLength(row.getIntByHeaderName("Max length"));
 
-				index = fieldName2ColumnIndex.get("Max length");
-				if (index != null && index >= 0 && index < row.size())
-					field.setMaxLength((int) (Double.parseDouble(row.get(index))));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 				table.getFields().add(field);
 			}
