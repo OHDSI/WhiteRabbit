@@ -755,6 +755,32 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				boolean isSourceComponent = sourceComponents.contains(component);
 				detailsListener.showDetails(component.getItem(), isSourceComponent);
 				repaint();
+
+				// WIP
+				// TODO: This now shows a (random) target table. Allow to enter field view with only source or only target table.
+				// TODO: make display of fields independent of (zoom)Arrow.
+				// TODO: hide target CDM table ('source exploration mode')
+				if (event.getClickCount() == 2) {
+					if (slaveMappingPanel != null) {
+						slaveMappingPanel.setMapping(
+								ObjectExchange.etl.getFieldToFieldMapping(
+										(Table) component.getItem(),
+										(Table) components.get(0).getItem()
+								)
+						);
+						zoomArrow = new Arrow(
+								component,
+								components.get(0)
+						);
+
+						System.out.println("Clicked twice! Setting slaveMappingPanel");
+						new AnimateThread(true).start();
+
+						slaveMappingPanel.filterComponents("", false);
+						slaveMappingPanel.filterComponents("", true);
+					}
+				}
+				// End WIP
 				break;
 			}
 		}
