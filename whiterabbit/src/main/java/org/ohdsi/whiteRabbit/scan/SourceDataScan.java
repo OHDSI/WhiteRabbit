@@ -129,8 +129,8 @@ public class SourceDataScan {
 			}
 		} else {
 			addRow(overviewSheet,
-					ScanFieldName.TABLE, ScanFieldName.FIELD, ScanFieldName.TYPE, ScanFieldName.N_ROWS,
-					ScanFieldName.MAX_LENGTH, ScanFieldName.N_ROWS, ScanFieldName.N_ROWS_CHECKED, ScanFieldName.FRACTION_EMPTY,
+					ScanFieldName.TABLE, ScanFieldName.FIELD, ScanFieldName.TYPE, ScanFieldName.MAX_LENGTH,
+					ScanFieldName.N_ROWS, ScanFieldName.N_ROWS_CHECKED, ScanFieldName.FRACTION_EMPTY,
 					ScanFieldName.AVERAGE, ScanFieldName.STDEV,
 					ScanFieldName.MIN, ScanFieldName.Q1, ScanFieldName.Q2, ScanFieldName.Q3, ScanFieldName.MAX
 			);
@@ -143,9 +143,11 @@ public class SourceDataScan {
 				String sheetName = Table.createSheetNameFromTableName(tableNameIndexed);
 				sheetNameLookup.put(tableName, sheetName);
 
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName))
+				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
+					fieldInfo.wrapUp(); // if not already done
 					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
 							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.mean, fieldInfo.stdev, fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max);
+				}
 				addRow(overviewSheet, "");
 				sheetIndex += 1;
 			}
@@ -228,7 +230,7 @@ public class SourceDataScan {
 					}
 				}
 				for (FieldInfo fieldInfo : fieldInfos)
-					fieldInfo.trim();
+					fieldInfo.wrapUp();
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
 			} finally {
@@ -361,7 +363,7 @@ public class SourceDataScan {
 				break;
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
-			fieldInfo.trim();
+			fieldInfo.wrapUp();
 
 		return fieldInfos;
 	}
@@ -387,14 +389,22 @@ public class SourceDataScan {
 		public Double				q1				= Double.NaN;
 		public Double				q2				= Double.NaN;
 		public Double				q3				= Double.NaN;
+		public boolean 				isWrappedUp 	= false;
 
 
 		public FieldInfo(String name) {
 			this.name = name;
 		}
 
+		public void wrapUp() {
+			if (!isWrappedUp) {
+				calculateNumericMetrics();
+				trim();
+				isWrappedUp = true;
+			}
+		}
+
 		public void trim() {
-			calculateNumericMetrics();
 			if (valueCounts.size() > maxValues)
 				valueCounts.keepTopN(maxValues);
 		}
@@ -466,6 +476,11 @@ public class SourceDataScan {
 				tooManyValues = true;
 				valueCounts.keepTopN(maxValues);
 			}
+
+			// Reset if wrapUp was called before
+			if (isWrappedUp) {
+				isWrappedUp = false;
+			}
 		}
 
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {
@@ -496,6 +511,7 @@ public class SourceDataScan {
 
 		public void calculateNumericMetrics() {
 			// Only numeric columns
+			// TODO: also calculate summary statistics for dates
 			if (!(isReal || isInteger)) {
 				return;
 			}
@@ -505,7 +521,7 @@ public class SourceDataScan {
 			}
 
 			// Unpack the values to  a list of pairs; calculate sum, total count and mean
-			int totalCount = 0;
+			int totalFrequencyCount = 0;
 			double sum = 0d;
 			List<Pair<Double, Integer>> valueCountPairs = new ArrayList<>();
 			for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet()) {
@@ -516,10 +532,10 @@ public class SourceDataScan {
 				int count = entry.getValue().count;
 				valueCountPairs.add(new Pair<>(value, count));
 				sum += value * count;
-				totalCount += count;
+				totalFrequencyCount += count;
 			}
 
-			mean = sum / totalCount;
+			mean = sum / totalFrequencyCount;
 
 			// Sort by the numeric values
 			valueCountPairs.sort(Comparator.comparing(Pair::getItem1));
@@ -531,21 +547,25 @@ public class SourceDataScan {
 			double varianceSum = 0;
 			for (Pair<Double, Integer> valueCount : valueCountPairs) {
 				runningTotal += valueCount.getItem2();
-				if (q1.isNaN() && runningTotal >= 0.25 * (totalCount + 1)) {
+				if (q1.isNaN() && runningTotal >= 0.25 * (totalFrequencyCount + 1)) {
 					q1 = valueCount.getItem1();
 				}
-				if (q2.isNaN() && runningTotal >= 0.5 * (totalCount + 1)) {
+				if (q2.isNaN() && runningTotal >= 0.5 * (totalFrequencyCount + 1)) {
 					q2 = valueCount.getItem1();
 				}
-				if (q3.isNaN() && runningTotal >= 0.75 * (totalCount + 1)) {
+				if (q3.isNaN() && runningTotal >= 0.75 * (totalFrequencyCount + 1)) {
 					q3 = valueCount.getItem1();
 				}
 				varianceSum += Math.pow(valueCount.getItem1() - mean, 2d) * valueCount.getItem2();
 			}
 
-			min = valueCountPairs.get(0).getItem1();
-			max = valueCountPairs.get(valueCountPairs.size()-1).getItem1();
-			stdev = Math.sqrt(varianceSum/totalCount);
+			if (valueCountPairs.size() > 0) {
+				min = valueCountPairs.get(0).getItem1();
+				max = valueCountPairs.get(valueCountPairs.size() - 1).getItem1();
+			}
+			if (totalFrequencyCount > 0) {
+				stdev = Math.sqrt(varianceSum / totalFrequencyCount);
+			}
 		}
 	}
 

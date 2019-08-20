@@ -14,7 +14,7 @@ public interface ScanFieldName {
     String Q1 = "25%";
     String Q2 = "Median";
     String Q3 = "75%";
-    String MAX = "Max%";
+    String MAX = "Max";
 }
 
 
