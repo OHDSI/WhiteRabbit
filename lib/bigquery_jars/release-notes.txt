@@ -1,0 +1,95 @@
+============================================================================= 
+Simba JDBC Driver with SQL Connector for Google BigQuery Release Notes 
+============================================================================= 
+
+The release notes provide details of enhancements, features, and known issues 
+in Simba JDBC Driver for Google BigQuery 1.2.1, as well as the version 
+history. 
+
+
+1.2.1 ========================================================================
+
+Released 2019-05-15
+
+Enhancements & New Features 
+
+ * [GBQJ-291] Updated Google Cloud BigQuery Storage API
+ 
+   The driver has been updated to use version 0.85 of the Google Cloud 
+   BigQuery Storage API.
+
+
+Known Issues
+The following are known issues that you may encounter due to limitations in
+the data source, the driver, or an application.
+
+ * TRACE level logs incorrectly contain stack trace for function entrances.
+
+   When logging at the TRACE level (LogLevel=6), function entrance logs are 
+   generated for each function that is called. These logs incorrectly 
+   include a stack trace.
+
+ * Query prefixes are not supported.
+
+   The driver does not support query prefixes. To specify whether your query
+   statements are to be processed using standard SQL or legacy BigQuery SQL, 
+   you must configure the QueryDialect connection property. 
+
+   By default, QueryDialect is set to "SQL" so that the driver uses standard
+   SQL syntax. To use BigQuery SQL instead, set the property to "BIG_QUERY".
+
+ * Support for ODBC Escape Sequences is limited.
+
+   The only supported ODBC Escape Sequences are Scalar Functions of the form 
+   {fn func(args)} if func is supported by the Google BigQuery data source 
+   engine. 
+
+ * When casting data, you must specify the data type according to Google 
+   BigQuery standards.
+
+   When casting data to a specific data type, you must use the corresponding 
+   data type name shown in the "Casting" section of the Query Reference:
+   https://cloud.google.com/bigquery/sql-reference/functions-and-operators#casting. 
+
+   For example, to cast the "salary" column to the INTEGER type, you must 
+   specify INT64 instead of INTEGER: 
+
+      SELECT position, CAST(salary AS INT64) from Employee
+
+
+Version History ==============================================================
+
+1.2.0 ------------------------------------------------------------------------
+
+Released 2019-03-01
+
+Enhancements & New Features 
+
+ * [GBJQ-269] Support for the BigQuery Storage API
+
+   The driver can now use BigQuery Storage API to more efficiently process
+   large result sets. For more information, see the Installation and 
+   Configuration Guide.
+
+ * [GBQJ-273] Updated OAuth URLs
+ 
+   The URLs used by the driver for OAuth authentication have been updated
+   to remain current.
+
+
+Resolved Issues
+The following issues WERE resolved in Simba JDBC Driver for Google BigQuery 
+1.2.0. 
+
+ * [GBQJ-284] In some cases, when executing a query that takes a long time 
+   to complete, the query fails and the driver returns a GeneralException 
+   error.
+   
+   This issue has been resolved. The driver now returns a more informative
+   error message if a long-running query times out.
+
+ * [GBQJ-274] In some cases, the driver cannot retrieve arrays with primitive
+   types.
+
+
+============================================================================== 
