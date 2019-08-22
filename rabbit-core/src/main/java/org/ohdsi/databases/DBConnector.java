@@ -28,6 +28,7 @@ public class DBConnector {
 	public static void main(String[] args) {
 	}
 
+	// If dbType.BIGQUERY: domain field has been replaced with  database field
 	public static Connection connect(String server, String domain, String user, String password, DbType dbType) {
 		if (dbType.equals(DbType.MYSQL))
 			return DBConnector.connectToMySQL(server, user, password);
@@ -43,6 +44,8 @@ public class DBConnector {
 			return DBConnector.connectToRedshift(server, user, password);
 		else if (dbType.equals(DbType.TERADATA))
 			return DBConnector.connectToTeradata(server, user, password);
+		else if (dbType.equals(DbType.BIGQUERY))
+			return DBConnector.connectToBigQuery(server, domain, user, password);
 		else
 			return null;
 	}
@@ -216,4 +219,24 @@ public class DBConnector {
 			}
 		return null;
 	}
+
+	public static Connection connectToBigQuery(String server, String domain, String user, String password) {
+		try {
+			Class.forName("com.simba.googlebigquery.jdbc42.Driver");
+		} catch (ClassNotFoundException e1) {
+			throw new RuntimeException("Cannot find Simba GoogleBigQuery JDBC Driver class");
+		}
+/* This method uses Service Account -- less secure
+		String url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=0;OAuthServiceAcctEmail=" + user + ";OAuthPvtKeyPath=" + password + ";DefaultDataset=" + domain + ";Timeout=1800;";
+ */
+
+		/* This method uses user account credentials -- more secure  */
+		String url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=1;DefaultDataset=" + domain + ";Timeout=1800;";
+		try {
+			return DriverManager.getConnection(url);
+		} catch (SQLException e1) {
+			throw new RuntimeException("Simba URL failed: Cannot connect to DB server: " + e1.getMessage());
+		}
+	}
 }
+
