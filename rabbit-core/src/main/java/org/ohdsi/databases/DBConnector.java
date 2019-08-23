@@ -20,8 +20,11 @@ package org.ohdsi.databases;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oracle.jdbc.pool.OracleDataSource;
+import org.apache.tools.ant.types.selectors.SelectSelector;
 
 public class DBConnector {
 
@@ -226,12 +229,18 @@ public class DBConnector {
 		} catch (ClassNotFoundException e1) {
 			throw new RuntimeException("Cannot find Simba GoogleBigQuery JDBC Driver class");
 		}
-/* This method uses Service Account -- less secure
-		String url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=0;OAuthServiceAcctEmail=" + user + ";OAuthPvtKeyPath=" + password + ";DefaultDataset=" + domain + ";Timeout=1800;";
- */
-
-		/* This method uses user account credentials -- more secure  */
-		String url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=1;DefaultDataset=" + domain + ";Timeout=1800;";
+		/* See http://howtodojava.com/regex/java-regex-validate-email.address/ */
+		String email_regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+		Pattern pattern = Pattern.compile(email_regex);
+		Matcher matcher = pattern.matcher(user);
+		String url = "";
+		if (matcher.matches()) {
+			/* use Service Account authentication (less secure) */
+			url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=0;OAuthServiceAcctEmail=" + user + ";OAuthPvtKeyPath=" + password + ";DefaultDataset=" + domain + ";Timeout=1800;";
+		} else {
+			/* use user account credentials (more secure) */
+			url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=1;DefaultDataset=" + domain + ";Timeout=1800;";
+		};
 		try {
 			return DriverManager.getConnection(url);
 		} catch (SQLException e1) {

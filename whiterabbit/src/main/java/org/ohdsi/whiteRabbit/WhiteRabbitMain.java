@@ -293,10 +293,10 @@ public class WhiteRabbitMain implements ActionListener {
 					sourcePasswordField.setToolTipText("The password used to log in to the server");
 					sourceDatabaseField.setToolTipText("For PostgreSQL servers this field contains the schema containing the source tables");
 				} else if (!sourceIsFiles && arg0.getItem().toString().equals("BigQuery")) {
-					sourceServerField.setToolTipText("GBQ ProjectID");
-					sourceUserField.setToolTipText("GBQ OAuthServiceAccountEMAIL");
-					sourcePasswordField.setToolTipText("GBQ OAuthPvtKeyPath");
-					sourceDatabaseField.setToolTipText("GBQ Data Set within ProjectID");
+					sourceServerField.setToolTipText("GBQ SA & UA:  ProjectID");
+					sourceUserField.setToolTipText("GBQ SA only: OAuthServiceAccountEMAIL");
+					sourcePasswordField.setToolTipText("GBQ SA only: OAuthPvtKeyPath");
+					sourceDatabaseField.setToolTipText("GBQ SA & UA: Data Set within ProjectID");
 				} else if (!sourceIsFiles) {
 					sourceServerField.setToolTipText("This field contains the name or IP address of the database server");
 					if (arg0.getItem().toString().equals("SQL Server"))
