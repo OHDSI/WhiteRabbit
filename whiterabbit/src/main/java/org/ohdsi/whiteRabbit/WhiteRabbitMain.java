@@ -194,6 +194,7 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.TERADATA;
 			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("BigQuery")) {
 				dbSettings.dbType = DbType.BIGQUERY;
+				/* GBQ requires database. Putting database into domain var for connect() */
 				dbSettings.domain = dbSettings.database;
 			}
 		}
@@ -811,18 +812,12 @@ public class WhiteRabbitMain implements ActionListener {
 
 			RichConnection connection;
 			try {
-				if (dbSettings.dbType == DbType.BIGQUERY) {
-					/* For GBQ, substitute database in "domain" argument */
-					connection = new RichConnection(dbSettings.server, dbSettings.database, dbSettings.user, dbSettings.password, dbSettings.dbType);
-				} else {
-					connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
-				}
+			    connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
 			} catch (Exception e) {
 				String message = "Could not connect: " + e.getMessage();
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-
 			try {
 				List<String> tableNames = connection.getTableNames(dbSettings.database);
 				if (tableNames.size() == 0)
