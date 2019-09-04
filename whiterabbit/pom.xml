@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>leporidae</artifactId>
+        <groupId>org.ohdsi</groupId>
+        <version>0.8.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>whiterabbit</artifactId>
+    <name>WhiteRabbit</name>
+    <packaging>jar</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <configuration>
+                    <assembleDirectory>${project.parent.basedir}/dist</assembleDirectory>
+                    <extraJvmArguments>-Xmx1200m</extraJvmArguments>
+                    <programs>
+                        <program>
+                            <mainClass>org.ohdsi.whiteRabbit.WhiteRabbitMain</mainClass>
+                            <id>whiteRabbit</id>
+                        </program>
+                    </programs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.ohdsi</groupId>
+            <artifactId>rabbit-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

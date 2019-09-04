@@ -6,3 +6,6 @@ dist/
 /Error1.txt
 /ScanReport.xlsx
 /.classpath
+target/
+*.iml
+.idea/
