@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -67,7 +69,7 @@ public class SourceDataScan {
 		Map<String, List<FieldInfo>> tableToFieldInfos;
 		if (dbSettings.dataType == DbSettings.CSVFILES) {
 			if (!scanValues)
-				minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
+				this.minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
 			tableToFieldInfos = processCsvFiles(dbSettings);
 		} else
 			tableToFieldInfos = processDatabase(dbSettings);
@@ -75,21 +77,17 @@ public class SourceDataScan {
 	}
 
 	private Map<String, List<FieldInfo>> processDatabase(DbSettings dbSettings) {
-		Map<String, List<FieldInfo>> tableToFieldInfos = new HashMap<String, List<FieldInfo>>();
-		RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
-		connection.setVerbose(false);
-		connection.use(dbSettings.database);
+		try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
+			connection.setVerbose(false);
+			connection.use(dbSettings.database);
 
-		dbType = dbSettings.dbType;
-		database = dbSettings.database;
+			dbType = dbSettings.dbType;
+			database = dbSettings.database;
 
-		for (String table : dbSettings.tables) {
-			List<FieldInfo> fieldInfos = processDatabaseTable(table, connection);
-			tableToFieldInfos.put(table, fieldInfos);
+			return dbSettings.tables.stream()
+					.collect(Collectors.toMap(Function.identity(), table -> processDatabaseTable(table, connection)));
+
 		}
-
-		connection.close();
-		return tableToFieldInfos;
 	}
 
 	private Map<String, List<FieldInfo>> processCsvFiles(DbSettings dbSettings) {
@@ -121,16 +119,18 @@ public class SourceDataScan {
 		if (!scanValues) {
 			addRow(sheet, "Table", "Field", "Type", "N rows");
 			for (String table : tables) {
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
-					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Long.valueOf(fieldInfo.rowCount));
+				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
+					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), fieldInfo.rowCount);
+				}
 				addRow(sheet, "");
 			}
 		} else {
 			addRow(sheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
 			for (String table : tables) {
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
-					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
+				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
+					addRow(sheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), fieldInfo.maxLength, fieldInfo.rowCount,
+							fieldInfo.nProcessed, fieldInfo.getFractionEmpty());
+				}
 				addRow(sheet, "");
 			}
 
@@ -184,11 +184,8 @@ public class SourceDataScan {
 	}
 
 	private void removeEmptyTables(Map<String, List<FieldInfo>> tableToFieldInfos) {
-		Iterator<Map.Entry<String, List<FieldInfo>>> iterator = tableToFieldInfos.entrySet().iterator();
-		while (iterator.hasNext()) {
-			if (iterator.next().getValue().size() == 0)
-				iterator.remove();
-		}
+		tableToFieldInfos.entrySet()
+				.removeIf(stringListEntry -> stringListEntry.getValue().size() == 0);
 	}
 
 	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) {
@@ -202,16 +199,18 @@ public class SourceDataScan {
 			try {
 				queryResult = fetchRowsFromTable(connection, table, rowCount);
 				for (org.ohdsi.utilities.files.Row row : queryResult) {
-					for (int i = 0; i < fieldInfos.size(); i++)
-						fieldInfos.get(i).processValue(row.get(fieldInfos.get(i).name));
+					for (FieldInfo fieldInfo : fieldInfos) {
+						fieldInfo.processValue(row.get(fieldInfo.name));
+					}
 					actualCount++;
 					if (sampleSize != -1 && actualCount >= sampleSize) {
 						System.out.println("Stopped after " + actualCount + " rows");
 						break;
 					}
 				}
-				for (FieldInfo fieldInfo : fieldInfos)
+				for (FieldInfo fieldInfo : fieldInfos) {
 					fieldInfo.trim();
+				}
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
 			} finally {
@@ -369,8 +368,9 @@ public class SourceDataScan {
 		}
 
 		public void trim() {
-			if (valueCounts.size() > maxValues)
+			if (valueCounts.size() > maxValues) {
 				valueCounts.keepTopN(maxValues);
+			}
 		}
 
 		public Double getFractionEmpty() {
@@ -432,8 +432,7 @@ public class SourceDataScan {
 					}
 				}
 			} else {
-				for (String word : StringUtilities.mapToWords(trimValue.toLowerCase()))
-					valueCounts.add(word);
+				valueCounts.addAll(StringUtilities.mapToWords(trimValue.toLowerCase()));
 			}
 
 			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
@@ -443,28 +442,16 @@ public class SourceDataScan {
 		}
 
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {
-			boolean truncated = false;
-			List<Pair<String, Integer>> result = new ArrayList<Pair<String, Integer>>();
+			List<Pair<String, Integer>> result = valueCounts.key2count.entrySet().stream()
+					.filter(e -> e.getValue().count >= minCellCount)
+					.sorted(Comparator.<Map.Entry<String, Count>>comparingInt(e -> e.getValue().count).reversed())
+					.limit(maxValues)
+					.map(e -> new Pair<>(e.getKey(), e.getValue().count))
+					.collect(Collectors.toCollection(ArrayList::new));
 
-			for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet()) {
-				if (entry.getValue().count < minCellCount)
-					truncated = true;
-				else {
-					result.add(new Pair<String, Integer>(entry.getKey(), entry.getValue().count));
-					if (result.size() > maxValues) {
-						truncated = true;
-						break;
-					}
-				}
+			if (result.size() < valueCounts.key2count.size()) {
+				result.add(new Pair<>("List truncated...", -1));
 			}
-
-			Collections.sort(result, new Comparator<Pair<String, Integer>>() {
-				public int compare(Pair<String, Integer> o1, Pair<String, Integer> o2) {
-					return o2.getItem2().compareTo(o1.getItem2());
-				}
-			});
-			if (truncated)
-				result.add(new Pair<String, Integer>("List truncated...", -1));
 			return result;
 		}
 	}
