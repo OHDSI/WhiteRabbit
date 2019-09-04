@@ -89,6 +89,7 @@ public class ETLTestFrameWorkGenerator {
 		createExpectFunctions(COUNT);
 		createLookupFunctions();
 		createGenerateInsertSqlFunction();
+		createSourceCsvFunction();
 		createGenerateTestSqlFunction();
 		return r;
 	}
@@ -116,6 +117,8 @@ public class ETLTestFrameWorkGenerator {
 						defaultValue = field.getValueCounts()[0][0];
 					if (!defaultValue.equals("") && !defaultValue.equals("List truncated..."))
 						r.add("  defaults$" + rFieldName + " <- '" + defaultValue + "'");
+					else
+						r.add("  defaults$" + rFieldName + " <- ''");
 				}
 				r.add("  assign('" + rTableName + "', defaults, envir = frameworkContext$defaultValues)");
 			}
@@ -334,6 +337,55 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
+	protected void createSourceCsvFunction() {
+		r.add("generateSourceCsv <- function(directory = NULL, separator = ',') {");
+		// Remove artificial quotes and escape quotes
+		r.add("  clean_value <- function(x) {");
+		r.add("    value <- substring(x, 2, nchar(x)-1)");
+		r.add("    value <- gsub('\"', '\"\"', value)");
+		r.add("    # Introduce quotes if comma in value");
+		r.add("    if (grepl(\",\", value)) {");
+		r.add("      return(paste0('\"', value, '\"'))");
+		r.add("    }");
+		r.add("    return(value)");
+		r.add("  }");
+		r.add("");
+
+		// Remove leading and trailing [], if present
+		r.add("  clean_fields <- function(x) {");
+		r.add("    if (grepl(\"^\\\\[.+?\\\\]$\", x)) {");
+		r.add("      return(substring(x, 2, nchar(x)-1))");
+		r.add("    }");
+		r.add("    return(x)");
+		r.add("  }");
+		r.add("  dir.create(directory, showWarnings = F)");
+		r.add("  ");
+
+		// Write values
+		r.add("  seen_tables <- c()");
+		r.add("  for (insert in frameworkContext$inserts) {");
+		r.add("    filename <- file.path(directory, paste0(insert$table, '.csv'))");
+		// Initialize all new source files with header. Overwrites existing source files from previous runs in the directory.
+		r.add("    if (!(insert$table %in% seen_tables)) {");
+		r.add("      write(paste(sapply(insert$fields, clean_fields), collapse = separator), filename, append=F)");
+		r.add("      seen_tables <- c(seen_tables, insert$table)");
+		r.add("    }");
+		// TODO: if a value is set to NULL, the value is skipped. This leads to a wrong number of columns in the output.
+		r.add("    write(paste(sapply(insert$values, clean_value), collapse = separator), filename, append=T)");
+		r.add("  }");
+		r.add("  ");
+
+		// Create source files for which there are no inserts
+		r.add("  for (table_name in names(frameworkContext$defaultValues)) {");
+		r.add("    if (!(table_name %in% seen_tables)) {");
+		r.add("      filename <- file.path(directory, paste0(table_name, '.csv'))");
+		r.add("      write(paste(names(frameworkContext$defaultValues[[table_name]]), collapse = separator), filename, append=F)");
+		r.add("    }");
+		r.add("  }");
+		r.add("}");
+		r.add("");
+	}
+
 	protected void createGenerateTestSqlFunction() {
 		r.add("generateTestSql <- function(databaseSchema = NULL) {");
 		r.add("  testSql <- c()");
@@ -377,7 +429,8 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	private String convertToRName(String name) {
-		name = name.replaceAll(" ", "_").replaceAll("-", "_").replaceAll("^_+", "");
+		// Replace space, dash and brackets by an underscore
+		name = name.replaceAll("[\\s-()\\[\\]{}]", "_").replaceAll("^_+", "");
 		return name;
 	}
 
