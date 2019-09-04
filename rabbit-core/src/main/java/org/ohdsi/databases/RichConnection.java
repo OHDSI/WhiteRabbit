@@ -17,6 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.databases;
 
+import java.io.Closeable;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -38,7 +39,7 @@ import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 
-public class RichConnection {
+public class RichConnection implements Closeable {
 	public static int				INSERT_BATCH_SIZE	= 100000;
 	private Connection				connection;
 	private boolean					verbose				= false;
