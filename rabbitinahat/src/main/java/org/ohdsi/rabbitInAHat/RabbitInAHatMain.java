@@ -38,20 +38,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -150,6 +137,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		scrollPane1 = new JScrollPane(tableMappingPanel);
 		scrollPane1.setBorder(new TitledBorder("Tables"));
 		scrollPane1.getVerticalScrollBar().setUnitIncrement(16);
+		scrollPane1.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 		scrollPane1.setAutoscrolls(true);
 		scrollPane1.setOpaque(true);
 		scrollPane1.setBackground(Color.WHITE);
@@ -159,6 +147,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		fieldMappingPanel.addResizeListener(this);
 		scrollPane2 = new JScrollPane(fieldMappingPanel);
 		scrollPane2.getVerticalScrollBar().setUnitIncrement(16);
+		scrollPane2.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 		scrollPane2.setVisible(false);
 		scrollPane2.setBorder(new TitledBorder("Fields"));
 
