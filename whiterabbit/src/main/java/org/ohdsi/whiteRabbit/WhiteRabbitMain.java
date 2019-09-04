@@ -194,10 +194,9 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.TERADATA;
 		}
 		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
-			RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
-			for (String table : connection.getTableNames(dbSettings.database))
-				dbSettings.tables.add(table);
-			connection.close();
+			try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
+				dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+			}
 		} else {
 			for (String table : iniFile.get("TABLES_TO_SCAN").split(",")) {
 				if (dbSettings.dataType == DbSettings.CSVFILES)
