@@ -147,6 +147,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		fieldMappingPanel.addResizeListener(this);
 		scrollPane2 = new JScrollPane(fieldMappingPanel);
 		scrollPane2.getVerticalScrollBar().setUnitIncrement(16);
+		scrollPane2.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 		scrollPane2.setVisible(false);
 		scrollPane2.setBorder(new TitledBorder("Fields"));
 
