@@ -65,6 +65,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_GENERATE_ETL_HTML_DOCUMENT	= "Generate ETL HTML Document";
 	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Generate ETL Markdown Document";
 	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "Generate ETL Test Framework";
+    public final static String		ACTION_GENERATE_SQL                 = "Generate SQL Skeleton";
 	public final static String		ACTION_DISCARD_COUNTS				= "Discard Value Counts";
 	public final static String		ACTION_FILTER						= "Filter";
 	public final static String		ACTION_MAKE_MAPPING					= "Make Mappings";
@@ -119,9 +120,20 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 
 		frame = new JFrame("Rabbit in a Hat");
+
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				System.exit(0);
+				String ObjButtons[] = {"Yes","No"};
+				int PromptResult = JOptionPane.showOptionDialog(
+						null,
+						"Do you want to exit?\nPlease make sure that any work is saved",
+						"Rabbit In A Hat",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,
+						null,ObjButtons,ObjButtons[1]
+				);
+				if (PromptResult==JOptionPane.YES_OPTION) {
+					System.exit(0);
+				}
 			}
 		});
 		frame.setPreferredSize(new Dimension(700, 600));
@@ -247,6 +259,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateTestFrameworkItem.addActionListener(this);
 		fileMenu.add(generateTestFrameworkItem);
 
+		JMenuItem generateSql = new JMenuItem(ACTION_GENERATE_SQL);
+		generateSql.addActionListener(this);
+		generateSql.setActionCommand(ACTION_GENERATE_SQL);
+		fileMenu.add(generateSql);
+
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
 
@@ -288,7 +305,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		JRadioButtonMenuItem targetCDMV531 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V531);
 		targetCDMV531.addActionListener(this);
 		setTarget.add(targetCDMV531);
-		
+
 		JRadioButtonMenuItem targetCDMV60 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V60, true);
 		targetCDMV60.addActionListener(this);
 		setTarget.add(targetCDMV60);
@@ -372,7 +389,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	 *            restrict files displayed
 	 * @return if file selected, absolute path of selected file otherwise null
 	 */
-	private String choosePath(boolean saveMode, FileFilter... filter) {
+	private String choosePath(boolean saveMode, boolean directoryMode, FileFilter... filter) {
 		String result = null;
 
 		if (chooser == null) {
@@ -390,14 +407,30 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".R")));
 		}
 		chooser.resetChoosableFileFilters();
-		chooser.setFileFilter(filter[0]);
-		for (int i = 1; i < filter.length; i++)
-			chooser.addChoosableFileFilter(filter[i]);
+
+		if (directoryMode) {
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			chooser.setAcceptAllFileFilterUsed(false);
+		} else {
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			chooser.setFileFilter(filter[0]);
+			for (int i = 1; i < filter.length; i++)
+				chooser.addChoosableFileFilter(filter[i]);
+		}
 
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
-		if (dialogResult == JFileChooser.APPROVE_OPTION)
-			result = chooser.getSelectedFile().getAbsolutePath();
+		if (dialogResult == JFileChooser.APPROVE_OPTION) {
+			if (directoryMode)
+				result = chooser.getCurrentDirectory().getAbsolutePath();
+			else
+				result = chooser.getSelectedFile().getAbsolutePath();
+		}
+
 		return result;
+	}
+
+	private String choosePath(boolean saveMode, FileFilter... filter) {
+		return choosePath(saveMode, false, filter);
 	}
 
 	private String chooseSavePath(FileFilter... fileFilter) {
@@ -417,6 +450,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	private String chooseOpenPath(FileFilter... fileFilter) {
 		return choosePath(false, fileFilter);
+	}
+
+	private String chooseSaveDirectory() {
+		return choosePath(true, true, new FileNameExtensionFilter("Directories","."));
 	}
 
 	@Override
@@ -446,6 +483,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_GENERATE_TEST_FRAMEWORK:
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
+			case ACTION_GENERATE_SQL:
+				doGenerateSql(chooseSaveDirectory());
 				break;
 			case ACTION_DISCARD_COUNTS:
 				doDiscardCounts();
@@ -689,6 +728,15 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
 			generator.generate(filename, DocumentType.MARKDOWN);
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+
+	private void doGenerateSql(String directoryName) {
+		if (directoryName != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			SQLGenerator sqlGenerator = new SQLGenerator(ObjectExchange.etl, directoryName);
+			sqlGenerator.generate();
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
