@@ -49,7 +49,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
-import org.ohdsi.rabbitInAHat.dataModel.StemTableAdd;
+import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 
 /**
@@ -551,15 +551,18 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	private void doAddStemTable() {
 		if (!isStemTableAdded) {
-			StemTableAdd.addStemTable(ObjectExchange.etl);
+			StemTableFactory.addStemTable(ObjectExchange.etl);
 			tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
 			isStemTableAdded = true;
 		}
 	}
 
 	private void doRemoveStemTable() {
-		// TODO: remove the stem source and stem target table.
-		isStemTableAdded = false;
+		if (isStemTableAdded) {
+			StemTableFactory.removeStemTable(ObjectExchange.etl);
+			tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+			isStemTableAdded = false;
+		}
 	}
 
 	private void doGenerateTestFramework(String filename) {

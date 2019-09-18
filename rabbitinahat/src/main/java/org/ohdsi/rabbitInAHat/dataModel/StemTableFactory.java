@@ -3,15 +3,18 @@ package org.ohdsi.rabbitInAHat.dataModel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.ohdsi.utilities.collections.Pair;
 
-public class StemTableAdd {
+public class StemTableFactory {
 
 	public static void addStemTable(ETL etl) {
 		Database sourceDatabase = etl.getSourceDatabase();
@@ -19,23 +22,23 @@ public class StemTableAdd {
 		InputStream tableStream;
 		InputStream mappingStream;
 		if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.0.1")) {
-			tableStream = StemTableAdd.class.getResourceAsStream("StemTableV5.0.1.csv");
-			mappingStream = StemTableAdd.class.getResourceAsStream("StemTableDefaultMappingV5.0.1.csv");
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.0.1.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.0.1.csv");
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.1.0")) {
-			tableStream = StemTableAdd.class.getResourceAsStream("StemTableV5.1.0.csv");
-			mappingStream = StemTableAdd.class.getResourceAsStream("StemTableDefaultMappingV5.1.0.csv");
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.1.0.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.1.0.csv");
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.2.0")) {
-			tableStream = StemTableAdd.class.getResourceAsStream("StemTableV5.2.0.csv");
-			mappingStream = StemTableAdd.class.getResourceAsStream("StemTableDefaultMappingV5.2.0.csv");
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.2.0.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.2.0.csv");
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.0")) {
-			tableStream = StemTableAdd.class.getResourceAsStream("StemTableV5.3.0.csv");
-			mappingStream = StemTableAdd.class.getResourceAsStream("StemTableDefaultMappingV5.3.0.csv");
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.0.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.0.csv");
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1")) {
-			tableStream = StemTableAdd.class.getResourceAsStream("StemTableV5.3.1.csv");
-			mappingStream = StemTableAdd.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0")) {
-			tableStream = StemTableAdd.class.getResourceAsStream("StemTableV6.0.csv");
-			mappingStream = StemTableAdd.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
 		} else {
 			JOptionPane.showMessageDialog(null, "No stem table definition available for " + targetDatabase.getDbName(), "Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -80,6 +83,47 @@ public class StemTableAdd {
 			throw new RuntimeException(e.getMessage());
 		}
 
+	}
+
+	public static void removeStemTable(ETL etl) {
+		// TODO: also remove field to field mappings
+		// TODO 2: etl method that removes table and mappings completely
+		// Remove stem table to table mappings
+		Mapping<Table> mapping = etl.getTableToTableMapping();
+		List<Pair<Table, Table>> targetsToRemove = new ArrayList<>();
+		for (ItemToItemMap sourceToTargetMap : mapping.getSourceToTargetMaps()) {
+			if (sourceToTargetMap.getSourceItem().isStem() || sourceToTargetMap.getTargetItem().isStem()) {
+				targetsToRemove.add(new Pair<>((Table) sourceToTargetMap.getSourceItem(), (Table) sourceToTargetMap.getTargetItem()));
+			}
+		}
+
+		for (Pair<Table, Table> tableTablePair : targetsToRemove) {
+			System.out.println("Removed" + tableTablePair.getItem2().getName());
+			mapping.removeSourceToTargetMap(tableTablePair.getItem1(), tableTablePair.getItem2());
+		}
+
+		// Remove stem source table
+		Database sourceDatabase = etl.getSourceDatabase();
+		Table stemSourceTable;
+		List<Table> newSourceTables = new ArrayList<>();
+		for (Table table : sourceDatabase.getTables()) {
+			if (table.isStem()) {
+				stemSourceTable = table;
+			} else {
+				newSourceTables.add(table);
+			}
+		}
+		sourceDatabase.setTables(newSourceTables);
+
+		// Remove stem target table
+		Database targetDatabase = etl.getTargetDatabase();
+		List<Table> newTargetTables = new ArrayList<>();
+		for (Table table : targetDatabase.getTables()) {
+			if (!table.isStem()) {
+				newTargetTables.add(table);
+			}
+		}
+		targetDatabase.setTables(newTargetTables);
 	}
 
 }
