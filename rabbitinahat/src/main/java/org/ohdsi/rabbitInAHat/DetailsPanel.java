@@ -27,22 +27,11 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
@@ -54,6 +43,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.text.Document;
 import javax.swing.undo.CannotUndoException;
@@ -75,6 +65,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 	private FieldPanel			fieldPanel;
 	private ItemToItemMapPanel	itemToItemMapPanel;
 	private CardLayout			cardLayout			= new CardLayout();
+	private NumberFormat	    numberFormat 	    = NumberFormat.getNumberInstance();
+	private NumberFormat	    percentageFormat    = NumberFormat.getPercentInstance();
 
 	private UndoManager			undoManager;
 	
@@ -98,6 +90,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		cardLayout.show(this, "");
 		
 		undoManager = new UndoManager();
+
+		percentageFormat.setMinimumFractionDigits(1);
 		
 	}
 
@@ -286,12 +280,11 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		public void showTable(Table table) {
 			this.table = table;
 			nameLabel.setText(table.getName());
-			DecimalFormat formatter = new DecimalFormat("#,###");
 
 			if (table.getRowCount() > 0) {
-				rowCountLabel.setText(formatter.format(table.getRowCount()));
+				rowCountLabel.setText(numberFormat.format(table.getRowCount()));
 			} else {
-				rowCountLabel.setText(">= " + formatter.format(table.getRowsCheckedCount()));
+				rowCountLabel.setText(">= " + numberFormat.format(table.getRowsCheckedCount()));
 			}
 
 			fieldTable.clear();
@@ -324,8 +317,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private JLabel				nameLabel			= new JLabel("");
 		private JLabel				rowCountLabel		= new JLabel("");
-		private DescriptionTextArea 		description			= new DescriptionTextArea ("");
-		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency", "Percent of Total (%)");
+		private DescriptionTextArea description			= new DescriptionTextArea ("");
+		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency", "Fraction");
 		private JTextArea			commentsArea		= new JTextArea();
 		private Field				field;
 
@@ -363,7 +356,12 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			table.setFont(font);
 			table.setRowHeight(24);
 			table.setBorder(new MatteBorder(1, 0, 1, 0, Color.BLACK));
-			
+			// Right align the frequency and percentage
+			DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+			rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+			table.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
+			table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder("Fields"));
 			add(fieldListPanel, BorderLayout.CENTER);
 
@@ -395,26 +393,24 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			if (field.getValueCounts() != null) {
 				int valueCountTotal = field.getRowsCheckedCount();
 
-				DecimalFormat formatter = new DecimalFormat("#,###");
-				DecimalFormat formatterPercent = new DecimalFormat("#,##0.0");
 				for (String[] valueCount : field.getValueCounts()) {
-					String nr = valueCount[1];
-					String vp = "";
-					if (StringUtilities.isNumber(nr)) {
-						double number = Double.parseDouble(nr);
-						nr = formatter.format(number);
-						double valueCountPercent = number / (double) valueCountTotal * 100;
-						if (valueCountPercent < 0.1) {
-							vp = "< 0.1";
+					String valueNumber = valueCount[1];
+					String valuePercent = "";
+					if (StringUtilities.isNumber(valueNumber)) {
+						double number = Double.parseDouble(valueNumber);
+						valueNumber = numberFormat.format(number);
+						double valueCountPercent = number / (double) valueCountTotal;
+						if (valueCountPercent < 0.001) {
+							valuePercent = "<" + percentageFormat.format(0.001);
 						}
-						else if (valueCountPercent > 99) {
-							vp = "> 99.0";
+						else if (valueCountPercent > 0.99) {
+							valuePercent = ">" + percentageFormat.format(0.99);
 						}
 						else {
-							vp = formatterPercent.format(valueCountPercent);
+							valuePercent = percentageFormat.format(valueCountPercent);
 						}
 					}
-					valueTable.add(valueCount[0], nr, vp);
+					valueTable.add(valueCount[0], valueNumber, valuePercent);
 				}
 			}
 			commentsArea.setText(field.getComment());
