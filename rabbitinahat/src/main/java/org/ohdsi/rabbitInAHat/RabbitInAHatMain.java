@@ -106,7 +106,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private DetailsPanel			detailsPanel;
 	private JSplitPane				tableFieldSplitPane;
 	private JFileChooser			chooser;
-	private boolean					isStemTableAdded = false;
 
 	public static void main(String[] args) {
 		new RabbitInAHatMain(args);
@@ -550,15 +549,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 
 	private void doAddStemTable() {
-		if (!isStemTableAdded) {
+		if (!ObjectExchange.etl.hasStemTable()) {
 			StemTableFactory.addStemTable(ObjectExchange.etl);
 			tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
-			isStemTableAdded = true;
 		}
 	}
 
 	private void doRemoveStemTable() {
-		if (isStemTableAdded) {
+		if (ObjectExchange.etl.hasStemTable()) {
 			String[] ObjButtons = {"Yes","No"};
 			int PromptResult = JOptionPane.showOptionDialog(
 					null,
@@ -570,7 +568,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			if (PromptResult==JOptionPane.YES_OPTION) {
 				StemTableFactory.removeStemTable(ObjectExchange.etl);
 				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
-				isStemTableAdded = false;
 			}
 		}
 	}
@@ -693,6 +690,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			if (replace) {
 				ETL etl = new ETL();
+				doRemoveStemTable();
 				try {
 					etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
 					etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());

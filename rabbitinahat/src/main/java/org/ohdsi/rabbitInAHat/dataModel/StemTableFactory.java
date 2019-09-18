@@ -104,12 +104,9 @@ public class StemTableFactory {
 
 		// Remove stem source table
 		Database sourceDatabase = etl.getSourceDatabase();
-		Table stemSourceTable;
 		List<Table> newSourceTables = new ArrayList<>();
 		for (Table table : sourceDatabase.getTables()) {
-			if (table.isStem()) {
-				stemSourceTable = table;
-			} else {
+			if (!table.isStem()) {
 				newSourceTables.add(table);
 			}
 		}

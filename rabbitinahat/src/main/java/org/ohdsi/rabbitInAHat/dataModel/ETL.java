@@ -215,4 +215,13 @@ public class ETL implements Serializable {
 			for (Field field : table.getFields())
 				field.setValueCounts(new String[0][]);
 	}
+
+	public boolean hasStemTable() {
+		for (Table table : this.getSourceDatabase().getTables()) {
+			if (table.isStem()) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
