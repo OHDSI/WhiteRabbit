@@ -86,19 +86,20 @@ public class StemTableFactory {
 	}
 
 	public static void removeStemTable(ETL etl) {
-		// TODO: also remove field to field mappings
-		// TODO 2: etl method that removes table and mappings completely
-		// Remove stem table to table mappings
+		// TODO 2: method in ETL that removes table and mappings completely
+		// Remove stem table to table and field to field mappings
 		Mapping<Table> mapping = etl.getTableToTableMapping();
-		List<Pair<Table, Table>> targetsToRemove = new ArrayList<>();
+		List<Pair<Table, Table>> tablesMappingsToRemove = new ArrayList<>();
 		for (ItemToItemMap sourceToTargetMap : mapping.getSourceToTargetMaps()) {
-			if (sourceToTargetMap.getSourceItem().isStem() || sourceToTargetMap.getTargetItem().isStem()) {
-				targetsToRemove.add(new Pair<>((Table) sourceToTargetMap.getSourceItem(), (Table) sourceToTargetMap.getTargetItem()));
+			Table sourceTable = (Table) sourceToTargetMap.getSourceItem();
+			Table targetTable = (Table) sourceToTargetMap.getTargetItem();
+			if (sourceTable.isStem() || targetTable.isStem()) {
+				tablesMappingsToRemove.add(new Pair<>(sourceTable, targetTable));
+				etl.getFieldToFieldMapping(sourceTable, targetTable).removeAllSourceToTargetMaps();
 			}
 		}
 
-		for (Pair<Table, Table> tableTablePair : targetsToRemove) {
-			System.out.println("Removed" + tableTablePair.getItem2().getName());
+		for (Pair<Table, Table> tableTablePair : tablesMappingsToRemove) {
 			mapping.removeSourceToTargetMap(tableTablePair.getItem1(), tableTablePair.getItem2());
 		}
 
