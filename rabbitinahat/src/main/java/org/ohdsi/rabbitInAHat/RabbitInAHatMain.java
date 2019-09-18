@@ -559,9 +559,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	private void doRemoveStemTable() {
 		if (isStemTableAdded) {
-			StemTableFactory.removeStemTable(ObjectExchange.etl);
-			tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
-			isStemTableAdded = false;
+			String[] ObjButtons = {"Yes","No"};
+			int PromptResult = JOptionPane.showOptionDialog(
+					null,
+					"Any mappings to/from the stem table will be lost. Are you sure?",
+					"Rabbit In A Hat",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,
+					null,ObjButtons,ObjButtons[1]
+			);
+
+			if (PromptResult==JOptionPane.YES_OPTION) {
+				StemTableFactory.removeStemTable(ObjectExchange.etl);
+				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+				isStemTableAdded = false;
+			}
 		}
 	}
 
