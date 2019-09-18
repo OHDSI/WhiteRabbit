@@ -79,6 +79,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_SET_TARGET_V531				= "CDM v5.3.1";
 	public final static String		ACTION_SET_TARGET_V60				= "CDM v6.0";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
+	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
 	public final static String		ACTION_MARK_COMPLETED				= "Mark Highlighted As Complete";
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
@@ -105,6 +106,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	private DetailsPanel			detailsPanel;
 	private JSplitPane				tableFieldSplitPane;
 	private JFileChooser			chooser;
+	private boolean					isStemTableAdded = false;
 
 	public static void main(String[] args) {
 		new RabbitInAHatMain(args);
@@ -330,6 +332,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		addStemTable.addActionListener(this);
 		editMenu.add(addStemTable);
 
+		JMenuItem removeStemTable = new JMenuItem(ACTION_REMOVE_STEM_TABLE);
+		removeStemTable.addActionListener(this);
+		editMenu.add(removeStemTable);
+
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
 
@@ -528,6 +534,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_ADD_STEM_TABLE:
 				doAddStemTable();
 				break;
+			case ACTION_REMOVE_STEM_TABLE:
+				doRemoveStemTable();
+				break;
 			case ACTION_MARK_COMPLETED:
 				doMarkCompleted();
 				break;
@@ -541,10 +550,16 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 
 	private void doAddStemTable() {
-		ETL etl = ObjectExchange.etl;
-		StemTableAdd.addStemTable(etl);
-		ObjectExchange.etl = etl;
-		tableMappingPanel.setMapping(etl.getTableToTableMapping());
+		if (!isStemTableAdded) {
+			StemTableAdd.addStemTable(ObjectExchange.etl);
+			tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+			isStemTableAdded = true;
+		}
+	}
+
+	private void doRemoveStemTable() {
+		// TODO: remove the stem source and stem target table.
+		isStemTableAdded = false;
 	}
 
 	private void doGenerateTestFramework(String filename) {
