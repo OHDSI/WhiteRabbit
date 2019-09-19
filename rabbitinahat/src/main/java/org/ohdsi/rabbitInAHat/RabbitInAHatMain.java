@@ -221,165 +221,85 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
+
 		JMenu fileMenu = new JMenu("File");
-		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
 		menuBar.add(fileMenu);
+		addMenuItem(fileMenu, ACTION_OPEN_SCAN_REPORT);
+		addMenuItem(fileMenu, ACTION_OPEN_ETL_SPECS, KeyEvent.VK_O);
+		addMenuItem(fileMenu, ACTION_SAVE, KeyEvent.VK_S);
+		addMenuItem(fileMenu, ACTION_SAVE_AS);
 
-		JMenuItem openScanReportItem = new JMenuItem(ACTION_OPEN_SCAN_REPORT);
-		openScanReportItem.addActionListener(this);
-		fileMenu.add(openScanReportItem);
+		JMenu generateEtlDocumentMenu = new JMenu("Generate ETL document");
+		fileMenu.add(generateEtlDocumentMenu);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_WORD_DOCUMENT);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_HTML_DOCUMENT);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_MD_DOCUMENT);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_SOURCE_FIELD_LIST);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_TARGET_FIELD_LIST);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_TABLE_MAPPING_LIST);
 
-		JMenuItem openItem = new JMenuItem(ACTION_OPEN_ETL_SPECS);
-		openItem.addActionListener(this);
-		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, menuShortcutMask));
-		fileMenu.add(openItem);
-
-		JMenuItem saveItem = new JMenuItem(ACTION_SAVE);
-		saveItem.addActionListener(this);
-		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, menuShortcutMask));
-		fileMenu.add(saveItem);
-
-		JMenuItem saveAsItem = new JMenuItem(ACTION_SAVE_AS);
-		saveAsItem.addActionListener(this);
-		fileMenu.add(saveAsItem);
-
-		JMenu generateEtlDocument = new JMenu("Generate ETL document");
-		fileMenu.add(generateEtlDocument);
-
-		JMenuItem generateWordDocItem = new JMenuItem(ACTION_GENERATE_ETL_WORD_DOCUMENT);
-		generateWordDocItem.addActionListener(this);
-		generateEtlDocument.add(generateWordDocItem);
-
-		JMenuItem generateHtmlDocItem = new JMenuItem(ACTION_GENERATE_ETL_HTML_DOCUMENT);
-		generateHtmlDocItem.addActionListener(this);
-		generateEtlDocument.add(generateHtmlDocItem);
-
-		JMenuItem generateMdDocItem = new JMenuItem(ACTION_GENERATE_ETL_MD_DOCUMENT);
-		generateMdDocItem.addActionListener(this);
-		generateEtlDocument.add(generateMdDocItem);
-
-		JMenuItem generateSourceFieldList = new JMenuItem(ACTION_GENERATE_SOURCE_FIELD_LIST);
-		generateSourceFieldList.addActionListener(this);
-		generateEtlDocument.add(generateSourceFieldList);
-
-		JMenuItem generateTargetFieldList = new JMenuItem(ACTION_GENERATE_TARGET_FIELD_LIST);
-		generateTargetFieldList.addActionListener(this);
-		generateEtlDocument.add(generateTargetFieldList);
-
-		JMenuItem generateTableMappingList = new JMenuItem(ACTION_GENERATE_TABLE_MAPPING_LIST);
-		generateTableMappingList.addActionListener(this);
-		generateEtlDocument.add(generateTableMappingList);
-
-		JMenuItem generateTestFrameworkItem = new JMenuItem(ACTION_GENERATE_TEST_FRAMEWORK);
-		generateTestFrameworkItem.addActionListener(this);
-		fileMenu.add(generateTestFrameworkItem);
-
-		JMenuItem generateSql = new JMenuItem(ACTION_GENERATE_SQL);
-		generateSql.addActionListener(this);
-		generateSql.setActionCommand(ACTION_GENERATE_SQL);
-		fileMenu.add(generateSql);
+		addMenuItem(fileMenu, ACTION_GENERATE_TEST_FRAMEWORK);
+		addMenuItem(fileMenu, ACTION_GENERATE_SQL);
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
+		addMenuItem(editMenu, ACTION_DISCARD_COUNTS);
+		addMenuItem(editMenu, ACTION_FILTER, KeyEvent.VK_F);
+		addMenuItem(editMenu, ACTION_ADD_STEM_TABLE);
+		addMenuItem(editMenu, ACTION_REMOVE_STEM_TABLE);
 
-		JMenuItem discardCounts = new JMenuItem(ACTION_DISCARD_COUNTS);
-		discardCounts.addActionListener(this);
-		editMenu.add(discardCounts);
-
-		JMenuItem filter = new JMenuItem(ACTION_FILTER);
-		filter.addActionListener(this);
-		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));
-		editMenu.add(filter);
-
-		JMenu setTarget = new JMenu("Set Target Database");
-
-		JRadioButtonMenuItem targetCDMV4 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V4);
-		targetCDMV4.addActionListener(this);
-		setTarget.add(targetCDMV4);
-
-		JRadioButtonMenuItem targetCDMV5 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V5);
-		targetCDMV5.addActionListener(this);
-		setTarget.add(targetCDMV5);
-
-		JRadioButtonMenuItem targetCDMV501 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V501);
-		targetCDMV501.addActionListener(this);
-		setTarget.add(targetCDMV501);
-
-		JRadioButtonMenuItem targetCDMV510 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V510);
-		targetCDMV510.addActionListener(this);
-		setTarget.add(targetCDMV510);
-
-		JRadioButtonMenuItem targetCDMV520 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V520);
-		targetCDMV520.addActionListener(this);
-		setTarget.add(targetCDMV520);
-
-		JRadioButtonMenuItem targetCDMV530 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V530);
-		targetCDMV530.addActionListener(this);
-		setTarget.add(targetCDMV530);
-
-		JRadioButtonMenuItem targetCDMV531 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V531);
-		targetCDMV531.addActionListener(this);
-		setTarget.add(targetCDMV531);
-
-		JRadioButtonMenuItem targetCDMV60 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V60, true);
-		targetCDMV60.addActionListener(this);
-		setTarget.add(targetCDMV60);
-
-		JRadioButtonMenuItem loadTarget = new JRadioButtonMenuItem(ACTION_SET_TARGET_CUSTOM);
-		loadTarget.addActionListener(this);
-		setTarget.add(loadTarget);
-		editMenu.add(setTarget);
-
-		ButtonGroup targetGroup = new ButtonGroup();
-		targetGroup.add(targetCDMV4);
-		targetGroup.add(targetCDMV5);
-		targetGroup.add(targetCDMV501);
-		targetGroup.add(targetCDMV510);
-		targetGroup.add(targetCDMV520);
-		targetGroup.add(targetCDMV530);
-		targetGroup.add(targetCDMV531);
-		targetGroup.add(targetCDMV60);
-		targetGroup.add(loadTarget);
-
-		JMenuItem addStemTable = new JMenuItem(ACTION_ADD_STEM_TABLE);
-		addStemTable.addActionListener(this);
-		editMenu.add(addStemTable);
-
-		JMenuItem removeStemTable = new JMenuItem(ACTION_REMOVE_STEM_TABLE);
-		removeStemTable.addActionListener(this);
-		editMenu.add(removeStemTable);
+		JMenu setTargetMenu = new JMenu("Set Target Database");
+		editMenu.add(setTargetMenu);
+		addRadioMenuItems(setTargetMenu,
+				ACTION_SET_TARGET_V60,
+				ACTION_SET_TARGET_V4,
+				ACTION_SET_TARGET_V5,
+				ACTION_SET_TARGET_V501,
+				ACTION_SET_TARGET_V510,
+				ACTION_SET_TARGET_V520,
+				ACTION_SET_TARGET_V530,
+				ACTION_SET_TARGET_V531,
+				ACTION_SET_TARGET_CUSTOM
+		);
 
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
-
-		JMenuItem makeMappings = new JMenuItem(ACTION_MAKE_MAPPING);
-		makeMappings.addActionListener(this);
-		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));
-		arrowMenu.add(makeMappings);
-
-		JMenuItem removeMappings = new JMenuItem(ACTION_REMOVE_MAPPING);
-		removeMappings.addActionListener(this);
-		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));
-		arrowMenu.add(removeMappings);
-
-		JMenuItem markCompleted = new JMenuItem(ACTION_MARK_COMPLETED);
-		markCompleted.addActionListener(this);
-		markCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, menuShortcutMask));
-		arrowMenu.add(markCompleted);
-
-		JMenuItem unmarkCompleted = new JMenuItem(ACTION_UNMARK_COMPLETED);
-		unmarkCompleted.addActionListener(this);
-		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, menuShortcutMask));
-		arrowMenu.add(unmarkCompleted);
+		addMenuItem(arrowMenu, ACTION_MAKE_MAPPING, KeyEvent.VK_M);
+		addMenuItem(arrowMenu, ACTION_REMOVE_MAPPING, KeyEvent.VK_R);
+		addMenuItem(arrowMenu, ACTION_MARK_COMPLETED, KeyEvent.VK_D);
+		addMenuItem(arrowMenu, ACTION_UNMARK_COMPLETED, KeyEvent.VK_I);
 
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
-		JMenuItem helpItem = new JMenuItem(ACTION_HELP);
-		helpItem.addActionListener(this);
-		helpMenu.add(helpItem);
+		addMenuItem(helpMenu, ACTION_HELP);
 
 		return menuBar;
+	}
+
+	public void addMenuItem(JMenu menu, String action) {
+		addMenuItem(menu, action, null);
+	}
+
+	public void addMenuItem(JMenu menu, String action, Integer keyEvent) {
+		JMenuItem menuItem = new JMenuItem(action);
+		menuItem.addActionListener(this);
+		if (keyEvent != null) {
+			menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		}
+		menu.add(menuItem);
+	}
+
+	public void addRadioMenuItems(JMenu menu, String... actions) {
+		ButtonGroup modeGroup = new ButtonGroup();
+		// The first is the default
+		boolean isFirstAction = true;
+		for (String action : actions) {
+			JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(action, isFirstAction);
+			menuItem.addActionListener(this);
+			menu.add(menuItem);
+			modeGroup.add(menuItem);
+			isFirstAction = false;
+		}
 	}
 
 	@Override
