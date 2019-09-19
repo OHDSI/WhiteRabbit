@@ -71,6 +71,10 @@ public class Field implements MappableItem {
 		this.valueCounts = valueCounts;
 	}
 
+	public int getRowsCheckedCount() {
+		return this.table.getRowsCheckedCount();
+	}
+
 	public boolean isNullable() {
 		return isNullable;
 	}

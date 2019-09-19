@@ -147,6 +147,7 @@ public class Database implements Serializable {
 					table = new Table();
 					table.setName(tableName.toLowerCase());
 					table.setRowCount((int) Double.parseDouble(row.get(fieldName2ColumnIndex.get("N rows"))));
+					table.setRowsCheckedCount((int) Double.parseDouble(row.get(fieldName2ColumnIndex.get("N rows checked"))));
 					nameToTable.put(tableName, table);
 					database.tables.add(table);
 				}
