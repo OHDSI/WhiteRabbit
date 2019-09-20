@@ -18,8 +18,6 @@
 package org.ohdsi.rabbitInAHat.dataModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 public class Mapping<T extends MappableItem> {
@@ -94,18 +92,17 @@ public class Mapping<T extends MappableItem> {
 	}
 
 	public void removeSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
-		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
-		while (iterator.hasNext()) {
-			ItemToItemMap sourceToTargetMap = iterator.next();
-			if (sourceToTargetMap.getSourceItem().equals(sourceItem) && sourceToTargetMap.getTargetItem().equals(targetItem))
-				iterator.remove();
-		}
+		sourceToCdmMaps.removeIf(sourceToTargetMap ->
+				sourceToTargetMap.getSourceItem().equals(sourceItem) && sourceToTargetMap.getTargetItem().equals(targetItem)
+		);
+	}
+
+	public void removeAllSourceToTargetMaps() {
+		sourceToCdmMaps.clear();
 	}
 
 	public ItemToItemMap getSourceToTargetMap(MappableItem sourceItem, MappableItem targetItem) {
-		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
-		while (iterator.hasNext()) {
-			ItemToItemMap sourceToTargetMap = iterator.next();
+		for (ItemToItemMap sourceToTargetMap : sourceToCdmMaps) {
 			if (sourceToTargetMap.getSourceItem().equals(sourceItem) && sourceToTargetMap.getTargetItem().equals(targetItem))
 				return sourceToTargetMap;
 		}
@@ -113,10 +110,7 @@ public class Mapping<T extends MappableItem> {
 	}
 
 	public ItemToItemMap getSourceToTargetMapByName(MappableItem sourceItem, MappableItem targetItem) {
-		Iterator<ItemToItemMap> iterator = sourceToCdmMaps.iterator();
-
-		while (iterator.hasNext()) {
-			ItemToItemMap sourceToTargetMap = iterator.next();
+		for (ItemToItemMap sourceToTargetMap : sourceToCdmMaps) {
 			if (sourceToTargetMap.getSourceItem().getName().equals(sourceItem.getName())
 					&& sourceToTargetMap.getTargetItem().getName().equals(targetItem.getName()))
 				return sourceToTargetMap;
