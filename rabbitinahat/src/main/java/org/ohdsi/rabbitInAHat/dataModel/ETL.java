@@ -217,11 +217,6 @@ public class ETL implements Serializable {
 	}
 
 	public boolean hasStemTable() {
-		for (Table table : this.getSourceDatabase().getTables()) {
-			if (table.isStem()) {
-				return true;
-			}
-		}
-		return false;
+		return getSourceDatabase().getTables().stream().anyMatch(Table::isStem);
 	}
 }

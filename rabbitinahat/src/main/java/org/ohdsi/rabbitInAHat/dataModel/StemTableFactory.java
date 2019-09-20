@@ -86,8 +86,7 @@ public class StemTableFactory {
 	}
 
 	public static void removeStemTable(ETL etl) {
-		// TODO 2: method in ETL that removes table and mappings completely
-		// Remove stem table to table and field to field mappings
+		// Find stem source and target tables
 		Mapping<Table> mapping = etl.getTableToTableMapping();
 		List<Pair<Table, Table>> tablesMappingsToRemove = new ArrayList<>();
 		for (ItemToItemMap sourceToTargetMap : mapping.getSourceToTargetMaps()) {
@@ -95,11 +94,12 @@ public class StemTableFactory {
 			Table targetTable = (Table) sourceToTargetMap.getTargetItem();
 			if (sourceTable.isStem() || targetTable.isStem()) {
 				tablesMappingsToRemove.add(new Pair<>(sourceTable, targetTable));
-				etl.getFieldToFieldMapping(sourceTable, targetTable).removeAllSourceToTargetMaps();
 			}
 		}
 
+		// Remove stem table to table and field to field mappings
 		for (Pair<Table, Table> tableTablePair : tablesMappingsToRemove) {
+			etl.getFieldToFieldMapping(tableTablePair.getItem1(), tableTablePair.getItem2()).removeAllSourceToTargetMaps();
 			mapping.removeSourceToTargetMap(tableTablePair.getItem1(), tableTablePair.getItem2());
 		}
 
