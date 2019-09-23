@@ -341,7 +341,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 	}
 
 	private class FieldPanel extends JPanel implements DocumentListener {
-
 		private static final long serialVersionUID = -4393026616049677944L;
 		JLabel nameLabel;
 		JLabel rowCountLabel;
@@ -350,6 +349,9 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		JTextArea commentsArea;
 		Boolean isTargetFieldPanel;
 		private Field field;
+		private JLabel typeLabel = new JLabel("");
+		private JLabel emptyFractionLabel = new JLabel("");
+		private JLabel uniqueCountLabel = new JLabel("");
 
 		public FieldPanel() {
 			nameLabel			= new JLabel("");
@@ -365,9 +367,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			setLayout(new BorderLayout());
 
 			JPanel generalInfoPanel = new JPanel();
-			
 			generalInfoPanel.setLayout(new BorderLayout(5,5));
-			
 			generalInfoPanel.setBorder(BorderFactory.createTitledBorder("General information"));
 			
 			JPanel fieldInfo = new JPanel();
@@ -377,10 +377,20 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			fieldInfo.add(nameLabel);
 
 			fieldInfo.add(new JLabel("Field type: "));
-			fieldInfo.add(rowCountLabel);
-			
-			generalInfoPanel.add(fieldInfo,BorderLayout.NORTH);
-			
+			fieldInfo.add(typeLabel);
+
+			JPanel sourceDetailsPanel = new JPanel();
+			sourceDetailsPanel.setLayout(new GridLayout(0,2));
+
+			sourceDetailsPanel.add(new JLabel("Percentage Empty: "));
+			sourceDetailsPanel.add(emptyFractionLabel);
+
+			sourceDetailsPanel.add(new JLabel("Unique values: "));
+			sourceDetailsPanel.add(uniqueCountLabel);
+
+			fieldInfo.add(sourceDetailsPanel, BorderLayout.SOUTH);
+			generalInfoPanel.add(fieldInfo, BorderLayout.NORTH);
+
 			JPanel descriptionInfo = new JPanel();
 			descriptionInfo.setLayout(new GridLayout(0,2));
 			descriptionInfo.add(new JLabel("Description: "));
@@ -431,7 +441,21 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			this.field = field;
 
 			nameLabel.setText(field.getName());
-			rowCountLabel.setText(field.getType());
+			typeLabel.setText(field.getType());
+			if (field.getFractionEmpty() != null) {
+				emptyFractionLabel.setText(percentageFormat.format(field.getFractionEmpty()));
+				emptyFractionLabel.getParent().setVisible(true);
+			} else {
+				emptyFractionLabel.getParent().setVisible(false);
+			}
+
+			if (field.getUniqueCount() != null) {
+				uniqueCountLabel.setText(numberFormat.format(field.getUniqueCount()));
+				uniqueCountLabel.getParent().setVisible(true);
+			} else {
+				uniqueCountLabel.getParent().setVisible(false);
+			}
+
 			description.setText(field.getDescription());
 
 			// Hide description if it's empty
