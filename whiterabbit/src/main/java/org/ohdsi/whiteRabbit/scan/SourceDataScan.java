@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -140,8 +139,16 @@ public class SourceDataScan {
 				sheetNameLookup.put(tableName, sheetName);
 
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
-                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-                            Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.getUniqueCount(), fieldInfo.getFractionUnique());
+					Long uniqueCount = fieldInfo.uniqueCount;
+					Double fractionUnique = fieldInfo.getFractionUnique();
+                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(),
+							Integer.valueOf(fieldInfo.maxLength),
+							Long.valueOf(fieldInfo.rowCount),
+                            Long.valueOf(fieldInfo.nProcessed),
+							fieldInfo.getFractionEmpty(),
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique
+					);
 					this.setCellStyles(overviewSheet, percentageStyle, 6, 8);
                 }
 				addRow(overviewSheet, "");
@@ -389,6 +396,10 @@ public class SourceDataScan {
 			}
 		}
 
+		public boolean hasValuesTrimmed() {
+			return tooManyValues;
+		}
+
 		public Double getFractionEmpty() {
 			if (nProcessed == 0)
 				return 0d;
@@ -413,29 +424,14 @@ public class SourceDataScan {
 				return "varchar";
 		}
 
-		public Object getFractionUnique() {
+		public Double getFractionUnique() {
 			if (nProcessed == 0 || uniqueCount == 1) {
 				return 0d;
 			}
 			else {
-				double fractionUnique = uniqueCount / (double) nProcessed;
-				if (tooManyValues) {
-					// Due to trimming, the unique count could be an overestimation
-					return String.format("<= %.3f", fractionUnique);
-				} else {
-					return fractionUnique;
-				}
+				return uniqueCount / (double) nProcessed;
 			}
 
-		}
-
-		public Object getUniqueCount() {
-			if (tooManyValues) {
-				// Due to trimming, the unique count could be an overestimation
-				return String.format("<= %d", uniqueCount);
-			} else {
-				return uniqueCount;
-			}
 		}
 
 		public void processValue(String value) {
@@ -449,9 +445,8 @@ public class SourceDataScan {
 				emptyCount++;
 
 			if (!isFreeText) {
-				if (!valueCounts.contains(value))
-					uniqueCount++;
-				valueCounts.add(value);
+				boolean newlyAdded = valueCounts.add(value);
+				if  (newlyAdded) uniqueCount++;
 
 				if (trimValue.length() != 0) {
 					if (isReal && !StringUtilities.isNumber(trimValue))
