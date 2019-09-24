@@ -20,8 +20,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * TODO: sum and mean
  * TODO: all data types
  */
-public class UniformSamplingReservoir {
-    private double[] samples;
+public class UniformSamplingReservoir<T> {
+    private Object[] samples;
     private int maxSize;
     private long count;
     private transient int currentLength;
@@ -40,12 +40,12 @@ public class UniformSamplingReservoir {
 
     /** Empty reservoir with default maximum size. */
     public UniformSamplingReservoir() {
-        this(new double[] {}, 0, MAX_SIZE_DEFAULT);
+        this(new Object[] {}, 0, MAX_SIZE_DEFAULT);
     }
 
     /** Empty reservoir with given maximum size. */
     public UniformSamplingReservoir(int maxSize) {
-        this(new double[] {}, 0, maxSize);
+        this(new Object[] {}, 0, maxSize);
     }
 
     /**
@@ -53,7 +53,7 @@ public class UniformSamplingReservoir {
      * @param allValues list of values to sample from.
      * @throws NullPointerException if given allValues are {@code null}.
      */
-    public UniformSamplingReservoir(double... allValues) {
+    public UniformSamplingReservoir(T... allValues) {
         this(allValues, allValues.length, MAX_SIZE_DEFAULT);
     }
 
@@ -64,12 +64,12 @@ public class UniformSamplingReservoir {
      * @param maxSize maximum reservoir size.
      * @throws NullPointerException if given allValues are {@code null}
      */
-    public UniformSamplingReservoir(double[] samples, long count, int maxSize) {
+    public UniformSamplingReservoir(Object[] samples, long count, int maxSize) {
         initializeReservoir(samples, count, maxSize);
     }
 
     /** Sample from given list of samples to initialize the reservoir. */
-    private void initializeReservoir(double[] initSamples, long initCount, int initMaxSize) {
+    private void initializeReservoir(Object[] initSamples, long initCount, int initMaxSize) {
         if (initSamples == null) {
             throw new IllegalArgumentException("Samples may not be null");
         }
@@ -81,7 +81,7 @@ public class UniformSamplingReservoir {
                     "Reservoir count must be larger or equal than number of samples.");
         }
         this.maxSize = initMaxSize;
-        this.samples = new double[initMaxSize];
+        this.samples = new Object[initMaxSize];
         this.count = initCount;
 
         int length = (int)Math.min(initSamples.length, count);
@@ -95,7 +95,7 @@ public class UniformSamplingReservoir {
         Arrays.sort(this.samples, 0, currentLength);
     }
 
-    private void subsample(double[] initSamples, int length) {
+    private void subsample(Object[] initSamples, int length) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
         // There are much more samples than the size permits. Random sample from the
@@ -135,7 +135,7 @@ public class UniformSamplingReservoir {
     }
 
     /** Add a sample to the reservoir. */
-    public void add(double value) {
+    public void add(T value) {
         if (currentLength == maxSize) {
             long removeIndex = ThreadLocalRandom.current().nextLong(count);
             if (removeIndex < maxSize) {
@@ -149,7 +149,7 @@ public class UniformSamplingReservoir {
         count++;
     }
 
-    private void removeAndAdd(int removeIndex, double value) {
+    private void removeAndAdd(int removeIndex, T value) {
         int addIndex = Arrays.binarySearch(samples, 0, currentLength, value);
         if (addIndex < 0) {
             addIndex = -addIndex - 1;
@@ -181,6 +181,7 @@ public class UniformSamplingReservoir {
      * Get the quartiles of the underlying distribution. If the number of samples is larger than
      * the maximum size of the reservoir, this will be an estimate.
      * @return list with size three, of the 25, 50 and 75 percentiles.
+     * TODO: only return if samples of numeric type
      */
     public List<Double> getQuartiles() {
         List<Double> quartiles = new ArrayList<>(3);
@@ -192,22 +193,22 @@ public class UniformSamplingReservoir {
                 quartiles.add(Double.NaN);
                 break;
             case 1:
-                quartiles.add(samples[0]);
-                quartiles.add(samples[0]);
-                quartiles.add(samples[0]);
+                quartiles.add((Double) samples[0]);
+                quartiles.add((Double) samples[0]);
+                quartiles.add((Double) samples[0]);
                 break;
             default:
                 for (int i = 1; i <= 3; i++) {
                     double pos = i * (currentLength + 1) * 0.25d; // 25 percentile steps
                     int intPos = (int) pos;
                     if (intPos == 0) {
-                        quartiles.add(samples[0]);
+                        quartiles.add((Double) samples[0]);
                     } else if (intPos == currentLength) {
-                        quartiles.add(samples[currentLength - 1]);
+                        quartiles.add((Double) samples[currentLength - 1]);
                     } else {
                         double diff = pos - intPos;
-                        double base = samples[intPos - 1];
-                        quartiles.add(base + diff * (samples[intPos] - base));
+                        double base = (Double) samples[intPos - 1];
+                        quartiles.add(base + diff * ((Double) samples[intPos] - base));
                     }
                 }
                 break;
@@ -217,12 +218,12 @@ public class UniformSamplingReservoir {
     }
 
     /** Get the currently stored samples. */
-    public List<Double> getSamples() {
-        List<Double> doubleList = new ArrayList<>(currentLength);
+    public List<T> getSamples() {
+        List<T> sampleList = new ArrayList<>(currentLength);
         for (int i = 0; i < currentLength; i++) {
-            doubleList.add(samples[i]);
+            sampleList.add((T) samples[i]);
         }
-        return doubleList;
+        return sampleList;
     }
 
     /** Get the maximum size of this reservoir. */
