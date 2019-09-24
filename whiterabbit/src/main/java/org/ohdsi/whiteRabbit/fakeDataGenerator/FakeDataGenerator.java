@@ -18,18 +18,15 @@
 package org.ohdsi.whiteRabbit.fakeDataGenerator;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
-import org.ohdsi.utilities.collections.OneToManySet;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 import org.ohdsi.whiteRabbit.DbSettings;
@@ -37,7 +34,6 @@ import org.ohdsi.whiteRabbit.DbSettings;
 public class FakeDataGenerator {
 
 	private RichConnection					connection;
-	// private DbType dbType;
 	private int								targetType;
 	private int								maxRowsPerTable	= 1000;
 
@@ -45,24 +41,8 @@ public class FakeDataGenerator {
 	private static int						RANDOM			= 1;
 	private static int						PRIMARY_KEY		= 2;
 
-	public static void main(String[] args) {
-		FakeDataGenerator fakeDataGenerator = new FakeDataGenerator();
-
-		DbSettings dbSettings = new DbSettings();
-		dbSettings.dataType = DbSettings.DATABASE;
-		dbSettings.dbType = DbType.POSTGRESQL;
-		dbSettings.server = "127.0.0.1/ohdsi";
-		dbSettings.database = "ars";
-		dbSettings.user = "postgres";
-		dbSettings.password = "F1r3starter";
-
-		fakeDataGenerator.generateData(dbSettings, 100000, "c:/temp/ScanReport.xlsx", "c:/temp");
-		// fakeDataGenerator.generateData(dbSettings, 1000, "C:/home/Research/EMIF WP12/ARS CDM loading/ScanReport.xlsx", "c:/temp");
-	}
-
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder) {
 		this.maxRowsPerTable = maxRowsPerTable;
-		// this.dbType = dbSettings.dbType;
 		this.targetType = dbSettings.dataType;
 
 		StringUtilities.outputWithTime("Starting creation of fake data");
@@ -101,6 +81,11 @@ public class FakeDataGenerator {
 		int size = maxRowsPerTable;
 		for (int i = 0; i < table.getFields().size(); i++) {
 			Field field = table.getFields().get(i);
+			// If a field in the table is empty, the whole table is empty.
+			// Return empty list (writes empty file)
+			if (field.getType().equals("empty")) {
+				return new ArrayList<>();
+			}
 			fieldNames[i] = field.getName();
 			ValueGenerator valueGenerator = new ValueGenerator(field);
 			valueGenerators[i] = valueGenerator;
