@@ -440,13 +440,19 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			nameLabel.setText(field.getName());
 			typeLabel.setText(field.getType());
 
-			// Additional unique count and percentage empty
+			// Additional unique count and percentage empty. Hide when not given
 			StringBuilder valueDetailText = new StringBuilder();
 			if (field.getUniqueCount() != null) {
 				valueDetailText.append(numberFormat.format(field.getUniqueCount()));
 			}
 			if (field.getFractionEmpty() != null) {
-				valueDetailText.append(String.format(" (%s empty)", percentageFormat.format(field.getFractionEmpty())));
+				String fractionEmptyFormatted;
+				if (field.getFractionEmpty() > 0 && field.getFractionEmpty() < 0.001) {
+					fractionEmptyFormatted = "<" + percentageFormat.format(0.001);
+				} else {
+					fractionEmptyFormatted = percentageFormat.format(field.getFractionEmpty());
+				}
+				valueDetailText.append(String.format(" (%s empty)", fractionEmptyFormatted));
 			}
 			valueDetailLabel.setText(valueDetailText.toString());
 			valueDetailLabel.getParent().setVisible(!valueDetailLabel.getText().isEmpty());
