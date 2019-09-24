@@ -26,11 +26,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -69,7 +71,7 @@ public class SourceDataScan {
 		Map<String, List<FieldInfo>> tableToFieldInfos;
 		if (dbSettings.dataType == DbSettings.CSVFILES) {
 			if (!scanValues)
-				minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
+				this.minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
 			tableToFieldInfos = processCsvFiles(dbSettings);
 		} else
 			tableToFieldInfos = processDatabase(dbSettings);
@@ -77,21 +79,17 @@ public class SourceDataScan {
 	}
 
 	private Map<String, List<FieldInfo>> processDatabase(DbSettings dbSettings) {
-		Map<String, List<FieldInfo>> tableToFieldInfos = new HashMap<String, List<FieldInfo>>();
-		RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
-		connection.setVerbose(false);
-		connection.use(dbSettings.database);
+		try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
+			connection.setVerbose(false);
+			connection.use(dbSettings.database);
 
-		dbType = dbSettings.dbType;
-		database = dbSettings.database;
+			dbType = dbSettings.dbType;
+			database = dbSettings.database;
 
-		for (String table : dbSettings.tables) {
-			List<FieldInfo> fieldInfos = processDatabaseTable(table, connection);
-			tableToFieldInfos.put(table, fieldInfos);
+			return dbSettings.tables.stream()
+					.collect(Collectors.toMap(Function.identity(), table -> processDatabaseTable(table, connection)));
+
 		}
-
-		connection.close();
-		return tableToFieldInfos;
 	}
 
 	private Map<String, List<FieldInfo>> processCsvFiles(DbSettings dbSettings) {
@@ -117,20 +115,24 @@ public class SourceDataScan {
 		Collections.sort(tables);
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+		CellStyle percentageStyle = workbook.createCellStyle();
+		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0%"));
 
 		// Create overview sheet
 		Sheet overviewSheet = workbook.createSheet("Overview");
 		if (!scanValues) {
 			addRow(overviewSheet, ScanFieldName.TABLE, ScanFieldName.FIELD, ScanFieldName.TYPE, ScanFieldName.N_ROWS);
 			for (String table : tables) {
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(table))
-					addRow(overviewSheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Long.valueOf(fieldInfo.rowCount));
+				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
+                    addRow(overviewSheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Long.valueOf(fieldInfo.rowCount));
+                }
 				addRow(overviewSheet, "");
 			}
 		} else {
 			addRow(overviewSheet,
 					ScanFieldName.TABLE, ScanFieldName.FIELD, ScanFieldName.TYPE, ScanFieldName.MAX_LENGTH,
 					ScanFieldName.N_ROWS, ScanFieldName.N_ROWS_CHECKED, ScanFieldName.FRACTION_EMPTY,
+					ScanFieldName.UNIQUE_COUNT, ScanFieldName.FRACTION_UNIQUE,
 					ScanFieldName.AVERAGE, ScanFieldName.STDEV,
 					ScanFieldName.MIN, ScanFieldName.Q1, ScanFieldName.Q2, ScanFieldName.Q3, ScanFieldName.MAX
 			);
@@ -145,9 +147,19 @@ public class SourceDataScan {
 
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
 					fieldInfo.wrapUp(); // if not already done
-					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-							Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty(), fieldInfo.mean, fieldInfo.stdev, fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max);
-				}
+					Long uniqueCount = fieldInfo.uniqueCount;
+					Double fractionUnique = fieldInfo.getFractionUnique();
+                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(),
+							Integer.valueOf(fieldInfo.maxLength),
+							Long.valueOf(fieldInfo.rowCount),
+                            Long.valueOf(fieldInfo.nProcessed),
+							fieldInfo.getFractionEmpty(),
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique,
+							fieldInfo.mean, fieldInfo.stdev, fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max
+					);
+					this.setCellStyles(overviewSheet, percentageStyle, 6, 8);
+                }
 				addRow(overviewSheet, "");
 				sheetIndex += 1;
 			}
@@ -203,11 +215,8 @@ public class SourceDataScan {
 	}
 
 	private void removeEmptyTables(Map<String, List<FieldInfo>> tableToFieldInfos) {
-		Iterator<Map.Entry<String, List<FieldInfo>>> iterator = tableToFieldInfos.entrySet().iterator();
-		while (iterator.hasNext()) {
-			if (iterator.next().getValue().size() == 0)
-				iterator.remove();
-		}
+		tableToFieldInfos.entrySet()
+				.removeIf(stringListEntry -> stringListEntry.getValue().size() == 0);
 	}
 
 	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) {
@@ -221,8 +230,9 @@ public class SourceDataScan {
 			try {
 				queryResult = fetchRowsFromTable(connection, table, rowCount);
 				for (org.ohdsi.utilities.files.Row row : queryResult) {
-					for (int i = 0; i < fieldInfos.size(); i++)
-						fieldInfos.get(i).processValue(row.get(fieldInfos.get(i).name));
+					for (FieldInfo fieldInfo : fieldInfos) {
+						fieldInfo.processValue(row.get(fieldInfo.name));
+					}
 					actualCount++;
 					if (sampleSize != -1 && actualCount >= sampleSize) {
 						System.out.println("Stopped after " + actualCount + " rows");
@@ -376,6 +386,7 @@ public class SourceDataScan {
 		public int					maxLength		= 0;
 		public long					nProcessed		= 0;
 		public long					emptyCount		= 0;
+		public long					uniqueCount		= 0;
 		public long					rowCount		= -1;
 		public boolean				isInteger		= true;
 		public boolean				isReal			= true;
@@ -405,8 +416,13 @@ public class SourceDataScan {
 		}
 
 		public void trim() {
-			if (valueCounts.size() > maxValues)
+			if (valueCounts.size() > maxValues) {
 				valueCounts.keepTopN(maxValues);
+			}
+		}
+
+		public boolean hasValuesTrimmed() {
+			return tooManyValues;
 		}
 
 		public Double getFractionEmpty() {
@@ -433,6 +449,16 @@ public class SourceDataScan {
 				return "varchar";
 		}
 
+		public Double getFractionUnique() {
+			if (nProcessed == 0 || uniqueCount == 1) {
+				return 0d;
+			}
+			else {
+				return uniqueCount / (double) nProcessed;
+			}
+
+		}
+
 		public void processValue(String value) {
 			String trimValue = value.trim();
 			nProcessed++;
@@ -444,7 +470,8 @@ public class SourceDataScan {
 				emptyCount++;
 
 			if (!isFreeText) {
-				valueCounts.add(value);
+				boolean newlyAdded = valueCounts.add(value);
+				if  (newlyAdded) uniqueCount++;
 
 				if (trimValue.length() != 0) {
 					if (isReal && !StringUtilities.isNumber(trimValue))
@@ -468,13 +495,12 @@ public class SourceDataScan {
 					}
 				}
 			} else {
-				for (String word : StringUtilities.mapToWords(trimValue.toLowerCase()))
-					valueCounts.add(word);
+				valueCounts.addAll(StringUtilities.mapToWords(trimValue.toLowerCase()));
 			}
 
 			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
 				tooManyValues = true;
-				valueCounts.keepTopN(maxValues);
+				this.trim();
 			}
 
 			// Reset if wrapUp was called before
@@ -484,28 +510,16 @@ public class SourceDataScan {
 		}
 
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {
-			boolean truncated = false;
-			List<Pair<String, Integer>> result = new ArrayList<Pair<String, Integer>>();
+			List<Pair<String, Integer>> result = valueCounts.key2count.entrySet().stream()
+					.filter(e -> e.getValue().count >= minCellCount)
+					.sorted(Comparator.<Map.Entry<String, Count>>comparingInt(e -> e.getValue().count).reversed())
+					.limit(maxValues)
+					.map(e -> new Pair<>(e.getKey(), e.getValue().count))
+					.collect(Collectors.toCollection(ArrayList::new));
 
-			for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet()) {
-				if (entry.getValue().count < minCellCount)
-					truncated = true;
-				else {
-					result.add(new Pair<String, Integer>(entry.getKey(), entry.getValue().count));
-					if (result.size() > maxValues) {
-						truncated = true;
-						break;
-					}
-				}
+			if (result.size() < valueCounts.key2count.size()) {
+				result.add(new Pair<>("List truncated...", -1));
 			}
-
-			Collections.sort(result, new Comparator<Pair<String, Integer>>() {
-				public int compare(Pair<String, Integer> o1, Pair<String, Integer> o2) {
-					return o2.getItem2().compareTo(o1.getItem2());
-				}
-			});
-			if (truncated)
-				result.add(new Pair<String, Integer>("List truncated...", -1));
 			return result;
 		}
 
@@ -586,6 +600,15 @@ public class SourceDataScan {
 				cell.setCellValue(value.toString());
 			}
 
+		}
+	}
+
+	private void setCellStyles(Sheet sheet, CellStyle style, int... colNums) {
+		Row row = sheet.getRow(sheet.getLastRowNum());
+		for(int i : colNums) {
+			Cell cell = row.getCell(i);
+			if (cell != null)
+				cell.setCellStyle(style);
 		}
 	}
 }

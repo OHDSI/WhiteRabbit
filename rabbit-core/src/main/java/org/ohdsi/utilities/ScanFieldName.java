@@ -8,6 +8,8 @@ public interface ScanFieldName {
     String N_ROWS = "N rows";
     String N_ROWS_CHECKED = "N rows checked";
     String FRACTION_EMPTY = "Fraction empty";
+    String UNIQUE_COUNT = "N unique values";
+    String FRACTION_UNIQUE = "Fraction unique";
     String AVERAGE = "Average";
     String STDEV = "Standard Deviation";
     String MIN = "Min";
