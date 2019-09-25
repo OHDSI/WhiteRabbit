@@ -433,6 +433,7 @@ public class SourceDataScan {
 		}
 
 		public String getTypeDescription() {
+			// TODO: standardize in enum. Type names deviated in fakedata generator.
 			if (type != null)
 				return type;
 			else if (nProcessed == emptyCount)
@@ -460,12 +461,12 @@ public class SourceDataScan {
 		}
 
 		public void processValue(String value) {
-			String trimValue = value.trim();
 			nProcessed++;
 			sumLength += value.length();
 			if (value.length() > maxLength)
 				maxLength = value.length();
 
+			String trimValue = value.trim();
 			if (trimValue.length() == 0)
 				emptyCount++;
 
@@ -474,30 +475,17 @@ public class SourceDataScan {
 				if  (newlyAdded) uniqueCount++;
 
 				if (trimValue.length() != 0) {
-					if (isReal && !StringUtilities.isNumber(trimValue))
-						isReal = false;
-					if (isInteger && !StringUtilities.isLong(trimValue))
-						isInteger = false;
-					if (isDate && !StringUtilities.isDate(trimValue))
-						isDate = false;
+					evaluateDataType(trimValue);
 				}
-				if (nProcessed == N_FOR_FREE_TEXT_CHECK) {
-					if (!isInteger && !isReal && !isDate) {
-						double averageLength = sumLength / (double) (nProcessed - emptyCount);
-						if (averageLength >= MIN_AVERAGE_LENGTH_FOR_FREE_TEXT) {
-							isFreeText = true;
-							CountingSet<String> wordCounts = new CountingSet<String>();
-							for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet())
-								for (String word : StringUtilities.mapToWords(entry.getKey().toLowerCase()))
-									wordCounts.add(word, entry.getValue().count);
-							valueCounts = wordCounts;
-						}
-					}
+
+				if (nProcessed == N_FOR_FREE_TEXT_CHECK && !isInteger && !isReal && !isDate) {
+					doFreeTextCheck();
 				}
 			} else {
 				valueCounts.addAll(StringUtilities.mapToWords(trimValue.toLowerCase()));
 			}
 
+			// if over this large constant number, then trimmed back to size used in report (maxValues).
 			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
 				tooManyValues = true;
 				this.trim();
@@ -521,6 +509,28 @@ public class SourceDataScan {
 				result.add(new Pair<>("List truncated...", -1));
 			}
 			return result;
+		}
+
+		private void evaluateDataType(String value) {
+			if (isReal && !StringUtilities.isNumber(value))
+				isReal = false;
+			if (isInteger && !StringUtilities.isLong(value))
+				isInteger = false;
+			if (isDate && !StringUtilities.isDate(value))
+				isDate = false;
+		}
+
+		private void doFreeTextCheck() {
+			double averageLength = sumLength / (double) (nProcessed - emptyCount);
+			if (averageLength >= MIN_AVERAGE_LENGTH_FOR_FREE_TEXT) {
+				isFreeText = true;
+				// Reset value count to word count
+				CountingSet<String> wordCounts = new CountingSet<>();
+				for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet())
+					for (String word : StringUtilities.mapToWords(entry.getKey().toLowerCase()))
+						wordCounts.add(word, entry.getValue().count);
+				valueCounts = wordCounts;
+			}
 		}
 
 		public void calculateNumericMetrics() {
