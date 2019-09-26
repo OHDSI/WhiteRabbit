@@ -129,18 +129,19 @@ public class LabeledRectangle implements MappingComponent {
 				int textX = (this.getWidth() - (int) r.getWidth()) / 2;
 				int textY = (this.getHeight() - (int) r.getHeight()) / 2 + fm.getAscent();
 				g2d.drawString(item.outputName(), x + textX, y + textY);
+			} else {
+				breakPoint++;
+				String line1 = item.outputName().substring(0, breakPoint);
+				String line2 = item.outputName().substring(breakPoint);
+				r = fm.getStringBounds(line1, g2d);
+				int textX = (this.getWidth() - (int) r.getWidth()) / 2;
+				int textY = (this.getHeight() / 2 - (int) r.getHeight()) / 2 + fm.getAscent();
+				g2d.drawString(line1, x + textX, y + textY);
+				r = fm.getStringBounds(line2, g2d);
+				textX = (this.getWidth() - (int) r.getWidth()) / 2;
+				textY = (int) Math.round(this.getHeight() * 1.5 - (int) r.getHeight()) / 2 + fm.getAscent();
+				g2d.drawString(line2, x + textX, y + textY);
 			}
-			breakPoint++;
-			String line1 = item.outputName().substring(0, breakPoint);
-			String line2 = item.outputName().substring(breakPoint);
-			r = fm.getStringBounds(line1, g2d);
-			int textX = (this.getWidth() - (int) r.getWidth()) / 2;
-			int textY = (this.getHeight() / 2 - (int) r.getHeight()) / 2 + fm.getAscent();
-			g2d.drawString(line1, x + textX, y + textY);
-			r = fm.getStringBounds(line2, g2d);
-			textX = (this.getWidth() - (int) r.getWidth()) / 2;
-			textY = (int) Math.round(this.getHeight() * 1.5 - (int) r.getHeight()) / 2 + fm.getAscent();
-			g2d.drawString(line2, x + textX, y + textY);
 		} else {
 			int textX = (this.getWidth() - (int) r.getWidth()) / 2;
 			int textY = (this.getHeight() - (int) r.getHeight()) / 2 + fm.getAscent();
