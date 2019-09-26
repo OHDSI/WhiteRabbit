@@ -146,7 +146,6 @@ public class SourceDataScan {
 				sheetNameLookup.put(tableName, sheetName);
 
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
-					fieldInfo.wrapUp(); // if not already done
 					Long uniqueCount = fieldInfo.uniqueCount;
 					Double fractionUnique = fieldInfo.getFractionUnique();
                     addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(),
@@ -156,7 +155,7 @@ public class SourceDataScan {
 							fieldInfo.getFractionEmpty(),
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique,
-							fieldInfo.mean, fieldInfo.stdev, fieldInfo.min, fieldInfo.q1, fieldInfo.q2, fieldInfo.q3, fieldInfo.max
+							fieldInfo.getmean(), fieldInfo.getstdev(), fieldInfo.getmin(), fieldInfo.getQ1(), fieldInfo.getQ2(), fieldInfo.getQ3(), fieldInfo.getmax()
 					);
 					this.setCellStyles(overviewSheet, percentageStyle, 6, 8);
                 }
@@ -240,7 +239,7 @@ public class SourceDataScan {
 					}
 				}
 				for (FieldInfo fieldInfo : fieldInfos)
-					fieldInfo.wrapUp();
+					fieldInfo.trim();
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
 			} finally {
@@ -373,46 +372,32 @@ public class SourceDataScan {
 				break;
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
-			fieldInfo.wrapUp();
+			fieldInfo.trim();
 
 		return fieldInfos;
 	}
 
 	private class FieldInfo {
-		public String				type;
-		public String				name;
-		public CountingSet<String>	valueCounts		= new CountingSet<String>();
-		public long					sumLength		= 0;
-		public int					maxLength		= 0;
-		public long					nProcessed		= 0;
-		public long					emptyCount		= 0;
-		public long					uniqueCount		= 0;
-		public long					rowCount		= -1;
-		public boolean				isInteger		= true;
-		public boolean				isReal			= true;
-		public boolean				isDate			= true;
-		public boolean				isFreeText		= false;
-		public boolean				tooManyValues	= false;
-		public double				mean			= Double.NaN;
-		public double				stdev			= Double.NaN;
-		public double				min				= Double.NEGATIVE_INFINITY;
-		public double				max				= Double.POSITIVE_INFINITY;
-		public Double				q1				= Double.NaN;
-		public Double				q2				= Double.NaN;
-		public Double				q3				= Double.NaN;
-		public boolean 				isWrappedUp 	= false;
+		public String type;
+		public String name;
+		public CountingSet<String> valueCounts = new CountingSet<String>();
+		public long sumLength = 0;
+		public int maxLength = 0;
+		public long nProcessed = 0;
+		public long emptyCount = 0;
+		public long uniqueCount = 0;
+		public long rowCount = -1;
+		public boolean isInteger = true;
+		public boolean isReal = true;
+		public boolean isDate = true;
+		public boolean isFreeText = false;
+		public boolean tooManyValues = false;
+		public UniformSamplingReservoir sample = null;
 
 
 		public FieldInfo(String name) {
 			this.name = name;
-		}
-
-		public void wrapUp() {
-			if (!isWrappedUp) {
-				calculateNumericMetrics();
-				trim();
-				isWrappedUp = true;
-			}
+			this.sample = new UniformSamplingReservoir(50); // TODO: sampler maxSize to be set in WR ui
 		}
 
 		public void trim() {
@@ -453,8 +438,7 @@ public class SourceDataScan {
 		public Double getFractionUnique() {
 			if (nProcessed == 0 || uniqueCount == 1) {
 				return 0d;
-			}
-			else {
+			} else {
 				return uniqueCount / (double) nProcessed;
 			}
 
@@ -472,7 +456,7 @@ public class SourceDataScan {
 
 			if (!isFreeText) {
 				boolean newlyAdded = valueCounts.add(value);
-				if  (newlyAdded) uniqueCount++;
+				if (newlyAdded) uniqueCount++;
 
 				if (trimValue.length() != 0) {
 					evaluateDataType(trimValue);
@@ -491,10 +475,11 @@ public class SourceDataScan {
 				this.trim();
 			}
 
-			// Reset if wrapUp was called before
-			if (isWrappedUp) {
-				isWrappedUp = false;
+			// TODO: toggle sampling in WR ui
+			if ((isInteger || isReal) && !trimValue.isEmpty()) { // TODO: || isDate
+				sample.add(Double.parseDouble(trimValue));
 			}
+
 		}
 
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {
@@ -533,64 +518,34 @@ public class SourceDataScan {
 			}
 		}
 
-		public void calculateNumericMetrics() {
-			// Only numeric columns
-			// TODO: also calculate summary statistics for dates
-			if (!(isReal || isInteger)) {
-				return;
-			}
-
-			if (tooManyValues) {
-				System.out.println("Estimations! Increase 'maxValues' for a better estimate");
-			}
-
-			// Unpack the values to  a list of pairs; calculate sum, total count and mean
-			int totalFrequencyCount = 0;
-			double sum = 0d;
-			List<Pair<Double, Integer>> valueCountPairs = new ArrayList<>();
-			for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet()) {
-				if (entry.getKey().isEmpty()) {
-					continue;
-				}
-				double value = Double.parseDouble(entry.getKey());
-				int count = entry.getValue().count;
-				valueCountPairs.add(new Pair<>(value, count));
-				sum += value * count;
-				totalFrequencyCount += count;
-			}
-
-			mean = sum / totalFrequencyCount;
-
-			// Sort by the numeric values
-			valueCountPairs.sort(Comparator.comparing(Pair::getItem1));
-
-			// TODO: handle the case where quartile is the average of two values.
-			//  Then the previous runningTotal is just below the quartile and the current is just above.
-			// Calculate quartiles and total variance
-			int runningTotal = 0;
-			double varianceSum = 0;
-			for (Pair<Double, Integer> valueCount : valueCountPairs) {
-				runningTotal += valueCount.getItem2();
-				if (q1.isNaN() && runningTotal >= 0.25 * (totalFrequencyCount + 1)) {
-					q1 = valueCount.getItem1();
-				}
-				if (q2.isNaN() && runningTotal >= 0.5 * (totalFrequencyCount + 1)) {
-					q2 = valueCount.getItem1();
-				}
-				if (q3.isNaN() && runningTotal >= 0.75 * (totalFrequencyCount + 1)) {
-					q3 = valueCount.getItem1();
-				}
-				varianceSum += Math.pow(valueCount.getItem1() - mean, 2d) * valueCount.getItem2();
-			}
-
-			if (valueCountPairs.size() > 0) {
-				min = valueCountPairs.get(0).getItem1();
-				max = valueCountPairs.get(valueCountPairs.size() - 1).getItem1();
-			}
-			if (totalFrequencyCount > 0) {
-				stdev = Math.sqrt(varianceSum / totalFrequencyCount);
-			}
+		private double getmean() {
+			return 0d;
 		}
+
+		private double getstdev() {
+			return 0d;
+		}
+
+		private double getQ1() {
+			return sample.getQuartiles().get(0);
+		}
+
+		private double getQ2() {
+			return sample.getQuartiles().get(1);
+		}
+
+		private double getQ3() {
+			return sample.getQuartiles().get(2);
+		}
+
+		private double getmin() {
+			return 0d;
+		}
+
+		private double getmax() {
+			return 0d;
+		}
+
 	}
 
 	private void addRow(Sheet sheet, Object... values) {
