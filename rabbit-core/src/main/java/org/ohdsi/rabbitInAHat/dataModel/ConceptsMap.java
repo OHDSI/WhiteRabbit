@@ -32,7 +32,7 @@ public class ConceptsMap {
 
     private Map<String, Map<String, List<Concept>>> conceptMap;
 
-    public ConceptsMap() {
+    private ConceptsMap() {
         this.conceptMap = new HashMap<>();
     }
 
@@ -78,34 +78,23 @@ public class ConceptsMap {
         return this.conceptMap.get(targetTable).get(targetField);
     }
 
-    public boolean containsKey(String targetTable, String targetField) {
+    private boolean containsKey(String targetTable, String targetField) {
         if (!this.conceptMap.containsKey(targetTable)) {
             return false;
         }
-        if (!this.conceptMap.get(targetTable).containsKey(targetField)) {
-            return false;
-        }
-        return true;
+        return this.conceptMap.get(targetTable).containsKey(targetField);
     }
 
-    public class Concept {
+    public static class Concept {
         private String conceptId;
         private String conceptName;
         private String standardConcept;
-
-        public Concept() {
-        }
-
-        public Concept(String conceptId, String conceptName) {
-            this.conceptId = conceptId;
-            this.conceptName = conceptName;
-        }
 
         public String getConceptId() {
             return conceptId;
         }
 
-        public void setConceptId(String conceptId) {
+        void setConceptId(String conceptId) {
             this.conceptId = conceptId;
         }
 
@@ -113,7 +102,7 @@ public class ConceptsMap {
             return conceptName;
         }
 
-        public void setConceptName(String conceptName) {
+        void setConceptName(String conceptName) {
             this.conceptName = conceptName;
         }
 
@@ -121,7 +110,7 @@ public class ConceptsMap {
             return standardConcept;
         }
 
-        public void setStandardConcept(String standardConcept) {
+        void setStandardConcept(String standardConcept) {
             this.standardConcept = standardConcept;
         }
 
