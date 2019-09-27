@@ -420,17 +420,21 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 		public void showField(Field field) {
 			this.field = field;
-			
+
 			nameLabel.setText(field.getName());
 			rowCountLabel.setText(field.getType());
 			description.setText(field.getDescription());
-			
+
 			// Hide description if it's empty
 			description.getParent().setVisible(!description.getText().isEmpty());
 
+			this.createValueList(field);
+			commentsArea.setText(field.getComment());
+		}
+
+		public void createValueList(Field field) {
 			valueTable.clear();
-			
-			if (!isTargetFieldPanel && field.getValueCounts() != null) {
+			if (field.getValueCounts() != null) {
 				int valueCountTotal = field.getRowsCheckedCount();
 
 				for (String[] valueCount : field.getValueCounts()) {
@@ -453,14 +457,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 					valueTable.add(valueCount[0], valueNumber, valuePercent);
 				}
 			}
-
-			if (isTargetFieldPanel && field.getConceptIdHints() != null) {
-				for (ConceptsMap.Concept conceptIdHint : field.getConceptIdHints()) {
-					valueTable.add(conceptIdHint.getConceptId(), conceptIdHint.getConceptName(), conceptIdHint.getStandardConcept());
-				}
-			}
-
-			commentsArea.setText(field.getComment());
 		}
 
 		@Override
@@ -489,6 +485,16 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			commentsArea		= new JTextArea();
 			isTargetFieldPanel  = true;
 			super.initialise();
+		}
+
+		@Override
+		public void createValueList(Field field) {
+			valueTable.clear();
+			if (field.getConceptIdHints() != null) {
+				for (ConceptsMap.Concept conceptIdHint : field.getConceptIdHints()) {
+					valueTable.add(conceptIdHint.getConceptId(), conceptIdHint.getConceptName(), conceptIdHint.getStandardConcept());
+				}
+			}
 		}
 	}
 
