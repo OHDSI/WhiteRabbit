@@ -43,17 +43,15 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.table.TableColumn;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.text.Document;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import org.ohdsi.rabbitInAHat.dataModel.Field;
-import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
-import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.utilities.StringUtilities;
-import org.ohdsi.rabbitInAHat.dataModel.TableCellLongTextRenderer;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
 
@@ -63,6 +61,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 	private Object				object;
 	private TablePanel			tablePanel;
 	private FieldPanel			fieldPanel;
+	private TargetFieldPanel	targetFieldPanel;
 	private ItemToItemMapPanel	itemToItemMapPanel;
 	private CardLayout			cardLayout			= new CardLayout();
 	private NumberFormat	    numberFormat 	    = NumberFormat.getNumberInstance();
@@ -81,6 +80,9 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		fieldPanel = new FieldPanel();
 		add(fieldPanel, Field.class.getName());
 
+		targetFieldPanel = new TargetFieldPanel();
+		add(targetFieldPanel, "target" + Field.class.getName());
+
 		itemToItemMapPanel = new ItemToItemMapPanel();
 		add(itemToItemMapPanel, ItemToItemMap.class.getName());
 
@@ -96,23 +98,33 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 	}
 
 	@Override
-	public void showDetails(Object object) {
+	public void showDetails(Object object, boolean isSource) {
 		this.object = object;
 		if (object instanceof Table) {
 			tablePanel.showTable((Table) object);
 			tablePanel.updateRowHeights();
 			cardLayout.show(this, Table.class.getName());
 		} else if (object instanceof Field) {
-			fieldPanel.showField((Field) object);
-			cardLayout.show(this, Field.class.getName());
+			if (isSource) {
+				fieldPanel.showField((Field) object);
+				cardLayout.show(this, Field.class.getName());
+			} else {
+				targetFieldPanel.showField((Field) object);
+				cardLayout.show(this, "target" + Field.class.getName());
+			}
 		} else if (object instanceof ItemToItemMap) {
 			itemToItemMapPanel.showItemToItemMap((ItemToItemMap) object);
 			cardLayout.show(this, ItemToItemMap.class.getName());
 		} else
 			cardLayout.show(this, "");
-		
+
 		// Discard edits made by showing a new details view
 		undoManager.discardAllEdits();
+	}
+
+	@Override
+	public void showDetails(Object object) {
+		showDetails(object, true);
 	}
 
 	public void refresh() {
@@ -314,15 +326,26 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 	private class FieldPanel extends JPanel implements DocumentListener {
 
-		private static final long	serialVersionUID	= -4393026616049677944L;
-		private JLabel				nameLabel			= new JLabel("");
-		private JLabel				rowCountLabel		= new JLabel("");
-		private DescriptionTextArea description			= new DescriptionTextArea ("");
-		private SimpleTableModel	valueTable			= new SimpleTableModel("Value", "Frequency", "Fraction");
-		private JTextArea			commentsArea		= new JTextArea();
-		private Field				field;
+		private static final long serialVersionUID = -4393026616049677944L;
+		JLabel nameLabel;
+		JLabel rowCountLabel;
+		DescriptionTextArea description;
+		SimpleTableModel valueTable;
+		JTextArea commentsArea;
+		Boolean isTargetFieldPanel;
+		private Field field;
 
 		public FieldPanel() {
+			nameLabel			= new JLabel("");
+			rowCountLabel		= new JLabel("");
+			description			= new DescriptionTextArea ("");
+			valueTable			= new SimpleTableModel("Value", "Frequency", "Percentage");
+			commentsArea		= new JTextArea();
+			isTargetFieldPanel  = false;
+			initialise();
+		}
+
+		public void initialise() {
 			setLayout(new BorderLayout());
 
 			JPanel generalInfoPanel = new JPanel();
@@ -356,13 +379,30 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			table.setFont(font);
 			table.setRowHeight(24);
 			table.setBorder(new MatteBorder(1, 0, 1, 0, Color.BLACK));
-			// Right align the frequency and percentage
-			DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-			rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-			table.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
-			table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+			table.setCellSelectionEnabled(true);
 
-			fieldListPanel.setBorder(BorderFactory.createTitledBorder("Fields"));
+			// Make first column wider if source panel or second column if this is a target field panel
+			int wideColumnIndex = isTargetFieldPanel ? 1 : 0;
+			TableColumn column;
+			for (int i = 0; i < table.getColumnCount(); i++) {
+				column = table.getColumnModel().getColumn(i);
+				if (i == wideColumnIndex) {
+					column.setPreferredWidth(500);
+				} else {
+					column.setPreferredWidth(50);
+				}
+			}
+
+			if (!isTargetFieldPanel) {
+				// Right align the frequency and percentage
+				DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+				rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+				table.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
+				table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+			}
+
+			String title = isTargetFieldPanel ? "Concept ID Hints" : "Value Counts";
+			fieldListPanel.setBorder(BorderFactory.createTitledBorder(title));
 			add(fieldListPanel, BorderLayout.CENTER);
 
 			JScrollPane commentsPanel = new JScrollPane(commentsArea);
@@ -380,16 +420,20 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 		public void showField(Field field) {
 			this.field = field;
-			
+
 			nameLabel.setText(field.getName());
 			rowCountLabel.setText(field.getType());
 			description.setText(field.getDescription());
-			
+
 			// Hide description if it's empty
 			description.getParent().setVisible(!description.getText().isEmpty());
 
+			this.createValueList(field);
+			commentsArea.setText(field.getComment());
+		}
+
+		public void createValueList(Field field) {
 			valueTable.clear();
-			
 			if (field.getValueCounts() != null) {
 				int valueCountTotal = field.getRowsCheckedCount();
 
@@ -413,7 +457,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 					valueTable.add(valueCount[0], valueNumber, valuePercent);
 				}
 			}
-			commentsArea.setText(field.getComment());
 		}
 
 		@Override
@@ -431,6 +474,28 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			field.setComment(commentsArea.getText());
 		}
 
+	}
+
+	private class TargetFieldPanel extends FieldPanel {
+		public TargetFieldPanel() {
+			nameLabel			= new JLabel("");
+			rowCountLabel		= new JLabel("");
+			description			= new DescriptionTextArea ("");
+			valueTable			= new SimpleTableModel("Concept ID", "Concept Name", "Standard?");
+			commentsArea		= new JTextArea();
+			isTargetFieldPanel  = true;
+			super.initialise();
+		}
+
+		@Override
+		public void createValueList(Field field) {
+			valueTable.clear();
+			if (field.getConceptIdHints() != null) {
+				for (ConceptsMap.Concept conceptIdHint : field.getConceptIdHints()) {
+					valueTable.add(conceptIdHint.getConceptId(), conceptIdHint.getConceptName(), conceptIdHint.getStandardConcept());
+				}
+			}
+		}
 	}
 
 	private class ItemToItemMapPanel extends JPanel implements DocumentListener {

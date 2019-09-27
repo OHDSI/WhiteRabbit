@@ -730,7 +730,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					lastSelectedRectangle = null;
 				}
 
-				detailsListener.showDetails(component.getItem());
+				boolean isSourceComponent = sourceComponents.contains(component);
+				detailsListener.showDetails(component.getItem(), isSourceComponent);
 				repaint();
 				break;
 			}
