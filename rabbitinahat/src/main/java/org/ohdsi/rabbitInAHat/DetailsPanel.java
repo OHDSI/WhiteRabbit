@@ -50,11 +50,8 @@ import javax.swing.text.Document;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import org.ohdsi.rabbitInAHat.dataModel.Field;
-import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
-import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.utilities.StringUtilities;
-import org.ohdsi.rabbitInAHat.dataModel.TableCellLongTextRenderer;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
 
@@ -433,7 +430,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 			valueTable.clear();
 			
-			if (field.getValueCounts() != null) {
+			if (!isTargetFieldPanel && field.getValueCounts() != null) {
 				int valueCountTotal = field.getRowsCheckedCount();
 
 				for (String[] valueCount : field.getValueCounts()) {
@@ -453,21 +450,16 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 							valuePercent = percentageFormat.format(valueCountPercent);
 						}
 					}
-
-					if (isTargetFieldPanel) {
-						String valueIdentifier = "-";
-						if (valueCount.length == 3) {
-							valueIdentifier = valueCount[2];
-						}
-						// id, concept_name, standard flag
-						// TODO: this is a misuse of the valueCount field
-						valueTable.add(valueIdentifier, valueCount[0], valueNumber);
-					} else {
-						// value, count, fraction
-						valueTable.add(valueCount[0], valueNumber, valuePercent);
-					}
+					valueTable.add(valueCount[0], valueNumber, valuePercent);
 				}
 			}
+
+			if (isTargetFieldPanel && field.getConceptIdHints() != null) {
+				for (ConceptsMap.Concept conceptIdHint : field.getConceptIdHints()) {
+					valueTable.add(conceptIdHint.getConceptId(), conceptIdHint.getConceptName(), conceptIdHint.getStandardConcept());
+				}
+			}
+
 			commentsArea.setText(field.getComment());
 		}
 

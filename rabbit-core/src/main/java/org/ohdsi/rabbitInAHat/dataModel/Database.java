@@ -43,6 +43,7 @@ public class Database implements Serializable {
 	private List<Table>			tables				= new ArrayList<Table>();
 	private static final long	serialVersionUID	= -3912166654601191039L;
 	private String				dbName				= "";
+	private static String		CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints.csv";
 
 	public List<Table> getTables() {
 		return tables;
@@ -72,12 +73,9 @@ public class Database implements Serializable {
 
 		database.dbName = dbName.substring(0, dbName.lastIndexOf("."));
 
-		// ConceptsMap id hints
-		ConceptsMap conceptsMap = new ConceptsMap();
-		conceptsMap.load("concept_id_hints.csv");
-
-		Map<String, Table> nameToTable = new HashMap<String, Table>();
+		Map<String, Table> nameToTable = new HashMap<>();
 		try {
+			ConceptsMap conceptsMap = new ConceptsMap(CONCEPT_ID_HINTS_FILE_NAME);
 
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
 				String tableNameColumn;
@@ -114,29 +112,13 @@ public class Database implements Serializable {
 				field.setNullable(row.get(isNullableColumn).equals(nullableValue));
 				field.setType(row.get(dataTypeColumn));
 				field.setDescription(row.get(descriptionColumn));
-
-				// Add hints for standard concept ids.
-				List<ConceptsMap.Concept> concepts = conceptsMap.get(row.get(tableNameColumn), row.get(fieldNameColumn));
-				if (concepts != null) {
-					String[][] valueCounts = new String[concepts.size()][2];
-					for (int i = 0; i < concepts.size(); i++) {
-						ConceptsMap.Concept concept = concepts.get(i);
-						valueCounts[i] = new String[] {concept.getConceptName(), concept.getStandardConcept(), concept.getConceptId()};
-					}
-					field.setValueCounts(valueCounts);
-				}
+				field.setConceptIdHints(conceptsMap.get(table.getName(), field.getName()));
 
 				table.getFields().add(field);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage());
 		}
-		// Collections.sort(database.tables, new Comparator<Table>() {
-		//
-		// @Override
-		// public int compare(Table o1, Table o2) {
-		// return o1.getName().compareTo(o2.getName());
-		// }});
 		return database;
 	}
 

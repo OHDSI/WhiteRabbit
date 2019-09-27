@@ -36,6 +36,31 @@ public class ConceptsMap {
         this.conceptMap = new HashMap<>();
     }
 
+    ConceptsMap(String filename) throws IOException{
+        this();
+        this.load(filename);
+    }
+
+    private void load(String filename) throws IOException{
+        InputStream conceptStream = Database.class.getResourceAsStream(filename);
+
+        try {
+            for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(conceptStream))) {
+                String tableName = conceptRow.get("omop_cdm_table");
+                String fieldName = conceptRow.get("omop_cdm_field");
+
+                Concept concept = new Concept();
+                concept.setConceptId(conceptRow.get("concept_id"));
+                concept.setConceptName(conceptRow.get("concept_name"));
+                concept.setStandardConcept(conceptRow.get("standard_concept"));
+
+                this.put(tableName, fieldName, concept);
+            }
+        } catch (IOException e) {
+            throw new IOException("Could not load concept_id hints: " + e.getMessage());
+        }
+    }
+
     public void put(String targetTable, String targetField, Concept concept) {
         if (!this.conceptMap.containsKey(targetTable)) {
             this.conceptMap.put(targetTable, new HashMap<>());
@@ -61,26 +86,6 @@ public class ConceptsMap {
             return false;
         }
         return true;
-    }
-
-    public void load(String filename) {
-        InputStream conceptStream = Database.class.getResourceAsStream(filename);
-
-        try {
-            for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(conceptStream))) {
-                String tableName = conceptRow.get("omop_cdm_table");
-                String fieldName = conceptRow.get("omop_cdm_field");
-
-                Concept concept = new Concept();
-                concept.setConceptId(conceptRow.get("concept_id"));
-                concept.setConceptName(conceptRow.get("concept_name"));
-                concept.setStandardConcept(conceptRow.get("standard_concept"));
-
-                this.put(tableName, fieldName, concept);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
     }
 
     public class Concept {
