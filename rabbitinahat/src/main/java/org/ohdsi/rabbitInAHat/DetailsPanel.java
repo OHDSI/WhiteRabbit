@@ -326,14 +326,14 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 	private class FieldPanel extends JPanel implements DocumentListener {
 
-		private static final long	serialVersionUID	= -4393026616049677944L;
-		JLabel				nameLabel;
-		JLabel				rowCountLabel;
+		private static final long serialVersionUID = -4393026616049677944L;
+		JLabel nameLabel;
+		JLabel rowCountLabel;
 		DescriptionTextArea description;
-		SimpleTableModel	valueTable;
-		JTextArea			commentsArea;
-		Boolean 			isTargetFieldPanel;
-		private Field		field;
+		SimpleTableModel valueTable;
+		JTextArea commentsArea;
+		Boolean isTargetFieldPanel;
+		private Field field;
 
 		public FieldPanel() {
 			nameLabel			= new JLabel("");

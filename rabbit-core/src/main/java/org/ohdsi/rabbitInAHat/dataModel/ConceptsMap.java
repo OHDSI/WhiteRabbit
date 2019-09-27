@@ -23,10 +23,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConceptsMap {
 
@@ -42,9 +39,7 @@ public class ConceptsMap {
     }
 
     private void load(String filename) throws IOException{
-        InputStream conceptStream = Database.class.getResourceAsStream(filename);
-
-        try {
+        try (InputStream conceptStream = Database.class.getResourceAsStream(filename)) {
             for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(conceptStream))) {
                 String tableName = conceptRow.get("omop_cdm_table");
                 String fieldName = conceptRow.get("omop_cdm_field");
@@ -61,28 +56,15 @@ public class ConceptsMap {
         }
     }
 
-    public void put(String targetTable, String targetField, Concept concept) {
-        if (!this.conceptMap.containsKey(targetTable)) {
-            this.conceptMap.put(targetTable, new HashMap<>());
-        }
-        if (!this.conceptMap.get(targetTable).containsKey(targetField)) {
-            this.conceptMap.get(targetTable).put(targetField, new ArrayList<>());
-        }
-        this.conceptMap.get(targetTable).get(targetField).add(concept);
+    public void put(String targetTableName, String targetFieldName, Concept concept) {
+        this.conceptMap
+                .computeIfAbsent(targetTableName, t -> new HashMap<>())
+                .computeIfAbsent(targetFieldName, t -> new ArrayList<>())
+                .add(concept);
     }
 
     public List<Concept> get(String targetTable, String targetField) {
-        if (!this.containsKey(targetTable, targetField)) {
-            return null;
-        }
-        return this.conceptMap.get(targetTable).get(targetField);
-    }
-
-    private boolean containsKey(String targetTable, String targetField) {
-        if (!this.conceptMap.containsKey(targetTable)) {
-            return false;
-        }
-        return this.conceptMap.get(targetTable).containsKey(targetField);
+        return conceptMap.getOrDefault(targetTable, Collections.emptyMap()).get(targetField);
     }
 
     public static class Concept {
