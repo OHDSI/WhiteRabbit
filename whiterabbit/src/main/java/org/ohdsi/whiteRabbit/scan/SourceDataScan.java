@@ -26,13 +26,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -114,6 +114,8 @@ public class SourceDataScan {
 		Collections.sort(tables);
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+		CellStyle percentageStyle = workbook.createCellStyle();
+		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0%"));
 
 		// Create overview sheet
 		Sheet overviewSheet = workbook.createSheet("Overview");
@@ -126,7 +128,7 @@ public class SourceDataScan {
 				addRow(overviewSheet, "");
 			}
 		} else {
-			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty");
+			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "N unique values", "Fraction unique values");
 			int sheetIndex = 0;
 			Map<String, String> sheetNameLookup = new HashMap<>();
 			for (String tableName : tables) {
@@ -137,8 +139,17 @@ public class SourceDataScan {
 				sheetNameLookup.put(tableName, sheetName);
 
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
-                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(), Integer.valueOf(fieldInfo.maxLength), Long.valueOf(fieldInfo.rowCount),
-                            Long.valueOf(fieldInfo.nProcessed), fieldInfo.getFractionEmpty());
+					Long uniqueCount = fieldInfo.uniqueCount;
+					Double fractionUnique = fieldInfo.getFractionUnique();
+                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(),
+							Integer.valueOf(fieldInfo.maxLength),
+							Long.valueOf(fieldInfo.rowCount),
+                            Long.valueOf(fieldInfo.nProcessed),
+							fieldInfo.getFractionEmpty(),
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique
+					);
+					this.setCellStyles(overviewSheet, percentageStyle, 6, 8);
                 }
 				addRow(overviewSheet, "");
 				sheetIndex += 1;
@@ -367,6 +378,7 @@ public class SourceDataScan {
 		public int					maxLength		= 0;
 		public long					nProcessed		= 0;
 		public long					emptyCount		= 0;
+		public long					uniqueCount		= 0;
 		public long					rowCount		= -1;
 		public boolean				isInteger		= true;
 		public boolean				isReal			= true;
@@ -382,6 +394,10 @@ public class SourceDataScan {
 			if (valueCounts.size() > maxValues) {
 				valueCounts.keepTopN(maxValues);
 			}
+		}
+
+		public boolean hasValuesTrimmed() {
+			return tooManyValues;
 		}
 
 		public Double getFractionEmpty() {
@@ -408,6 +424,16 @@ public class SourceDataScan {
 				return "varchar";
 		}
 
+		public Double getFractionUnique() {
+			if (nProcessed == 0 || uniqueCount == 1) {
+				return 0d;
+			}
+			else {
+				return uniqueCount / (double) nProcessed;
+			}
+
+		}
+
 		public void processValue(String value) {
 			String trimValue = value.trim();
 			nProcessed++;
@@ -419,7 +445,8 @@ public class SourceDataScan {
 				emptyCount++;
 
 			if (!isFreeText) {
-				valueCounts.add(value);
+				boolean newlyAdded = valueCounts.add(value);
+				if  (newlyAdded) uniqueCount++;
 
 				if (trimValue.length() != 0) {
 					if (isReal && !StringUtilities.isNumber(trimValue))
@@ -448,7 +475,7 @@ public class SourceDataScan {
 
 			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
 				tooManyValues = true;
-				valueCounts.keepTopN(maxValues);
+				this.trim();
 			}
 		}
 
@@ -477,6 +504,15 @@ public class SourceDataScan {
 			else
 				cell.setCellValue(value.toString());
 
+		}
+	}
+
+	private void setCellStyles(Sheet sheet, CellStyle style, int... colNums) {
+		Row row = sheet.getRow(sheet.getLastRowNum());
+		for(int i : colNums) {
+			Cell cell = row.getCell(i);
+			if (cell != null)
+				cell.setCellStyle(style);
 		}
 	}
 }

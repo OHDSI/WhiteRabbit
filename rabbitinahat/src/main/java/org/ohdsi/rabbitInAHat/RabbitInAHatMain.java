@@ -49,7 +49,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
-import org.ohdsi.rabbitInAHat.dataModel.StemTableAdd;
+import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 
 /**
@@ -79,6 +79,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_SET_TARGET_V531				= "CDM v5.3.1";
 	public final static String		ACTION_SET_TARGET_V60				= "CDM v6.0";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
+	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
 	public final static String		ACTION_MARK_COMPLETED				= "Mark Highlighted As Complete";
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
@@ -330,6 +331,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		addStemTable.addActionListener(this);
 		editMenu.add(addStemTable);
 
+		JMenuItem removeStemTable = new JMenuItem(ACTION_REMOVE_STEM_TABLE);
+		removeStemTable.addActionListener(this);
+		editMenu.add(removeStemTable);
+
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
 
@@ -528,6 +533,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			case ACTION_ADD_STEM_TABLE:
 				doAddStemTable();
 				break;
+			case ACTION_REMOVE_STEM_TABLE:
+				doRemoveStemTable();
+				break;
 			case ACTION_MARK_COMPLETED:
 				doMarkCompleted();
 				break;
@@ -541,10 +549,27 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	}
 
 	private void doAddStemTable() {
-		ETL etl = ObjectExchange.etl;
-		StemTableAdd.addStemTable(etl);
-		ObjectExchange.etl = etl;
-		tableMappingPanel.setMapping(etl.getTableToTableMapping());
+		if (!ObjectExchange.etl.hasStemTable()) {
+			StemTableFactory.addStemTable(ObjectExchange.etl);
+			tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+		}
+	}
+
+	private void doRemoveStemTable() {
+		if (ObjectExchange.etl.hasStemTable()) {
+			String[] ObjButtons = {"Yes","No"};
+			int PromptResult = JOptionPane.showOptionDialog(
+					null,
+					"Any mappings to/from the stem table will be lost. Are you sure?",
+					"Rabbit In A Hat",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,
+					null,ObjButtons,ObjButtons[1]
+			);
+
+			if (PromptResult==JOptionPane.YES_OPTION) {
+				StemTableFactory.removeStemTable(ObjectExchange.etl);
+				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+			}
+		}
 	}
 
 	private void doGenerateTestFramework(String filename) {
@@ -665,6 +690,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			if (replace) {
 				ETL etl = new ETL();
+				doRemoveStemTable();
 				try {
 					etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
 					etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());

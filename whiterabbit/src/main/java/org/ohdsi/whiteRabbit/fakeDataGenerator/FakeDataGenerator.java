@@ -18,18 +18,15 @@
 package org.ohdsi.whiteRabbit.fakeDataGenerator;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
-import org.ohdsi.utilities.collections.OneToManySet;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 import org.ohdsi.whiteRabbit.DbSettings;
@@ -37,39 +34,20 @@ import org.ohdsi.whiteRabbit.DbSettings;
 public class FakeDataGenerator {
 
 	private RichConnection					connection;
-	// private DbType dbType;
 	private int								targetType;
-	private OneToManySet<String, String>	primaryKeyToValues;
 	private int								maxRowsPerTable	= 1000;
 
 	private static int						REGULAR			= 0;
 	private static int						RANDOM			= 1;
 	private static int						PRIMARY_KEY		= 2;
 
-	public static void main(String[] args) {
-		FakeDataGenerator fakeDataGenerator = new FakeDataGenerator();
-
-		DbSettings dbSettings = new DbSettings();
-		dbSettings.dataType = DbSettings.DATABASE;
-		dbSettings.dbType = DbType.POSTGRESQL;
-		dbSettings.server = "127.0.0.1/ohdsi";
-		dbSettings.database = "ars";
-		dbSettings.user = "postgres";
-		dbSettings.password = "F1r3starter";
-
-		fakeDataGenerator.generateData(dbSettings, 100000, "c:/temp/ScanReport.xlsx", "c:/temp");
-		// fakeDataGenerator.generateData(dbSettings, 1000, "C:/home/Research/EMIF WP12/ARS CDM loading/ScanReport.xlsx", "c:/temp");
-	}
-
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder) {
 		this.maxRowsPerTable = maxRowsPerTable;
-		// this.dbType = dbSettings.dbType;
 		this.targetType = dbSettings.dataType;
 
 		StringUtilities.outputWithTime("Starting creation of fake data");
 		System.out.println("Loading scan report from " + filename);
 		Database database = Database.generateModelFromScanReport(filename);
-		findValuesForPrimaryKeys(database);
 
 		if (targetType == DbSettings.DATABASE) {
 			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
@@ -97,34 +75,17 @@ public class FakeDataGenerator {
 		StringUtilities.outputWithTime("Done");
 	}
 
-	private void findValuesForPrimaryKeys(Database database) {
-		Set<String> primaryKeys = new HashSet<String>();
-		for (Table table : database.getTables()) {
-			for (Field field : table.getFields()) {
-				if (field.getValueCounts()[0][0].equals("List truncated...")) {
-					primaryKeys.add(field.getName());
-				}
-			}
-		}
-
-		primaryKeyToValues = new OneToManySet<String, String>();
-		for (Table table : database.getTables()) {
-			for (Field field : table.getFields()) {
-				if (primaryKeys.contains(field.getName()) && !field.getValueCounts()[0][0].equals("List truncated...")) {
-					for (int i = 0; i < field.getValueCounts().length; i++)
-						if (!field.getValueCounts()[i][0].equals("") && !field.getValueCounts()[i][0].equals("List truncated..."))
-							primaryKeyToValues.put(field.getName(), field.getValueCounts()[i][0]);
-				}
-			}
-		}
-	}
-
 	private List<Row> generateRows(Table table) {
 		String[] fieldNames = new String[table.getFields().size()];
 		ValueGenerator[] valueGenerators = new ValueGenerator[table.getFields().size()];
 		int size = maxRowsPerTable;
 		for (int i = 0; i < table.getFields().size(); i++) {
 			Field field = table.getFields().get(i);
+			// If a field in the table is empty, the whole table is empty.
+			// Return empty list (writes empty file)
+			if (field.getType().equals("empty")) {
+				return new ArrayList<>();
+			}
 			fieldNames[i] = field.getName();
 			ValueGenerator valueGenerator = new ValueGenerator(field);
 			valueGenerators[i] = valueGenerator;
@@ -223,15 +184,8 @@ public class FakeDataGenerator {
 			String[][] valueCounts = field.getValueCounts();
 			type = field.getType();
 			if (valueCounts[0][0].equals("List truncated...")) {
-				Set<String> values = primaryKeyToValues.get(field.getName());
-				if (values.size() != 0) {
-					this.values = convertToArray(values);
-					cursor = 0;
-					generatorType = PRIMARY_KEY;
-				} else {
-					length = field.getMaxLength();
-					generatorType = RANDOM;
-				}
+				length = field.getMaxLength();
+				generatorType = RANDOM;
 			} else {
 				int length = valueCounts.length;
 				if (valueCounts[length - 1][1].equals("")) // Last value could be "List truncated..."
