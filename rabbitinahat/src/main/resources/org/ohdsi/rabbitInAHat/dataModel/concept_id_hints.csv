@@ -179,13 +179,13 @@ death,death_type_concept_id,256,EHR Record underlying cause,S
 death,death_type_concept_id,261,US Social Security Death Master File record,S
 death,death_type_concept_id,38003617,Death Certificate contributory cause,S
 death,death_type_concept_id,38003618,Death Certificate underlying cause,S
-death,death_type_concept_id,38003565,Payer enrollment status "Deceased",S
-death,death_type_concept_id,38003566,Medical claim discharge status "Died",S
+death,death_type_concept_id,38003565,"Payer enrollment status ""Deceased""",S
+death,death_type_concept_id,38003566,"Medical claim discharge status ""Died""",S
 death,death_type_concept_id,38003567,Medical claim diagnostic code indicating death,S
 death,death_type_concept_id,38003568,Medical claim DRG code indicating death,S
-death,death_type_concept_id,38003569,EHR record patient status "Deceased",S
+death,death_type_concept_id,38003569,"EHR record patient status ""Deceased""",S
 death,death_type_concept_id,38003570,Death Certificate immediate cause,S
-death,death_type_concept_id,44818516,EHR discharge status "Expired",S
+death,death_type_concept_id,44818516,"EHR discharge status ""Expired""",S
 device_exposure,device_type_concept_id,44818705,Inferred from procedure claim,S
 device_exposure,device_type_concept_id,44818706,Patient reported device,S
 device_exposure,device_type_concept_id,44818707,EHR Detail,S
@@ -377,7 +377,7 @@ cost,cost_concept_id,32004,Fee,S
 cost,cost_concept_id,32005,Pharmacy ingredient,S
 cost,cost_concept_id,32006,Average Wholesale,S
 cost,cost_concept_id,32007,Cost,S
-cost,cost_concept_id,32008,Usual, customary and reasonable,S
+cost,cost_concept_id,32008,"Usual, customary and reasonable",S
 cost,cost_concept_id,32009,Balance bill,S
 cost,cost_concept_id,32010,Incentive,S
 cost,cost_concept_id,32011,Capitation,S
@@ -388,10 +388,10 @@ cost,cost_concept_id,32015,Bundled payment,S
 cost,cost_concept_id,32016,Rebate payment,S
 cost,cost_concept_id,31995,Charged,S
 cost,cost_concept_id,31993,Bundled payment,S
-cost,cost_concept_id,31971,Premium, member contribution,S
+cost,cost_concept_id,31971,"Premium, member contribution",S
 cost,cost_concept_id,32017,Accumulated Deductible,S
 cost,cost_concept_id,31994,Rebate payment,S
-cost,cost_concept_id,31972,Premium, employer contribution,S
+cost,cost_concept_id,31972,"Premium, employer contribution",S
 cost,cost_concept_id,31973,Charged,S
 cost,cost_concept_id,31974,Copayment,S
 cost,cost_concept_id,31975,Coinsurance,S
@@ -405,7 +405,7 @@ cost,cost_concept_id,31982,Fee,S
 cost,cost_concept_id,31983,Pharmacy ingredient,S
 cost,cost_concept_id,31984,Average Wholesale,S
 cost,cost_concept_id,31985,Cost,S
-cost,cost_concept_id,31986,Usual, customary and reasonable,S
+cost,cost_concept_id,31986,"Usual, customary and reasonable",S
 cost,cost_concept_id,31987,Balance bill,S
 cost,cost_concept_id,31988,Incentive,S
 cost,cost_concept_id,31989,Capitation,S
@@ -422,7 +422,7 @@ payer_plan_period,plan_concept_id,264,Silver Health Plan with 70% actuarial plan
 payer_plan_period,plan_concept_id,265,Gold Health Plan with 80% actuarial plan value,S
 payer_plan_period,plan_concept_id,266,Platinum Health Plan with 90% actuarial plan value,S
 payer_plan_period,plan_concept_id,267,Catastrophic Health Plan with <60% actuarial plan value,S
-payer_plan_period,plan_concept_id,268,Broad Benefit (Medical, Drug, Dental, Vision) plan,S
+payer_plan_period,plan_concept_id,268,"Broad Benefit (Medical, Drug, Dental, Vision) plan",S
 payer_plan_period,plan_concept_id,269,Minimal Benefit (Medical and Drug) plan,S
 payer_plan_period,plan_concept_id,270,Medical only plan,S
 payer_plan_period,plan_concept_id,271,Dental only plan,S
