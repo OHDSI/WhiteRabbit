@@ -20,7 +20,6 @@ package org.ohdsi.rabbitInAHat;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +40,12 @@ import org.ohdsi.utilities.files.WriteTextFile;
 
 public class ETLMarkupDocumentGenerator {
 
-	private MarkupDocument	document;
-	private ETL				etl;
+	private MarkupDocument document;
+	private ETL etl;
 
 	public enum DocumentType {
 		MARKDOWN, HTML
-	};
+	}
 
 	public static void main(String[] args) {
 		ETL etl = ETL.fromFile("c:/temp/markdown/exampleEtl.json.gz", FileFormat.GzipJson);
@@ -55,32 +54,24 @@ public class ETLMarkupDocumentGenerator {
 
 	}
 
-	public ETLMarkupDocumentGenerator(ETL etl) {
+	ETLMarkupDocumentGenerator(ETL etl) {
 		this.etl = etl;
 	}
 
-	public void generate(String fileName, DocumentType documentType) {
-		try {
-			if (documentType == DocumentType.HTML)
-				document = new HtmlDocument(fileName);
-			else
-				document = new MarkdownDocument(fileName);
-			addTableLevelSection();
+	void generate(String fileName, DocumentType documentType) {
+		if (documentType == DocumentType.HTML)
+			document = new HtmlDocument(fileName);
+		else
+			document = new MarkdownDocument(fileName);
+		addTableLevelSection();
 
-			for (Table targetTable : etl.getTargetDatabase().getTables())
-				addTargetTableSection(targetTable);
+		for (Table targetTable : etl.getTargetDatabase().getTables())
+			addTargetTableSection(targetTable);
 
-			document.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InvalidFormatException e) {
-			e.printStackTrace();
-		}
+		document.close();
 	}
 
-	private void addTargetTableSection(Table targetTable) throws InvalidFormatException, IOException {
+	private void addTargetTableSection(Table targetTable) {
 		document.addHeader2("Table name: " + targetTable.getName());
 
 		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps())
@@ -110,7 +101,7 @@ public class ETLMarkupDocumentGenerator {
 				document.addImage(image, "Field mapping");
 
 				// Add table of field to field mapping
-				List<Row> rows = new ArrayList<Row>();
+				List<Row> rows = new ArrayList<>();
 				for (MappableItem targetField : fieldtoFieldMapping.getTargetItems()) {
 					Row row = new Row();
 					row.add("Destination Field", targetField.getName());
@@ -145,13 +136,12 @@ public class ETLMarkupDocumentGenerator {
 					row.add("Comment field", comment.toString().trim());
 					rows.add(row);
 				}
-			
-				
+
 				document.addTable(rows);
 			}
 	}
 
-	private void addTableLevelSection() throws InvalidFormatException, IOException {
+	private void addTableLevelSection() {
 		MappingPanel mappingPanel = new MappingPanel(etl.getTableToTableMapping());
 		mappingPanel.setShowOnlyConnectedItems(true);
 		int height = mappingPanel.getMinimumSize().height;
@@ -167,24 +157,24 @@ public class ETLMarkupDocumentGenerator {
 	}
 
 	private interface MarkupDocument {
-		public void addHeader1(String header);
+		void addHeader1(String header);
 
-		public void addHeader2(String header);
+		void addHeader2(String header);
 
-		public void addHeader3(String header);
+		void addHeader3(String header);
 
-		public void addParagraph(String text);
+		void addParagraph(String text);
 
-		public void addImage(BufferedImage image, String alternative);
+		void addImage(BufferedImage image, String alternative);
 
-		public void addTable(List<Row> rows);
+		void addTable(List<Row> rows);
 
-		public void close();
+		void close();
 	}
 
-	private class MarkdownDocument implements MarkupDocument {
-		private List<String>	lines		= new ArrayList<String>();
-		private int				imageIndex	= 0;
+	private static class MarkdownDocument implements MarkupDocument {
+		private List<String> lines = new ArrayList<>();
+		private int imageIndex = 0;
 		private String fileName;
 		private String filesFolder;
 		private String mainFolder;
@@ -193,7 +183,7 @@ public class ETLMarkupDocumentGenerator {
 		 * 
 		 * @param fileName  Full path of the markdown document to create
 		 */
-		public MarkdownDocument(String fileName) {
+		MarkdownDocument(String fileName) {
 			this.fileName = fileName;
 			mainFolder = new File(fileName).getParent();
 			filesFolder = new File(fileName).getName().replaceAll("(\\.md)|(\\.MD)", "_files");
@@ -251,31 +241,33 @@ public class ETLMarkupDocumentGenerator {
 
 		@Override
 		public void addTable(List<Row> rows) {
-			if (rows.size() > 0) {
-				String header = "| " + StringUtilities.join(rows.get(0).getFieldNames(), " | ") + " |";
-				header = header.replaceAll("\n", "  ");
-				lines.add(header);
-				StringBuilder line = new StringBuilder();
-				for (int i = 0; i < rows.get(0).getFieldNames().size(); i++)
-					line.append("| --- ");
+			if (rows.size() == 0) {
+				return;
+			}
+
+			String header = "| " + StringUtilities.join(rows.get(0).getFieldNames(), " | ") + " |";
+			header = header.replaceAll("\n", "  ");
+			lines.add(header);
+			StringBuilder line = new StringBuilder();
+			for (int i = 0; i < rows.get(0).getFieldNames().size(); i++)
+				line.append("| --- ");
+			line.append("|");
+			lines.add(line.toString());
+
+			for (Row row : rows) {
+				line = new StringBuilder();
+				for (String value : row.getCells())
+					line.append("| ").append(value.replaceAll("\n", "  ")).append(" ");
 				line.append("|");
 				lines.add(line.toString());
-
-				for (Row row : rows) {
-					line = new StringBuilder();
-					for (String value : row.getCells())
-						line.append("| " + value.replaceAll("\n", "  ") + " ");
-					line.append("|");
-					lines.add(line.toString());
-				}
-				lines.add("");
 			}
+			lines.add("");
 		}
 	}
 
-	private class HtmlDocument implements MarkupDocument {
-		private List<String>	lines		= new ArrayList<String>();
-		private int				imageIndex	= 0;
+	private static class HtmlDocument implements MarkupDocument {
+		private List<String> lines = new ArrayList<>();
+		private int	imageIndex = 0;
 		private String fileName;
 		private String filesFolder;
 		private String mainFolder;
@@ -284,10 +276,10 @@ public class ETLMarkupDocumentGenerator {
 		 * 
 		 * @param fileName   Full path of the HTML file to create.
 		 */
-		public HtmlDocument(String fileName) {
+		HtmlDocument(String fileName) {
 			this.fileName = fileName;
 			mainFolder = new File(fileName).getParent();
-			filesFolder = new File(fileName).getName().replaceAll("(\\.html?)|(\\.html?)", "_files");
+			filesFolder = new File(fileName).getName().replaceAll("(\\.html?)|(\\.HTML?)", "_files");
 		}
 		
 
