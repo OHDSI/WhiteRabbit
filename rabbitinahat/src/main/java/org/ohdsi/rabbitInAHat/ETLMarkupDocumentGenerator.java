@@ -47,11 +47,9 @@ public class ETLMarkupDocumentGenerator {
 	}
 
 	public static void main(String[] args) {
-		// TODO: revert
-		ETL etl = ETL.fromFile("/Volumes/GoogleDrive/My Drive/PRIAS/Workshop/RabbitInAHat_Prias_v1.json.gz", FileFormat.GzipJson);
+		ETL etl = ETL.fromFile("c:/temp/markdown/exampleEtl.json.gz", FileFormat.GzipJson);
 		ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(etl);
-		generator.generate("/Users/Maxim/Desktop/temp-markdown/index.md", DocumentType.MARKDOWN);
-
+		generator.generate("c:/temp/markdown/index.html", DocumentType.HTML);
 	}
 
 	ETLMarkupDocumentGenerator(ETL etl) {
@@ -140,22 +138,22 @@ public class ETLMarkupDocumentGenerator {
 					for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToTargetMaps()) {
 						if (fieldToFieldMap.getTargetItem() == targetField) {
 							if (source.length() != 0)
-								source.append("\n");
+								source.append("<br>");
 							source.append(fieldToFieldMap.getSourceItem().getName().trim());
 
 							if (logic.length() != 0)
-								logic.append("\n");
+								logic.append("<br>");
 							logic.append(fieldToFieldMap.getLogic().trim());
 
 							if (comment.length() != 0)
-								comment.append("\n");
+								comment.append("<br>");
 							comment.append(fieldToFieldMap.getComment().trim());
 						}
 					}
 					for (Field field : targetTable.getFields()) {
 						if (field.getName().equals(targetField.getName())) {
 							if (comment.length() != 0)
-								comment.append("\n");
+								comment.append("<br>");
 							comment.append(field.getComment().trim());
 						}
 					}
