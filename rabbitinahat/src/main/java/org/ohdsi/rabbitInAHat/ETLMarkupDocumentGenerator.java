@@ -66,16 +66,20 @@ public class ETLMarkupDocumentGenerator {
 		}
 
 		addTableLevelSection();
+		document.close("index");
 
 		for (Table targetTable : etl.getTargetDatabase().getTables()) {
 			addTargetTableSection(targetTable);
+			document.close(targetTable.getName());
 		}
 
-		document.addHeader2("Appendix: source tables");
+
+		document.addHeader1("Appendix: source tables");
 
 		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
 			addSourceTablesAppendix(sourceTable);
 		}
+		document.close("source_appendix");
 
 		document.close();
 	}
@@ -199,6 +203,8 @@ public class ETLMarkupDocumentGenerator {
 		void addTable(List<Row> rows);
 
 		void close();
+
+		void close(String targetFileName);
 	}
 
 	private static class MarkdownDocument implements MarkupDocument {
@@ -213,11 +219,11 @@ public class ETLMarkupDocumentGenerator {
 		 * @param fileName  Full path of the markdown document to create
 		 */
 		MarkdownDocument(String fileName) {
-			this.fileName = fileName;
+			this.fileName = new File(fileName).getName();
 			mainFolder = new File(fileName).getParent();
 			filesFolder = new File(fileName).getName().replaceAll("(\\.md)|(\\.MD)", "_files");
 		}
-		
+
 		@Override
 		public void addHeader1(String header) {
 			lines.add("# " + header);
@@ -262,10 +268,23 @@ public class ETLMarkupDocumentGenerator {
 
 		@Override
 		public void close() {
-			WriteTextFile out = new WriteTextFile(fileName);
-			for (String line : lines)
+			this.close(fileName);
+		}
+
+		@Override
+		public void close(String targetFileName) {
+			if (lines.size() == 0) {
+				return;
+			}
+
+			WriteTextFile out = new WriteTextFile(mainFolder + "/" + targetFileName + ".md");
+			for (String line : lines) {
 				out.writeln(line);
+			}
 			out.close();
+
+			// Reset
+			lines = new ArrayList<>();
 		}
 
 		@Override
@@ -306,11 +325,10 @@ public class ETLMarkupDocumentGenerator {
 		 * @param fileName   Full path of the HTML file to create.
 		 */
 		HtmlDocument(String fileName) {
-			this.fileName = fileName;
+			this.fileName = new File(fileName).getName();
 			mainFolder = new File(fileName).getParent();
 			filesFolder = new File(fileName).getName().replaceAll("(\\.html?)|(\\.HTML?)", "_files");
 		}
-		
 
 		@Override
 		public void addHeader1(String header) {
@@ -356,10 +374,23 @@ public class ETLMarkupDocumentGenerator {
 
 		@Override
 		public void close() {
-			WriteTextFile out = new WriteTextFile(fileName);
-			for (String line : lines)
+			this.close(fileName);
+		}
+
+		@Override
+		public void close(String targetFileName) {
+			if (lines.size() == 0) {
+				return;
+			}
+
+			WriteTextFile out = new WriteTextFile(mainFolder + "/" + targetFileName + ".html");
+			for (String line : lines) {
 				out.writeln(line);
+			}
 			out.close();
+
+			// Reset
+			lines = new ArrayList<>();
 		}
 
 		@Override
