@@ -26,7 +26,6 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.ETL.FileFormat;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
@@ -48,9 +47,10 @@ public class ETLMarkupDocumentGenerator {
 	}
 
 	public static void main(String[] args) {
-		ETL etl = ETL.fromFile("c:/temp/markdown/exampleEtl.json.gz", FileFormat.GzipJson);
+		// TODO: revert
+		ETL etl = ETL.fromFile("/Volumes/GoogleDrive/My Drive/PRIAS/Workshop/RabbitInAHat_Prias_v1.json.gz", FileFormat.GzipJson);
 		ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(etl);
-		generator.generate("c:/temp/markdown/index.html", DocumentType.HTML);
+		generator.generate("/Users/Maxim/Desktop/temp-markdown/index.md", DocumentType.MARKDOWN);
 
 	}
 
@@ -59,16 +59,40 @@ public class ETLMarkupDocumentGenerator {
 	}
 
 	void generate(String fileName, DocumentType documentType) {
-		if (documentType == DocumentType.HTML)
+		if (documentType == DocumentType.HTML) {
 			document = new HtmlDocument(fileName);
-		else
+		} else {
 			document = new MarkdownDocument(fileName);
+		}
+
 		addTableLevelSection();
 
-		for (Table targetTable : etl.getTargetDatabase().getTables())
+		for (Table targetTable : etl.getTargetDatabase().getTables()) {
 			addTargetTableSection(targetTable);
+		}
+
+		document.addHeader2("Appendix: source tables");
+
+		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
+			addSourceTablesAppendix(sourceTable);
+		}
 
 		document.close();
+	}
+
+	private void addTableLevelSection() {
+		MappingPanel mappingPanel = new MappingPanel(etl.getTableToTableMapping());
+		mappingPanel.setShowOnlyConnectedItems(true);
+		int height = mappingPanel.getMinimumSize().height;
+		mappingPanel.setSize(800, height);
+
+		document.addHeader1(mappingPanel.getSourceDbName() + " Data Mapping Approach to " + mappingPanel.getTargetDbName());
+
+		BufferedImage image = new BufferedImage(800, height, BufferedImage.TYPE_INT_ARGB);
+		image.getGraphics().setColor(Color.WHITE);
+		image.getGraphics().fillRect(0, 0, image.getWidth(), image.getHeight());
+		mappingPanel.paint(image.getGraphics());
+		document.addImage(image, "Table mapping");
 	}
 
 	private void addTargetTableSection(Table targetTable) {
@@ -141,19 +165,24 @@ public class ETLMarkupDocumentGenerator {
 			}
 	}
 
-	private void addTableLevelSection() {
-		MappingPanel mappingPanel = new MappingPanel(etl.getTableToTableMapping());
-		mappingPanel.setShowOnlyConnectedItems(true);
-		int height = mappingPanel.getMinimumSize().height;
-		mappingPanel.setSize(800, height);
+	private void addSourceTablesAppendix(Table sourceTable) {
+		document.addHeader3("Table: " + sourceTable.getName());
 
-		document.addHeader1(mappingPanel.getSourceDbName() + " Data Mapping Approach to " + mappingPanel.getTargetDbName());
+		List<Row> rows = new ArrayList<>();
+		for (Field field : sourceTable.getFields()) {
+			String mostFrequentValue = "";
+			if (field.getValueCounts() != null && field.getValueCounts().length != 0) {
+				mostFrequentValue = field.getValueCounts()[0][0];
+			}
 
-		BufferedImage image = new BufferedImage(800, height, BufferedImage.TYPE_INT_ARGB);
-		image.getGraphics().setColor(Color.WHITE);
-		image.getGraphics().fillRect(0, 0, image.getWidth(), image.getHeight());
-		mappingPanel.paint(image.getGraphics());
-		document.addImage(image, "Table mapping");
+			Row row = new Row();
+			row.add("Field", field.getName());
+			row.add("Type", field.getType());
+			row.add("Most freq. value", mostFrequentValue);
+			row.add("Comment", field.getComment());
+			rows.add(row);
+		}
+		document.addTable(rows);
 	}
 
 	private interface MarkupDocument {
