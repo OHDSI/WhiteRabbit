@@ -40,6 +40,7 @@ import org.ohdsi.utilities.files.WriteTextFile;
 public class ETLMarkupDocumentGenerator {
 
 	private MarkupDocument document;
+	private List<String> targetTablesWritten;
 	private ETL etl;
 
 	public enum DocumentType {
@@ -54,6 +55,7 @@ public class ETLMarkupDocumentGenerator {
 
 	ETLMarkupDocumentGenerator(ETL etl) {
 		this.etl = etl;
+		this.targetTablesWritten = new ArrayList<>();
 	}
 
 	void generate(String fileName, DocumentType documentType) {
@@ -63,20 +65,22 @@ public class ETLMarkupDocumentGenerator {
 			document = new MarkdownDocument(fileName);
 		}
 
-		addTableLevelSection();
-		document.write("index");
-
 		for (Table targetTable : etl.getTargetDatabase().getTables()) {
-			addTargetTableSection(targetTable);
-			document.write(targetTable.getName());
+			if (addTargetTableSection(targetTable)) {
+				document.write(targetTable.getName());
+				targetTablesWritten.add(targetTable.getName());
+			};
 		}
 
 		document.addHeader1("Appendix: source tables");
-
 		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
 			addSourceTablesAppendix(sourceTable);
 		}
 		document.write("source_appendix");
+		targetTablesWritten.add("source_appendix");
+
+		addTableLevelSection();
+		document.write("index");
 	}
 
 	private void addTableLevelSection() {
@@ -92,13 +96,20 @@ public class ETLMarkupDocumentGenerator {
 		image.getGraphics().fillRect(0, 0, image.getWidth(), image.getHeight());
 		mappingPanel.paint(image.getGraphics());
 		document.addImage(image, "Table mapping");
+
+		document.addHeader2("Contents");
+		for (String targetTableName : targetTablesWritten) {
+			document.addFileLink(targetTableName);
+		}
 	}
 
-	private void addTargetTableSection(Table targetTable) {
+	private boolean addTargetTableSection(Table targetTable) {
 		document.addHeader2("Table name: " + targetTable.getName());
 
+		boolean hasMappings = false;
 		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps())
 			if (tableToTableMap.getTargetItem() == targetTable) {
+				hasMappings = true;
 				Table sourceTable = (Table) tableToTableMap.getSourceItem();
 				Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
 
@@ -162,6 +173,7 @@ public class ETLMarkupDocumentGenerator {
 
 				document.addTable(rows);
 			}
+		return hasMappings;
 	}
 
 	private void addSourceTablesAppendix(Table sourceTable) {
@@ -194,6 +206,8 @@ public class ETLMarkupDocumentGenerator {
 		void addParagraph(String text);
 
 		void addImage(BufferedImage image, String alternative);
+
+		void addFileLink(String targetName);
 
 		void addTable(List<Row> rows);
 
@@ -252,6 +266,11 @@ public class ETLMarkupDocumentGenerator {
 				throw new RuntimeException(e);
 			}
 			lines.add("![](" + filesFolder.getName() + "/" + imageFile.getName() + ")");
+			lines.add("");
+		}
+
+		public void addFileLink(String targetName) {
+			lines.add(String.format("[%1$s](%1$s.md)", targetName));
 			lines.add("");
 		}
 
@@ -346,6 +365,11 @@ public class ETLMarkupDocumentGenerator {
 				throw new RuntimeException(e);
 			}
 			lines.add("<img src=\"" + filesFolder.getName() + "/" + imageFile.getName() + "\" alt=\"" + alternative + "\">");
+			lines.add("");
+		}
+
+		public void addFileLink(String targetName) {
+			lines.add(String.format("<ul><a href=\"%1$s.html\">%1$s</a></ul>", targetName));
 			lines.add("");
 		}
 
