@@ -64,22 +64,19 @@ public class ETLMarkupDocumentGenerator {
 		}
 
 		addTableLevelSection();
-		document.close("index");
+		document.write("index");
 
 		for (Table targetTable : etl.getTargetDatabase().getTables()) {
 			addTargetTableSection(targetTable);
-			document.close(targetTable.getName());
+			document.write(targetTable.getName());
 		}
-
 
 		document.addHeader1("Appendix: source tables");
 
 		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
 			addSourceTablesAppendix(sourceTable);
 		}
-		document.close("source_appendix");
-
-		document.close();
+		document.write("source_appendix");
 	}
 
 	private void addTableLevelSection() {
@@ -200,26 +197,22 @@ public class ETLMarkupDocumentGenerator {
 
 		void addTable(List<Row> rows);
 
-		void close();
-
-		void close(String targetFileName);
+		void write(String targetName);
 	}
 
 	private static class MarkdownDocument implements MarkupDocument {
 		private List<String> lines = new ArrayList<>();
 		private int imageIndex = 0;
-		private String fileName;
-		private String filesFolder;
-		private String mainFolder;
-		
+		private File mainFolder;
+		private File filesFolder;
+
 		/**
 		 * 
-		 * @param fileName  Full path of the markdown document to create
+		 * @param directoryName  Full path of the markdown document to create
 		 */
-		MarkdownDocument(String fileName) {
-			this.fileName = new File(fileName).getName();
-			mainFolder = new File(fileName).getParent();
-			filesFolder = new File(fileName).getName().replaceAll("(\\.md)|(\\.MD)", "_files");
+		MarkdownDocument(String directoryName) {
+			this.mainFolder = new File(directoryName);
+			this.filesFolder = new File(directoryName, "_files");
 		}
 
 		@Override
@@ -248,34 +241,24 @@ public class ETLMarkupDocumentGenerator {
 
 		@Override
 		public void addImage(BufferedImage image, String alternative) {
-			if (imageIndex == 0) {
-				File folder = new File(mainFolder + "/"+ filesFolder);
-				if (!folder.exists())
-					folder.mkdirs();
+			if (imageIndex == 0 && !filesFolder.exists()) {
+				filesFolder.mkdirs();
 			}
 			imageIndex++;
-			String imageFile = filesFolder + "/image" + imageIndex + ".png";
+			File imageFile = new File(filesFolder, "image" + imageIndex + ".png");
 			try {
-				ImageIO.write(image, "png", new File(mainFolder + "/" + imageFile));
+				ImageIO.write(image, "png", imageFile);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			lines.add("![](" + imageFile + ")");
+			lines.add("![](" + filesFolder.getName() + "/" + imageFile.getName() + ")");
 			lines.add("");
 		}
 
 		@Override
-		public void close() {
-			this.close(fileName);
-		}
-
-		@Override
-		public void close(String targetFileName) {
-			if (lines.size() == 0) {
-				return;
-			}
-
-			WriteTextFile out = new WriteTextFile(mainFolder + "/" + targetFileName + ".md");
+		public void write(String targetName) {
+			File outFile = new File(mainFolder, targetName + ".md");
+			WriteTextFile out = new WriteTextFile(outFile.getAbsolutePath());
 			for (String line : lines) {
 				out.writeln(line);
 			}
@@ -314,18 +297,16 @@ public class ETLMarkupDocumentGenerator {
 	private static class HtmlDocument implements MarkupDocument {
 		private List<String> lines = new ArrayList<>();
 		private int	imageIndex = 0;
-		private String fileName;
-		private String filesFolder;
-		private String mainFolder;
-		
+		private File mainFolder;
+		private File filesFolder;
+
 		/**
 		 * 
-		 * @param fileName   Full path of the HTML file to create.
+		 * @param directoryName   Full path of the HTML file to create.
 		 */
-		HtmlDocument(String fileName) {
-			this.fileName = new File(fileName).getName();
-			mainFolder = new File(fileName).getParent();
-			filesFolder = new File(fileName).getName().replaceAll("(\\.html?)|(\\.HTML?)", "_files");
+		HtmlDocument(String directoryName) {
+			this.mainFolder = new File(directoryName);
+			this.filesFolder = new File(directoryName, "_files");
 		}
 
 		@Override
@@ -354,34 +335,24 @@ public class ETLMarkupDocumentGenerator {
 		
 		@Override
 		public void addImage(BufferedImage image, String alternative) {
-			if (imageIndex == 0) {
-				File folder = new File(mainFolder + "/"+ filesFolder);
-				if (!folder.exists())
-					folder.mkdirs();
+			if (imageIndex == 0 && !filesFolder.exists()) {
+				filesFolder.mkdirs();
 			}
 			imageIndex++;
-			String imageFile = filesFolder + "/image" + imageIndex + ".png";
+			File imageFile = new File(filesFolder, "image" + imageIndex + ".png");
 			try {
-				ImageIO.write(image, "png", new File(mainFolder + "/" + imageFile));
+				ImageIO.write(image, "png", imageFile);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			lines.add("<img src=\"" + imageFile + "\" alt=\"" + alternative + "\">");
+			lines.add("<img src=\"" + filesFolder.getName() + "/" + imageFile.getName() + "\" alt=\"" + alternative + "\">");
 			lines.add("");
 		}
 
 		@Override
-		public void close() {
-			this.close(fileName);
-		}
-
-		@Override
-		public void close(String targetFileName) {
-			if (lines.size() == 0) {
-				return;
-			}
-
-			WriteTextFile out = new WriteTextFile(mainFolder + "/" + targetFileName + ".html");
+		public void write(String targetName) {
+			File outFile = new File(mainFolder, targetName + ".html");
+			WriteTextFile out = new WriteTextFile(outFile.getAbsolutePath());
 			for (String line : lines) {
 				out.writeln(line);
 			}
