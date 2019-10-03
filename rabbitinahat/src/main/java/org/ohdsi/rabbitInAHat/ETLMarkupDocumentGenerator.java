@@ -19,8 +19,11 @@ package org.ohdsi.rabbitInAHat;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +38,6 @@ import org.ohdsi.rabbitInAHat.dataModel.Mapping;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
-import org.ohdsi.utilities.files.WriteTextFile;
 
 public class ETLMarkupDocumentGenerator {
 
@@ -277,11 +279,14 @@ public class ETLMarkupDocumentGenerator {
 		@Override
 		public void write(String targetName) {
 			File outFile = new File(mainFolder, targetName + ".md");
-			WriteTextFile out = new WriteTextFile(outFile.getAbsolutePath());
-			for (String line : lines) {
-				out.writeln(line);
+			try (BufferedWriter bw = Files.newBufferedWriter(outFile.toPath());
+				 PrintWriter out = new PrintWriter(bw)) {
+				for (String line : lines) {
+					out.println(line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			out.close();
 
 			// Reset
 			lines = new ArrayList<>();
@@ -376,11 +381,14 @@ public class ETLMarkupDocumentGenerator {
 		@Override
 		public void write(String targetName) {
 			File outFile = new File(mainFolder, targetName + ".html");
-			WriteTextFile out = new WriteTextFile(outFile.getAbsolutePath());
-			for (String line : lines) {
-				out.writeln(line);
+			try (BufferedWriter bw = Files.newBufferedWriter(outFile.toPath());
+				 PrintWriter out = new PrintWriter(bw)) {
+				for (String line : lines) {
+					out.println(line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			out.close();
 
 			// Reset
 			lines = new ArrayList<>();
