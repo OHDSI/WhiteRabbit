@@ -130,11 +130,6 @@
         </dependency>
         <dependency>
             <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.28.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
             <artifactId>google-http-client</artifactId>
             <version>1.29.0</version>
         </dependency>
