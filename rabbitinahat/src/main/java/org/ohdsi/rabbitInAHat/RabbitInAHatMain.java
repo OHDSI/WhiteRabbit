@@ -481,10 +481,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doGenerateEtlWordDoc(chooseSavePath(FILE_FILTER_DOCX));
 				break;
 			case ACTION_GENERATE_ETL_HTML_DOCUMENT:
-				doGenerateEtlHtmlDoc(chooseSavePath(FILE_FILTER_HTML));
+				doGenerateEtlHtmlDoc(chooseSaveDirectory());
 				break;
 			case ACTION_GENERATE_ETL_MD_DOCUMENT:
-				doGenerateEtlMdDoc(chooseSavePath(FILE_FILTER_MD));
+				doGenerateEtlMdDoc(chooseSaveDirectory());
 				break;
 			case ACTION_GENERATE_TEST_FRAMEWORK:
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
@@ -740,20 +740,20 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doGenerateEtlHtmlDoc(String filename) {
-		if (filename != null) {
+	private void doGenerateEtlHtmlDoc(String directoryName) {
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
-			generator.generate(filename, DocumentType.HTML);
+			generator.generate(directoryName, DocumentType.HTML);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
 
-	private void doGenerateEtlMdDoc(String filename) {
-		if (filename != null) {
+	private void doGenerateEtlMdDoc(String directoryName) {
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
-			generator.generate(filename, DocumentType.MARKDOWN);
+			generator.generate(directoryName, DocumentType.MARKDOWN);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
