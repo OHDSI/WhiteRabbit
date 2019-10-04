@@ -19,15 +19,16 @@ package org.ohdsi.rabbitInAHat;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.ETL.FileFormat;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
@@ -37,54 +38,80 @@ import org.ohdsi.rabbitInAHat.dataModel.Mapping;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
-import org.ohdsi.utilities.files.WriteTextFile;
 
 public class ETLMarkupDocumentGenerator {
 
-	private MarkupDocument	document;
-	private ETL				etl;
+	private MarkupDocument document;
+	private List<String> targetTablesWritten;
+	private ETL etl;
 
 	public enum DocumentType {
 		MARKDOWN, HTML
-	};
+	}
 
 	public static void main(String[] args) {
 		ETL etl = ETL.fromFile("c:/temp/markdown/exampleEtl.json.gz", FileFormat.GzipJson);
 		ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(etl);
 		generator.generate("c:/temp/markdown/index.html", DocumentType.HTML);
-
 	}
 
-	public ETLMarkupDocumentGenerator(ETL etl) {
+	ETLMarkupDocumentGenerator(ETL etl) {
 		this.etl = etl;
+		this.targetTablesWritten = new ArrayList<>();
 	}
 
-	public void generate(String fileName, DocumentType documentType) {
-		try {
-			if (documentType == DocumentType.HTML)
-				document = new HtmlDocument(fileName);
-			else
-				document = new MarkdownDocument(fileName);
-			addTableLevelSection();
+	void generate(String fileName, DocumentType documentType) {
+		if (documentType == DocumentType.HTML) {
+			document = new HtmlDocument(fileName);
+		} else {
+			document = new MarkdownDocument(fileName);
+		}
 
-			for (Table targetTable : etl.getTargetDatabase().getTables())
-				addTargetTableSection(targetTable);
+		for (Table targetTable : etl.getTargetDatabase().getTables()) {
+			if (addTargetTableSection(targetTable)) {
+				document.write(targetTable.getName());
+				targetTablesWritten.add(targetTable.getName());
+			};
+		}
 
-			document.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InvalidFormatException e) {
-			e.printStackTrace();
+		document.addHeader1("Appendix: source tables");
+		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
+			addSourceTablesAppendix(sourceTable);
+		}
+		document.write("source_appendix");
+		targetTablesWritten.add("source_appendix");
+
+		addTableLevelSection();
+		document.write("index");
+	}
+
+	private void addTableLevelSection() {
+		MappingPanel mappingPanel = new MappingPanel(etl.getTableToTableMapping());
+		mappingPanel.setShowOnlyConnectedItems(true);
+		int height = mappingPanel.getMinimumSize().height;
+		mappingPanel.setSize(800, height);
+
+		document.addHeader1(mappingPanel.getSourceDbName() + " Data Mapping Approach to " + mappingPanel.getTargetDbName());
+
+		BufferedImage image = new BufferedImage(800, height, BufferedImage.TYPE_INT_ARGB);
+		image.getGraphics().setColor(Color.WHITE);
+		image.getGraphics().fillRect(0, 0, image.getWidth(), image.getHeight());
+		mappingPanel.paint(image.getGraphics());
+		document.addImage(image, "Table mapping");
+
+		document.addHeader2("Contents");
+		for (String targetTableName : targetTablesWritten) {
+			document.addFileLink(targetTableName);
 		}
 	}
 
-	private void addTargetTableSection(Table targetTable) throws InvalidFormatException, IOException {
+	private boolean addTargetTableSection(Table targetTable) {
 		document.addHeader2("Table name: " + targetTable.getName());
 
+		boolean hasMappings = false;
 		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps())
 			if (tableToTableMap.getTargetItem() == targetTable) {
+				hasMappings = true;
 				Table sourceTable = (Table) tableToTableMap.getSourceItem();
 				Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
 
@@ -110,7 +137,7 @@ public class ETLMarkupDocumentGenerator {
 				document.addImage(image, "Field mapping");
 
 				// Add table of field to field mapping
-				List<Row> rows = new ArrayList<Row>();
+				List<Row> rows = new ArrayList<>();
 				for (MappableItem targetField : fieldtoFieldMapping.getTargetItems()) {
 					Row row = new Row();
 					row.add("Destination Field", targetField.getName());
@@ -121,22 +148,22 @@ public class ETLMarkupDocumentGenerator {
 					for (ItemToItemMap fieldToFieldMap : fieldtoFieldMapping.getSourceToTargetMaps()) {
 						if (fieldToFieldMap.getTargetItem() == targetField) {
 							if (source.length() != 0)
-								source.append("\n");
+								source.append("<br>");
 							source.append(fieldToFieldMap.getSourceItem().getName().trim());
 
 							if (logic.length() != 0)
-								logic.append("\n");
+								logic.append("<br>");
 							logic.append(fieldToFieldMap.getLogic().trim());
 
 							if (comment.length() != 0)
-								comment.append("\n");
+								comment.append("<br>");
 							comment.append(fieldToFieldMap.getComment().trim());
 						}
 					}
 					for (Field field : targetTable.getFields()) {
 						if (field.getName().equals(targetField.getName())) {
 							if (comment.length() != 0)
-								comment.append("\n");
+								comment.append("<br>");
 							comment.append(field.getComment().trim());
 						}
 					}
@@ -145,60 +172,65 @@ public class ETLMarkupDocumentGenerator {
 					row.add("Comment field", comment.toString().trim());
 					rows.add(row);
 				}
-			
-				
+
 				document.addTable(rows);
 			}
+		return hasMappings;
 	}
 
-	private void addTableLevelSection() throws InvalidFormatException, IOException {
-		MappingPanel mappingPanel = new MappingPanel(etl.getTableToTableMapping());
-		mappingPanel.setShowOnlyConnectedItems(true);
-		int height = mappingPanel.getMinimumSize().height;
-		mappingPanel.setSize(800, height);
+	private void addSourceTablesAppendix(Table sourceTable) {
+		document.addHeader3("Table: " + sourceTable.getName());
 
-		document.addHeader1(mappingPanel.getSourceDbName() + " Data Mapping Approach to " + mappingPanel.getTargetDbName());
+		List<Row> rows = new ArrayList<>();
+		for (Field field : sourceTable.getFields()) {
+			String mostFrequentValue = "";
+			if (field.getValueCounts() != null && field.getValueCounts().length != 0) {
+				mostFrequentValue = field.getValueCounts()[0][0];
+			}
 
-		BufferedImage image = new BufferedImage(800, height, BufferedImage.TYPE_INT_ARGB);
-		image.getGraphics().setColor(Color.WHITE);
-		image.getGraphics().fillRect(0, 0, image.getWidth(), image.getHeight());
-		mappingPanel.paint(image.getGraphics());
-		document.addImage(image, "Table mapping");
+			Row row = new Row();
+			row.add("Field", field.getName());
+			row.add("Type", field.getType());
+			row.add("Most freq. value", mostFrequentValue);
+			row.add("Comment", field.getComment());
+			rows.add(row);
+		}
+		document.addTable(rows);
 	}
 
 	private interface MarkupDocument {
-		public void addHeader1(String header);
+		void addHeader1(String header);
 
-		public void addHeader2(String header);
+		void addHeader2(String header);
 
-		public void addHeader3(String header);
+		void addHeader3(String header);
 
-		public void addParagraph(String text);
+		void addParagraph(String text);
 
-		public void addImage(BufferedImage image, String alternative);
+		void addImage(BufferedImage image, String alternative);
 
-		public void addTable(List<Row> rows);
+		void addFileLink(String targetName);
 
-		public void close();
+		void addTable(List<Row> rows);
+
+		void write(String targetName);
 	}
 
-	private class MarkdownDocument implements MarkupDocument {
-		private List<String>	lines		= new ArrayList<String>();
-		private int				imageIndex	= 0;
-		private String fileName;
-		private String filesFolder;
-		private String mainFolder;
-		
+	private static class MarkdownDocument implements MarkupDocument {
+		private List<String> lines = new ArrayList<>();
+		private int imageIndex = 0;
+		private File mainFolder;
+		private File filesFolder;
+
 		/**
 		 * 
-		 * @param fileName  Full path of the markdown document to create
+		 * @param directoryName  Full path of the markdown document to create
 		 */
-		public MarkdownDocument(String fileName) {
-			this.fileName = fileName;
-			mainFolder = new File(fileName).getParent();
-			filesFolder = new File(fileName).getName().replaceAll("(\\.md)|(\\.MD)", "_files");
+		MarkdownDocument(String directoryName) {
+			this.mainFolder = new File(directoryName);
+			this.filesFolder = new File(directoryName, "_files");
 		}
-		
+
 		@Override
 		public void addHeader1(String header) {
 			lines.add("# " + header);
@@ -225,71 +257,81 @@ public class ETLMarkupDocumentGenerator {
 
 		@Override
 		public void addImage(BufferedImage image, String alternative) {
-			if (imageIndex == 0) {
-				File folder = new File(mainFolder + "/"+ filesFolder);
-				if (!folder.exists())
-					folder.mkdirs();
+			if (imageIndex == 0 && !filesFolder.exists()) {
+				filesFolder.mkdirs();
 			}
 			imageIndex++;
-			String imageFile = filesFolder + "/image" + imageIndex + ".png";
+			File imageFile = new File(filesFolder, "image" + imageIndex + ".png");
 			try {
-				ImageIO.write(image, "png", new File(mainFolder + "/" + imageFile));
+				ImageIO.write(image, "png", imageFile);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			lines.add("![](" + imageFile + ")");
+			lines.add("![](" + filesFolder.getName() + "/" + imageFile.getName() + ")");
+			lines.add("");
+		}
+
+		public void addFileLink(String targetName) {
+			lines.add(String.format("[%1$s](%1$s.md)", targetName));
 			lines.add("");
 		}
 
 		@Override
-		public void close() {
-			WriteTextFile out = new WriteTextFile(fileName);
-			for (String line : lines)
-				out.writeln(line);
-			out.close();
+		public void write(String targetName) {
+			File outFile = new File(mainFolder, targetName + ".md");
+			try (BufferedWriter bw = Files.newBufferedWriter(outFile.toPath());
+				 PrintWriter out = new PrintWriter(bw)) {
+				for (String line : lines) {
+					out.println(line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// Reset
+			lines = new ArrayList<>();
 		}
 
 		@Override
 		public void addTable(List<Row> rows) {
-			if (rows.size() > 0) {
-				String header = "| " + StringUtilities.join(rows.get(0).getFieldNames(), " | ") + " |";
-				header = header.replaceAll("\n", "  ");
-				lines.add(header);
-				StringBuilder line = new StringBuilder();
-				for (int i = 0; i < rows.get(0).getFieldNames().size(); i++)
-					line.append("| --- ");
+			if (rows.size() == 0) {
+				return;
+			}
+
+			String header = "| " + StringUtilities.join(rows.get(0).getFieldNames(), " | ") + " |";
+			header = header.replaceAll("\n", "  ");
+			lines.add(header);
+			StringBuilder line = new StringBuilder();
+			for (int i = 0; i < rows.get(0).getFieldNames().size(); i++)
+				line.append("| --- ");
+			line.append("|");
+			lines.add(line.toString());
+
+			for (Row row : rows) {
+				line = new StringBuilder();
+				for (String value : row.getCells())
+					line.append("| ").append(value.replaceAll("\n", "  ")).append(" ");
 				line.append("|");
 				lines.add(line.toString());
-
-				for (Row row : rows) {
-					line = new StringBuilder();
-					for (String value : row.getCells())
-						line.append("| " + value.replaceAll("\n", "  ") + " ");
-					line.append("|");
-					lines.add(line.toString());
-				}
-				lines.add("");
 			}
+			lines.add("");
 		}
 	}
 
-	private class HtmlDocument implements MarkupDocument {
-		private List<String>	lines		= new ArrayList<String>();
-		private int				imageIndex	= 0;
-		private String fileName;
-		private String filesFolder;
-		private String mainFolder;
-		
+	private static class HtmlDocument implements MarkupDocument {
+		private List<String> lines = new ArrayList<>();
+		private int	imageIndex = 0;
+		private File mainFolder;
+		private File filesFolder;
+
 		/**
 		 * 
-		 * @param fileName   Full path of the HTML file to create.
+		 * @param directoryName   Full path of the HTML file to create.
 		 */
-		public HtmlDocument(String fileName) {
-			this.fileName = fileName;
-			mainFolder = new File(fileName).getParent();
-			filesFolder = new File(fileName).getName().replaceAll("(\\.html?)|(\\.html?)", "_files");
+		HtmlDocument(String directoryName) {
+			this.mainFolder = new File(directoryName);
+			this.filesFolder = new File(directoryName, "_files");
 		}
-		
 
 		@Override
 		public void addHeader1(String header) {
@@ -317,28 +359,39 @@ public class ETLMarkupDocumentGenerator {
 		
 		@Override
 		public void addImage(BufferedImage image, String alternative) {
-			if (imageIndex == 0) {
-				File folder = new File(mainFolder + "/"+ filesFolder);
-				if (!folder.exists())
-					folder.mkdirs();
+			if (imageIndex == 0 && !filesFolder.exists()) {
+				filesFolder.mkdirs();
 			}
 			imageIndex++;
-			String imageFile = filesFolder + "/image" + imageIndex + ".png";
+			File imageFile = new File(filesFolder, "image" + imageIndex + ".png");
 			try {
-				ImageIO.write(image, "png", new File(mainFolder + "/" + imageFile));
+				ImageIO.write(image, "png", imageFile);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			lines.add("<img src=\"" + imageFile + "\" alt=\"" + alternative + "\">");
+			lines.add("<img src=\"" + filesFolder.getName() + "/" + imageFile.getName() + "\" alt=\"" + alternative + "\">");
+			lines.add("");
+		}
+
+		public void addFileLink(String targetName) {
+			lines.add(String.format("<ul><a href=\"%1$s.html\">%1$s</a></ul>", targetName));
 			lines.add("");
 		}
 
 		@Override
-		public void close() {
-			WriteTextFile out = new WriteTextFile(fileName);
-			for (String line : lines)
-				out.writeln(line);
-			out.close();
+		public void write(String targetName) {
+			File outFile = new File(mainFolder, targetName + ".html");
+			try (BufferedWriter bw = Files.newBufferedWriter(outFile.toPath());
+				 PrintWriter out = new PrintWriter(bw)) {
+				for (String line : lines) {
+					out.println(line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// Reset
+			lines = new ArrayList<>();
 		}
 
 		@Override
