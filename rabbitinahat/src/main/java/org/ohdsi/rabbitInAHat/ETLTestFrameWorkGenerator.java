@@ -428,8 +428,13 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
+	private String removeExtension(String name) {
+		return name.replaceAll("\\.\\w{3,4}$", "");
+	}
+
 	private String convertToRName(String name) {
-		// Replace space, dash and brackets by an underscore
+		name = removeExtension(name);
+		// Replace space, dash and brackets by an underscore. If name starts with underscore, remove.
 		name = name.replaceAll("[\\s-()\\[\\]{}]", "_").replaceAll("^_+", "");
 		return name;
 	}
@@ -443,11 +448,14 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	protected String convertToSqlName(String name) {
-		if (name.startsWith("[") && name.endsWith("]"))
+		name = removeExtension(name);
+		if (name.startsWith("[") && name.endsWith("]")) {
 			return name;
+		}
 		name = name.replace('[', '_').replace(']', '_');
-		if (name.contains(" ") || name.contains(".") || keywordSet.contains(name.toUpperCase()))
+		if (name.contains(" ") || name.contains(".") || keywordSet.contains(name.toUpperCase())) {
 			return "[" + name + "]";
+		}
 		return name;
 	}
 }
