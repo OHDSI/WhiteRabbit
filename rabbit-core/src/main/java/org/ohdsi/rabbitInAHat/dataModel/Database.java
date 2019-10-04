@@ -99,6 +99,7 @@ public class Database implements Serializable {
 					dataTypeColumn = "type";
 					descriptionColumn = "description";
 				}
+				System.out.println(row.toString());
 				Table table = nameToTable.get(row.get(tableNameColumn).toLowerCase());
 
 				if (table == null) {
