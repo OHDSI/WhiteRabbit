@@ -17,10 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
@@ -91,6 +88,7 @@ public class ETLTestFrameWorkGenerator {
 		createGenerateInsertSqlFunction();
 		createSourceCsvFunction();
 		createGenerateTestSqlFunction();
+		createExportCasesFunction();
 		return r;
 	}
 
@@ -404,6 +402,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("                     \" AS id, '\",");
 		r.add("                     expect$testDescription,");
 		r.add("                     \"' AS description, 'Expect \",");
+		r.add("                     if (expect$type == 1) \"no \" else if (expect$type == 2) paste(expect$rowCount, \"\"),");
 		r.add("                     expect$table,");
 		r.add("                     \"' AS test, CASE WHEN (SELECT COUNT(*) FROM @cdm_database_schema.\",");
 		r.add("                     expect$table,");
@@ -426,6 +425,16 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  return(testSql)");
 		r.add("}");
 		r.add("");
+	}
+
+	protected void createExportCasesFunction() {
+		r.add("exportCases <- function(filename) {");
+		r.add("  df <- data.frame(");
+		r.add("    testId = sapply(frameworkContext$expects, function(x) {x$testId}),");
+		r.add("    testDescription = sapply(frameworkContext$expects, function(x) {x$testDescription})");
+		r.add("  )");
+		r.add("  write.csv(unique(df), filename, row.names=F)");
+		r.add("}");
 	}
 
 	private String removeExtension(String name) {
