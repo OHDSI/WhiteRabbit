@@ -87,6 +87,7 @@ public class ETLTestFrameWorkGenerator {
 		createLookupFunctions();
 		createGenerateInsertSqlFunction();
 		createSourceCsvFunction();
+		createExtractTestTypeStringFunction();
 		createGenerateTestSqlFunction();
 		createExportCasesFunction();
 		return r;
@@ -401,9 +402,8 @@ public class ETLTestFrameWorkGenerator {
 		r.add("                     expect$testId,");
 		r.add("                     \" AS id, '\",");
 		r.add("                     expect$testDescription,");
-		r.add("                     \"' AS description, 'Expect \",");
-		r.add("                     if (expect$type == 1) \"no \" else if (expect$type == 2) paste(expect$rowCount, \"\"),");
-		r.add("                     expect$table,");
+		r.add("                     \"' AS description, '\",");
+		r.add("                     extractTestTypeString(expect), \" \", expect$table,");
 		r.add("                     \"' AS test, CASE WHEN (SELECT COUNT(*) FROM @cdm_database_schema.\",");
 		r.add("                     expect$table,");
 		r.add("                     \" WHERE \",");
@@ -427,11 +427,25 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
+	private void createExtractTestTypeStringFunction() {
+		r.add("extractTestTypeString <- function(x) {");
+		r.add("  if (x$type == 0) {");
+		r.add("    return('Expect')");
+		r.add("  } else if (x$type==1) {");
+		r.add("    return('Expect No')");
+		r.add("  } else if (x$type==2) {");
+		r.add("    return(paste0('Expect ', x$rowCount))");
+		r.add("  }");
+		r.add("}");
+	}
+
 	protected void createExportCasesFunction() {
 		r.add("exportCases <- function(filename) {");
 		r.add("  df <- data.frame(");
 		r.add("    testId = sapply(frameworkContext$expects, function(x) {x$testId}),");
-		r.add("    testDescription = sapply(frameworkContext$expects, function(x) {x$testDescription})");
+		r.add("    testDescription = sapply(frameworkContext$expects, function(x) {x$testDescription}),");
+		r.add("    testType = sapply(frameworkContext$expects, extractTestTypeString),");
+		r.add("    testTable = sapply(frameworkContext$expects, function(x) {x$table})");
 		r.add("  )");
 		r.add("  write.csv(unique(df), filename, row.names=F)");
 		r.add("}");
