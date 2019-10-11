@@ -84,11 +84,14 @@ public class ETLTestFrameWorkGenerator {
 		createExtractTestTypeStringFunction();
 		createGenerateTestSqlFunction();
 		createExportCasesFunction();
+		createSummaryFunction();
+        createGetUntestedFields();
 	}
 
 	private void createInitFunction() {
 		r.add("initFramework <- function() {");
 		r.add("  frameworkContext <- new.env(parent = globalenv())");
+		r.add("  class(frameworkContext) <- 'frameworkContext'");
 		r.add("  assign('frameworkContext', frameworkContext, envir = globalenv())");
 		r.add("  frameworkContext$inserts <- list()");
 		r.add("  frameworkContext$expects <- list()");
@@ -143,9 +146,8 @@ public class ETLTestFrameWorkGenerator {
 		}
 
 		// Collect all fields that are either mapped from or mapped to. Excluding stem table.
-		// TODO: method in etl to get all source / target fields. (e.g. also for listing unmapped fields)
-		Set<Field> sourceFieldsMappedFrom = new HashSet<>();
-		Set<Field> targetFieldsMappedTo = new HashSet<>();
+		Set<Field> sourceFieldsMapped = new HashSet<>();
+		Set<Field> targetFieldsMapped = new HashSet<>();
 		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
 			Table sourceTable = (Table) tableToTableMap.getSourceItem();
 			Table targetTable = (Table) tableToTableMap.getTargetItem();
@@ -153,24 +155,24 @@ public class ETLTestFrameWorkGenerator {
 			Mapping<Field> fieldToFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
 			for (ItemToItemMap fieldToFieldMap : fieldToFieldMapping.getSourceToTargetMaps()) {
 				if (!sourceTable.isStem()) {
-					sourceFieldsMappedFrom.add((Field) fieldToFieldMap.getSourceItem());
+					sourceFieldsMapped.add((Field) fieldToFieldMap.getSourceItem());
 				}
 				if (!targetTable.isStem()) {
 					// if from stem to target, only use stem fields that are mapped to from source.
 					if (sourceTable.isStem()) {
 						if (stemTargets.contains(fieldToFieldMap.getSourceItem().toString())) {
-							targetFieldsMappedTo.add((Field) fieldToFieldMap.getTargetItem());
+							targetFieldsMapped.add((Field) fieldToFieldMap.getTargetItem());
 						}
 					} else {
-						targetFieldsMappedTo.add((Field) fieldToFieldMap.getTargetItem());
+						targetFieldsMapped.add((Field) fieldToFieldMap.getTargetItem());
 					}
 				}
 			}
 		}
 
-		r.add("  frameworkContext$sourceFieldsMappedFrom <- c(");
+		r.add("  frameworkContext$sourceFieldsMapped <- c(");
 		boolean isFirst = true;
-		for (Field field : sourceFieldsMappedFrom) {
+		for (Field field : sourceFieldsMapped) {
 			String prefix = isFirst ? "     '" : "    ,'";
 			r.add(prefix + convertFieldToFullName(field) + "'");
 			isFirst = false;
@@ -178,9 +180,9 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  )");
 		r.add("");
 
-		r.add("  frameworkContext$targetFieldsMappedTo <- c(");
+		r.add("  frameworkContext$targetFieldsMapped <- c(");
 		isFirst = true;
-		for (Field field : targetFieldsMappedTo) {
+		for (Field field : targetFieldsMapped) {
 			String prefix = isFirst ? "     '" : "    ,'";
 			r.add(prefix + convertFieldToFullName(field) + "'");
 			isFirst = false;
@@ -508,15 +510,45 @@ public class ETLTestFrameWorkGenerator {
 	protected void createExportCasesFunction() {
 		r.add("exportCases <- function(filename) {");
 		r.add("  df <- data.frame(");
-		r.add("    testId = sapply(frameworkContext$expects, function(x) {x$testId}),");
-		r.add("    testDescription = sapply(frameworkContext$expects, function(x) {x$testDescription}),");
+		r.add("    testId = sapply(frameworkContext$expects, function(x) x$testId),");
+		r.add("    testDescription = sapply(frameworkContext$expects, function(x) x$testDescription),");
 		r.add("    testType = sapply(frameworkContext$expects, extractTestTypeString),");
-		r.add("    testTable = sapply(frameworkContext$expects, function(x) {x$table})");
+		r.add("    testTable = sapply(frameworkContext$expects, function(x) x$table)");
 		r.add("  )");
 		r.add("  write.csv(unique(df), filename, row.names=F)");
 		r.add("}");
 		r.add("");
 	}
+
+	protected void createSummaryFunction() {
+        r.add("summary.frameworkContext <- function(object, ...) {");
+        r.add("  formatPercent <- function(numerator, denominator) {");
+        r.add("    sprintf('%2.1f%% (%d/%d)', 100*numerator/denominator, numerator, denominator)");
+        r.add("  }");
+        r.add("  nSourceFieldsTested <- length(intersect(object$sourceFieldsMapped, object$sourceFieldsTested))");
+        r.add("  nTargetFieldsTested <- length(intersect(object$targetFieldsMapped, object$targetFieldsTested))");
+        r.add("  nTotalSourceFields <- length(object$sourceFieldsMapped)");
+        r.add("  nTotalTargetFields <- length(object$targetFieldsMapped)");
+        r.add("  cat('-- Test Framework Summary --\n')");
+        r.add("  cat(sprintf('Total number of defined cases: %d\n', length(unique(sapply(object$expects, function(x) x$testId)))))");
+        r.add("  cat(sprintf('Total number of tests: %d\n', length(object$expects)))");
+        r.add("  cat('-- Unit testing coverage --\n')");
+        r.add("  cat('-- (percentage of defined source/target fields that covered in at least one test case) --\n')");
+        r.add("  cat(sprintf('Source rule coverage: %s\n', formatPercent(nSourceFieldsTested, nTotalSourceFields)))");
+        r.add("  cat(sprintf('Target rule coverage: %s\n', formatPercent(nTargetFieldsTested, nTotalTargetFields)))");
+        r.add("  cat(sprintf('Total coverage: %s\n', formatPercent(nSourceFieldsTested+nTargetFieldsTested, nTotalSourceFields+nTotalTargetFields)))");
+        r.add("}");
+    }
+
+    protected void createGetUntestedFields() {
+        r.add("getUntestedSourceFields <- function() {");
+        r.add("  sort(setdiff(frameworkContext$sourceFieldsMapped, frameworkContext$sourceFieldsTested))");
+        r.add("}");
+
+        r.add("getUntestedTargetFields <- function() {");
+        r.add("  sort(setdiff(frameworkContext$targetFieldsMapped, frameworkContext$targetFieldsTested))");
+        r.add("}");
+    }
 
 	private String removeExtension(String name) {
 		return name.replaceAll("\\.\\w{3,4}$", "");
