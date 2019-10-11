@@ -115,11 +115,74 @@ public class ETLTestFrameWorkGenerator {
 				r.add("  assign('" + rTableName + "', defaults, envir = frameworkContext$defaultValues)");
 			}
 		}
+		r.add("");
+		createFieldsMapped();
 
 		r.add("}");
 		r.add("");
 		r.add("initFramework()");
 		r.add("");
+	}
+
+
+	private void createFieldsMapped() {
+		// Collect all stem fields mapped to
+		Set<String> stemTargets = new HashSet<>();
+		if (etl.hasStemTable()) {
+			Optional<Table> stemTableOptional = etl.getTargetDatabase().getTables().stream().filter(Table::isStem).findFirst();
+			if (stemTableOptional.isPresent()) {
+				Table stemTable = stemTableOptional.get();
+				for (Table table : etl.getSourceDatabase().getTables()) {
+					Mapping<Field> toStemMapping = etl.getFieldToFieldMapping(table, stemTable);
+					stemTargets.addAll(toStemMapping.getSourceToTargetMaps().stream().map(x -> x.getTargetItem().toString()).collect(Collectors.toSet()));
+				}
+			}
+		}
+
+		// Collect all fields that are either mapped from or mapped to. Excluding stem table.
+		// TODO: method in etl to get all source / target fields. (e.g. also for listing unmapped fields)
+		Set<Field> sourceFieldsMappedFrom = new HashSet<>();
+		Set<Field> targetFieldsMappedTo = new HashSet<>();
+		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
+			Table sourceTable = (Table) tableToTableMap.getSourceItem();
+			Table targetTable = (Table) tableToTableMap.getTargetItem();
+
+			Mapping<Field> fieldToFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
+			for (ItemToItemMap fieldToFieldMap : fieldToFieldMapping.getSourceToTargetMaps()) {
+				if (!sourceTable.isStem()) {
+					sourceFieldsMappedFrom.add((Field) fieldToFieldMap.getSourceItem());
+				}
+				if (!targetTable.isStem()) {
+					// if from stem to target, only use stem fields that are mapped to from source.
+					if (sourceTable.isStem()) {
+						if (stemTargets.contains(fieldToFieldMap.getSourceItem().toString())) {
+							targetFieldsMappedTo.add((Field) fieldToFieldMap.getTargetItem());
+						}
+					} else {
+						targetFieldsMappedTo.add((Field) fieldToFieldMap.getTargetItem());
+					}
+				}
+			}
+		}
+
+		r.add("  frameworkContext$sourceFieldsMappedFrom <- c(");
+		boolean isFirst = true;
+		for (Field field : sourceFieldsMappedFrom) {
+			String prefix = isFirst ? "     '" : "    ,'";
+			r.add(prefix + convertToSqlName(field.getTable().getName()) + "." + convertToSqlName(field.getName()) + "'");
+			isFirst = false;
+		}
+		r.add("  )");
+		r.add("");
+
+		r.add("  frameworkContext$targetFieldsMappedTo <- c(");
+		isFirst = true;
+		for (Field field : targetFieldsMappedTo) {
+			String prefix = isFirst ? "     '" : "    ,'";
+			r.add(prefix + convertToSqlName(field.getTable().getName()) + "." + convertToSqlName(field.getName()) + "'");
+			isFirst = false;
+		}
+		r.add("  )");
 	}
 
 	private void createSetDefaultFunctions() {
