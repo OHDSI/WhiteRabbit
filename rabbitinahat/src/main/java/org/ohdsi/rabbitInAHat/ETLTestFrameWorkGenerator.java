@@ -117,6 +117,9 @@ public class ETLTestFrameWorkGenerator {
 		}
 		r.add("");
 		createFieldsMapped();
+        r.add("");
+        r.add("  frameworkContext$sourceFieldsTested <- c()");
+        r.add("  frameworkContext$targetFieldsTested <- c()");
 
 		r.add("}");
 		r.add("");
@@ -169,7 +172,7 @@ public class ETLTestFrameWorkGenerator {
 		boolean isFirst = true;
 		for (Field field : sourceFieldsMappedFrom) {
 			String prefix = isFirst ? "     '" : "    ,'";
-			r.add(prefix + convertToSqlName(field.getTable().getName()) + "." + convertToSqlName(field.getName()) + "'");
+			r.add(prefix + convertFieldToFullName(field) + "'");
 			isFirst = false;
 		}
 		r.add("  )");
@@ -179,7 +182,7 @@ public class ETLTestFrameWorkGenerator {
 		isFirst = true;
 		for (Field field : targetFieldsMappedTo) {
 			String prefix = isFirst ? "     '" : "    ,'";
-			r.add(prefix + convertToSqlName(field.getTable().getName()) + "." + convertToSqlName(field.getName()) + "'");
+			r.add(prefix + convertFieldToFullName(field) + "'");
 			isFirst = false;
 		}
 		r.add("  )");
@@ -256,6 +259,8 @@ public class ETLTestFrameWorkGenerator {
 					String sqlFieldName = convertToSqlName(field.getName());
 					r.add("  if (missing(" + rFieldName + ")) {");
 					r.add("    " + rFieldName + " <- defaults$" + rFieldName);
+					r.add("  } else {");
+					r.add("    frameworkContext$sourceFieldsTested <- c(frameworkContext$sourceFieldsTested, '" + convertFieldToFullName(field) + "')");
 					r.add("  }");
 					r.add("  if (!is.null(" + rFieldName + ")) {");
 					r.add("    fields <- c(fields, \"" + sqlFieldName + "\")");
@@ -301,7 +306,10 @@ public class ETLTestFrameWorkGenerator {
 					r.add("  if (!missing(" + rFieldName + ")) {");
 					r.add("    fields <- c(fields, \"" + sqlFieldName + "\")");
 					r.add("    values <- c(values, " + createSqlValueCode(rFieldName) + ")");
-					r.add("  }");
+					if (type != NEGATE) {
+                        r.add("    frameworkContext$targetFieldsTested <- c(frameworkContext$targetFieldsTested, '" + convertFieldToFullName(field) + "')");
+                    }
+                    r.add("  }");
 					r.add("");
 				}
 				r.add("  expects <- list(testId = frameworkContext$testId, testDescription = frameworkContext$testDescription, type = " + type + ", table = \""
@@ -544,4 +552,8 @@ public class ETLTestFrameWorkGenerator {
 		}
 		return name;
 	}
+
+	private String convertFieldToFullName(Field field) {
+        return convertToRName(field.getTable().getName()) + "." + convertToRName(field.getName());
+    }
 }
