@@ -18,39 +18,35 @@
 package org.ohdsi.rabbitInAHat;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-import org.ohdsi.rabbitInAHat.dataModel.Database;
-import org.ohdsi.rabbitInAHat.dataModel.ETL;
+import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.rabbitInAHat.dataModel.ETL.FileFormat;
-import org.ohdsi.rabbitInAHat.dataModel.Field;
-import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.WriteTextFile;
 
 public class ETLTestFrameWorkGenerator {
 
-	private static int		DEFAULT		= 0;
-	private static int		NEGATE		= 1;
-	private static int		COUNT		= 2;
-	private String[]		keywords	= new String[] { "ADD", "ALL", "ALTER", "AND", "ANY", "AS", "ASC", "AUTHORIZATION", "BACKUP", "BEGIN", "BETWEEN",
-			"BREAK", "BROWSE", "BULK", "BY", "CASCADE", "CASE", "CHECK", "CHECKPOINT", "CLOSE", "CLUSTERED", "COALESCE", "COLLATE", "COLUMN", "COMMIT",
-			"COMPUTE", "CONSTRAINT", "CONTAINS", "CONTAINSTABLE", "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT", "CURRENT_DATE", "CURRENT_TIME",
-			"CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "DATABASE", "DBCC", "DEALLOCATE", "DECLARE", "DEFAULT", "DELETE", "DENY", "DESC", "DISK", "DISTINCT",
-			"DISTRIBUTED", "DOUBLE", "DROP", "DUMP", "ELSE", "END", "ERRLVL", "ESCAPE", "EXCEPT", "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXTERNAL", "FETCH",
-			"FILE", "FILLFACTOR", "FOR", "FOREIGN", "FREETEXT", "FREETEXTTABLE", "FROM", "FULL", "FUNCTION", "GOTO", "GRANT", "GROUP", "HAVING", "HOLDLOCK",
-			"IDENTITY", "IDENTITY_INSERT", "IDENTITYCOL", "IF", "IN", "INDEX", "INNER", "INSERT", "INTERSECT", "INTO", "IS", "JOIN", "KEY", "KILL", "LEFT",
-			"LIKE", "LINENO", "LOAD", "MERGE", "NATIONAL", "NOCHECK", "NONCLUSTERED", "NOT", "NULL", "NULLIF", "OF", "OFF", "OFFSETS", "ON", "OPEN",
-			"OPENDATASOURCE", "OPENQUERY", "OPENROWSET", "OPENXML", "OPTION", "OR", "ORDER", "OUTER", "OVER", "PERCENT", "PIVOT", "PLAN", "PRECISION",
-			"PRIMARY", "PRINT", "PROC", "PROCEDURE", "PUBLIC", "RAISERROR", "READ", "READTEXT", "RECONFIGURE", "REFERENCES", "REPLICATION", "RESTORE",
-			"RESTRICT", "RETURN", "REVERT", "REVOKE", "RIGHT", "ROLLBACK", "ROWCOUNT", "ROWGUIDCOL", "RULE", "SAVE", "SCHEMA", "SECURITYAUDIT", "SELECT",
-			"SEMANTICKEYPHRASETABLE", "SEMANTICSIMILARITYDETAILSTABLE", "SEMANTICSIMILARITYTABLE", "SESSION_USER", "SET", "SETUSER", "SHUTDOWN", "SOME",
-			"STATISTICS", "SYSTEM_USER", "TABLE", "TABLESAMPLE", "TEXTSIZE", "THEN", "TO", "TOP", "TRAN", "TRANSACTION", "TRIGGER", "TRUNCATE", "TRY_CONVERT",
-			"TSEQUAL", "UNION", "UNIQUE", "UNPIVOT", "UPDATE", "UPDATETEXT", "USE", "USER", "VALUES", "VARYING", "VIEW", "WAITFOR", "WHEN", "WHERE", "WHILE",
-			"WITH", "WITHIN GROUP", "WRITETEXT" };
-	protected Set<String>	keywordSet;
-	private List<String>	r;
-	private Database		sourceDb;
-	private Database		targetDb;
+	private static int DEFAULT = 0;
+	private static int NEGATE = 1;
+	private static int COUNT = 2;
+    private static final Set<String> keywordSet = new HashSet<>(Arrays.asList("ADD", "ALL", "ALTER", "AND", "ANY", "AS", "ASC", "AUTHORIZATION", "BACKUP", "BEGIN", "BETWEEN",
+            "BREAK", "BROWSE", "BULK", "BY", "CASCADE", "CASE", "CHECK", "CHECKPOINT", "CLOSE", "CLUSTERED", "COALESCE", "COLLATE", "COLUMN", "COMMIT",
+            "COMPUTE", "CONSTRAINT", "CONTAINS", "CONTAINSTABLE", "CONTINUE", "CONVERT", "CREATE", "CROSS", "CURRENT", "CURRENT_DATE", "CURRENT_TIME",
+            "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "DATABASE", "DBCC", "DEALLOCATE", "DECLARE", "DEFAULT", "DELETE", "DENY", "DESC", "DISK", "DISTINCT",
+            "DISTRIBUTED", "DOUBLE", "DROP", "DUMP", "ELSE", "END", "ERRLVL", "ESCAPE", "EXCEPT", "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXTERNAL", "FETCH",
+            "FILE", "FILLFACTOR", "FOR", "FOREIGN", "FREETEXT", "FREETEXTTABLE", "FROM", "FULL", "FUNCTION", "GOTO", "GRANT", "GROUP", "HAVING", "HOLDLOCK",
+            "IDENTITY", "IDENTITY_INSERT", "IDENTITYCOL", "IF", "IN", "INDEX", "INNER", "INSERT", "INTERSECT", "INTO", "IS", "JOIN", "KEY", "KILL", "LEFT",
+            "LIKE", "LINENO", "LOAD", "MERGE", "NATIONAL", "NOCHECK", "NONCLUSTERED", "NOT", "NULL", "NULLIF", "OF", "OFF", "OFFSETS", "ON", "OPEN",
+            "OPENDATASOURCE", "OPENQUERY", "OPENROWSET", "OPENXML", "OPTION", "OR", "ORDER", "OUTER", "OVER", "PERCENT", "PIVOT", "PLAN", "PRECISION",
+            "PRIMARY", "PRINT", "PROC", "PROCEDURE", "PUBLIC", "RAISERROR", "READ", "READTEXT", "RECONFIGURE", "REFERENCES", "REPLICATION", "RESTORE",
+            "RESTRICT", "RETURN", "REVERT", "REVOKE", "RIGHT", "ROLLBACK", "ROWCOUNT", "ROWGUIDCOL", "RULE", "SAVE", "SCHEMA", "SECURITYAUDIT", "SELECT",
+            "SEMANTICKEYPHRASETABLE", "SEMANTICSIMILARITYDETAILSTABLE", "SEMANTICSIMILARITYTABLE", "SESSION_USER", "SET", "SETUSER", "SHUTDOWN", "SOME",
+            "STATISTICS", "SYSTEM_USER", "TABLE", "TABLESAMPLE", "TEXTSIZE", "THEN", "TO", "TOP", "TRAN", "TRANSACTION", "TRIGGER", "TRUNCATE", "TRY_CONVERT",
+            "TSEQUAL", "UNION", "UNIQUE", "UNPIVOT", "UPDATE", "UPDATETEXT", "USE", "USER", "VALUES", "VARYING", "VIEW", "WAITFOR", "WHEN", "WHERE", "WHILE",
+            "WITH", "WITHIN GROUP", "WRITETEXT"));
+	private List<String> r;
+	private ETL etl;
 
 	public static void main(String[] args) {
 		ETL etl = ETL.fromFile("C:\\Home\\Research\\ETLs\\JMDC ETL\\JMDC ETL CDMv5\\JMDC to CDMv5 ETL v08.json.gz", FileFormat.GzipJson);
@@ -59,23 +55,21 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	public ETLTestFrameWorkGenerator() {
-		keywordSet = new HashSet<String>();
-		for (String keyword : keywords)
-			keywordSet.add(keyword);
 	}
 
 	public void generate(ETL etl, String filename) {
-		List<String> r = generateRScript(etl);
+		this.etl = etl;
+		this.r = new ArrayList<>();
+		generateRScript();
+
 		WriteTextFile out = new WriteTextFile(filename);
-		for (String line : r)
+		for (String line : r) {
 			out.writeln(line);
+		}
 		out.close();
 	}
 
-	private List<String> generateRScript(ETL etl) {
-		this.sourceDb = etl.getSourceDatabase();
-		this.targetDb = etl.getTargetDatabase();
-		this.r = new ArrayList<String>();
+	private void generateRScript() {
 		createInitFunction();
 		createSetDefaultFunctions();
 		createGetDefaultFunctions();
@@ -90,7 +84,6 @@ public class ETLTestFrameWorkGenerator {
 		createExtractTestTypeStringFunction();
 		createGenerateTestSqlFunction();
 		createExportCasesFunction();
-		return r;
 	}
 
 	private void createInitFunction() {
@@ -102,7 +95,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  frameworkContext$testId <- -1");
 		r.add("  frameworkContext$testDescription <- \"\"");
 		r.add("  frameworkContext$defaultValues <- new.env(parent = frameworkContext)");
-		for (Table table : sourceDb.getTables()) {
+		for (Table table : etl.getSourceDatabase().getTables()) {
 			if (!table.isStem()) {
 				String rTableName = convertToRName(table.getName());
 				r.add("");
@@ -122,6 +115,7 @@ public class ETLTestFrameWorkGenerator {
 				r.add("  assign('" + rTableName + "', defaults, envir = frameworkContext$defaultValues)");
 			}
 		}
+
 		r.add("}");
 		r.add("");
 		r.add("initFramework()");
@@ -129,7 +123,7 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	private void createSetDefaultFunctions() {
-		for (Table table : sourceDb.getTables()) {
+		for (Table table : etl.getSourceDatabase().getTables()) {
 			if (!table.isStem()) {
 				StringBuilder line = new StringBuilder();
 				String rTableName = convertToRName(table.getName());
@@ -158,7 +152,7 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	private void createGetDefaultFunctions() {
-		for (Table table : sourceDb.getTables()) {
+		for (Table table : etl.getSourceDatabase().getTables()) {
 			String rTableName = convertToRName(table.getName());
 			r.add("get_defaults_" + rTableName + " <- function() {");
 			r.add("  defaults <- get('" + rTableName + "', envir = frameworkContext$defaultValues)");
@@ -177,7 +171,7 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	private void createAddFunctions() {
-		for (Table table : sourceDb.getTables()) {
+		for (Table table : etl.getSourceDatabase().getTables()) {
 			if (!table.isStem()) {
 				StringBuilder line = new StringBuilder();
 				String rTableName = convertToRName(table.getName());
@@ -217,7 +211,7 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	private void createExpectFunctions(int type) {
-		for (Table table : targetDb.getTables()) {
+		for (Table table : etl.getTargetDatabase().getTables()) {
 			if (!table.isStem()) {
 				StringBuilder line = new StringBuilder();
 				String rTableName = convertToRName(table.getName());
@@ -260,7 +254,7 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	protected void createLookupFunctions() {
-		for (Table table : targetDb.getTables()) {
+		for (Table table : etl.getTargetDatabase().getTables()) {
 			if (!table.isStem()) {
 				StringBuilder line = new StringBuilder();
 				String rTableName = convertToRName(table.getName());
@@ -305,7 +299,7 @@ public class ETLTestFrameWorkGenerator {
 	protected void createGenerateInsertSqlFunction() {
 		r.add("generateInsertSql <- function(databaseSchema = NULL) {");
 		r.add("  insertSql <- c()");
-		for (Table table : sourceDb.getTables())
+		for (Table table : etl.getSourceDatabase().getTables())
 			if (!table.isStem())
 				r.add("  insertSql <- c(insertSql, \"TRUNCATE TABLE @cdm_database_schema." + convertToSqlName(table.getName()) + ";\")");
 		r.add("  createInsertStatement <- function(insert, env) {");
@@ -434,9 +428,10 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  } else if (x$type==1) {");
 		r.add("    return('Expect No')");
 		r.add("  } else if (x$type==2) {");
-		r.add("    return(paste0('Expect ', x$rowCount))");
+		r.add("    return(paste('Expect', x$rowCount))");
 		r.add("  }");
 		r.add("}");
+		r.add("");
 	}
 
 	protected void createExportCasesFunction() {
@@ -449,6 +444,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  )");
 		r.add("  write.csv(unique(df), filename, row.names=F)");
 		r.add("}");
+		r.add("");
 	}
 
 	private String removeExtension(String name) {
@@ -459,6 +455,10 @@ public class ETLTestFrameWorkGenerator {
 		name = removeExtension(name);
 		// Replace space, dash and brackets by an underscore. If name starts with underscore, remove.
 		name = name.replaceAll("[\\s-()\\[\\]{}]", "_").replaceAll("^_+", "");
+		// Remove BOM
+		if (name.startsWith("\uFEFF")) {
+			name = name.substring(1);
+		}
 		return name;
 	}
 
