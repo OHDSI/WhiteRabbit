@@ -265,10 +265,8 @@ public class ETLTestFrameWorkGenerator {
 					r.add("  } else {");
 					r.add("    frameworkContext$sourceFieldsTested <- c(frameworkContext$sourceFieldsTested, '" + convertFieldToFullName(field) + "')");
 					r.add("  }");
-					r.add("  if (!is.null(" + rFieldName + ")) {");
-					r.add("    fields <- c(fields, \"" + sqlFieldName + "\")");
-					r.add("    values <- c(values, " + createSqlValueCode(rFieldName) + ")");
-					r.add("  }");
+					r.add("  fields <- c(fields, \"" + sqlFieldName + "\")");
+					r.add("  values <- c(values, " + createSqlValueCode(rFieldName) + ")");
 					r.add("");
 				}
 				r.add("  inserts <- list(testId = frameworkContext$testId, testDescription = frameworkContext$testDescription, table = \"" + sqlTableName
@@ -405,20 +403,22 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	 private void createSourceCsvFunction() {
-		r.add("generateSourceCsv <- function(directory = NULL, separator = ',') {");
-		// Remove artificial quotes and escape quotes
+		r.add("writeSourceCsv <- function(directory = NULL, separator = ',') {");
+		// Function to remove artificial quotes, escape quotes and separator
 		r.add("  clean_value <- function(x) {");
+		r.add("    if (x == 'NULL') {");
+		r.add("      return('')");
+		r.add("    }");
 		r.add("    value <- substring(x, 2, nchar(x)-1)");
 		r.add("    value <- gsub('\"', '\"\"', value)");
-		r.add("    # Introduce quotes if comma in value");
-		r.add("    if (grepl(\",\", value)) {");
+		r.add("    if (grepl(separator, value)) {");
 		r.add("      return(paste0('\"', value, '\"'))");
 		r.add("    }");
 		r.add("    return(value)");
 		r.add("  }");
 		r.add("");
 
-		// Remove leading and trailing [], if present
+		// Function to remove leading and trailing [], if present
 		r.add("  clean_fields <- function(x) {");
 		r.add("    if (grepl(\"^\\\\[.+?\\\\]$\", x)) {");
 		r.add("      return(substring(x, 2, nchar(x)-1))");
@@ -429,15 +429,14 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  ");
 
 		// Write values
+		// Initialize all new source files with header. Overwrites existing source files from previous runs in the directory.
 		r.add("  seen_tables <- c()");
 		r.add("  for (insert in frameworkContext$inserts) {");
 		r.add("    filename <- file.path(directory, paste0(insert$table, '.csv'))");
-		// Initialize all new source files with header. Overwrites existing source files from previous runs in the directory.
 		r.add("    if (!(insert$table %in% seen_tables)) {");
 		r.add("      write(paste(sapply(insert$fields, clean_fields), collapse = separator), filename, append=F)");
 		r.add("      seen_tables <- c(seen_tables, insert$table)");
 		r.add("    }");
-		// TODO: if a value is set to NULL, the value is skipped. This leads to a wrong number of columns in the output.
 		r.add("    write(paste(sapply(insert$values, clean_value), collapse = separator), filename, append=T)");
 		r.add("  }");
 		r.add("  ");
