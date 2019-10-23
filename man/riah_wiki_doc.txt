@@ -110,4 +110,6 @@ Once the document is completed, this should be shared with the individuals who p
 
 ===== Generating a testing framework =====
 
-To make sure the ETL process is working as specified, it is highly recommended to create [[https://en.wikipedia.org/wiki/Unit_testing|unit tests]] that evaluate the behavior of the ETL process. To efficiently create a set of unit tests Rabbit-in-a-Hat can [[documentation:software:whiterabbit:test_framework|generate a testing framework]].
+To make sure the ETL process is working as specified, it is highly recommended to create [[https://en.wikipedia.org/wiki/Unit_testing|unit tests]] that evaluate the behavior of the ETL process.
+To efficiently create a set of unit tests Rabbit-in-a-Hat can [[documentation:software:whiterabbit:test_framework|generate a testing framework]].
+
