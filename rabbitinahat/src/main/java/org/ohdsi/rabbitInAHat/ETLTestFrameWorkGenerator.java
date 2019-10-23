@@ -83,7 +83,7 @@ public class ETLTestFrameWorkGenerator {
 		createSourceCsvFunction();
 		createExtractTestTypeStringFunction();
 		createGenerateTestSqlFunction();
-		createExportCasesFunction();
+		createTestsOverviewFunctions();
 		createSummaryFunction();
         createGetUntestedFields();
 	}
@@ -507,14 +507,19 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
-	protected void createExportCasesFunction() {
-		r.add("exportTests <- function(filename) {");
+	protected void createTestsOverviewFunctions() {
+		r.add("getTestsOverview <- function() {");
 		r.add("  df <- data.frame(");
 		r.add("    testId = sapply(frameworkContext$expects, function(x) x$testId),");
 		r.add("    testDescription = sapply(frameworkContext$expects, function(x) x$testDescription),");
 		r.add("    testType = sapply(frameworkContext$expects, extractTestTypeString),");
 		r.add("    testTable = sapply(frameworkContext$expects, function(x) x$table)");
 		r.add("  )");
+		r.add("  return(df)");
+		r.add("}");
+		r.add("");
+		r.add("exportTestsOverviewToFile <- function(filename) {");
+		r.add("  df <- getTestsOverview()");
 		r.add("  write.csv(unique(df), filename, row.names=F)");
 		r.add("}");
 		r.add("");
@@ -553,7 +558,11 @@ public class ETLTestFrameWorkGenerator {
 
         r.add("}");
 		r.add("");
-    }
+		r.add("summaryTestFramework <- function() {");
+		r.add("  return(summary(frameworkContext));");
+		r.add("}");
+		r.add("");
+	}
 
     protected void createGetUntestedFields() {
         r.add("getUntestedSourceFields <- function() {");
