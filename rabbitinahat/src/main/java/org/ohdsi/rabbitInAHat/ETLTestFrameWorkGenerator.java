@@ -508,7 +508,7 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	protected void createExportCasesFunction() {
-		r.add("exportCases <- function(filename) {");
+		r.add("exportTests <- function(filename) {");
 		r.add("  df <- data.frame(");
 		r.add("    testId = sapply(frameworkContext$expects, function(x) x$testId),");
 		r.add("    testDescription = sapply(frameworkContext$expects, function(x) x$testDescription),");
@@ -522,32 +522,49 @@ public class ETLTestFrameWorkGenerator {
 
 	protected void createSummaryFunction() {
         r.add("summary.frameworkContext <- function(object, ...) {");
-        r.add("  formatPercent <- function(numerator, denominator) {");
-        r.add("    sprintf('%2.1f%% (%d/%d)', 100*numerator/denominator, numerator, denominator)");
-        r.add("  }");
         r.add("  nSourceFieldsTested <- length(intersect(object$sourceFieldsMapped, object$sourceFieldsTested))");
-        r.add("  nTargetFieldsTested <- length(intersect(object$targetFieldsMapped, object$targetFieldsTested))");
-        r.add("  nTotalSourceFields <- length(object$sourceFieldsMapped)");
-        r.add("  nTotalTargetFields <- length(object$targetFieldsMapped)");
-        r.add("  cat('-- Test Framework Summary --\n')");
-        r.add("  cat(sprintf('Total number of defined cases: %d\n', length(unique(sapply(object$expects, function(x) x$testId)))))");
-        r.add("  cat(sprintf('Total number of tests: %d\n', length(object$expects)))");
-        r.add("  cat('-- Unit testing coverage --\n')");
-        r.add("  cat('-- (percentage of defined source/target fields that covered in at least one test case) --\n')");
-        r.add("  cat(sprintf('Source rule coverage: %s\n', formatPercent(nSourceFieldsTested, nTotalSourceFields)))");
-        r.add("  cat(sprintf('Target rule coverage: %s\n', formatPercent(nTargetFieldsTested, nTotalTargetFields)))");
-        r.add("  cat(sprintf('Total coverage: %s\n', formatPercent(nSourceFieldsTested+nTargetFieldsTested, nTotalSourceFields+nTotalTargetFields)))");
+		r.add("  nTargetFieldsTested <- length(intersect(object$targetFieldsMapped, object$targetFieldsTested))");
+		r.add("  nTotalSourceFields <- length(object$sourceFieldsMapped)");
+		r.add("  nTotalTargetFields <- length(object$targetFieldsMapped)");
+		r.add("  summary <- c(");
+		r.add("    length(object$expects),");
+		r.add("    length(unique(sapply(object$expects, function(x) x$testId))),");
+		r.add("    nSourceFieldsTested,");
+		r.add("    nTotalSourceFields,");
+		r.add("    round(100*nSourceFieldsTested/nTotalSourceFields, 2),");
+		r.add("    nTargetFieldsTested,");
+		r.add("    nTotalTargetFields,");
+		r.add("    round(100*nTargetFieldsTested/nTotalTargetFields, 2)");
+		r.add("  )");
+		r.add("  names(summary) <- c('n_tests', 'n_cases', 'n_source_fields_tested', 'n_source_fields_mapped_from', 'source_coverage (%)', 'n_target_fields_tested', 'n_target_fields_mapped_to', 'target_coverage (%)')");
+		r.add("  return(as.data.frame(summary))");
+
+//		r.add("  formatPercent <- function(numerator, denominator) {");
+//		r.add("    sprintf('%2.1f%% (%d/%d)', 100*numerator/denominator, numerator, denominator)");
+//		r.add("  }");
+//        r.add("  cat('-- Test Framework Summary --\n')");
+//        r.add("  cat(sprintf('Total number of defined cases: %d\n', length(unique(sapply(object$expects, function(x) x$testId)))))");
+//        r.add("  cat(sprintf('Total number of tests: %d\n', length(object$expects)))");
+//        r.add("  cat('-- Unit testing coverage --\n')");
+//        r.add("  cat('-- (percentage of defined source/target fields that covered in at least one test case) --\n')");
+//        r.add("  cat(sprintf('Source rule coverage: %s\n', formatPercent(nSourceFieldsTested, nTotalSourceFields)))");
+//        r.add("  cat(sprintf('Target rule coverage: %s\n', formatPercent(nTargetFieldsTested, nTotalTargetFields)))");
+//        r.add("  cat(sprintf('Total coverage: %s\n', formatPercent(nSourceFieldsTested+nTargetFieldsTested, nTotalSourceFields+nTotalTargetFields)))");
+
         r.add("}");
+		r.add("");
     }
 
     protected void createGetUntestedFields() {
         r.add("getUntestedSourceFields <- function() {");
         r.add("  sort(setdiff(frameworkContext$sourceFieldsMapped, frameworkContext$sourceFieldsTested))");
         r.add("}");
+		r.add("");
 
         r.add("getUntestedTargetFields <- function() {");
         r.add("  sort(setdiff(frameworkContext$targetFieldsMapped, frameworkContext$targetFieldsTested))");
         r.add("}");
+		r.add("");
     }
 
 	private String removeExtension(String name) {
