@@ -143,6 +143,15 @@ For a tab that describes a single table, the columns names from the source table
 
 The report is powerful in understanding your source data by highlighting what exists. For example, if the following results were given back on the “SEX” column within one of the tables scanned, we can see that there were two common values (1 and 2) that appeared 61,491 and 35,401 times respectively. WhiteRabbit will not define 1 as male and 2 as female; the data holder will typically need to define source codes unique to the source system. However these two values (1 & 2) are not the only values present in the data because we see this list was truncated. These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values. When generating an ETL we should not only plan to handle the high-frequency gender concepts 1 and 2 but the other low-frequency values that exist within this column.
 
+== Scan Report Metrics ==
+TODO
+ - N rows
+ - N rows checked
+ - Data type
+ - Max. Length
+ - N Empty
+ - N Unique (sometimes inexact; only an upper limit)
+ - v0.10: Numeric stats: Mean, Std, Min, Max, Median, q1, q2, q3
 
 ==== Generating Fake Data ====
 

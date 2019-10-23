@@ -2,7 +2,7 @@
 
 ====== Rabbit-In-a-Hat testing framework ======
 
-Rabbit-In-a-Hat can generate a framework for creating a set of [[https://en.wikipedia.org/wiki/Unit_testing|unit tests]]. The framework consists of a set of R functions tailored to the source and target schema in your ETL. These functions can then be used to define the unit tests.
+[[documentation:software:whiterabbit#rabbit-in-a-hat|Rabbit-In-a-Hat]] can generate a framework for creating a set of [[https://en.wikipedia.org/wiki/Unit_testing|unit tests]]. The framework consists of a set of R functions tailored to the source and target schema in your ETL. These functions can then be used to define the unit tests.
 
 Unit testing assumes that you have your data in source format somewhere in a database. You should already have created an ETL process that will extract from the source database, transform it into CDM format, and load it into a CDM schema. The unit test framework can be used to make sure that your ETL process is doing what it is supposed to do. For this you will need to create a new, empty database with exactly the same structure as your source database, and a new empty database where a test CDM database will live. The framework can be used to insert test data into the empty source schema. You can then run your ETL process on the test data to populate the test CDM database. you can then use the framework to verify that the output of the ETL in the test CDM database is what you'd expect given the test source data.
 
@@ -78,8 +78,50 @@ In this example we furthermore describe what we expect to see in the CDM data sc
 We can add many such tests to our R script. For an example of a full set of test definitions, see the [[https://github.com/OHDSI/JCdmBuilder/blob/master/tests/HCUPETLToV5/HcupTests.R|HCUP ETL unit tests]].
 
 
+==== Test Coverage ====
+TODO
+The framework also contains functions to display statistics on how well your tests cover your mappings.
+A summary can be printed by running:
+
+<code>
+summaryTestFramework()
+</code>
+
+This will display the following:
+<code>
+                            summary
+n_tests                        6.00
+n_cases                        3.00
+n_source_fields_tested         3.00
+n_source_fields_mapped_from    8.00
+source_coverage (%)           37.50
+n_target_fields_tested         1.00
+n_target_fields_mapped_to     45.00
+target_coverage (%)            2.22
+</code>
+
+Stats:
+ - n_tests: total number of expects, expect_no's or expect_counts are defined
+ - n_cases: total number of cases defined with ''%%declareTest%%'' function.
+ - n_source_fields_tested: number of source fields for which a test data is defined
+ - n_source_fields_mapped_from: number of source fields for which a mapping was defined in Rabbit-In-A-Hat
+ - source_coverage: percentage of mapped source fields for which a test has been defined
+ - n_target_fields_tested: number of target fields for which one or more expects, expect_no's or expect_counts have been defined
+ - n_target_fields_mapped_to: number of target fields for which a mapping was defined in Rabbit-In-A-Hat
+ - target_coverage: percentage of mapped target fields for which a test has been defined
+
+Note that the mapping coverages highly depend on the mappings defined in Rabbit-In-A-Hat. If this mapping is incomplete or adjusted in the meantime, the coverage will deviate. Please update the mappings in Rabbit-In-A-Hat and regenerate the testing framework.
+
+If the coverage is low, you can get all source and target field for which no test has been defined with the following functions:
+<code>
+getUntestedSourceFields()
+getUntestedTargetFields()
+</code>
+
+
 ==== Generate test data in the source data schema ====
 
+=== Sql ===
 After we have defined all our tests we need to run
 <code>
 insertSql <- generateInsertSql(databaseSchema = "nativeTestSchema")
@@ -97,6 +139,15 @@ connection <- connect(connectionDetails)
 
 executeSql(connection, paste(insertSql, collapse = "\n"))
 </code>
+
+=== Csv ===
+TODO
+In case the source data are csv files rather than database tables, we use this function:
+<code>
+insertSql <- generateSourceCsv(directory = "test_data", separator = ",")
+</code>
+
+And point the ETL to the given directory.
 
 
 ==== Run your ETL on the test data ====
@@ -125,3 +176,20 @@ Which could return this table:
 |101  |Person gender mappings  |PASS    |
 
 In this case we see there were two expect statements under test 101 (Person gender mappings), and both expectations were met so the test passed.
+
+
+==== Export tests ====
+TODO
+We can create an overview of defined tests and export it, for example if you want to list the tests separately.
+
+<code>
+getTestsOverview()
+exportTestsOverviewToFile(filename = "all_test_cases.csv")
+</code>
+
+The first function produces a table like below and the second writes it to a csv file:
+
+^testId ^testDescription ^testType ^testTable |
+1 |My Expectations |Expect |person |
+1 |My Expectations |Expect |observation_period |
+2 |My No Expectations |Expect No |person |

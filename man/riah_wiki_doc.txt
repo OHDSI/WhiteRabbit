@@ -67,6 +67,16 @@ Once you have created the CSV file, load it into RiaH as shown below:
 Please note that the name of the file you load in becomes the label that appears above the target tables, so "My Super File.csv" will create the label "My Super File" above the target tables, so name your CSV accordingly.
 
 
+==== Stem table ====
+TODO
+Can be added and/or removed.
+Explain how to use.
+
+
+==== Concept id hints ====
+TODO
+
+
 ===== Connecting Source Tables to CDM Tables =====
 
 It is assumed that the owners of the source data should be able to provide detail of what the data table contains, Rabbit-In-a-Hat will describe the columns within the table but will not provide the context a data owner should provide. For the CDM tables, if more information is needed navigate to the OMOP CDM web page ([[http://omop.org/CDM]]) and review the current OMOP specification.
@@ -113,3 +123,6 @@ Once the document is completed, this should be shared with the individuals who p
 To make sure the ETL process is working as specified, it is highly recommended to create [[https://en.wikipedia.org/wiki/Unit_testing|unit tests]] that evaluate the behavior of the ETL process.
 To efficiently create a set of unit tests Rabbit-in-a-Hat can [[documentation:software:whiterabbit:test_framework|generate a testing framework]].
 
+
+==== Generating sql skeleton ====
+TODO
