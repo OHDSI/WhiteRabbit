@@ -85,7 +85,8 @@ public class ETLTestFrameWorkGenerator {
 		createGenerateTestSqlFunction();
 		createTestsOverviewFunctions();
 		createSummaryFunction();
-        createGetUntestedFields();
+        createGetUntestedFieldsFunctions();
+        createOutputTestResultsSummaryFunction();
 	}
 
 	private void createInitFunction() {
@@ -564,7 +565,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
-    protected void createGetUntestedFields() {
+    private void createGetUntestedFieldsFunctions() {
         r.add("getUntestedSourceFields <- function() {");
         r.add("  sort(setdiff(frameworkContext$sourceFieldsMapped, frameworkContext$sourceFieldsTested))");
         r.add("}");
@@ -574,6 +575,29 @@ public class ETLTestFrameWorkGenerator {
         r.add("  sort(setdiff(frameworkContext$targetFieldsMapped, frameworkContext$targetFieldsTested))");
         r.add("}");
 		r.add("");
+    }
+
+    private void createOutputTestResultsSummaryFunction() {
+	    // Suppress any errors or warnings if unable to load DatabaseConnector, as the rest of the test framework does not need it.
+        r.add("outputTestResultsSummary <- function(connection, databaseSchema = NULL) {");
+        r.add("  suppressWarnings(require(DatabaseConnector, quietly = TRUE))");
+        r.add("  query = 'SELECT * FROM @cdm_database_schema.test_results;'");
+        r.add("  if (is.null(databaseSchema)) {");
+        r.add("    query <- gsub('@cdm_database_schema.', '', query)");
+        r.add("  } else {");
+        r.add("    query <- gsub('@cdm_database_schema', databaseSchema, query)");
+        r.add("  }");
+        r.add("  df_results <- DatabaseConnector::querySql(connection, query)");
+        r.add("  n_tests <- nrow(df_results)");
+        r.add("  n_failed_tests <- sum(df_results$'STATUS' == 'FAIL')");
+        r.add("  if (n_failed_tests > 0) {");
+        r.add("    write(sprintf('FAILED unit tests: %d/%d (%.1f%%)', n_failed_tests, n_tests, n_failed_tests/n_tests * 100), file='')");
+        r.add("    print(df_results[df_results$'STATUS' == 'FAIL',])");
+        r.add("  } else {");
+        r.add("    write(sprintf('All %d tests PASSED', n_tests), file='')");
+        r.add("  }");
+        r.add("}");
+        r.add("");
     }
 
 	private String removeExtension(String name) {
