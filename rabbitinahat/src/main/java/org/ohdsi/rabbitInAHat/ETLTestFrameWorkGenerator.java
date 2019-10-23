@@ -54,10 +54,10 @@ public class ETLTestFrameWorkGenerator {
 		generator.generate(etl, "C:\\Home\\Research\\ETLs\\JMDC ETL\\JMDC ETL CDMv5\\JmdcTestFramework.R");
 	}
 
-	public ETLTestFrameWorkGenerator() {
+	ETLTestFrameWorkGenerator() {
 	}
 
-	public void generate(ETL etl, String filename) {
+	void generate(ETL etl, String filename) {
 		this.etl = etl;
 		this.r = new ArrayList<>();
 		generateRScript();
@@ -196,8 +196,8 @@ public class ETLTestFrameWorkGenerator {
 			if (!table.isStem()) {
 				StringBuilder line = new StringBuilder();
 				String rTableName = convertToRName(table.getName());
-				List<String> argDefs = new ArrayList<String>();
-				List<String> insertLines = new ArrayList<String>();
+				List<String> argDefs = new ArrayList<>();
+				List<String> insertLines = new ArrayList<>();
 				for (Field field : table.getFields()) {
 					String rFieldName = convertToRName(field.getName());
 					argDefs.add(rFieldName);
@@ -245,7 +245,7 @@ public class ETLTestFrameWorkGenerator {
 				StringBuilder line = new StringBuilder();
 				String rTableName = convertToRName(table.getName());
 				String sqlTableName = convertToSqlName(table.getName());
-				List<String> argDefs = new ArrayList<String>();
+				List<String> argDefs = new ArrayList<>();
 				for (Field field : table.getFields()) {
 					String rFieldName = convertToRName(field.getName());
 					argDefs.add(rFieldName);
@@ -287,7 +287,7 @@ public class ETLTestFrameWorkGenerator {
 				StringBuilder line = new StringBuilder();
 				String rTableName = convertToRName(table.getName());
 				String sqlTableName = convertToSqlName(table.getName());
-				List<String> argDefs = new ArrayList<String>();
+				List<String> argDefs = new ArrayList<>();
 				for (Field field : table.getFields()) {
 					String rFieldName = convertToRName(field.getName());
 					argDefs.add(rFieldName);
@@ -327,13 +327,13 @@ public class ETLTestFrameWorkGenerator {
 		}
 	}
 
-	protected void createLookupFunctions() {
+	 private void createLookupFunctions() {
 		for (Table table : etl.getTargetDatabase().getTables()) {
 			if (!table.isStem()) {
 				StringBuilder line = new StringBuilder();
 				String rTableName = convertToRName(table.getName());
 				String sqlTableName = convertToSqlName(table.getName());
-				List<String> argDefs = new ArrayList<String>();
+				List<String> argDefs = new ArrayList<>();
 				for (Field field : table.getFields()) {
 					String rFieldName = convertToRName(field.getName());
 					argDefs.add(rFieldName);
@@ -370,7 +370,7 @@ public class ETLTestFrameWorkGenerator {
 		}
 	}
 
-	protected void createGenerateInsertSqlFunction() {
+	 private void createGenerateInsertSqlFunction() {
 		r.add("generateInsertSql <- function(databaseSchema = NULL) {");
 		r.add("  insertSql <- c()");
 		for (Table table : etl.getSourceDatabase().getTables())
@@ -404,7 +404,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
-	protected void createSourceCsvFunction() {
+	 private void createSourceCsvFunction() {
 		r.add("generateSourceCsv <- function(directory = NULL, separator = ',') {");
 		// Remove artificial quotes and escape quotes
 		r.add("  clean_value <- function(x) {");
@@ -453,7 +453,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
-	protected void createGenerateTestSqlFunction() {
+	 private void createGenerateTestSqlFunction() {
 		r.add("generateTestSql <- function(databaseSchema = NULL) {");
 		r.add("  testSql <- c()");
 		r.add("  testSql <- c(testSql, \"IF OBJECT_ID('@cdm_database_schema.test_results', 'U') IS NOT NULL DROP TABLE @cdm_database_schema.test_results;\")");
@@ -508,7 +508,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
-	protected void createTestsOverviewFunctions() {
+	 private void createTestsOverviewFunctions() {
 		r.add("getTestsOverview <- function() {");
 		r.add("  df <- data.frame(");
 		r.add("    testId = sapply(frameworkContext$expects, function(x) x$testId),");
@@ -526,7 +526,7 @@ public class ETLTestFrameWorkGenerator {
 		r.add("");
 	}
 
-	protected void createSummaryFunction() {
+    private void createSummaryFunction() {
         r.add("summary.frameworkContext <- function(object, ...) {");
         r.add("  nSourceFieldsTested <- length(intersect(object$sourceFieldsMapped, object$sourceFieldsTested))");
 		r.add("  nTargetFieldsTested <- length(intersect(object$targetFieldsMapped, object$targetFieldsTested))");
@@ -544,19 +544,6 @@ public class ETLTestFrameWorkGenerator {
 		r.add("  )");
 		r.add("  names(summary) <- c('n_tests', 'n_cases', 'n_source_fields_tested', 'n_source_fields_mapped_from', 'source_coverage (%)', 'n_target_fields_tested', 'n_target_fields_mapped_to', 'target_coverage (%)')");
 		r.add("  return(as.data.frame(summary))");
-
-//		r.add("  formatPercent <- function(numerator, denominator) {");
-//		r.add("    sprintf('%2.1f%% (%d/%d)', 100*numerator/denominator, numerator, denominator)");
-//		r.add("  }");
-//        r.add("  cat('-- Test Framework Summary --\n')");
-//        r.add("  cat(sprintf('Total number of defined cases: %d\n', length(unique(sapply(object$expects, function(x) x$testId)))))");
-//        r.add("  cat(sprintf('Total number of tests: %d\n', length(object$expects)))");
-//        r.add("  cat('-- Unit testing coverage --\n')");
-//        r.add("  cat('-- (percentage of defined source/target fields that covered in at least one test case) --\n')");
-//        r.add("  cat(sprintf('Source rule coverage: %s\n', formatPercent(nSourceFieldsTested, nTotalSourceFields)))");
-//        r.add("  cat(sprintf('Target rule coverage: %s\n', formatPercent(nTargetFieldsTested, nTotalTargetFields)))");
-//        r.add("  cat(sprintf('Total coverage: %s\n', formatPercent(nSourceFieldsTested+nTargetFieldsTested, nTotalSourceFields+nTotalTargetFields)))");
-
         r.add("}");
 		r.add("");
 		r.add("summaryTestFramework <- function() {");
@@ -615,15 +602,14 @@ public class ETLTestFrameWorkGenerator {
 		return name;
 	}
 
-	protected String createSqlValueCode(String rFieldName) {
-		StringBuilder expression = new StringBuilder();
-		expression.append("if (is.null(" + rFieldName + ")) \"NULL\" ");
-		expression.append("else if (is(" + rFieldName + ", \"subQuery\")) paste0(\"(\", as.character(" + rFieldName + "), \")\") ");
-		expression.append("else paste0(\"'\", as.character(" + rFieldName + "), \"'\")");
-		return (expression.toString());
+	 private String createSqlValueCode(String rFieldName) {
+         return "if (is.null(" + rFieldName + ")) \"NULL\" " +
+                 "else if (is(" + rFieldName + ", \"subQuery\")) " +
+                 "paste0(\"(\", as.character(" + rFieldName + "), \")\") " +
+                 "else paste0(\"'\", as.character(" + rFieldName + "), \"'\")";
 	}
 
-	protected String convertToSqlName(String name) {
+	 private String convertToSqlName(String name) {
 		name = removeExtension(name);
 		if (name.startsWith("[") && name.endsWith("]")) {
 			return name;
