@@ -10,3 +10,4 @@ target/
 *.iml
 .idea/
 *ScanReport*
+*swp

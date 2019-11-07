@@ -233,16 +233,17 @@ public class DBConnector {
 		String email_regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
 		Pattern pattern = Pattern.compile(email_regex);
 		Matcher matcher = pattern.matcher(user);
+		Integer timeout = 3600;
 		String url = "";
 		if (matcher.matches()) {
 			/* use Service Account authentication (less secure - no auditing events to stackdriver) */
-			url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=0;OAuthServiceAcctEmail=" + user + ";OAuthPvtKeyPath=" + password + ";DefaultDataset=" + domain + ";Timeout=1800;";
+			url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=0;OAuthServiceAcctEmail=" + user + ";OAuthPvtKeyPath=" + password + ";DefaultDataset=" + domain + ";Timeout=" + timeout + ";";
 		} else {
 			/* use application default credentials (more secure - writes auditing events to stackdriver) */
 			/* requires user to run: 'gcloud auth application-default login' */
 			/* only once on each computer. Writes application key to ~/.config/gcloud/application_default_credentials.json */
 			/* See https://cloud.google.com/sdk/gcloud/reference/auth/application-default/ for documentation */
-			url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=3;DefaultDataset=" + domain + ";Timeout=1800;";
+			url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=3;DefaultDataset=" + domain + ";Timeout=" + timeout + ";";
 		};
 		try {
 			return DriverManager.getConnection(url);
