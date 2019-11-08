@@ -132,7 +132,7 @@ public class RichConnection implements Closeable {
 			execute("ALTER SESSION SET current_schema = " + database);
 		else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 			execute("SET search_path TO " + database);
-		else if (dbType == DbType.MSACCESS)
+		else if (dbType == DbType.MSACCESS || dbType == DbType.BIGQUERY)
 			; // NOOP
 		else if (dbType == DbType.TERADATA) {
 			execute("database " + database);
@@ -155,6 +155,8 @@ public class RichConnection implements Closeable {
 			query = "SELECT Name FROM sys.MSysObjects WHERE Type=1 AND Flags=0;";
 		} else if (dbType == DbType.TERADATA) {
 			query = "SELECT TableName from dbc.tables WHERE tablekind = 'T' and databasename='" + database + "'";
+		} else if (dbType == DbType.BIGQUERY) {
+			query = "SELECT table_name from " + database + ".INFORMATION_SCHEMA.TABLES ORDER BY table_name;";
 		}
 
 		for (Row row : query(query))

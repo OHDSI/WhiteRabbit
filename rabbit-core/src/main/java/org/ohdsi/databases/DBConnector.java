@@ -20,14 +20,18 @@ package org.ohdsi.databases;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oracle.jdbc.pool.OracleDataSource;
+import org.apache.tools.ant.types.selectors.SelectSelector;
 
 public class DBConnector {
 
 	public static void main(String[] args) {
 	}
 
+	// If dbType.BIGQUERY: domain field has been replaced with  database field
 	public static Connection connect(String server, String domain, String user, String password, DbType dbType) {
 		if (dbType.equals(DbType.MYSQL))
 			return DBConnector.connectToMySQL(server, user, password);
@@ -43,6 +47,8 @@ public class DBConnector {
 			return DBConnector.connectToRedshift(server, user, password);
 		else if (dbType.equals(DbType.TERADATA))
 			return DBConnector.connectToTeradata(server, user, password);
+		else if (dbType.equals(DbType.BIGQUERY))
+			return DBConnector.connectToBigQuery(server, domain, user, password);
 		else
 			return null;
 	}
@@ -216,4 +222,34 @@ public class DBConnector {
 			}
 		return null;
 	}
+
+	public static Connection connectToBigQuery(String server, String domain, String user, String password) {
+		try {
+			Class.forName("com.simba.googlebigquery.jdbc42.Driver");
+		} catch (ClassNotFoundException e1) {
+			throw new RuntimeException("Cannot find Simba GoogleBigQuery JDBC Driver class");
+		}
+		/* See http://howtodojava.com/regex/java-regex-validate-email.address/ */
+		String email_regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+		Pattern pattern = Pattern.compile(email_regex);
+		Matcher matcher = pattern.matcher(user);
+		Integer timeout = 3600;
+		String url = "";
+		if (matcher.matches()) {
+			/* use Service Account authentication (less secure - no auditing events to stackdriver) */
+			url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=0;OAuthServiceAcctEmail=" + user + ";OAuthPvtKeyPath=" + password + ";DefaultDataset=" + domain + ";Timeout=" + timeout + ";";
+		} else {
+			/* use application default credentials (more secure - writes auditing events to stackdriver) */
+			/* requires user to run: 'gcloud auth application-default login' */
+			/* only once on each computer. Writes application key to ~/.config/gcloud/application_default_credentials.json */
+			/* See https://cloud.google.com/sdk/gcloud/reference/auth/application-default/ for documentation */
+			url = "jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectID=" + server + ";OAuthType=3;DefaultDataset=" + domain + ";Timeout=" + timeout + ";";
+		};
+		try {
+			return DriverManager.getConnection(url);
+		} catch (SQLException e1) {
+			throw new RuntimeException("Simba URL failed: Cannot connect to DB server: " + e1.getMessage());
+		}
+	}
 }
+

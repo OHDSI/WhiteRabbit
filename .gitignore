@@ -9,3 +9,5 @@ dist/
 target/
 *.iml
 .idea/
+*ScanReport*
+*swp

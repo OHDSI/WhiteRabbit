@@ -192,6 +192,11 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.MSACCESS;
 			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Teradata"))
 				dbSettings.dbType = DbType.TERADATA;
+			else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("BigQuery")) {
+				dbSettings.dbType = DbType.BIGQUERY;
+				/* GBQ requires database. Putting database into domain var for connect() */
+				dbSettings.domain = dbSettings.database;
+			}
 		}
 		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
 			try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
@@ -261,7 +266,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
 		sourcePanel.add(new JLabel("Data type"));
-		sourceType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "PDW", "Redshift", "Teradata" });
+		sourceType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "PDW", "Redshift", "Teradata", "BigQuery" });
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(new ItemListener() {
 
@@ -287,6 +292,11 @@ public class WhiteRabbitMain implements ActionListener {
 					sourceUserField.setToolTipText("The user used to log in to the server");
 					sourcePasswordField.setToolTipText("The password used to log in to the server");
 					sourceDatabaseField.setToolTipText("For PostgreSQL servers this field contains the schema containing the source tables");
+				} else if (!sourceIsFiles && arg0.getItem().toString().equals("BigQuery")) {
+					sourceServerField.setToolTipText("GBQ SA & UA:  ProjectID");
+					sourceUserField.setToolTipText("GBQ SA only: OAuthServiceAccountEMAIL");
+					sourcePasswordField.setToolTipText("GBQ SA only: OAuthPvtKeyPath");
+					sourceDatabaseField.setToolTipText("GBQ SA & UA: Data Set within ProjectID");
 				} else if (!sourceIsFiles) {
 					sourceServerField.setToolTipText("This field contains the name or IP address of the database server");
 					if (arg0.getItem().toString().equals("SQL Server"))
@@ -517,6 +527,11 @@ public class WhiteRabbitMain implements ActionListener {
 					targetUserField.setToolTipText("The user used to log in to the server");
 					targetPasswordField.setToolTipText("The password used to log in to the server");
 					targetDatabaseField.setToolTipText("For PostgreSQL servers this field contains the schema containing the source tables");
+				} else if (!targetIsFiles && arg0.getItem().toString().equals("BigQuery")) {
+					targetServerField.setToolTipText("GBQ ProjectID");
+					targetUserField.setToolTipText("GBQ OAuthServiceAccountEmail");
+					targetPasswordField.setToolTipText("GBQ OAuthPvtKeyPath");
+					targetDatabaseField.setToolTipText("GBQ Data Set within ProjectID");
 				} else if (!targetIsFiles) {
 					targetServerField.setToolTipText("This field contains the name or IP address of the database server");
 					if (arg0.getItem().toString().equals("SQL Server"))
@@ -743,6 +758,8 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.ORACLE;
 			else if (sourceType.getSelectedItem().toString().equals("PostgreSQL"))
 				dbSettings.dbType = DbType.POSTGRESQL;
+			else if (sourceType.getSelectedItem().toString().equals("BigQuery"))
+				dbSettings.dbType = DbType.BIGQUERY;
 			else if (sourceType.getSelectedItem().toString().equals("Redshift"))
 				dbSettings.dbType = DbType.REDSHIFT;
 			else if (sourceType.getSelectedItem().toString().equals("SQL Server")) {
@@ -794,13 +811,12 @@ public class WhiteRabbitMain implements ActionListener {
 
 			RichConnection connection;
 			try {
-				connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
+			    connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
 			} catch (Exception e) {
 				String message = "Could not connect: " + e.getMessage();
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-
 			try {
 				List<String> tableNames = connection.getTableNames(dbSettings.database);
 				if (tableNames.size() == 0)

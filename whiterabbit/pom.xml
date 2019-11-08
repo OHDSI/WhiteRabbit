@@ -20,7 +20,8 @@
                 <artifactId>appassembler-maven-plugin</artifactId>
                 <configuration>
                     <assembleDirectory>${project.parent.basedir}/dist</assembleDirectory>
-                    <extraJvmArguments>-Xmx1200m</extraJvmArguments>
+		    <!--                   <extraJvmArguments>-Xmx1200m</extraJvmArguments> -->
+                    <extraJvmArguments>-Xmx2400m</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>org.ohdsi.whiteRabbit.WhiteRabbitMain</mainClass>
