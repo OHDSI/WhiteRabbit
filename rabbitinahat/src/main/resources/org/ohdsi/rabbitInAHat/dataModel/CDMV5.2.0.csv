@@ -183,7 +183,7 @@ SPECIMEN,ANATOMIC_SITE_SOURCE_VALUE,YES,CHARACTER VARYING,"The information about
 SPECIMEN,DISEASE_STATUS_SOURCE_VALUE,YES,CHARACTER VARYING,"The information about the disease status as detailed in the source."
 VISIT_DETAIL,VISIT_DETAIL_ID,NO,INTEGER,"A unique identifier for each Person's visit or encounter at a healthcare provider."
 VISIT_DETAIL,PERSON_ID,NO,INTEGER,"A foreign key identifier to the Person for whom the visit is recorded. The demographic details of that Person are stored in the PERSON table."
-VISIT_DETAIL,VISIT_CONCEPT_ID,NO,INTEGER,"A foreign key that refers to a visit Concept identifier in the Standardized Vocabularies."
+VISIT_DETAIL,VISIT_DETAIL_CONCEPT_ID,NO,INTEGER,"A foreign key that refers to a visit Concept identifier in the Standardized Vocabularies."
 VISIT_DETAIL,VISIT_START_DATE,NO,DATE,"The start date of the visit."
 VISIT_DETAIL,VISIT_START_DATETIME,YES,DATETIME,"The date and time of the visit started."
 VISIT_DETAIL,VISIT_END_DATE,NO,DATE,"The end date of the visit. If this is a one-day visit the end date should match the start date."
