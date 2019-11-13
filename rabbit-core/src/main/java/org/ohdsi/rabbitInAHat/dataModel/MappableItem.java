@@ -24,5 +24,6 @@ public interface MappableItem extends Serializable{
 	public String getName();
 	public Database getDb();
 	public boolean isStem();
+	public boolean isFilter();
 	public void setStem(boolean isStem);
 }

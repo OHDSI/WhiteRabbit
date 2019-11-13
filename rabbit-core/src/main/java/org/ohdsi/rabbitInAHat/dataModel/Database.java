@@ -108,6 +108,11 @@ public class Database implements Serializable {
 					table.setName(row.get(tableNameColumn).toLowerCase());
 					nameToTable.put(row.get(tableNameColumn).toLowerCase(), table);
 					database.tables.add(table);
+					Field field = new Field("<filter>", table);
+					field.setNullable(true);
+					field.setFilter(true);
+					field.setDescription("To document source fields that are used to filtering the records before mapping to the " + table.getName() + " table.");
+					table.getFields().add(field);
 				}
 				Field field = new Field(row.get(fieldNameColumn).toLowerCase(), table);
 				field.setNullable(row.get(isNullableColumn).equals(nullableValue));
