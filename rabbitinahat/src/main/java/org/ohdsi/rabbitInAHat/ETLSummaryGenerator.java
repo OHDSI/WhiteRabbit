@@ -18,24 +18,18 @@
 package org.ohdsi.rabbitInAHat;
 
 import org.apache.commons.csv.CSVFormat;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ETLSummaryGenerator {
+class ETLSummaryGenerator {
 
-    public static void generateSourceFieldListCsv(ETL etl, String filename) {
+    static void generateSourceFieldListCsv(ETL etl, String filename) {
         if (!filename.toLowerCase().endsWith(".csv"))
             filename = filename + ".csv";
 
@@ -48,30 +42,17 @@ public class ETLSummaryGenerator {
         out.close();
     }
 
-    public static void generateSourceFieldListExcel(ETL etl, String filename) {
-        System.out.println("Generating source mappings");
+    static void generateTargetFieldListCsv(ETL etl, String filename) {
+        if (!filename.toLowerCase().endsWith(".csv"))
+            filename = filename + ".csv";
 
-        SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
-
-        // Create overview sheet
-        Sheet sheet = workbook.createSheet("All source fields");
-//        org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
-//        addRow(sheet,  "Source Table", "Source Field", "Description", "Mapped?", "Number of mappings", "Mappings");
-        for (Row row : createSourceFieldList(etl)) {
-            org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(sheet.getPhysicalNumberOfRows());
-            row.getCells().forEach(value -> {
-                Cell cell = excelRow.createCell(excelRow.getPhysicalNumberOfCells());
-                cell.setCellValue(value);
-            });
+        System.out.println("Generating target field list " + filename);
+        // TODO: try with resources
+        WriteCSVFileWithHeader out = new WriteCSVFileWithHeader(filename, CSVFormat.RFC4180);
+        for (Row row : createTargetFieldList(etl)) {
+            out.write(row);
         }
-
-        try {
-            FileOutputStream out = new FileOutputStream(new File(filename));
-            workbook.write(out);
-            out.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        out.close();
     }
 
     private static List<Row> createSourceFieldList(ETL etl) {
@@ -79,12 +60,13 @@ public class ETLSummaryGenerator {
 
         for (Table sourceTable : etl.getSourceDatabase().getTables()) {
             for (Field sourceField : sourceTable.getFields()) {
-                List<String> fieldMappings = etl.getMappingsforSourceField(sourceField);
+                List<String> fieldMappings = etl.getMappingsFromSourceField(sourceField);
                 int nMappings = fieldMappings.size();
                 Row row = new Row();
                 row.add("Source Table", sourceTable.getName());
                 row.add("Source Field", sourceField.getName());
-                row.add("Description", sourceField.getComment());
+                row.add("Type", sourceField.getType());
+                row.add("Comment", sourceField.getComment());
                 row.add("Mapped?", nMappings > 0 ? "X" : "");
                 row.add("Number of mappings", nMappings > 0 ? String.valueOf(nMappings) : "");
                 row.add("Mappings", String.join(",", fieldMappings));
@@ -93,4 +75,51 @@ public class ETLSummaryGenerator {
         }
         return rows;
     }
+
+    private static List<Row> createTargetFieldList(ETL etl) {
+        List<Row> rows = new ArrayList<>();
+
+        for (Table targetTable : etl.getTargetDatabase().getTables()) {
+            for (Field targetField : targetTable.getFields()) {
+                List<String> fieldMappings = etl.getMappingsToTargetField(targetField);
+                int nMappings = fieldMappings.size();
+                Row row = new Row();
+                row.add("Target Table", targetTable.getName());
+                row.add("Target Field", targetField.getName());
+                row.add("Required?", targetField.isNullable() ? "" : "*");
+                row.add("Comment", targetField.getComment());
+                row.add("Mapped?", nMappings > 0 ? "X" : "");
+                row.add("Number of mappings", nMappings > 0 ? String.valueOf(nMappings) : "");
+                row.add("Mappings", String.join(",", fieldMappings));
+                rows.add(row);
+            }
+        }
+        return rows;
+    }
+
+//    public static void generateSourceFieldListExcel(ETL etl, String filename) {
+//        System.out.println("Generating source mappings");
+//
+//        SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+//
+//        // Create overview sheet
+//        Sheet sheet = workbook.createSheet("All source fields");
+////        org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+////        addRow(sheet,  "Source Table", "Source Field", "Description", "Mapped?", "Number of mappings", "Mappings");
+//        for (Row row : createSourceFieldList(etl)) {
+//            org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(sheet.getPhysicalNumberOfRows());
+//            row.getCells().forEach(value -> {
+//                Cell cell = excelRow.createCell(excelRow.getPhysicalNumberOfCells());
+//                cell.setCellValue(value);
+//            });
+//        }
+//
+//        try {
+//            FileOutputStream out = new FileOutputStream(new File(filename));
+//            workbook.write(out);
+//            out.close();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e.getMessage());
+//        }
+//    }
 }

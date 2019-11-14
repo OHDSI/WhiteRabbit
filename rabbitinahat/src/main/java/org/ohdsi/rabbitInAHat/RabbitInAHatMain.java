@@ -64,9 +64,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_GENERATE_ETL_WORD_DOCUMENT	= "Generate ETL Word Document";
 	public final static String		ACTION_GENERATE_ETL_HTML_DOCUMENT	= "Generate ETL HTML Document";
 	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Generate ETL Markdown Document";
+	public final static String 		ACTION_GENERATE_SOURCE_FIELD_LIST   = "Generate Source Field list";
+	public final static String 		ACTION_GENERATE_TARGET_FIELD_LIST   = "Generate Target Field list";
 	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "Generate ETL Test Framework";
-    public final static String		ACTION_GENERATE_SQL                 = "Generate SQL Skeleton";
-    public final static String 		ACTION_GENERATE_SOURCE_FIELD_LIST   = "Generate Source Field list";
+	public final static String		ACTION_GENERATE_SQL                 = "Generate SQL Skeleton";
 	public final static String		ACTION_DISCARD_COUNTS				= "Discard Value Counts";
 	public final static String		ACTION_FILTER						= "Filter";
 	public final static String		ACTION_MAKE_MAPPING					= "Make Mappings";
@@ -257,6 +258,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateMdDocItem.addActionListener(this);
 		generateEtlDocument.add(generateMdDocItem);
 
+		JMenuItem generateSourceFieldList = new JMenuItem(ACTION_GENERATE_SOURCE_FIELD_LIST);
+		generateSourceFieldList.addActionListener(this);
+		generateEtlDocument.add(generateSourceFieldList);
+
+		JMenuItem generateTargetFieldList = new JMenuItem(ACTION_GENERATE_TARGET_FIELD_LIST);
+		generateTargetFieldList.addActionListener(this);
+		generateEtlDocument.add(generateTargetFieldList);
+
 		JMenuItem generateTestFrameworkItem = new JMenuItem(ACTION_GENERATE_TEST_FRAMEWORK);
 		generateTestFrameworkItem.addActionListener(this);
 		fileMenu.add(generateTestFrameworkItem);
@@ -265,11 +274,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateSql.addActionListener(this);
 		generateSql.setActionCommand(ACTION_GENERATE_SQL);
 		fileMenu.add(generateSql);
-
-		JMenuItem generateSourceMaps = new JMenuItem(ACTION_GENERATE_SOURCE_FIELD_LIST);
-		generateSourceMaps.addActionListener(this);
-		generateSourceMaps.setActionCommand(ACTION_GENERATE_SOURCE_FIELD_LIST);
-		fileMenu.add(generateSourceMaps);
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
@@ -497,6 +501,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_GENERATE_SOURCE_FIELD_LIST:
 				doGenerateSourceFields(chooseSavePath(FILE_FILTER_CSV));
+				break;
+			case ACTION_GENERATE_TARGET_FIELD_LIST:
+				doGenerateTargetFields(chooseSavePath(FILE_FILTER_CSV));
 				break;
 			case ACTION_GENERATE_SQL:
 				doGenerateSql(chooseSaveDirectory());
@@ -772,6 +779,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
         if (filename != null) {
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             ETLSummaryGenerator.generateSourceFieldListCsv(ObjectExchange.etl, filename);
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
+    private void doGenerateTargetFields(String filename) {
+        if (filename != null) {
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            ETLSummaryGenerator.generateTargetFieldListCsv(ObjectExchange.etl, filename);
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }

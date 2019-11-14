@@ -220,14 +220,28 @@ public class ETL implements Serializable {
 		return getSourceDatabase().getTables().stream().anyMatch(Table::isStem);
 	}
 
-	public List<String> getMappingsforSourceField(Field sourceField) {
+	public List<String> getMappingsFromSourceField(Field sourceField) {
 		List<String> result = new ArrayList<>();
 		for (Map.Entry<ItemToItemMap, List<ItemToItemMap>> tableMapToFieldToField : tableMapToFieldToFieldMaps.entrySet()) {
 			String targetTableName = tableMapToFieldToField.getKey().getTargetItem().getName();
 			for (ItemToItemMap fieldToField : tableMapToFieldToField.getValue()) {
 				if (fieldToField.getSourceItem() == sourceField) {
 					String targetFieldName = fieldToField.getTargetItem().getName();
-					result.add(String.format("%s-%s", targetTableName, targetFieldName));
+					result.add(String.format("%s.%s", targetTableName, targetFieldName));
+				}
+			}
+		}
+		return result;
+	}
+
+	public List<String> getMappingsToTargetField(Field targetField) {
+		List<String> result = new ArrayList<>();
+		for (Map.Entry<ItemToItemMap, List<ItemToItemMap>> tableMapToFieldToField : tableMapToFieldToFieldMaps.entrySet()) {
+			String sourceTableName = tableMapToFieldToField.getKey().getSourceItem().getName();
+			for (ItemToItemMap fieldToField : tableMapToFieldToField.getValue()) {
+				if (fieldToField.getTargetItem() == targetField && !fieldToField.getSourceItem().isFilter()) {
+					String sourceFieldName = fieldToField.getSourceItem().getName();
+					result.add(String.format("%s.%s", sourceTableName, sourceFieldName));
 				}
 			}
 		}
