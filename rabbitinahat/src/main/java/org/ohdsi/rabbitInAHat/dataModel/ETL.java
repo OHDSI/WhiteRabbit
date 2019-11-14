@@ -219,4 +219,18 @@ public class ETL implements Serializable {
 	public boolean hasStemTable() {
 		return getSourceDatabase().getTables().stream().anyMatch(Table::isStem);
 	}
+
+	public List<String> getMappingsforSourceField(Field sourceField) {
+		List<String> result = new ArrayList<>();
+		for (Map.Entry<ItemToItemMap, List<ItemToItemMap>> tableMapToFieldToField : tableMapToFieldToFieldMaps.entrySet()) {
+			String targetTableName = tableMapToFieldToField.getKey().getTargetItem().getName();
+			for (ItemToItemMap fieldToField : tableMapToFieldToField.getValue()) {
+				if (fieldToField.getSourceItem() == sourceField) {
+					String targetFieldName = fieldToField.getTargetItem().getName();
+					result.add(String.format("%s-%s", targetTableName, targetFieldName));
+				}
+			}
+		}
+		return result;
+	}
 }

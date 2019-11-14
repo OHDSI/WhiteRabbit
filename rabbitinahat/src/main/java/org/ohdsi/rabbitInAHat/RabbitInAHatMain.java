@@ -66,6 +66,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Generate ETL Markdown Document";
 	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "Generate ETL Test Framework";
     public final static String		ACTION_GENERATE_SQL                 = "Generate SQL Skeleton";
+    public final static String 		ACTION_GENERATE_SOURCE_FIELD_LIST   = "Generate Source Field list";
 	public final static String		ACTION_DISCARD_COUNTS				= "Discard Value Counts";
 	public final static String		ACTION_FILTER						= "Filter";
 	public final static String		ACTION_MAKE_MAPPING					= "Make Mappings";
@@ -264,6 +265,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateSql.addActionListener(this);
 		generateSql.setActionCommand(ACTION_GENERATE_SQL);
 		fileMenu.add(generateSql);
+
+		JMenuItem generateSourceMaps = new JMenuItem(ACTION_GENERATE_SOURCE_FIELD_LIST);
+		generateSourceMaps.addActionListener(this);
+		generateSourceMaps.setActionCommand(ACTION_GENERATE_SOURCE_FIELD_LIST);
+		fileMenu.add(generateSourceMaps);
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
@@ -488,6 +494,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_GENERATE_TEST_FRAMEWORK:
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
+				break;
+			case ACTION_GENERATE_SOURCE_FIELD_LIST:
+				doGenerateSourceFields(chooseSavePath(FILE_FILTER_XLSX));
 			case ACTION_GENERATE_SQL:
 				doGenerateSql(chooseSaveDirectory());
 				break;
@@ -757,6 +766,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
+
+    private void doGenerateSourceFields(String filename) {
+        if (filename != null) {
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            ETLWordDocumentGenerator.generateSourceFieldList(ObjectExchange.etl, filename);
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
 
 	private void doGenerateSql(String directoryName) {
 		if (directoryName != null) {

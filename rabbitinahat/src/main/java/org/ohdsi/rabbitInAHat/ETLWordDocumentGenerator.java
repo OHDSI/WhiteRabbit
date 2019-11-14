@@ -23,8 +23,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.BreakType;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -64,6 +69,54 @@ public class ETLWordDocumentGenerator {
 
 	public static void generate(ETL etl, String filename) {
 		generate(etl, filename, true);
+	}
+
+	// TODO: separate Generator class for this listing
+	public static void generateSourceFieldList(ETL etl, String filename) {
+		System.out.println("Generating source mappings");
+
+		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+
+		// Create overview sheet
+		Sheet sheet = workbook.createSheet("All source fields");
+		addRow(sheet,  "Source Table", "Source Field", "Description", "Mapped?", "Number of mappings", "Mappings");
+		for (Table sourceTable : etl.getSourceDatabase().getTables()) {
+			for (Field sourceField : sourceTable.getFields()) {
+				List<String> fieldMappings = etl.getMappingsforSourceField(sourceField);
+				int nMappings = fieldMappings.size();
+				addRow(sheet,
+						sourceTable.getName(),
+						sourceField.getName(),
+						sourceField.getComment(),
+						nMappings > 0 ? "X" : "",
+						nMappings > 0 ? nMappings : "",
+						String.join(",", fieldMappings)
+				);
+			}
+		}
+
+		// TODO: try with resources
+		try {
+			FileOutputStream out = new FileOutputStream(new File(filename));
+			workbook.write(out);
+			out.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage());
+		}
+
+	}
+
+	// TODO: this convenience method is also used in SourceDataScan. Make separate workbook util class in rabbit-core
+	private static void addRow(Sheet sheet, Object... values) {
+		Row row = sheet.createRow(sheet.getPhysicalNumberOfRows());
+		for (Object value : values) {
+			Cell cell = row.createCell(row.getPhysicalNumberOfCells());
+
+			if (value instanceof Integer || value instanceof Long || value instanceof Double)
+				cell.setCellValue(Double.parseDouble(value.toString()));
+			else
+				cell.setCellValue(value.toString());
+		}
 	}
 	
 	private static void addSourceTablesAppendix(CustomXWPFDocument document, ETL etl) {
