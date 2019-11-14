@@ -496,7 +496,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
 				break;
 			case ACTION_GENERATE_SOURCE_FIELD_LIST:
-				doGenerateSourceFields(chooseSavePath(FILE_FILTER_XLSX));
+				doGenerateSourceFields(chooseSavePath(FILE_FILTER_CSV));
+				break;
 			case ACTION_GENERATE_SQL:
 				doGenerateSql(chooseSaveDirectory());
 				break;
@@ -770,7 +771,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
     private void doGenerateSourceFields(String filename) {
         if (filename != null) {
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            ETLWordDocumentGenerator.generateSourceFieldList(ObjectExchange.etl, filename);
+            ETLSummaryGenerator.generateSourceFieldListCsv(ObjectExchange.etl, filename);
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
