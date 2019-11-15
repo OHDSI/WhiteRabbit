@@ -18,6 +18,7 @@
 package org.ohdsi.whiteRabbit.scan;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -31,6 +32,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.epam.parso.Column;
+import com.epam.parso.SasFileProperties;
+import com.epam.parso.SasFileReader;
+import com.epam.parso.impl.SasFileReaderImpl;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -72,16 +77,20 @@ public class SourceDataScan {
 			if (!scanValues)
 				this.minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
 			tableToFieldInfos = processCsvFiles(dbSettings);
-		} else
+		} else if (dbSettings.dataType == DbSettings.SASFILES) {
+			tableToFieldInfos = processSasFiles(dbSettings);
+		} else {
 			tableToFieldInfos = processDatabase(dbSettings);
+		}
 		generateReport(tableToFieldInfos, filename);
 	}
 
 	private Map<String, List<FieldInfo>> processDatabase(DbSettings dbSettings) {
+		// GBQ requires database. Put database value into domain var
 		if (dbSettings.dbType == DbType.BIGQUERY) {
-			// GBQ requires database. Put database value into domain var
 			dbSettings.domain = dbSettings.database;
 		};
+
 		try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
 			connection.setVerbose(false);
 			connection.use(dbSettings.database);
@@ -91,13 +100,12 @@ public class SourceDataScan {
 
 			return dbSettings.tables.stream()
 					.collect(Collectors.toMap(Function.identity(), table -> processDatabaseTable(table, connection)));
-
 		}
 	}
 
 	private Map<String, List<FieldInfo>> processCsvFiles(DbSettings dbSettings) {
 		delimiter = dbSettings.delimiter;
-		Map<String, List<FieldInfo>> tableToFieldInfos = new HashMap<String, List<FieldInfo>>();
+		Map<String, List<FieldInfo>> tableToFieldInfos = new HashMap<>();
 		for (String table : dbSettings.tables) {
 			List<FieldInfo> fieldInfos = processCsvFile(table);
 			String tableName = new File(table).getName();
@@ -106,7 +114,20 @@ public class SourceDataScan {
 			} else {
 				tableToFieldInfos.put(table, fieldInfos);
 			}
+		}
+		return tableToFieldInfos;
+	}
 
+	private Map<String, List<FieldInfo>> processSasFiles(DbSettings dbSettings) {
+		Map<String, List<FieldInfo>> tableToFieldInfos = new HashMap<>();
+		for (String fileName : dbSettings.tables) {
+			List<FieldInfo> fieldInfos = processSasFile(fileName);
+			String tableName = new File(fileName).getName();
+			if (!tableToFieldInfos.containsKey(tableName)) {
+				tableToFieldInfos.put(tableName, fieldInfos);
+			} else {
+				tableToFieldInfos.put(fileName, fieldInfos);
+			}
 		}
 		return tableToFieldInfos;
 	}
@@ -348,7 +369,7 @@ public class SourceDataScan {
 
 	private List<FieldInfo> processCsvFile(String filename) {
 		StringUtilities.outputWithTime("Scanning table " + filename);
-		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
+		List<FieldInfo> fieldInfos = new ArrayList<>();
 		int lineNr = 0;
 		for (String line : new ReadTextFile(filename)) {
 			lineNr++;
@@ -378,10 +399,50 @@ public class SourceDataScan {
 		return fieldInfos;
 	}
 
+	private List<FieldInfo> processSasFile(String filename) {
+		StringUtilities.outputWithTime("Scanning table " + filename);
+		List<FieldInfo> fieldInfos = new ArrayList<>();
+
+		// TODO: try with resources and print warning on exception
+		FileInputStream inputStream;
+		try {
+			inputStream = new FileInputStream(new File(filename));
+
+			SasFileReader sasFileReader = new SasFileReaderImpl(inputStream);
+
+			// TODO: retrieve more information from the sasFileProperties, like data type and length.
+			SasFileProperties sasFileProperties = sasFileReader.getSasFileProperties();
+			for (Column column : sasFileReader.getColumns()) {
+				fieldInfos.add(new FieldInfo(column.getName()));
+			}
+
+			for (int i = 0; i < sasFileProperties.getRowCount(); i++) {
+				Object[] row = sasFileReader.readNext();
+
+				if (row.length == fieldInfos.size()) { // Else there appears to be a formatting error, so skip
+					for (int j = 0; j < row.length; j++) {
+						fieldInfos.get(j).processValue(row[j] == null ? "" : row[j].toString());
+					}
+				}
+				if (sampleSize != -1 && i == sampleSize)
+					break;
+			}
+			inputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		for (FieldInfo fieldInfo : fieldInfos) {
+			fieldInfo.trim();
+		}
+
+		return fieldInfos;
+	}
+
 	private class FieldInfo {
 		public String				type;
 		public String				name;
-		public CountingSet<String>	valueCounts		= new CountingSet<String>();
+		public CountingSet<String>	valueCounts		= new CountingSet<>();
 		public long					sumLength		= 0;
 		public int					maxLength		= 0;
 		public long					nProcessed		= 0;

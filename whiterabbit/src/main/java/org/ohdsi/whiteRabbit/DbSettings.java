@@ -26,7 +26,8 @@ import org.ohdsi.databases.DbType;
 public class DbSettings {
 	public static int	DATABASE	= 1;
 	public static int	CSVFILES	= 2;
-	
+	public static int	SASFILES	= 3;
+
 	public int			dataType;
 	public List<String>	tables		= new ArrayList<String>();
 	
