@@ -60,7 +60,7 @@ One further function is available:
 
 
 ==== Defining unit tests ====
-
+TODO: lookup functions
 Using these functions, we can define tests. Here is an example unit test:
 
 <code>
