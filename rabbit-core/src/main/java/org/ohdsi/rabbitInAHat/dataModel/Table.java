@@ -40,6 +40,7 @@ public class Table implements MappableItem {
 		db = table.db;
 		name = table.name;
 		rowCount = table.rowCount;
+		rowsCheckedCount = table.rowsCheckedCount;
 		comment = table.comment;
 		fields = new ArrayList<Field>(table.fields);
 		isStem = table.isStem;
