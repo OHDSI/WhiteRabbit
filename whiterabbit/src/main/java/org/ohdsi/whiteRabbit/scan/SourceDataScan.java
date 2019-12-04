@@ -146,9 +146,9 @@ public class SourceDataScan {
 					Long uniqueCount = fieldInfo.uniqueCount;
 					Double fractionUnique = fieldInfo.getFractionUnique();
                     addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(),
-							Integer.valueOf(fieldInfo.maxLength),
-							Long.valueOf(fieldInfo.rowCount),
-                            Long.valueOf(fieldInfo.nProcessed),
+							fieldInfo.maxLength,
+                            fieldInfo.rowCount != -1 ? fieldInfo.rowCount : String.format("~ %d", fieldInfo.estimateRowCount),
+                            fieldInfo.nProcessed,
 							fieldInfo.getFractionEmpty(),
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique
@@ -348,10 +348,12 @@ public class SourceDataScan {
 
 	private List<FieldInfo> processCsvFile(String filename) {
 		StringUtilities.outputWithTime("Scanning table " + filename);
-		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
+		List<FieldInfo> fieldInfos = new ArrayList<>();
 		int lineNr = 0;
+		long nBytesRead = 0;
 		for (String line : new ReadTextFile(filename)) {
 			lineNr++;
+			nBytesRead += line.getBytes().length;
 			List<String> row = StringUtilities.safeSplit(line, delimiter);
 			for (int i = 0; i < row.size(); i++) {
 				String column = row.get(i);
@@ -369,11 +371,17 @@ public class SourceDataScan {
 						fieldInfos.get(i).processValue(row.get(i));
 				}
 			}
-			if (sampleSize != -1 && lineNr == sampleSize)
+			if (sampleSize != -1 && lineNr-1 == sampleSize)
 				break;
 		}
-		for (FieldInfo fieldInfo : fieldInfos)
+		long nBytesTotal = new File(filename).length();
+
+		for (FieldInfo fieldInfo : fieldInfos) {
+			// rough estimate of number of lines, not corrected for header bytes or EOL bytes
+			fieldInfo.estimateRowCount = nBytesTotal * lineNr / nBytesRead;
+			// keep only topN values
 			fieldInfo.trim();
+		}
 
 		return fieldInfos;
 	}
@@ -388,6 +396,7 @@ public class SourceDataScan {
 		public long					emptyCount		= 0;
 		public long					uniqueCount		= 0;
 		public long					rowCount		= -1;
+		public long 				estimateRowCount= 0;
 		public boolean				isInteger		= true;
 		public boolean				isReal			= true;
 		public boolean				isDate			= true;
