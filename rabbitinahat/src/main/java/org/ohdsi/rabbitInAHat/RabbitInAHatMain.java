@@ -488,6 +488,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_GENERATE_TEST_FRAMEWORK:
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
+				break;
 			case ACTION_GENERATE_SQL:
 				doGenerateSql(chooseSaveDirectory());
 				break;

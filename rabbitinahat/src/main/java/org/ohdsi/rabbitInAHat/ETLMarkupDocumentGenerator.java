@@ -68,9 +68,13 @@ public class ETLMarkupDocumentGenerator {
 		}
 
 		for (Table targetTable : etl.getTargetDatabase().getTables()) {
-			if (addTargetTableSection(targetTable)) {
+			boolean targetTableHasMapping = addTargetTableSection(targetTable);
+
+			if (targetTableHasMapping) {
 				document.write(targetTable.getName());
 				targetTablesWritten.add(targetTable.getName());
+			} else {
+				document.reset();
 			};
 		}
 
@@ -214,6 +218,8 @@ public class ETLMarkupDocumentGenerator {
 		void addTable(List<Row> rows);
 
 		void write(String targetName);
+
+		void reset();
 	}
 
 	private static class MarkdownDocument implements MarkupDocument {
@@ -287,8 +293,11 @@ public class ETLMarkupDocumentGenerator {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			this.reset();
+		}
 
-			// Reset
+		@Override
+		public void reset() {
 			lines = new ArrayList<>();
 		}
 
@@ -390,7 +399,11 @@ public class ETLMarkupDocumentGenerator {
 				e.printStackTrace();
 			}
 
-			// Reset
+			this.reset();
+		}
+
+		@Override
+		public void reset() {
 			lines = new ArrayList<>();
 		}
 
