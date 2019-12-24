@@ -390,7 +390,7 @@ public class SourceDataScan {
 						fieldInfos.get(i).processValue(row.get(i));
 				}
 			}
-			if (sampleSize != -1 && lineNr == sampleSize)
+			if (lineNr == sampleSize)
 				break;
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
@@ -403,28 +403,24 @@ public class SourceDataScan {
 		StringUtilities.outputWithTime("Scanning table " + filename);
 		List<FieldInfo> fieldInfos = new ArrayList<>();
 
-		// TODO: try with resources and print warning on exception
-		FileInputStream inputStream;
-		try {
-			inputStream = new FileInputStream(new File(filename));
-
+		try(FileInputStream inputStream = new FileInputStream(new File(filename))) {
 			SasFileReader sasFileReader = new SasFileReaderImpl(inputStream);
 
-			// TODO: retrieve more information from the sasFileProperties, like data type and length.
+			// It is possible to retrieve more information from the sasFileProperties, like data type and length.
 			SasFileProperties sasFileProperties = sasFileReader.getSasFileProperties();
 			for (Column column : sasFileReader.getColumns()) {
 				fieldInfos.add(new FieldInfo(column.getName()));
 			}
 
-			for (int i = 0; i < sasFileProperties.getRowCount(); i++) {
+			for (int lineNr = 0; lineNr < sasFileProperties.getRowCount(); lineNr++) {
 				Object[] row = sasFileReader.readNext();
 
 				if (row.length == fieldInfos.size()) { // Else there appears to be a formatting error, so skip
-					for (int j = 0; j < row.length; j++) {
-						fieldInfos.get(j).processValue(row[j] == null ? "" : row[j].toString());
+					for (int i = 0; i < row.length; i++) {
+						fieldInfos.get(i).processValue(row[i] == null ? "" : row[i].toString());
 					}
 				}
-				if (sampleSize != -1 && i == sampleSize)
+				if (lineNr == sampleSize)
 					break;
 			}
 			inputStream.close();
