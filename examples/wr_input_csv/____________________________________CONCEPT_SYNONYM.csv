@@ -1,0 +1,1001 @@
+concept_id,concept_synonym_name,language_concept_id
+788070,Product issues,4180186
+788071,Product quality, supply, distribution, manufacturing and quality system issues,4180186
+788072,Somatic symptom and related disorders,4180186
+788073,Device site reactions,4180186
+788074,Marginal zone lymphomas NEC,4180186
+788075,Anaphylactic and anaphylactoid responses,4180186
+788076,Counterfeit, falsified and substandard products,4180186
+788077,Manufacturing facilities and equipment issues,4180186
+788078,Manufacturing issues NEC,4180186
+788079,Manufacturing laboratory controls issues,4180186
+788080,Manufacturing materials issues,4180186
+788081,Manufacturing production issues,4180186
+788082,Product distribution and storage issues,4180186
+788083,Product supply and availability issues,4180186
+788084,Somatic symptom disorders,4180186
+788085,Intellectual disabilities,4180186
+788086,Paraphilias and paraphilic disorders,4180186
+788087,Varicose veins NEC,4180186
+788088,Intercepted medication errors,4180186
+788089,Bladder metaplasia,4180186
+788090,Turbinoplasty,4180186
+788091,Scatolia,4180186
+788092,Choristoma,4180186
+788093,Medical device repositioning,4180186
+788094,Defiant behaviour,4180186
+788095,Proctectomy,4180186
+788096,Somatoform genitourinary disorder,4180186
+788097,Drug clearance,4180186
+788098,Intensive care unit acquired weakness,4180186
+788099,Froin's syndrome,4180186
+788100,Non-cirrhotic portal hypertension,4180186
+788101,Banti's syndrome,4180186
+788102,Intravascular gas,4180186
+788103,Painful os peroneum syndrome,4180186
+788104,Critical illness,4180186
+788105,Lysosomal acid lipase deficiency,4180186
+788106,Vascular access site rash,4180186
+788107,Foramen magnum syndrome,4180186
+788108,Duodeno-jejunal bypass sleeve therapy,4180186
+788109,Abdominal fat apron,4180186
+788110,Newborn head moulding,4180186
+788111,Viscocanalostomy,4180186
+788112,Goniotomy,4180186
+788113,Sclerectomy,4180186
+788114,Neurovascular conflict,4180186
+788115,Ureterolithiasis,4180186
+788116,Myxoid cyst,4180186
+788117,Metabolic surgery,4180186
+788118,Blood 1,5-anhydroglucitol test,4180186
+788119,Neurosarcoidosis,4180186
+788120,Limbic encephalitis,4180186
+788121,Interspinous osteoarthritis,4180186
+788122,Cardiac clearance,4180186
+788123,Puncture site hernia,4180186
+788124,Early onset familial Alzheimer's disease,4180186
+788125,Brachial artery entrapment syndrome,4180186
+788126,Welander distal myopathy,4180186
+788127,Muscle hypoxia,4180186
+788128,Algophobia,4180186
+788129,Adenoid cystic carcinoma of external auditory canal,4180186
+788130,Intestinal varices haemorrhage,4180186
+788131,Selective eating disorder,4180186
+788132,Gambling disorder,4180186
+788133,Disinhibited social engagement disorder of childhood,4180186
+788134,Gender dysphoria,4180186
+788135,Somatic symptom disorder,4180186
+788136,Illness anxiety disorder,4180186
+788137,Cardiovascular somatic symptom disorder,4180186
+788138,Gastrointestinal somatic symptom disorder,4180186
+788139,Neurologic somatic symptom disorder,4180186
+788140,Cutaneous somatic symptom disorder,4180186
+788141,Somatic symptom disorder of pregnancy,4180186
+788142,Non-24-hour sleep-wake disorder,4180186
+788143,Genito-pelvic pain/penetration disorder,4180186
+788144,Shift work disorder,4180186
+788145,Pseudostroke,4180186
+788146,Decompressive craniectomy,4180186
+788147,Chronic cheek biting,4180186
+788148,Chronic kidney disease-mineral and bone disorder,4180186
+788149,Gelatinous transformation of the bone marrow,4180186
+788150,Chronic idiopathic pain syndrome,4180186
+788151,Hemimegalencephaly,4180186
+788152,Gallbladder fibrosis,4180186
+788153,Ophthalmic scan,4180186
+788154,Patient dissatisfaction with device,4180186
+788155,Parvimonas infection,4180186
+788156,Parvimonas test positive,4180186
+788157,Parvimonas test negative,4180186
+788158,Parvimonas test,4180186
+788159,Destructive spondyloarthropathy,4180186
+788160,Therapy partial responder,4180186
+788161,Eosinophilic granulomatosis with polyangiitis,4180186
+788162,Calcium embolism,4180186
+788163,Urothelium erosion,4180186
+788164,Severe asthma with fungal sensitisation,4180186
+788165,Genital ulcer syndrome,4180186
+788166,Foetal biophysical profile score normal,4180186
+788167,Foetal biophysical profile score equivocal,4180186
+788168,Foetal biophysical profile score abnormal,4180186
+788169,Seminal vesicle atrophy,4180186
+788170,Cerebral candidiasis,4180186
+788171,Granulosa cell tumour of the testis,4180186
+788172,MAGIC syndrome,4180186
+788173,Gastrointestinal angiectasia,4180186
+788174,Benign joint neoplasm,4180186
+788175,Joint neoplasm,4180186
+788176,Malignant joint neoplasm,4180186
+788177,Caecostomy,4180186
+788178,Orthoroentgenogram,4180186
+788179,Haemosiderin stain,4180186
+788180,Drug-device incompatibility,4180186
+788181,Insurance issue,4180186
+788182,Gastrointestinal bacterial overgrowth,4180186
+788183,Tracheal dilation procedure,4180186
+788184,Bezold abscess,4180186
+788185,Cerebral radiation injury,4180186
+788186,Intracystic breast papilloma,4180186
+788187,HIV-associated neurocognitive disorder,4180186
+788188,Nervous system cyst,4180186
+788189,Oral contusion,4180186
+788190,Neuroendocrine tumour of the lung,4180186
+788191,Neuroendocrine tumour of the lung metastatic,4180186
+788192,Peak nasal inspiratory flow increased,4180186
+788193,Peak nasal inspiratory flow decreased,4180186
+788194,Peak nasal inspiratory flow abnormal,4180186
+788195,Peak nasal inspiratory flow normal,4180186
+788196,Planning to become infertile,4180186
+788197,Gluteoplasty,4180186
+788198,Mechanic's hand,4180186
+788199,Orchidotomy,4180186
+788200,Plasma exchange,4180186
+788201,Pulmonary artery occlusion,4180186
+788202,Post cardiac arrest syndrome,4180186
+788203,Posterior cortical atrophy,4180186
+788204,Corticobasal degeneration,4180186
+788205,Disaccharidase deficiency,4180186
+788206,Pseudosyndactyly,4180186
+788207,Pseudophakic glaucoma,4180186
+788208,Surgical fixation of rib fracture,4180186
+788209,Immunoglobulin G4 related disease,4180186
+788210,Intrusive thoughts,4180186
+788211,Infantile back arching,4180186
+788212,Renal vein varices,4180186
+788213,Allergy to surgical sutures,4180186
+788214,Splenorenal shunt procedure,4180186
+788215,Viral acanthoma,4180186
+788216,Kidney angiomyolipoma,4180186
+788217,Intracranial arterial fenestration,4180186
+788218,Post measles blindness,4180186
+788219,Costochondral separation,4180186
+788220,Annuloplasty,4180186
+788221,Mite allergy,4180186
+788222,Model for end stage liver disease score abnormal,4180186
+788223,Model for end stage liver disease score increased,4180186
+788224,Pseudohypercalcaemia,4180186
+788225,Rapid eye movement sleep behaviour disorder,4180186
+788226,Cutaneous horn of eyelid,4180186
+788227,Malignant neoplasm papilla of Vater,4180186
+788228,Needle fatigue,4180186
+788229,Acute on chronic liver failure,4180186
+788230,Hereditary motor and sensory neuropathy,4180186
+788231,Small intestinal obstruction reduction,4180186
+788232,Pelvic floor muscle training,4180186
+788233,Bladder training,4180186
+788234,Tumour obstruction,4180186
+788235,Skin squamous cell carcinoma metastatic,4180186
+788236,Dopamine transporter scintigraphy,4180186
+788237,Dopamine transporter scintigraphy abnormal,4180186
+788238,Dopamine transporter scintigraphy normal,4180186
+788239,Premature menarche,4180186
+788240,Infantile apnoea,4180186
+788241,Vascular graft stenosis,4180186
+788242,Vascular graft restenosis,4180186
+788243,Coronary vascular graft stenosis,4180186
+788244,Tick paralysis,4180186
+788245,Periosteal haematoma,4180186
+788246,Fractional flow reserve,4180186
+788247,Immunochemotherapy,4180186
+788248,Cytokine abnormal,4180186
+788249,Cytokine test,4180186
+788250,Pseudophakodonesis,4180186
+788251,Bilirubin urine present,4180186
+788252,Diabetic arteritis,4180186
+788253,Trial of void,4180186
+788254,Computerised tomogram intestine,4180186
+788255,Apitherapy,4180186
+788256,Multiple organ dysfunction syndrome,4180186
+788257,Craniocervical syndrome,4180186
+788258,Funguria,4180186
+788259,Myelolipoma,4180186
+788260,Myxomatous mitral valve degeneration,4180186
+788261,Ankle brachial index abnormal,4180186
+788262,Congenital spinal stenosis,4180186
+788263,Epileptic encephalopathy,4180186
+788264,Shrapnel wound,4180186
+788265,Electronic cigarette user,4180186
+788266,Pulmonary capillary haemangiomatosis,4180186
+788267,Lower respiratory tract herpes infection,4180186
+788268,Human bocavirus infection,4180186
+788269,Immune recovery uveitis,4180186
+788270,Hairy cell leukaemia recurrent,4180186
+788271,Pituitary amenorrhoea,4180186
+788272,Rhizolysis,4180186
+788273,Pulmonary nodular lymphoid hyperplasia,4180186
+788274,Vessel puncture site cellulitis,4180186
+788275,Terminal agitation,4180186
+788276,Suicide threat,4180186
+788277,Rachitic rosary,4180186
+788278,Carcinoma ex-pleomorphic adenoma,4180186
+788279,Tumour treating fields therapy,4180186
+788280,Nyctalgia,4180186
+788281,Dust allergy,4180186
+788282,Sensory integration therapy,4180186
+788283,Haemorrhagic breast cyst,4180186
+788284,Hepatobiliary scan normal,4180186
+788285,Imaging procedure abnormal,4180186
+788286,Brachyspira infection,4180186
+788287,Herpes simplex cervicitis,4180186
+788288,Familial infantile bilateral striatal necrosis,4180186
+788289,Sporadic infantile bilateral striatal necrosis,4180186
+788290,Vocal cord operation,4180186
+788291,Voice therapy,4180186
+788292,Cardiac contractility modulation therapy,4180186
+788293,Device related thrombosis,4180186
+788294,Myeloproliferative neoplasm,4180186
+788295,Adventitial cystic disease,4180186
+788296,Hypopharyngeal synechiae,4180186
+788297,Transcranial electrical motor evoked potential monitoring abnormal,4180186
+788298,Transcranial electrical motor evoked potential monitoring,4180186
+788299,Tumour pseudoprogression,4180186
+788300,Impaired ability to use machinery,4180186
+788301,Staphylococcal blepharitis,4180186
+788302,Portal shunt procedure,4180186
+788303,Human epidermal growth factor receptor negative,4180186
+788304,Human epidermal growth factor receptor decreased,4180186
+788305,Human epidermal growth factor receptor increased,4180186
+788306,Oesophageal intramural haematoma,4180186
+788307,Pulmonary resection,4180186
+788308,Locomotive syndrome,4180186
+788309,Varicella keratitis,4180186
+788310,Sulcus vocalis,4180186
+788311,Vertebral artery aneurysm,4180186
+788312,Paravalvular aortic regurgitation,4180186
+788313,Paroxysmal atrioventricular block,4180186
+788314,Restrictive allograft syndrome,4180186
+788315,Paraneoplastic arthritis,4180186
+788316,End stage renal disease,4180186
+788317,Vitreous haze,4180186
+788318,Hyponatriuria,4180186
+788319,Sensory processing disorder,4180186
+788320,Palatal ulcer,4180186
+788321,Pseudofolliculitis,4180186
+788322,Oropharyngeal cobble stone mucosa,4180186
+788323,Marginal zone lymphoma stage I,4180186
+788324,Marginal zone lymphoma stage II,4180186
+788325,Marginal zone lymphoma stage III,4180186
+788326,Marginal zone lymphoma stage IV,4180186
+788327,Marginal zone lymphoma recurrent,4180186
+788328,Marginal zone lymphoma refractory,4180186
+788329,Oral pigmentation,4180186
+788330,Somatic dysfunction,4180186
+788331,Ectopic posterior pituitary gland,4180186
+788332,Tenoplasty,4180186
+788333,Gastroenteropancreatic neuroendocrine tumour disease,4180186
+788334,Leukaemic cardiac infiltration,4180186
+788335,Periostosis,4180186
+788336,Helicobacter duodenitis,4180186
+788337,Procedural pneumothorax,4180186
+788338,Foetal tachyarrhythmia,4180186
+788339,Foetal movement disorder,4180186
+788340,Foetal anaemia,4180186
+788341,Ultrasound foetal abnormal,4180186
+788342,Foetal gastrointestinal tract imaging abnormal,4180186
+788343,Foetal musculoskeletal imaging abnormal,4180186
+788344,Foetal renal imaging abnormal,4180186
+788345,Foetal growth abnormality,4180186
+788346,Gastrorrhaphy,4180186
+788347,Congenital heart valve incompetence,4180186
+788348,Peripheral arthritis,4180186
+788349,Diabetic cheiroarthropathy,4180186
+788350,Craniofacial fracture,4180186
+788351,Cornea verticillata,4180186
+788352,Anal incontinence,4180186
+788353,Hypobarism,4180186
+788354,Basilar artery aneurysm,4180186
+788355,Chondroporosis,4180186
+788356,Thyroid hemiagenesis,4180186
+788357,Portosplenomesenteric venous thrombosis,4180186
+788358,Bloch-Sulzberger syndrome,4180186
+788359,Foetal compartment fluid collection,4180186
+788360,Hepatosplenic abscess,4180186
+788361,Oral haemangioma,4180186
+788362,Hepcidin test,4180186
+788363,Hepcidin decreased,4180186
+788364,Vascular access site haemorrhage,4180186
+788365,Vascular access site complication,4180186
+788366,Vascular access site oedema,4180186
+788367,Vascular access site haematoma,4180186
+788368,Vascular access site occlusion,4180186
+788369,Vascular access site pseudoaneurysm,4180186
+788370,Vascular access site inflammation,4180186
+788371,Vascular access site infection,4180186
+788372,Vascular access site rupture,4180186
+788373,Mobile medical application issue,4180186
+788374,Accidental exposure to product packaging,4180186
+788375,Accidental exposure to product packaging by child,4180186
+788376,Immune-mediated adverse reaction,4180186
+788377,Joint microhaemorrhage,4180186
+788378,Intracranial mass,4180186
+788379,Anti factor X activity,4180186
+788380,Anti factor X activity normal,4180186
+788381,Anti factor X activity abnormal,4180186
+788382,Anti factor X activity increased,4180186
+788383,Medical device monitoring error,4180186
+788384,Medical procedure,4180186
+788385,Anti factor X activity decreased,4180186
+788386,Musculoskeletal cancer,4180186
+788387,Inflammatory marker decreased,4180186
+788388,Liver function test decreased,4180186
+788389,Contraindicated device used,4180186
+788390,Factor Xa activity test,4180186
+788391,Liver function test increased,4180186
+788392,Stoma site polyp,4180186
+788393,Metastatic nervous system neoplasm,4180186
+788394,Tumour pruritus,4180186
+788395,Patient uncooperative,4180186
+788396,Cornelia de Lange syndrome,4180186
+788397,Pseudomonas test,4180186
+788398,Rett syndrome,4180186
+788399,PaO2/FiO2 ratio,4180186
+788400,Alexithymia,4180186
+788401,Device monitoring procedure not performed,4180186
+788402,Vascular graft haemorrhage,4180186
+788403,Frustration tolerance decreased,4180186
+788404,Unevaluable therapy,4180186
+788405,Spinal flattening,4180186
+788406,Malignant meningioma metastatic,4180186
+788407,Adverse food reaction,4180186
+788408,Vascular access site swelling,4180186
+788409,Vascular access site pain,4180186
+788410,Vascular access site dissection,4180186
+788411,Lumbar spinal drainage complication,4180186
+788412,Arterial bypass thrombosis,4180186
+788413,Arterial bypass occlusion,4180186
+788414,Vascular access site bruising,4180186
+788415,Prohormone brain natriuretic peptide,4180186
+788416,Prohormone brain natriuretic peptide increased,4180186
+788417,Prohormone brain natriuretic peptide decreased,4180186
+788418,Prohormone brain natriuretic peptide abnormal,4180186
+788419,Poor response to ovulation induction,4180186
+788420,Vascular stent infection,4180186
+788421,Mastoid cyst,4180186
+788422,Manufacturing facilities issue,4180186
+788423,Manufacturing equipment issue,4180186
+788424,Manufacturing issue,4180186
+788425,Manufacturing laboratory controls issue,4180186
+788426,Manufacturing materials issue,4180186
+788427,Manufacturing production issue,4180186
+788428,Product availability issue,4180186
+788429,Product supply issue,4180186
+788430,Disruptive mood dysregulation disorder,4180186
+788431,Speech sound disorder,4180186
+788432,Persistent depressive disorder,4180186
+788433,Depersonalisation/derealisation disorder,4180186
+788434,Device use issue,4180186
+788435,Vessel puncture site vesicles,4180186
+788436,Vascular access placement,4180186
+788437,Bursal haematoma,4180186
+788438,Bendopnoea,4180186
+788439,Quadrantanopia,4180186
+788440,Apituitarism,4180186
+788441,Oesophageal mucosal tear,4180186
+788442,Procalcitonin abnormal,4180186
+788443,Coronary bypass stenosis,4180186
+788444,Scleral deposits,4180186
+788445,Venous angioplasty,4180186
+788446,C3 glomerulopathy,4180186
+788447,Omental necrosis,4180186
+788448,Visceral venous thrombosis,4180186
+788449,Procalcitonin decreased,4180186
+788450,Procalcitonin normal,4180186
+788451,Vascular access malfunction,4180186
+788452,Congenital thrombocytopenia,4180186
+788453,Left-to-right cardiac shunt,4180186
+788454,Biliary dyspepsia,4180186
+788455,Perineal disorder,4180186
+788456,Gingival discomfort,4180186
+788457,Tongue discomfort,4180186
+788458,Hyperinsulinism syndrome,4180186
+788459,Multiple cutaneous and uterine leiomyomatosis,4180186
+788460,Cholangiosarcoma,4180186
+788461,Obstructive nephropathy,4180186
+788462,Postoperative pathological diuresis,4180186
+788463,Ischaemic mitral regurgitation,4180186
+788464,Oesophagopleural fistula,4180186
+788465,Neuromyelitis optica spectrum disorder,4180186
+788466,Total complement activity test,4180186
+788467,Total complement activity decreased,4180186
+788468,Total complement activity increased,4180186
+788469,Mismatch repair cancer syndrome,4180186
+788470,Vein of Galen aneurysmal malformation,4180186
+788471,Retinal thickening,4180186
+788472,Young mania rating scale,4180186
+788473,Atrioventricular node dispersion,4180186
+788474,Obsessive-compulsive symptom,4180186
+788475,Cardiac steatosis,4180186
+788476,H2N2 influenza,4180186
+788477,Uraemic myopathy,4180186
+788478,Retinal collateral vessels,4180186
+788479,Naevus lipomatosus cutaneous superficialis,4180186
+788480,Lecithin-cholesterol acyltransferase deficiency,4180186
+788481,Infective scleritis,4180186
+788482,Supernumerary vertebra,4180186
+788483,Vestibular migraine,4180186
+788484,Presbyastasis,4180186
+788485,Benign hepatobiliary neoplasm,4180186
+788486,Acquired complement deficiency disease,4180186
+788487,Granulicatella bacteraemia,4180186
+788488,Granulicatella infection,4180186
+788489,Arachnoid web,4180186
+788490,Haemorrhagic pneumonia,4180186
+788491,Uterine peristalsis absent,4180186
+788492,Tracheal web,4180186
+788493,Hereditary hypophosphataemic rickets,4180186
+788494,Pyruvate carboxylase deficiency,4180186
+788495,GNE myopathy,4180186
+788496,Adult polyglucosan body disease,4180186
+788497,Citrate transporter deficiency,4180186
+788498,Alternating hemiplegia of childhood,4180186
+788499,Trifunctional protein deficiency,4180186
+788500,Fatty acid oxidation disorder,4180186
+788501,Epidermal naevus syndrome,4180186
+788502,Aquagenic wrinkling of palms,4180186
+788503,Chondrodynia,4180186
+788504,Primary hypercholesterolaemia,4180186
+788505,Herpes simplex test,4180186
+788506,Herpes simplex test negative,4180186
+788507,Herpes virus test,4180186
+788508,Duplex appendix,4180186
+788509,Ligamentum flavum hypertrophy,4180186
+788510,Carotid artery calcification,4180186
+788511,Plasma cell balanitis,4180186
+788512,CANVAS syndrome,4180186
+788513,Hypothalamic hamartoma,4180186
+788514,Surgical ventricular restoration,4180186
+788515,Rotationplasty,4180186
+788516,Diffuse uveal melanocytic proliferation,4180186
+788517,Renal graft infection,4180186
+788518,Deferoxamine infusion test,4180186
+788519,Melatonin deficiency,4180186
+788520,Paraneoplastic dermatosis,4180186
+788521,Retained placenta operation,4180186
+788522,Ex-alcohol user,4180186
+788523,Extra-axial haemorrhage,4180186
+788524,Tonsillar erythema,4180186
+788525,Tonsillar exudate,4180186
+788526,Adjusted calcium increased,4180186
+788527,Renal echinococciasis,4180186
+788528,Device catching fire,4180186
+788529,Cervix injury,4180186
+788530,Metastases to spinal cord,4180186
+788531,Idiopathic interstitial pneumonia,4180186
+788532,Vascular pseudoaneurysm thrombosis,4180186
+788533,Tidal volume normal,4180186
+788534,Tidal volume abnormal,4180186
+788535,Tidal volume decreased,4180186
+788536,Tidal volume increased,4180186
+788537,Dental dysaesthesia,4180186
+788538,Dental paraesthesia,4180186
+788539,Myeloblast present,4180186
+788540,CT hypotension complex,4180186
+788541,Activated PI3 kinase delta syndrome,4180186
+788542,Leptomeningeal myelomatosis,4180186
+788543,Periarticular thenar erythema with onycholysis,4180186
+788544,NUT midline carcinoma,4180186
+788545,NUT gene mutation,4180186
+788546,Camptomelia,4180186
+788547,Enterococcal gastroenteritis,4180186
+788548,Acute myopia,4180186
+788549,Flavivirus test negative,4180186
+788550,Flavivirus test,4180186
+788551,Anti Kell antibody test,4180186
+788552,Anti Kell antibody test negative,4180186
+788553,Anti Kell antibody test positive,4180186
+788554,Drug effect faster than expected,4180186
+788555,Biopsy gallbladder,4180186
+788556,Biopsy gallbladder normal,4180186
+788557,Biopsy gallbladder abnormal,4180186
+788558,Central bradycardia,4180186
+788559,Cerebral microembolism,4180186
+788560,Low-level laser therapy,4180186
+788561,Anti-myelin-associated glycoprotein antibodies positive,4180186
+788562,Intestinal angioma,4180186
+788563,Social (pragmatic) communication disorder,4180186
+788564,Pseudophakic bullous keratopathy,4180186
+788565,Splenic vein aneurysm,4180186
+788566,Anti-myelin-associated glycoprotein associated polyneuropathy,4180186
+788567,Symmetrical drug-related intertriginous and flexural exanthema,4180186
+788568,Cholelithotripsy,4180186
+788569,Adaptive servo-ventilation,4180186
+788570,Gastrointestinal melanosis,4180186
+788571,Nipple enlargement,4180186
+788572,Wolfram syndrome,4180186
+788573,Device dependence,4180186
+788574,Neuroendocrine carcinoma of the bladder,4180186
+788575,Risk of future pregnancy miscarriage,4180186
+788576,Perisplenitis,4180186
+788577,Ocular stent placement,4180186
+788578,Ureteric atresia,4180186
+788579,Neonatal haemochromatosis,4180186
+788580,Costal cartilage fracture,4180186
+788581,Computerised tomogram liver abnormal,4180186
+788582,Radiation vulvovaginitis,4180186
+788583,Perinatal depression,4180186
+788584,Hydrotubation,4180186
+788585,Anti-saccharomyces cerevisiae antibody test positive,4180186
+788586,Astraphobia,4180186
+788587,Sialadenosis,4180186
+788588,MEK inhibitor-associated serous retinopathy,4180186
+788589,Brevibacterium infection,4180186
+788590,Cisternogram,4180186
+788591,Thyroid calcification,4180186
+788592,Application site wound,4180186
+788593,Brevibacterium test negative,4180186
+788594,Brevibacterium test positive,4180186
+788595,Ureter biopsy,4180186
+788596,CD8 lymphocyte percentage decreased,4180186
+788597,CD4 lymphocyte percentage increased,4180186
+788598,Severe fever with thrombocytopenia syndrome,4180186
+788599,Delayed ischaemic neurological deficit,4180186
+788600,Incorrect disposal of product,4180186
+788601,B-cell depletion therapy,4180186
+788602,Eye opacity,4180186
+788603,Skin culture,4180186
+788604,Skin culture positive,4180186
+788605,Superior limbic keratoconjunctivitis,4180186
+788606,Upper gastrointestinal perforation,4180186
+788607,Lower gastrointestinal perforation,4180186
+788608,Systemic bacterial infection,4180186
+788609,Lyme carditis,4180186
+788610,Lymphatic insufficiency,4180186
+788611,Oral-facial-digital syndrome type II,4180186
+788612,Retroperitonitis,4180186
+788613,Osteochondral autograft,4180186
+788614,Fractional exhaled nitric oxide increased,4180186
+788615,Kinesiophobia,4180186
+788616,Coronary vein stenosis,4180186
+788617,Sebaceous adenitis,4180186
+788618,White nipple sign,4180186
+788619,HLA-B*27 assay,4180186
+788620,Paediatric early warning score,4180186
+788621,Anabolic diet,4180186
+788622,HLA-B*27 positive,4180186
+788623,Systemic viral infection,4180186
+788624,Bacterial blepharitis,4180186
+788625,Puncture site cellulitis,4180186
+788626,Nail matrix biopsy,4180186
+788627,Iontophoresis,4180186
+788628,Proximal focal femoral deficiency,4180186
+788629,Scaphoid abdomen,4180186
+788630,Annular elastolytic giant cell granuloma,4180186
+788631,Paroxysmal sympathetic hyperactivity,4180186
+788632,Benign enlargement of the subarachnoid spaces,4180186
+788633,Abdominal wall wound,4180186
+788634,Buttock injury,4180186
+788635,Antemortem blood drug level,4180186
+788636,Antemortem blood drug level normal,4180186
+788637,Antemortem blood drug level abnormal,4180186
+788638,Antemortem blood drug level increased,4180186
+788639,Antemortem blood drug level decreased,4180186
+788640,Postmortem blood drug level,4180186
+788641,Postmortem blood drug level normal,4180186
+788642,Postmortem blood drug level abnormal,4180186
+788643,Postmortem blood drug level increased,4180186
+788644,Postmortem blood drug level decreased,4180186
+788645,Acral pseudolymphomatous angiokeratoma,4180186
+788646,Tornwaldt cyst,4180186
+788647,Papillary renal cell carcinoma,4180186
+788648,Granulomatous lymphadenitis,4180186
+788649,Sinuplasty,4180186
+788650,Clostridial sepsis,4180186
+788651,Neuropsychiatric symptoms,4180186
+788652,Limb mass,4180186
+788653,Contraindicated product administered,4180186
+788654,Lymphocytic oesophagitis,4180186
+788655,Sialodochitis fibrinosa,4180186
+788656,Homonymous diplopia,4180186
+788657,Heteronymous diplopia,4180186
+788658,Intentional device use issue,4180186
+788659,Barth syndrome,4180186
+788660,Acral peeling skin syndrome,4180186
+788661,Lid parallel conjunctival folds examination,4180186
+788662,Dental local anaesthesia,4180186
+788663,Tumefactive multiple sclerosis,4180186
+788664,Congenital neoplasm,4180186
+788665,Radical parametrectomy,4180186
+788666,Cortisol deficiency,4180186
+788667,Thyroid stimulating hormone deficiency,4180186
+788668,Smith-Lemli-Opitz syndrome,4180186
+788669,Joubert syndrome,4180186
+788670,Therapeutic response shortened,4180186
+788671,Reduced facial expression,4180186
+788672,Absorbable device issue,4180186
+788673,Penicillium infection,4180186
+788674,Nasal crease,4180186
+788675,Indeterminate glucose tolerance,4180186
+788676,Penicillium test positive,4180186
+788677,Penicillium test negative,4180186
+788678,B-lymphocyte count abnormal,4180186
+788679,Mycoplasma test negative,4180186
+788680,Parvimonas micra infection,4180186
+788681,Bioptic eye surgery,4180186
+788682,Behavioral addiction,4180186
+788683,Fishbane reaction,4180186
+788684,Urethral discharge syndrome,4180186
+788685,Manufacturing laboratory controls calibration issue,4180186
+788686,Inappropriate release of product for distribution,4180186
+788687,Structural valve deterioration,4180186
+788688,Postoperative delirium,4180186
+788689,Manufacturing equipment cleaning issue,4180186
+788690,Manufacturing process control procedure not performed,4180186
+788691,Manufacturing process control procedure incorrectly performed,4180186
+788692,Inadequate aseptic technique in manufacturing of product,4180186
+788693,Manufacturing materials contamination,4180186
+788694,Arteriotomy,4180186
+788695,Systemic scleroderma,4180186
+788696,Nasal injury,4180186
+788697,Paranasal sinus injury,4180186
+788698,Thyroid gland injury,4180186
+788699,Pancreatic contusion,4180186
+788700,Gastrointestinal organ contusion,4180186
+788701,Renal cell dysplasia,4180186
+788702,Medical device site hyperhydrosis,4180186
+788703,Intra-abdominal fluid collection,4180186
+788704,Bacterial abdominal infection,4180186
+788705,Birth weight normal,4180186
+788706,Bacterial salpingitis,4180186
+788707,Nontherapeutic agent blood positive,4180186
+788708,Nontherapeutic agent blood negative,4180186
+788709,Bacterial urethritis,4180186
+788710,Bacterial ureteritis,4180186
+788711,Factor Xa activity abnormal,4180186
+788712,Poor quality device used,4180186
+788713,Medical anabolic therapy,4180186
+788714,Gonococcal heart disease,4180186
+788715,Arterial bypass stenosis,4180186
+788716,DNA mismatch repair protein gene mutation,4180186
+788717,Ultrasound pancreas abnormal,4180186
+788718,Ultrasound pancreas normal,4180186
+788719,Vascular access site thrombosis,4180186
+788720,Factor Xa activity decreased,4180186
+788721,Factor Xa activity increased,4180186
+788722,Factor Xa activity normal,4180186
+788723,Keratouveitis,4180186
+788724,Viral keratouveitis,4180186
+788725,Malignant polyp,4180186
+788726,Tympanomastoidectomy,4180186
+788727,Keratoderma climactericum,4180186
+788728,Tensor fasciae latae syndrome,4180186
+788729,Lymphangiectomy,4180186
+788730,Astragalectomy,4180186
+788731,Crown lengthening,4180186
+788732,HIV lipodystrophy,4180186
+788733,Glucose transporter type 1 deficiency syndrome,4180186
+788734,Carnitine-acylcarnitine translocase deficiency,4180186
+788735,Trunk injury,4180186
+788736,Complication of drug implant insertion,4180186
+788737,Uterine compression sutures,4180186
+788738,Neuroendocrine tumor of the lung metastatic,4180186
+788739,Vasculo-Behcet disease,4180186
+788740,Malar mound,4180186
+788741,Defiant behavior,4180186
+788742,ICU acquired weakness,4180186
+788743,Hanseniasis,4180186
+788744,Thoracic aortic thrombus,4180186
+788745,Oesophageal elevated z-line,4180186
+788746,Hemorrhagic breast cyst,4180186
+788747,Acquired megakaryocytic aplasia,4180186
+788748,Vascular access site hematoma,4180186
+788749,Arteriovenous fistula site hypoaesthesia,4180186
+788750,Orchialgia,4180186
+788751,Long-chain 3-hydroxy-acyl-CoA dehydrogenase deficiency,4180186
+788752,Deep sclerectomy,4180186
+788753,Cacogeusia,4180186
+788754,Nasal valve collapse,4180186
+788755,Adult failure to thrive,4180186
+788756,Polymer fume fever,4180186
+788757,Peak nasal inspiratory flow test,4180186
+788758,Zika virus infection,4180186
+788759,Metastases to tonsils,4180186
+788760,Bacterial parotitis,4180186
+788761,HIV viraemia,4180186
+788762,Malignant psoas syndrome,4180186
+788763,Oncogenic osteomalacia,4180186
+788764,Herpes simplex test positive,4180186
+788765,CD8 lymphocyte percentage increased,4180186
+788766,Multipathogen PCR test positive,4180186
+788767,Uterine cervical metaplasia,4180186
+788768,Paraneoplastic limbic encephalitis,4180186
+788769,Lumbar hyperlordosis,4180186
+788770,Ankle disarticulation,4180186
+788771,Syme's amputation,4180186
+788772,Healthcare associated pneumonia,4180186
+788773,Granuloma telangiectaticum,4180186
+788774,Trichilemmal cyst,4180186
+788775,Verrucous cyst,4180186
+788776,Intervertebral disc extrusion,4180186
+788777,Baastrup syndrome,4180186
+788778,Peripheral neurapraxia,4180186
+788779,Radial neurapraxia,4180186
+788780,Ollier disease,4180186
+788781,Swayback,4180186
+788782,Diabetic retinal microaneurysms,4180186
+788783,Posterior cruciate ligament tear,4180186
+788784,Thyroid gland swelling,4180186
+788785,Accidental insertion of multiple contraceptive devices,4180186
+788786,Intentional insertion of multiple contraceptive devices,4180186
+788787,Fluid in fallopian tube,4180186
+788788,Bilateral pleural effusion,4180186
+788789,Device motor malfunction,4180186
+788790,Adjacent segment disease,4180186
+788791,Crossbite,4180186
+788792,Hemorrhagic conversion stroke,4180186
+788793,Cerebral petechial bleeding,4180186
+788794,Haemorrhagic conversion stroke,4180186
+788795,Cerebral petechial haemorrhage,4180186
+788796,Cerebral petechial hemorrhage,4180186
+788797,Submandibular space infection,4180186
+788798,Jaw injury,4180186
+788799,Lower abdominal discomfort,4180186
+788800,Fragmented intervertebral disc,4180186
+788801,Popeye syndrome,4180186
+788802,Sleep EEG,4180186
+788803,Radiation keratosis,4180186
+788804,Central respiratory depression,4180186
+788805,Intestinal varices hemorrhage,4180186
+788806,Intestinal varices bleeding,4180186
+788807,Stent migration,4180186
+788808,Bypass graft occlusion,4180186
+788809,Bypass graft stenosis,4180186
+788810,Bypass graft thrombosis,4180186
+788811,Iliofemoral artery occlusion,4180186
+788812,Iliofemoral artery thrombosis,4180186
+788813,Stent complication,4180186
+788814,Avoidant/restrictive food intake disorder,4180186
+788815,Caffeine withdrawal,4180186
+788816,Cannabis withdrawal,4180186
+788817,Gender incongruence,4180186
+788818,Insomnia disorder,4180186
+788819,Functional neurological symptom disorder,4180186
+788820,Intellectual development disorder,4180186
+788821,Nuchal headache,4180186
+788822,Direct bilirubin decreased,4180186
+788823,CKD-MBD,4180186
+788824,Psychoorganic syndrome,4180186
+788825,Syndromic hemimegalencephaly,4180186
+788826,Scleroatrophic gallbladder,4180186
+788827,Prosthetic cardiac valve leakage,4180186
+788828,Vitamin D low,4180186
+788829,Increased therapeutic response with drug substitution,4180186
+788830,Reduced therapeutic response with drug substitution,4180186
+788831,Knee arthropathy,4180186
+788832,Severe asthma with fungal sensitization,4180186
+788833,Fetal biophysical profile score normal,4180186
+788834,Fetal biophysical profile score equivocal,4180186
+788835,Fetal biophysical profile score abnormal,4180186
+788836,Adenocarcinoma of ampulla of Vater,4180186
+788837,Glissonitis,4180186
+788838,Juvenile granulosa cell tumor of the ovary,4180186
+788839,Juvenile granulosa cell tumor of the testis,4180186
+788840,Mouth and genital ulcers with inflamed cartilage syndrome,4180186
+788841,Juvenile granulosa cell tumour of the ovary,4180186
+788842,Juvenile granulosa cell tumour of the testis,4180186
+788843,Granulosa cell tumor of the testis,4180186
+788844,Hip impingement syndrome,4180186
+788845,Pigment dispersion,4180186
+788846,Cecostomy,4180186
+788847,Voiding cystourethrogram,4180186
+788848,Pulpectomy,4180186
+788849,Pulpotomy,4180186
+788850,Supernumerary tooth extraction,4180186
+788851,Sleep electroencephalogram,4180186
+788852,Gastric bacterial overgrowth,4180186
+788853,Hypolordosis,4180186
+788854,Hyperlordosis,4180186
+788855,Hypergranulation,4180186
+788856,Colorectal anastomosis,4180186
+788857,Gum bruising,4180186
+788858,Mouth bruising,4180186
+788859,Tongue bruising,4180186
+788860,Laryngeal squamous cell carcinoma stage 0,4180186
+788861,Wrist arthropathy,4180186
+788862,Neuroendocrine tumor of the lung,4180186
+788863,Inappropriate cutting of medicated plaster,4180186
+788864,Laboratory tumour lysis syndrome,4180186
+788865,Clinical tumour lysis syndrome,4180186
+788866,Laboratory tumor lysis syndrome,4180186
+788867,Blistery rash,4180186
+788868,Bilateral recurrent laryngeal nerve paralysis,4180186
+788869,Clinical tumor lysis syndrome,4180186
+788870,PIK3CD gene mutation,4180186
+788871,Anterior cruciate ligament reconstruction,4180186
+788872,Buttock augmentation procedure,4180186
+788873,Orchotomy,4180186
+788874,Application site thermal burn,4180186
+788875,Defecation difficult,4180186
+788876,Application site chemical burn,4180186
+788877,Defaecation difficult,4180186
+788878,Testicular adenocarcinoma,4180186
+788879,Visual variant of Alzheimer's disease,4180186
+788880,Mitten hand,4180186
+788881,Benson's syndrome,4180186
+788882,Cerebellar ataxia with neuropathy and bilateral vestibular areflexia syndrome,4180186
+788883,Magnetic resonance imaging,4180186
+788884,Magnetic resonance imaging abnormal,4180186
+788885,Magnetic resonance imaging normal,4180186
+788886,Large intestine necrosis,4180186
+788887,Pyelonephritis of renal graft,4180186
+788888,Vaginal discharge syndrome,4180186
+788889,Dental prosthesis pain,4180186
+788890,Dental prosthesis complication,4180186
+788891,Ventriculostomy,4180186
+788892,Product leaflet instructions confusion,4180186
+788893,Liver inflammation,4180186
+788894,Atrioventricular dyssynchrony,4180186
+788895,Intraventricular dyssynchrony,4180186
+788896,Interventricular dyssynchrony,4180186
+788897,Controlled cord traction,4180186
+788898,Manual removal of placenta,4180186
+788899,Zika virus test positive,4180186
+788900,Pulmonary bleb,4180186
+788901,Multicystic dysplastic kidney,4180186
+788902,Gastric band complication,4180186
+788903,Pinched nerve,4180186
+788904,Motor polyneuropathy,4180186
+788905,Product leaflet confusion,4180186
+788906,Extra-axial hemorrhage,4180186
+788907,Tender sinus,4180186
+788908,Red tonsils,4180186
+788909,Corrected calcium increased,4180186
+788910,Corrected calcium decreased,4180186
+788911,Corrected calcium,4180186
+788912,Prostatovesiculectomy,4180186
+788913,Dental dysesthesia,4180186
+788914,Dental paresthesia,4180186
+788915,Hard palate injury,4180186
+788916,Hoffa's disease,4180186
+788917,Shock bowel,4180186
+788918,CT hypoperfusion complex,4180186
+788919,Pericardial thickening,4180186
+788920,Heart failure with reduced ejection fraction,4180186
+788921,Organophosphate poisoning,4180186
+788922,Congenital ichthyosiform erythroderma,4180186
+788923,Epidermolytic ichthyosis,4180186
+788924,Obstructive sleep apnea hypopnea syndrome,4180186
+788925,Obstructive sleep apnoea hypopnoea syndrome,4180186
+788926,C5 palsy,4180186
+788927,Zika virus test negative,4180186
+788928,Zika virus test,4180186
+788929,Device computer malfunction,4180186
+788930,Critical illness polyneuromyopathy,4180186
+788931,Type 3 (peri-operative) respiratory failure,4180186
+788932,Ventricular standstill,4180186
+788933,SDRIFE,4180186
+788934,Choledocholithotripsy,4180186
+788935,Choledocholithotrity,4180186
+788936,Adaptive support ventilation,4180186
+788937,BIPAP,4180186
+788938,Leukemic meningitis,4180186
+788939,Leukaemic meningitis,4180186
+788940,Melanosis duodeni,4180186
+788941,DIDMOAD syndrome,4180186
+788942,Device component malfunction,4180186
+788943,Anaplastic carcinoma of liver,4180186
+788944,Lower leg oedema,4180186
+788945,Lower leg edema,4180186
+788946,Cubital tunnel release,4180186
+788947,Plantar fascia release surgery,4180186
+788948,Stroke syndrome,4180186
+788949,Alternating strabismus,4180186
+788950,Pulmonary mucormycosis,4180186
+788951,Recurrent pregnancy loss,4180186
+788952,Neonatal hemochromatosis,4180186
+788953,Costal cartilage injury,4180186
+788954,Radiation vaginitis,4180186
+788955,Computerized tomogram liver abnormal,4180186
+788956,Oral mucosal burning sensation,4180186
+788957,Carbuncle drainage,4180186
+788958,Vegetative nerve functional disturbance,4180186
+788959,Tubal flushing,4180186
+788960,Dissociated vertical deviation,4180186
+788961,Vaccination site lump,4180186
+788962,Delayed ischemic neurological deficit,4180186
+788963,Incorrect disposal of medication,4180186
+788964,Incorrect disposal of device,4180186
+788965,Bags under eyes,4180186
+788966,Dysesthesia of lower extremity,4180186
+788967,Dysaesthesia of lower extremity,4180186
+788968,Mucosal culture,4180186
+788969,Mucosal culture positive,4180186
+788970,Hemogram,4180186
+788971,Haemogram,4180186
+788972,Peripheral blast cells present,4180186
+788973,Alar collapse,4180186
+788974,Eye crusting,4180186
+788975,MERS,4180186
+788976,Bickerstaff's brainstem encephalitis,4180186
+788977,Secondary substernal goiter,4180186
+788978,Substernal thyroid,4180186
+788979,Secondary substernal goitre,4180186
+788980,Primary substernal thyroid,4180186
+788981,Megalosplenia,4180186
+788982,Pyeloureteritis,4180186
+788983,Scalp bleeding,4180186
+788984,Scalp haemorrhage,4180186
+788985,Scalp hemorrhage,4180186
+788986,Femoral head replacement,4180186
+788987,Surgical site infection,4180186
+788988,Panperitonitis,4180186
+788989,Primary prevention,4180186
+788990,Tertiary prevention,4180186
+788991,Invasive bacterial infection,4180186
+788992,Emphysematous pyelitis,4180186
+788993,Mohr syndrome,4180186
+788994,Enterovesical fistula repair,4180186
+788995,Medical device site excoriation,4180186
+788996,Juvenile dermatomyositis,4180186
+788997,Heterosmia,4180186
+788998,Mosaicplasty,4180186
+788999,Allotriosmia,4180186
+789000,Bochdalek hernia,4180186
+789001,Perionyxis,4180186
+789002,Progressive angina,4180186
+789003,Neurotic excoriation,4180186
+789004,Extended spectrum beta-lactamase producing bacteria test,4180186
+789005,ESBL producing bacteria test,4180186
+789006,Extended spectrum beta-lactamase producing bacteria infection,4180186
+789007,Portacath user,4180186
+789008,Fluid-attenuated inversion recovery image,4180186
+789009,FLAIR image,4180186
+789010,PEWS,4180186
+789011,Pediatric early warning score,4180186
+789012,Leukocyte antigen B-27 assay,4180186
+789013,Upper respiratory symptom,4180186
+789014,Basocytopenia,4180186
+789015,Video fluoroscopic swallowing exam,4180186
+789016,Fine needle aspiration of breast,4180186
+789017,Fine needle aspiration of pancreas,4180186
+789018,Fine needle aspiration of lymph node,4180186
+789019,Right upper abdominal discomfort,4180186
+789020,Gastric band repositioning,4180186
+789021,Laparoscopic partial colectomy,4180186
+789022,Chronic antral gastritis,4180186
+789023,Abdominal herniorrhaphy,4180186
+789024,Gingival tenderness,4180186
+789025,Right lower abdominal discomfort,4180186
+789026,Left lower abdominal discomfort,4180186
+789027,Exploratory celiotomy,4180186
+789028,Left upper abdominal discomfort,4180186
+789029,Sinuscopy,4180186
+789030,Balloon sinuplasty,4180186
+789031,Myocardial scarring,4180186
+789032,Physically unwell,4180186
+789033,Bullous emphysema,4180186
+789034,Perineural invasion,4180186
+789035,Discontinued product administered,4180186
+789036,Xanthoma palpebrarum,4180186
+789037,Erosive arthritis,4180186
+789038,Deforming arthritis,4180186
+789039,Metrocolpocele,4180186
+789040,Aponeurotic ptosis,4180186
+789041,Diabetic hand syndrome,4180186
+789042,Pudendal neuralgia,4180186
+789043,Direct diplopia,4180186
+789044,Uncrossed diplopia,4180186
+789045,Crossed diplopia,4180186
+789046,Lymphocytic esophagitis,4180186
+789047,Abdominal aortic thrombus,4180186
+789048,Hormonal acne,4180186
+789049,Cholesteryl ester storage disease,4180186
+789050,Early onset lysosomal acid lipase deficiency,4180186
+789051,Radiofrequency vein ablation,4180186
+789052,Blood clot in dialyser line,4180186
+789053,Blood leak in dialyser,4180186
+789054,Airway compromise,4180186
+789055,Splenorenal varices,4180186
+789056,Raw throat,4180186
+789057,Retroperitoneal sarcoma,4180186
+789058,MELD score abnormal,4180186
+789059,MELD score increased,4180186
+789060,Skin punch biopsy,4180186
+789061,Shave biopsy,4180186
+789062,Pseudohypercalcemia,4180186
+789063,Rapid eye movement sleep behavior disorder,4180186
+789064,Absent bowel movement,4180186
+789065,Hereditary motor and sensory neuropathy type 2,4180186
+789066,Artifactual hypoglycaemia,4180186
+789067,Artifactual hypoglycemia,4180186
+789068,Tumor obstruction,4180186
+789068,Tumor obstruction,4180186
