@@ -126,21 +126,34 @@ public class LabeledRectangle implements MappingComponent {
 				index = nextBreakPoint(item.outputName(), index + 1);
 			}
 			if (breakPoint == 0) {
-				int textX = (this.getWidth() - (int) r.getWidth()) / 2;
-				int textY = (this.getHeight() - (int) r.getHeight()) / 2 + fm.getAscent();
-				g2d.drawString(item.outputName(), x + textX, y + textY);
+				breakPoint = (int) midPoint + 1;
+			} else {
+				breakPoint++;
 			}
-			breakPoint++;
 			String line1 = item.outputName().substring(0, breakPoint);
 			String line2 = item.outputName().substring(breakPoint);
-			r = fm.getStringBounds(line1, g2d);
-			int textX = (this.getWidth() - (int) r.getWidth()) / 2;
-			int textY = (this.getHeight() / 2 - (int) r.getHeight()) / 2 + fm.getAscent();
-			g2d.drawString(line1, x + textX, y + textY);
-			r = fm.getStringBounds(line2, g2d);
-			textX = (this.getWidth() - (int) r.getWidth()) / 2;
-			textY = (int) Math.round(this.getHeight() * 1.5 - (int) r.getHeight()) / 2 + fm.getAscent();
-			g2d.drawString(line2, x + textX, y + textY);
+
+			Rectangle2D r1 = fm.getStringBounds(line1, g2d);
+			Rectangle2D r2 = fm.getStringBounds(line2, g2d);
+			if (r1.getWidth() >= width) {
+				line1 = item.outputName().substring(0, (int) midPoint);
+				line2 = item.outputName().substring((int) midPoint);
+				r1 = fm.getStringBounds(line1, g2d);
+				r2 = fm.getStringBounds(line2, g2d);
+			} else if (r2.getWidth() >= width) {
+				line1 = item.outputName().substring(0, (int) midPoint);
+				line2 = item.outputName().substring((int) midPoint);
+				r1 = fm.getStringBounds(line1, g2d);
+				r2 = fm.getStringBounds(line2, g2d);
+			}
+			// If both lines are too wide, then the text will still go out of bounds
+			int textX1 = (this.getWidth() - (int) r1.getWidth()) / 2;
+			int textY1 = (this.getHeight() / 2 - (int) r1.getHeight()) / 2 + fm.getAscent();
+			g2d.drawString(line1, x + textX1, y + textY1);
+
+			int textX2 = (this.getWidth() - (int) r2.getWidth()) / 2;
+			int textY2 = (int) Math.round(this.getHeight() * 1.5 - (int) r2.getHeight()) / 2 + fm.getAscent();
+			g2d.drawString(line2, x + textX2, y + textY2);
 		} else {
 			int textX = (this.getWidth() - (int) r.getWidth()) / 2;
 			int textY = (this.getHeight() - (int) r.getHeight()) / 2 + fm.getAscent();

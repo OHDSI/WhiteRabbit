@@ -17,6 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.databases;
 
+import java.io.Closeable;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -38,7 +39,7 @@ import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 
-public class RichConnection {
+public class RichConnection implements Closeable {
 	public static int				INSERT_BATCH_SIZE	= 100000;
 	private Connection				connection;
 	private boolean					verbose				= false;
@@ -131,7 +132,7 @@ public class RichConnection {
 			execute("ALTER SESSION SET current_schema = " + database);
 		else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
 			execute("SET search_path TO " + database);
-		else if (dbType == DbType.MSACCESS)
+		else if (dbType == DbType.MSACCESS || dbType == DbType.BIGQUERY)
 			; // NOOP
 		else if (dbType == DbType.TERADATA) {
 			execute("database " + database);
@@ -154,6 +155,8 @@ public class RichConnection {
 			query = "SELECT Name FROM sys.MSysObjects WHERE Type=1 AND Flags=0;";
 		} else if (dbType == DbType.TERADATA) {
 			query = "SELECT TableName from dbc.tables WHERE tablekind = 'T' and databasename='" + database + "'";
+		} else if (dbType == DbType.BIGQUERY) {
+			query = "SELECT table_name from " + database + ".INFORMATION_SCHEMA.TABLES ORDER BY table_name;";
 		}
 
 		for (Row row : query(query))

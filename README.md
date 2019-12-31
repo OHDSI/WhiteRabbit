@@ -58,6 +58,31 @@ Rabbit-In-A-Hat
 
 Note: on releases earlier than version 0.8.0, open the respective `WhiteRabbit.jar` or `RabbitInAHat.jar` files instead.
 
+Examples
+========
+The file `examples.zip` contains a set of input and output examples for White Rabbit and Rabbit in a Hat.
+These are used for testing of the main White Rabbit and Rabbit in a Hat features.
+
+Contents:
+- `wr_input_csv`
+
+  csv files to test scanning on different data types and long table names.
+- `wr_input_sas`
+
+  sas7bdat files to test sas input
+- `wr_output`
+
+  Scan reports created from files in `wr_input_csv`, `wr_input_sas` and [native a Synthea database loaded in Postgres](https://github.com/ohdsi/ETL-Synthea). All with default scan options.  
+  This folder also includes fake data generated from the csv scan report. The csv scan report is used to test the opening a Scan Report in Rabbit in a Hat.
+
+- `riah_input`
+
+  An example mapping file used to create the Rabbit in a Hat outputs.
+- `riah_output`
+
+  All export formats created by Rabbit in a Hat: as word, html, markdown, sql skeleton and the R TestFramework.
+  These are all generated from `riah_input/riah_mapping_example.gz`.
+
 Getting Involved
 =============
 * User guide and Help: <a href="http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit">WhiteRabbit Wiki</a>

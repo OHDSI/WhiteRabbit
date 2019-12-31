@@ -274,7 +274,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void filterComponents(String searchTerm, boolean filterTarget) {
 		List<LabeledRectangle> components;
 
-		if (filterTarget == true) {
+		if (filterTarget) {
 			components = cdmComponents;
 			lastTargetFilter = searchTerm;
 		} else {
@@ -730,7 +730,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 					lastSelectedRectangle = null;
 				}
 
-				detailsListener.showDetails(component.getItem());
+				boolean isSourceComponent = sourceComponents.contains(component);
+				detailsListener.showDetails(component.getItem(), isSourceComponent);
 				repaint();
 				break;
 			}

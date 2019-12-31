@@ -1,4 +1,45 @@
 field,required,type,description,table,schema
+person_id,Yes,INTEGER,A unique identifier for each person.,person,cdm
+gender_concept_id,Yes,INTEGER,A foreign key that refers to an identifier in the CONCEPT table for the unique gender of the person.,person,cdm
+year_of_birth,Yes,INTEGER,"The year of birth of the person. For data sources with date of birth, the year is extracted. For data sources where the year of birth is not available, the approximate year of birth is derived based on any age group categorization available.",person,cdm
+month_of_birth,No,INTEGER,"The month of birth of the person. For data sources that provide the precise date of birth, the month is extracted and stored in this field.",person,cdm
+day_of_birth,No,INTEGER,"The day of the month of birth of the person. For data sources that provide the precise date of birth, the day is extracted and stored in this field.",person,cdm
+birth_datetime,No,DATETIME,The date and time of birth of the person.,person,cdm
+death_datetime,No,DATETIME,The date and time of death of the person.,person,cdm
+race_concept_id,Yes,INTEGER,A foreign key that refers to an identifier in the CONCEPT table for the unique race of the person.,person,cdm
+ethnicity_concept_id,Yes,INTEGER,A foreign key that refers to the standard concept identifier in the Standardized Vocabularies for the ethnicity of the person.,person,cdm
+location_id,No,INTEGER,"A foreign key to the place of residency for the person in the location table, where the detailed address information is stored.",person,cdm
+provider_id,No,INTEGER,A foreign key to the primary care provider the person is seeing in the provider table.,person,cdm
+care_site_id,No,INTEGER,"A foreign key to the site of primary care in the care_site table, where the details of the care site are stored.",person,cdm
+person_source_value,No,VARCHAR(50),An (encrypted) key derived from the person identifier in the source data. This is necessary when a use case requires a link back to the person data at the source dataset.,person,cdm
+gender_source_value,No,VARCHAR(50),The source code for the gender of the person as it appears in the source data. The personâ€™s gender is mapped to a standard gender concept in the Standardized Vocabularies; the original value is stored here for reference.,person,cdm
+gender_source_concept_id,No,INTEGER,A foreign key to the gender concept that refers to the code used in the source.,person,cdm
+race_source_value,No,VARCHAR(50),The source code for the race of the person as it appears in the source data. The person race is mapped to a standard race concept in the Standardized Vocabularies and the original value is stored here for reference.,person,cdm
+race_source_concept_id,No,INTEGER,A foreign key to the race concept that refers to the code used in the source.,person,cdm
+ethnicity_source_value,No,VARCHAR(50),"The source code for the ethnicity of the person as it appears in the source data. The person ethnicity is mapped to a standard ethnicity concept in the Standardized Vocabularies and the original code is, stored here for reference.",person,cdm
+ethnicity_source_concept_id,No,INTEGER,A foreign key to the ethnicity concept that refers to the code used in the source.,person,cdm
+observation_period_id,Yes,INTEGER,A unique identifier for each observation period.,observation_period,cdm
+person_id,Yes,INTEGER,A foreign key identifier to the person for whom the observation period is defined. The demographic details of that person are stored in the person table.,observation_period,cdm
+observation_period_start_date,Yes,DATE,The start date of the observation period for which data are available from the data source.,observation_period,cdm
+observation_period_end_date,Yes,DATE,The end date of the observation period for which data are available from the data source.,observation_period,cdm
+period_type_concept_id,Yes,INTEGER,A foreign key identifier to the predefined concept in the Standardized Vocabularies reflecting the source of the observation period information,observation_period,cdm
+visit_occurrence_id,Yes,INTEGER,A unique identifier for each Person's visit or encounter at a healthcare provider.,visit_occurrence,cdm
+person_id,Yes,INTEGER,A foreign key identifier to the Person for whom the visit is recorded. The demographic details of that Person are stored in the PERSON table.,visit_occurrence,cdm
+visit_concept_id,Yes,INTEGER,A foreign key that refers to a visit Concept identifier in the Standardized Vocabularies.,visit_occurrence,cdm
+visit_start_date,Yes,DATE,The start date of the visit.,visit_occurrence,cdm
+visit_start_datetime,No,DATETIME,The date and time of the visit started.,visit_occurrence,cdm
+visit_end_date,Yes,DATE,The end date of the visit. If this is a one-day visit the end date should match the start date.,visit_occurrence,cdm
+visit_end_datetime,No,DATETIME,The date and time of the visit end.,visit_occurrence,cdm
+visit_type_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the type of source data from which the visit record is derived.,visit_occurrence,cdm
+provider_id,No,INTEGER,A foreign key to the provider in the provider table who was associated with the visit.,visit_occurrence,cdm
+care_site_id,No,INTEGER,A foreign key to the care site in the care site table that was visited.,visit_occurrence,cdm
+visit_source_value,No,VARCHAR(50),The source code for the visit as it appears in the source data.,visit_occurrence,cdm
+visit_source_concept_id,No,INTEGER,A foreign key to a Concept that refers to the code used in the source.,visit_occurrence,cdm
+admitted_from_concept_id,No,INTEGER,A foreign key to the predefined concept in the Place of Service Vocabulary reflecting the admitting source for a visit.,visit_occurrence,cdm
+admitted_from_source_value,No,VARCHAR(50),The source code for the admitting source as it appears in the source data.,visit_occurrence,cdm
+discharge_to_concept_id,No,INTEGER,A foreign key to the predefined concept in the Place of Service Vocabulary reflecting the discharge disposition for a visit.,visit_occurrence,cdm
+discharge_to_source_value,No,VARCHAR(50),The source code for the discharge disposition as it appears in the source data.,visit_occurrence,cdm
+preceding_visit_occurrence_id,No,INTEGER,A foreign key to the VISIT_OCCURRENCE table of the visit immediately preceding this visit,visit_occurrence,cdm
 condition_occurrence_id,Yes,INTEGER,A unique identifier for each Condition Occurrence event.,condition_occurrence,cdm
 person_id,Yes,INTEGER,A foreign key identifier to the Person who is experiencing the condition. The demographic details of that Person are stored in the PERSON table.,condition_occurrence,cdm
 condition_concept_id,Yes,INTEGER,A foreign key that refers to a Standard Condition Concept identifier in the Standardized Vocabularies.,condition_occurrence,cdm
@@ -129,30 +170,6 @@ qualifier_source_value,No,VARCHAR(50),The source value associated with a qualifi
 observation_event_id,No,INTEGER,"A foreign key to an event table (e.g., PROCEDURE_OCCURRENCE_ID).",observation,cdm
 obs_event_field_concept_id,No,INTEGER,A foreign key that refers to a Standard Concept identifier in the Standardized Vocabularies referring to the field represented in the OBSERVATION_EVENT_ID.,observation,cdm
 value_as_datetime,No,DATETIME,The observation result stored as a datetime value. This is applicable to observations where the result is expressed as a point in time.,observation,cdm
-observation_period_id,Yes,INTEGER,A unique identifier for each observation period.,observation_period,cdm
-person_id,Yes,INTEGER,A foreign key identifier to the person for whom the observation period is defined. The demographic details of that person are stored in the person table.,observation_period,cdm
-observation_period_start_date,Yes,DATE,The start date of the observation period for which data are available from the data source.,observation_period,cdm
-observation_period_end_date,Yes,DATE,The end date of the observation period for which data are available from the data source.,observation_period,cdm
-period_type_concept_id,Yes,INTEGER,A foreign key identifier to the predefined concept in the Standardized Vocabularies reflecting the source of the observation period information,observation_period,cdm
-person_id,Yes,INTEGER,A unique identifier for each person.,person,cdm
-gender_concept_id,Yes,INTEGER,A foreign key that refers to an identifier in the CONCEPT table for the unique gender of the person.,person,cdm
-year_of_birth,Yes,INTEGER,"The year of birth of the person. For data sources with date of birth, the year is extracted. For data sources where the year of birth is not available, the approximate year of birth is derived based on any age group categorization available.",person,cdm
-month_of_birth,No,INTEGER,"The month of birth of the person. For data sources that provide the precise date of birth, the month is extracted and stored in this field.",person,cdm
-day_of_birth,No,INTEGER,"The day of the month of birth of the person. For data sources that provide the precise date of birth, the day is extracted and stored in this field.",person,cdm
-birth_datetime,No,DATETIME,The date and time of birth of the person.,person,cdm
-death_datetime,No,DATETIME,The date and time of death of the person.,person,cdm
-race_concept_id,Yes,INTEGER,A foreign key that refers to an identifier in the CONCEPT table for the unique race of the person.,person,cdm
-ethnicity_concept_id,Yes,INTEGER,A foreign key that refers to the standard concept identifier in the Standardized Vocabularies for the ethnicity of the person.,person,cdm
-location_id,No,INTEGER,"A foreign key to the place of residency for the person in the location table, where the detailed address information is stored.",person,cdm
-provider_id,No,INTEGER,A foreign key to the primary care provider the person is seeing in the provider table.,person,cdm
-care_site_id,No,INTEGER,"A foreign key to the site of primary care in the care_site table, where the details of the care site are stored.",person,cdm
-person_source_value,No,VARCHAR(50),An (encrypted) key derived from the person identifier in the source data. This is necessary when a use case requires a link back to the person data at the source dataset.,person,cdm
-gender_source_value,No,VARCHAR(50),The source code for the gender of the person as it appears in the source data. The personâ€™s gender is mapped to a standard gender concept in the Standardized Vocabularies; the original value is stored here for reference.,person,cdm
-gender_source_concept_id,No,INTEGER,A foreign key to the gender concept that refers to the code used in the source.,person,cdm
-race_source_value,No,VARCHAR(50),The source code for the race of the person as it appears in the source data. The person race is mapped to a standard race concept in the Standardized Vocabularies and the original value is stored here for reference.,person,cdm
-race_source_concept_id,No,INTEGER,A foreign key to the race concept that refers to the code used in the source.,person,cdm
-ethnicity_source_value,No,VARCHAR(50),"The source code for the ethnicity of the person as it appears in the source data. The person ethnicity is mapped to a standard ethnicity concept in the Standardized Vocabularies and the original code is, stored here for reference.",person,cdm
-ethnicity_source_concept_id,No,INTEGER,A foreign key to the ethnicity concept that refers to the code used in the source.,person,cdm
 procedure_occurrence_id,Yes,INTEGER,A system-generated unique identifier for each Procedure Occurrence.,procedure_occurrence,cdm
 person_id,Yes,INTEGER,A foreign key identifier to the Person who is subjected to the Procedure. The demographic details of that Person are stored in the PERSON table.,procedure_occurrence,cdm
 procedure_concept_id,Yes,INTEGER,A foreign key that refers to a standard procedure Concept identifier in the Standardized Vocabularies.,procedure_occurrence,cdm
@@ -184,16 +201,16 @@ anatomic_site_source_value,No,VARCHAR(50),The information about the anatomic sit
 disease_status_source_value,No,VARCHAR(50),The information about the disease status as detailed in the source.,specimen,cdm
 visit_detail_id,Yes,INTEGER,A unique identifier for each Person's visit or encounter at a healthcare provider.,visit_detail,cdm
 person_id,Yes,INTEGER,A foreign key identifier to the Person for whom the visit is recorded. The demographic details of that Person are stored in the PERSON table.,visit_detail,cdm
-visit_concept_id,Yes,INTEGER,A foreign key that refers to a visit Concept identifier in the Standardized Vocabularies.,visit_detail,cdm
-visit_start_date,Yes,DATE,The start date of the visit.,visit_detail,cdm
-visit_start_datetime,No,DATETIME,The date and time of the visit started.,visit_detail,cdm
-visit_end_date,Yes,DATE,The end date of the visit. If this is a one-day visit the end date should match the start date.,visit_detail,cdm
-visit_end_datetime,No,DATETIME,The date and time of the visit end.,visit_detail,cdm
-visit_type_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the type of source data from which the visit record is derived.,visit_detail,cdm
+visit_detail_concept_id,Yes,INTEGER,A foreign key that refers to a visit Concept identifier in the Standardized Vocabularies.,visit_detail,cdm
+visit_detail_start_date,Yes,DATE,The start date of the visit.,visit_detail,cdm
+visit_detail_start_datetime,No,DATETIME,The date and time of the visit started.,visit_detail,cdm
+visit_detail_end_date,Yes,DATE,The end date of the visit. If this is a one-day visit the end date should match the start date.,visit_detail,cdm
+visit_detail_end_datetime,No,DATETIME,The date and time of the visit end.,visit_detail,cdm
+visit_detail_type_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the type of source data from which the visit record is derived.,visit_detail,cdm
 provider_id,No,INTEGER,A foreign key to the provider in the provider table who was associated with the visit.,visit_detail,cdm
 care_site_id,No,INTEGER,A foreign key to the care site in the care site table that was visited.,visit_detail,cdm
-visit_source_value,No,STRING(50),The source code for the visit as it appears in the source data.,visit_detail,cdm
-visit_source_concept_id,No,INTEGER,A foreign key to a Concept that refers to the code used in the source.,visit_detail,cdm
+visit_detail_source_value,No,STRING(50),The source code for the visit as it appears in the source data.,visit_detail,cdm
+visit_detail_source_concept_id,No,INTEGER,A foreign key to a Concept that refers to the code used in the source.,visit_detail,cdm
 admitting_source_value,No,VARCHAR(50),The source code for the admitting source as it appears in the source data.,visit_detail,cdm
 admitting_source_concept_id,No,INTEGER,A foreign key to the predefined concept in the Place of Service Vocabulary reflecting the admitting source for a visit.,visit_detail,cdm
 admitted_from_source_value,No,VARCHAR(50),The source code for the discharge disposition as it appears in the source data.,visit_detail,cdm
@@ -201,23 +218,6 @@ admitted_from_concept_id,No,INTEGER,A foreign key to the predefined concept in t
 preceding_visit_detail_id,No,INTEGER,A foreign key to the VISIT_DETAIL table of the visit immediately preceding this visit,visit_detail,cdm
 visit_detail_parent_id,No,INTEGER,A foreign key to the VISIT_DETAIL table record to represent the immediate parent visit-detail record.,visit_detail,cdm
 visit_occurrence_id,Yes,INTEGER,"A foreign key that refers to the record in the VISIT_OCCURRENCE table. This is a required field, because for every visit_detail is a child of visit_occurrence and cannot exist without a corresponding parent record in visit_occurrence.",visit_detail,cdm
-visit_occurrence_id,Yes,INTEGER,A unique identifier for each Person's visit or encounter at a healthcare provider.,visit_occurrence,cdm
-person_id,Yes,INTEGER,A foreign key identifier to the Person for whom the visit is recorded. The demographic details of that Person are stored in the PERSON table.,visit_occurrence,cdm
-visit_concept_id,Yes,INTEGER,A foreign key that refers to a visit Concept identifier in the Standardized Vocabularies.,visit_occurrence,cdm
-visit_start_date,Yes,DATE,The start date of the visit.,visit_occurrence,cdm
-visit_start_datetime,No,DATETIME,The date and time of the visit started.,visit_occurrence,cdm
-visit_end_date,Yes,DATE,The end date of the visit. If this is a one-day visit the end date should match the start date.,visit_occurrence,cdm
-visit_end_datetime,No,DATETIME,The date and time of the visit end.,visit_occurrence,cdm
-visit_type_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the type of source data from which the visit record is derived.,visit_occurrence,cdm
-provider_id,No,INTEGER,A foreign key to the provider in the provider table who was associated with the visit.,visit_occurrence,cdm
-care_site_id,No,INTEGER,A foreign key to the care site in the care site table that was visited.,visit_occurrence,cdm
-visit_source_value,No,VARCHAR(50),The source code for the visit as it appears in the source data.,visit_occurrence,cdm
-visit_source_concept_id,No,INTEGER,A foreign key to a Concept that refers to the code used in the source.,visit_occurrence,cdm
-admitted_from_concept_id,No,INTEGER,A foreign key to the predefined concept in the Place of Service Vocabulary reflecting the admitting source for a visit.,visit_occurrence,cdm
-admitted_from_source_value,No,VARCHAR(50),The source code for the admitting source as it appears in the source data.,visit_occurrence,cdm
-discharge_to_concept_id,No,INTEGER,A foreign key to the predefined concept in the Place of Service Vocabulary reflecting the discharge disposition for a visit.,visit_occurrence,cdm
-discharge_to_source_value,No,VARCHAR(50),The source code for the discharge disposition as it appears in the source data.,visit_occurrence,cdm
-preceding_visit_occurrence_id,No,INTEGER,A foreign key to the VISIT_OCCURRENCE table of the visit immediately preceding this visit,visit_occurrence,cdm
 cohort_definition_id,Yes,INTEGER,A foreign key to a record in the COHORT_DEFINITION table containing relevant Cohort Definition information.,cohort,results
 subject_id,Yes,INTEGER,"A foreign key to the subject in the cohort. These could be referring to records in the PERSON, PROVIDER, VISIT_OCCURRENCE table.",cohort,results
 cohort_start_date,Yes,DATE,"The date when the Cohort Definition criteria for the Person, Provider or Visit first match.",cohort,results
@@ -271,12 +271,12 @@ payer_source_concept_id,No,INTEGER,A foreign key to a payer concept that refers 
 plan_concept_id,No,INTEGER,A foreign key that refers to a Standard plan that represents the health benefit plan in the Standardized Vocabularies,payer_plan_period,cdm
 plan_source_value,No,VARCHAR(50),The source code for the Person's health benefit plan as it appears in the source data.,payer_plan_period,cdm
 plan_source_concept_id,No,INTEGER,A foreign key to a plan concept that refers to the code used in the source.,payer_plan_period,cdm
-contract_person_id,No,INTEGER,"A foreign key identifier to the person_id in person table, for the person who is the primary subscriber/contract owner for the record in the payer_plan_period table. Maybe the same person or different person, depending on who is the primary subscriber/contract owner.",payer_plan_period,cdm
-contract_person_id,No,INTEGER,"A foreign key identifier to the person_id in person table, for the person who is the primary subscriber/contract owner for the record in the payer_plan_period table. Maybe the same person or different person, depending on who is the primary subscriber/contract owner.",payer_plan_period,cdm
-contract_person_id,No,INTEGER,"A foreign key identifier to the person_id in person table, for the person who is the primary subscriber/contract owner for the record in the payer_plan_period table. Maybe the same person or different person, depending on who is the primary subscriber/contract owner.",payer_plan_period,cdm
+contract_concept_id,Yes,INTEGER,A foreign key to a standard concept representing the reason justifying the contract between person_id and contract_person_id.,payer_plan_period,cdm
+contract_source_value,No,INTEGER,"The source code representing the reason justifying the contract. Usually it is family relationship like a spouse, domestic partner, child etc.",payer_plan_period,cdm
+contract_source_concept_id,Yes,INTEGER,A foreign key to a concept that refers to the code used in the source as the reason justifying the contract.,payer_plan_period,cdm
 sponsor_concept_id,No,INTEGER,A foreign key that refers to a Standard plan that represents the sponsor in the Standardized Vocabularies,payer_plan_period,cdm
 sponsor_source_value,No,VARCHAR(50),The source code for the Person's sponsor of the health plan as it appears in the source data.,payer_plan_period,cdm
-sponsor_source_concept_id*,No,INTEGER,A foreign key to a sponsor concept that refers to the code used in the source.,payer_plan_period,cdm
+sponsor_source_concept_id,No,INTEGER,A foreign key to a sponsor concept that refers to the code used in the source.,payer_plan_period,cdm
 family_source_value,No,VARCHAR(50),The source code for the Person's family as it appears in the source data.,payer_plan_period,cdm
 stop_reason_concept_id,No,INTEGER,A foreign key that refers to a Standard termination reason that represents the reason for the termination in the Standardized Vocabularies.,payer_plan_period,cdm
 stop_reason_source_value,No,VARCHAR(50),The reason for stop-coverage of the record.,payer_plan_period,cdm
@@ -342,12 +342,12 @@ survey_start_date,No,DATE,Date on which the survey was started.,survey_conduct,c
 survey_start_datetime,No,DATETIME,Date and time the survey was started.,survey_conduct,cdm
 survey_end_date,No,DATE,Date on which the survey was completed.,survey_conduct,cdm
 survey_end_datetime,Yes,DATETIME,Date and time the survey was completed.,survey_conduct,cdm
-provider_id,No ,INTEGER ,A foreign key to the provider in the provider table who was associated with the survey completion.,survey_conduct,cdm
+provider_id,No,INTEGER,A foreign key to the provider in the provider table who was associated with the survey completion.,survey_conduct,cdm
 assisted_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies indicating whether the survey was completed with assistance.,survey_conduct,cdm
 respondent_type_concept_id,Yes,INTEGER,"A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the respondent type. Example: Research Associate, Patient.",survey_conduct,cdm
 timing_concept_id,Yes,INTEGER,"A foreign key to the predefined Concept identifier in the Standardized Vocabularies that refers to a certain timing. Example: 3 month follow-up, 6 month follow-up.",survey_conduct,cdm
 collection_method_concept_id,Yes,INTEGER,"A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the data collection method (e.g. Paper, Telephone, Electronic Questionnaire).",survey_conduct,cdm
-assisted_source_value,No,VARCHAR(50),"Source value representing whether patient required assistance to complete the survey. Example: “Completed without assistance”, ”Completed with assistance”.",survey_conduct,cdm
+assisted_source_value,No,VARCHAR(50),"Source value representing whether patient required assistance to complete the survey. Example: ""Completed without assistance"", ""Completed with assistance"".",survey_conduct,cdm
 respondent_type_source_value,No,VARCHAR(100),Source code representing role of person who completed the survey.,survey_conduct,cdm
 timing_source_value,No,VARCHAR(100),"Text string representing the timing of the survey. Example: Baseline, 6-month follow-up.",survey_conduct,cdm
 collection_method_source_value,No,VARCHAR(100),The collection method as it appears in the source data.,survey_conduct,cdm
@@ -357,11 +357,11 @@ survey_source_identifier,No,VARCHAR(100),Unique identifier for each completed su
 validated_survey_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the validation status of the survey.,survey_conduct,cdm
 validated_survey_source_value,No,INTEGER,Source value representing the validation status of the survey.,survey_conduct,cdm
 survey_version_number,No,VARCHAR(20),Version number of the questionnaire or survey used.,survey_conduct,cdm
-visit_occurrence_id,No,INTEGER,A foreign key to the VISIT_OCCURRENCE table during which the survey was completed,survey_conduct,cdm
-response_visit_occurrence_id,No,INTEGER ,A foreign key to the visit in the VISIT_OCCURRENCE table during which treatment was carried out that relates to this survey.,survey_conduct,cdm
-location_id,Yes,INTEGER ,A foreign key to the location table.,location_history,cdm
+visit_occurrence_id,No,INTEGER,A foreign key to the VISIT_OCCURRENCE table during which the survey was completed,survey_conduct,cdm
+response_visit_occurrence_id,No,INTEGER,A foreign key to the visit in the VISIT_OCCURRENCE table during which treatment was carried out that relates to this survey.,survey_conduct,cdm
+location_id,Yes,INTEGER,A foreign key to the location table.,location_history,cdm
 relationship_type_concept_id,Yes,VARCHAR(50),The type of relationship between location and entity.,location_history,cdm
 domain_id,Yes,VARCHAR(50),"The domain of the entity that is related to the location. Either PERSON, PROVIDER, or CARE_SITE.",location_history,cdm
-entity_id,Yes,INTEGER ,"The unique identifier for the entity. References either person_id, provider_id, or care_site_id, depending on domain_id.",location_history,cdm
+entity_id,Yes,INTEGER,"The unique identifier for the entity. References either person_id, provider_id, or care_site_id, depending on domain_id.",location_history,cdm
 start_date,Yes,DATE,The date the relationship started.,location_history,cdm
 end_date,No,DATE,The date the relationship ended.,location_history,cdm

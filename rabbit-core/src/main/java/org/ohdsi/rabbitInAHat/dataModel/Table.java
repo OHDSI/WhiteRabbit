@@ -25,6 +25,7 @@ public class Table implements MappableItem {
 	private Database			db;
 	private String				name;
 	private int					rowCount;
+	private int					rowsCheckedCount;
 	private String				comment				= "";
 	private List<Field>			fields				= new ArrayList<Field>();
 	private boolean				isStem				= false;
@@ -39,6 +40,7 @@ public class Table implements MappableItem {
 		db = table.db;
 		name = table.name;
 		rowCount = table.rowCount;
+		rowsCheckedCount = table.rowsCheckedCount;
 		comment = table.comment;
 		fields = new ArrayList<Field>(table.fields);
 		isStem = table.isStem;
@@ -70,6 +72,14 @@ public class Table implements MappableItem {
 
 	public void setRowCount(int rowCount) {
 		this.rowCount = rowCount;
+	}
+
+	public int getRowsCheckedCount() {
+		return rowsCheckedCount;
+	}
+
+	public void setRowsCheckedCount(int rowsCheckedCount) {
+		this.rowsCheckedCount = rowsCheckedCount;
 	}
 
 	public List<Field> getFields() {

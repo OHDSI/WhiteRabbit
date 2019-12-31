@@ -16,9 +16,9 @@ STEM_TABLE,VERBATIM_END_DATE,YES,DATE,"The verbatim end date (not derived) of th
 STEM_TABLE,DAYS_SUPPLY,YES,INTEGER,"The number of days of supply of the medication as recorded in the original prescription or dispensing record."
 STEM_TABLE,DOSE_UNIT_SOURCE_VALUE,YES,CHARACTER VARYING,"The information about the dose unit as detailed in the source."
 STEM_TABLE,LOT_NUMBER,YES,CHARACTER VARYING,"An identifier assigned to a particular quantity or lot of Drug product from the manufacturer."
-STEM_TABLE,MODIFIER_CONCEPT_ID,YES,INTEGER,"A foreign key to a Standard Concept identifier for a modifier to the Procedure (e.g. bilateral)"
+STEM_TABLE,MODIFIER_CONCEPT_ID,YES,INTEGER,A foreign key to a Standard Concept identifier for a modifier (e.g. bilateral)
+STEM_TABLE,MODIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,The source code for the modifier as it appears in the source data.
 STEM_TABLE,OPERATOR_CONCEPT_ID,YES,INTEGER,"A foreign key identifier to the predefined Concept in the Standardized Vocabularies reflecting the mathematical operator that is applied to the value_as_number. Operators are <, ?, =, ?, >."
-STEM_TABLE,MODIFIER_CONCEPT_ID,YES,INTEGER,"A foreign key to a Standard Concept ID for a modifier (e.g., severity of drug-drug interaction alert)"
 STEM_TABLE,MODIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,"The source code for the modifier as it appears in the source data."
 STEM_TABLE,QUANTITY,YES,INTEGER,"The number of individual Devices/Procedures/Drugs used for the exposure."
 STEM_TABLE,RANGE_HIGH,YES,FLOAT,"The upper limit of the normal range of the Measurement. The upper range is assumed to be of the same unit of measure as the Measurement value."
@@ -26,7 +26,7 @@ STEM_TABLE,RANGE_LOW,YES,FLOAT,"The lower limit of the normal range of the Measu
 STEM_TABLE,REFILLS,YES,INTEGER,"The number of refills after the initial prescription. The initial prescription is not counted, values start with 0."
 STEM_TABLE,ROUTE_CONCEPT_ID,YES,INTEGER,"A foreign key to a predefined concept in the Standardized Vocabularies reflecting the route of administration."
 STEM_TABLE,ROUTE_SOURCE_VALUE,YES,CHARACTER VARYING,"The information about the route of administration as detailed in the source."
-STEM_TABLE,SIG,YES,CHARACTER VARYING,"The directions (“signetur”) on the Drug prescription as recorded in the original prescription (and printed on the container) or dispensing record."
+STEM_TABLE,SIG,YES,CHARACTER VARYING,"The directions (ï¿½signeturï¿½) on the Drug prescription as recorded in the original prescription (and printed on the container) or dispensing record."
 STEM_TABLE,STOP_REASON,YES,CHARACTER VARYING,"The reason that the condition was no longer present or the drug exposure stopped, as indicated in the source data."
 STEM_TABLE,UNIQUE_DEVICE_ID,YES,CHARACTER VARYING,"A UDI or equivalent identifying the instance of the Device used in the Person."
 STEM_TABLE,UNIT_CONCEPT_ID,YES,INTEGER,"A foreign key to a predefined concept in the Standardized Vocabularies reflecting the unit the effective_drug_dose/measurement/observation/specimen value is expressed."

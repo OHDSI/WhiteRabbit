@@ -185,16 +185,16 @@ anatomic_site_source_value,No,VARCHAR(50),The information about the anatomic sit
 disease_status_source_value,No,VARCHAR(50),The information about the disease status as detailed in the source.,specimen,cdm
 visit_detail_id,Yes,INTEGER,A unique identifier for each Person's visit or encounter at a healthcare provider.,visit_detail,cdm
 person_id,Yes,INTEGER,A foreign key identifier to the Person for whom the visit is recorded. The demographic details of that Person are stored in the PERSON table.,visit_detail,cdm
-visit_concept_id,Yes,INTEGER,A foreign key that refers to a visit Concept identifier in the Standardized Vocabularies.,visit_detail,cdm
-visit_start_date,Yes,DATE,The start date of the visit.,visit_detail,cdm
-visit_start_datetime,No,DATETIME,The date and time of the visit started.,visit_detail,cdm
-visit_end_date,Yes,DATE,The end date of the visit. If this is a one-day visit the end date should match the start date.,visit_detail,cdm
-visit_end_datetime,No,DATETIME,The date and time of the visit end.,visit_detail,cdm
-visit_type_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the type of source data from which the visit record is derived.,visit_detail,cdm
+visit_detail_concept_id,Yes,INTEGER,A foreign key that refers to a visit Concept identifier in the Standardized Vocabularies.,visit_detail,cdm
+visit_detail_start_date,Yes,DATE,The start date of the visit.,visit_detail,cdm
+visit_detail_start_datetime,No,DATETIME,The date and time of the visit started.,visit_detail,cdm
+visit_detail_end_date,Yes,DATE,The end date of the visit. If this is a one-day visit the end date should match the start date.,visit_detail,cdm
+visit_detail_end_datetime,No,DATETIME,The date and time of the visit end.,visit_detail,cdm
+visit_detail_type_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the type of source data from which the visit record is derived.,visit_detail,cdm
 provider_id,No,INTEGER,A foreign key to the provider in the provider table who was associated with the visit.,visit_detail,cdm
 care_site_id,No,INTEGER,A foreign key to the care site in the care site table that was visited.,visit_detail,cdm
-visit_source_value,No,STRING(50),The source code for the visit as it appears in the source data.,visit_detail,cdm
-visit_source_concept_id,No,INTEGER,A foreign key to a Concept that refers to the code used in the source.,visit_detail,cdm
+visit_detail_source_value,No,STRING(50),The source code for the visit as it appears in the source data.,visit_detail,cdm
+visit_detail_source_concept_id,No,INTEGER,A foreign key to a Concept that refers to the code used in the source.,visit_detail,cdm
 admitting_source_value,No,VARCHAR(50),The source code for the admitting source as it appears in the source data.,visit_detail,cdm
 admitting_source_concept_id,No,INTEGER,A foreign key to the predefined concept in the Place of Service Vocabulary reflecting the admitting source for a visit.,visit_detail,cdm
 discharge_to_source_value,No,VARCHAR(50),The source code for the discharge disposition as it appears in the source data.,visit_detail,cdm
@@ -284,7 +284,7 @@ plan_source_value,No,VARCHAR(50),The source code for the Person's health benefit
 plan_source_concept_id,No,INTEGER,A foreign key to a plan concept that refers to the code used in the source.,payer_plan_period,cdm
 sponsor_concept_id,No,INTEGER,A foreign key that refers to a Standard plan that represents the sponsor in the Standardized Vocabularies,payer_plan_period,cdm
 sponsor_source_value,No,VARCHAR(50),The source code for the Person's sponsor of the health plan as it appears in the source data.,payer_plan_period,cdm
-sponsor_source_concept_id*,No,INTEGER,A foreign key to a sponsor concept that refers to the code used in the source.,payer_plan_period,cdm
+sponsor_source_concept_id,No,INTEGER,A foreign key to a sponsor concept that refers to the code used in the source.,payer_plan_period,cdm
 family_source_value,No,VARCHAR(50),The source code for the Person's family as it appears in the source data.,payer_plan_period,cdm
 stop_reason_concept_id,No,INTEGER,A foreign key that refers to a Standard termination reason that represents the reason for the termination in the Standardized Vocabularies.,payer_plan_period,cdm
 stop_reason_source_value,No,VARCHAR(50),The reason for stop-coverage of the record.,payer_plan_period,cdm

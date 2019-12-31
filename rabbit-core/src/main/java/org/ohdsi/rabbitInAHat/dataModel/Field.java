@@ -17,6 +17,8 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat.dataModel;
 
+import java.util.List;
+
 public class Field implements MappableItem {
 
 	private static final long	serialVersionUID	= 3687778470032619497L;
@@ -29,6 +31,7 @@ public class Field implements MappableItem {
 	private String				description			= "";
 	private int					maxLength;
 	private boolean				isStem;
+	private List<ConceptsMap.Concept> conceptIdHints;
 
 	public Field(String name, Table table) {
 		this.table = table;
@@ -69,6 +72,10 @@ public class Field implements MappableItem {
 
 	public void setValueCounts(String[][] valueCounts) {
 		this.valueCounts = valueCounts;
+	}
+
+	public int getRowsCheckedCount() {
+		return this.table.getRowsCheckedCount();
 	}
 
 	public boolean isNullable() {
@@ -121,5 +128,13 @@ public class Field implements MappableItem {
 
 	public void setStem(boolean isStem) {
 		this.isStem = isStem;
+	}
+
+	public List<ConceptsMap.Concept> getConceptIdHints() {
+		return conceptIdHints;
+	}
+
+	public void setConceptIdHints(List<ConceptsMap.Concept> conceptIdHints) {
+		this.conceptIdHints = conceptIdHints;
 	}
 }
