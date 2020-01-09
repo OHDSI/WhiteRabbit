@@ -181,6 +181,15 @@ public class WhiteRabbitMain implements ActionListener {
 						dbSettings.domain = parts[0];
 					}
 				}
+			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Azure")) {
+				dbSettings.dbType = DbType.AZURE;
+				if (iniFile.get("USER_NAME").length() != 0) { // Not using windows authentication
+					String[] parts = iniFile.get("USER_NAME").split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
 			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("PDW")) {
 				dbSettings.dbType = DbType.PDW;
 				if (iniFile.get("USER_NAME").length() != 0) { // Not using windows authentication
