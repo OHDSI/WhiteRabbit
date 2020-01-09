@@ -799,8 +799,10 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.MSACCESS;
 			else if (sourceType.getSelectedItem().toString().equals("Teradata"))
 				dbSettings.dbType = DbType.TERADATA;
-			else if (sourceType.getSelectedItem().toString().equals("Azure"))
+			else if (sourceType.getSelectedItem().toString().equals("Azure")) {
 				dbSettings.dbType = DbType.AZURE;
+				dbSettings.database = "";
+			}
 		}
 		return dbSettings;
 	}
@@ -815,7 +817,7 @@ public class WhiteRabbitMain implements ActionListener {
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Working folder not found", JOptionPane.ERROR_MESSAGE);
 			}
 		} else {
-			if (dbSettings.database == null || dbSettings.database.equals("")) {
+			if (sourceDatabaseField.isEnabled() && (dbSettings.database == null || dbSettings.database.equals(""))) {
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap("Please specify database name", 80), "Error connecting to server",
 						JOptionPane.ERROR_MESSAGE);
 				return;
