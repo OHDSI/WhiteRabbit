@@ -30,7 +30,7 @@ public class DbType {
 	public static DbType	AZURE		= new DbType("azure");
 
 	private enum Type {
-		MYSQL, MSSQL, PDW, ORACLE, POSTGRESQL, MSACCESS, REDSHIFT, TERADATA, BIGQUERY
+		MYSQL, MSSQL, PDW, ORACLE, POSTGRESQL, MSACCESS, REDSHIFT, TERADATA, BIGQUERY, AZURE
 	};
 
 	private Type type;
