@@ -126,18 +126,19 @@ public class RichConnection implements Closeable {
 	 * @param database
 	 */
 	public void use(String database) {
-		if (database == null)
+		if (database == null || dbType == DbType.MSACCESS || dbType == DbType.BIGQUERY || dbType == DbType.AZURE) {
 			return;
-		if (dbType == DbType.ORACLE)
+		}
+
+		if (dbType == DbType.ORACLE) {
 			execute("ALTER SESSION SET current_schema = " + database);
-		else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
+		} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) {
 			execute("SET search_path TO " + database);
-		else if (dbType == DbType.MSACCESS || dbType == DbType.BIGQUERY)
-			; // NOOP
-		else if (dbType == DbType.TERADATA) {
+		} else if (dbType == DbType.TERADATA) {
 			execute("database " + database);
-		} else
+		} else {
 			execute("USE " + database);
+		}
 	}
 
 	public List<String> getTableNames(String database) {
@@ -145,7 +146,7 @@ public class RichConnection implements Closeable {
 		String query = null;
 		if (dbType == DbType.MYSQL) {
 			query = "SHOW TABLES IN " + database;
-		} else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
+		} else if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE) {
 			query = "SELECT CONCAT(schemas.name, '.', tables.name) FROM " + database + ".sys.tables INNER JOIN " + database + ".sys.schemas ON tables.schema_id = schemas.schema_id ORDER BY schemas.name, tables.name";
 		} else if (dbType == DbType.ORACLE) {
 			query = "SELECT table_name FROM all_tables WHERE owner='" + database.toUpperCase() + "'";
@@ -166,7 +167,7 @@ public class RichConnection implements Closeable {
 
 //	public List<String> getFieldNames(String table) {
 //		List<String> names = new ArrayList<String>();
-//		if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
+//		if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE) {
 //			for (Row row : query("SELECT name FROM syscolumns WHERE id=OBJECT_ID('" + table + "')"))
 //				names.add(row.get("name"));
 //		} else if (dbType == DbType.MYSQL)
@@ -199,7 +200,7 @@ public class RichConnection implements Closeable {
 	public long getTableSize(String tableName) {
 		QueryResult qr = null;
 		Long returnVal = null;
-		if (dbType == DbType.MSSQL || dbType == DbType.PDW)
+		if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE)
 			qr = query("SELECT COUNT_BIG(*) FROM [" + tableName.replaceAll("\\.", "].[") + "];");
 		else if (dbType == DbType.MSACCESS)
 			qr = query("SELECT COUNT(*) FROM [" + tableName + "];");
@@ -276,7 +277,7 @@ public class RichConnection implements Closeable {
 	 * Inserts the rows into a table in the database.
 	 * 
 	 * @param iterator
-	 * @param tableName
+	 * @param table
 	 * @param create
 	 *            If true, the data format is determined based on the first batch of rows and used to create the table structure.
 	 */
@@ -421,7 +422,7 @@ public class RichConnection implements Closeable {
 					return columnNameToSqlName(name) + " text";
 				else
 					return columnNameToSqlName(name) + " varchar(255)";
-			} else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
+			} else if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE) {
 				if (isNumeric) {
 					if (maxLength < 10)
 						return columnNameToSqlName(name) + " int";

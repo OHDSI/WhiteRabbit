@@ -276,12 +276,12 @@ public class SourceDataScan {
 		if (sampleSize == -1) {
 			if (dbType == DbType.MSACCESS)
 				query = "SELECT * FROM [" + table + "]";
-			else if (dbType == DbType.MSSQL || dbType == DbType.PDW)
+			else if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE)
 				query = "SELECT * FROM [" + table.replaceAll("\\.", "].[") + "]";
 			else
 				query = "SELECT * FROM " + table;
 		} else {
-			if (dbType == DbType.MSSQL)
+			if (dbType == DbType.MSSQL || dbType == DbType.AZURE)
 				query = "SELECT * FROM [" + table.replaceAll("\\.", "].[") + "] TABLESAMPLE (" + sampleSize + " ROWS)";
 			else if (dbType == DbType.MYSQL)
 				query = "SELECT * FROM " + table + " ORDER BY RAND() LIMIT " + sampleSize;
@@ -326,7 +326,7 @@ public class SourceDataScan {
 			String query = null;
 			if (dbType == DbType.ORACLE)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
-			else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
+			else if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE) {
 				String trimmedDatabase = database;
 				if (database.startsWith("[") && database.endsWith("]"))
 					trimmedDatabase = database.substring(1, database.length() - 1);
