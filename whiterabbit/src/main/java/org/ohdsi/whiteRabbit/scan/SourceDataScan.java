@@ -240,6 +240,9 @@ public class SourceDataScan {
 
 		long rowCount = connection.getTableSize(table);
 		List<FieldInfo> fieldInfos = fetchTableStructure(connection, table);
+		for (FieldInfo fieldInfo : fieldInfos) {
+			StringUtilities.outputWithTime("        - field " + fieldInfo.name);
+		}
 		if (scanValues) {
 			int actualCount = 0;
 			QueryResult queryResult = null;
@@ -326,12 +329,16 @@ public class SourceDataScan {
 			String query = null;
 			if (dbType == DbType.ORACLE)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
-			else if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE) {
+			else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
 				String trimmedDatabase = database;
 				if (database.startsWith("[") && database.endsWith("]"))
 					trimmedDatabase = database.substring(1, database.length() - 1);
 				String[] parts = table.split("\\.");
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_SCHEMA='" + parts[0] +
+						"' AND TABLE_NAME='" + parts[1]	+ "';";
+			} else if (dbType == DbType.AZURE) {
+				String[] parts = table.split("\\.");
+				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='" + parts[0] +
 						"' AND TABLE_NAME='" + parts[1]	+ "';";
 			} else if (dbType == DbType.MYSQL)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table
@@ -346,6 +353,7 @@ public class SourceDataScan {
 			else if (dbType == DbType.BIGQUERY) {
 				query = "SELECT column_name AS COLUMN_NAME, data_type as DATA_TYPE FROM " + database + ".INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"" + table + "\";";
 			}
+			StringUtilities.outputWithTime("Query to fetch table structure: " + query);
 			for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
 				row.upperCaseFieldNames();
 				FieldInfo fieldInfo;
