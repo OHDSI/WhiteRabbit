@@ -37,7 +37,6 @@ import java.util.Set;
 import org.ohdsi.utilities.SimpleCounter;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
-import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 
 public class RichConnection implements Closeable {
 	public static int				INSERT_BATCH_SIZE	= 100000;
@@ -142,7 +141,7 @@ public class RichConnection implements Closeable {
 	}
 
 	public List<String> getTableNames(String database) {
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 		String query = null;
 		if (dbType == DbType.MYSQL) {
 			query = "SHOW TABLES IN " + database;
@@ -165,20 +164,6 @@ public class RichConnection implements Closeable {
 		return names;
 	}
 
-//	public List<String> getFieldNames(String table) {
-//		List<String> names = new ArrayList<String>();
-//		if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE) {
-//			for (Row row : query("SELECT name FROM syscolumns WHERE id=OBJECT_ID('" + table + "')"))
-//				names.add(row.get("name"));
-//		} else if (dbType == DbType.MYSQL)
-//			for (Row row : query("SHOW COLUMNS FROM " + table))
-//				names.add(row.get("COLUMN_NAME"));
-//		else
-//			throw new RuntimeException("DB type not supported");
-//
-//		return names;
-//	}
-
 	public ResultSet getMsAccessFieldNames(String table) {
 		if (dbType == DbType.MSACCESS) {
 			try {
@@ -198,8 +183,8 @@ public class RichConnection implements Closeable {
 	 * @return
 	 */
 	public long getTableSize(String tableName) {
-		QueryResult qr = null;
-		Long returnVal = null;
+		QueryResult qr;
+		long returnVal;
 		if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE)
 			qr = query("SELECT COUNT_BIG(*) FROM [" + tableName.replaceAll("\\.", "].[") + "];");
 		else if (dbType == DbType.MSACCESS)
@@ -229,10 +214,6 @@ public class RichConnection implements Closeable {
 		}
 	}
 
-	public boolean isVerbose() {
-		return verbose;
-	}
-
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
@@ -240,7 +221,7 @@ public class RichConnection implements Closeable {
 	public class QueryResult implements Iterable<Row> {
 		private String				sql;
 
-		private List<DBRowIterator>	iterators	= new ArrayList<DBRowIterator>();
+		private List<DBRowIterator>	iterators	= new ArrayList<>();
 
 		public QueryResult(String sql) {
 			this.sql = sql;
@@ -261,19 +242,6 @@ public class RichConnection implements Closeable {
 	}
 
 	/**
-	 * Writes the results of a query to the specified file in CSV format.
-	 * 
-	 * @param queryResult
-	 * @param filename
-	 */
-	public void writeToFile(QueryResult queryResult, String filename) {
-		WriteCSVFileWithHeader out = new WriteCSVFileWithHeader(filename);
-		for (Row row : queryResult)
-			out.write(row);
-		out.close();
-	}
-
-	/**
 	 * Inserts the rows into a table in the database.
 	 * 
 	 * @param iterator
@@ -282,7 +250,7 @@ public class RichConnection implements Closeable {
 	 *            If true, the data format is determined based on the first batch of rows and used to create the table structure.
 	 */
 	public void insertIntoTable(Iterator<Row> iterator, String table, boolean create) {
-		List<Row> batch = new ArrayList<Row>(INSERT_BATCH_SIZE);
+		List<Row> batch = new ArrayList<>(INSERT_BATCH_SIZE);
 
 		boolean first = true;
 		SimpleCounter counter = new SimpleCounter(1000000, true);
@@ -305,26 +273,26 @@ public class RichConnection implements Closeable {
 	}
 
 	private void insert(String tableName, List<Row> rows) {
-		List<String> columns = null;
+		List<String> columns;
 		columns = rows.get(0).getFieldNames();
 		for (int i = 0; i < columns.size(); i++)
 			columns.set(i, columnNameToSqlName(columns.get(i)));
 
-		String sql = "INSERT INTO " + tableName;
-		sql = sql + " (" + StringUtilities.join(columns, ",") + ")";
-		sql = sql + " VALUES (?";
+		StringBuilder sql = new StringBuilder("INSERT INTO " + tableName);
+		sql.append(" (").append(StringUtilities.join(columns, ",")).append(")");
+		sql.append(" VALUES (?");
 		for (int i = 1; i < columns.size(); i++)
-			sql = sql + ",?";
-		sql = sql + ")";
+			sql.append(",?");
+		sql.append(")");
 		try {
 			connection.setAutoCommit(false);
-			PreparedStatement statement = connection.prepareStatement(sql);
+			PreparedStatement statement = connection.prepareStatement(sql.toString());
 			for (Row row : rows) {
 				for (int i = 0; i < columns.size(); i++) {
 					String value = row.get(columns.get(i));
 					if (value == null)
 						System.out.println(row.toString());
-					if (value.length() == 0)
+					else if (value.length() == 0)
 						value = null;
 					// System.out.println(value);
 					if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) // PostgreSQL does not allow unspecified types
@@ -349,7 +317,7 @@ public class RichConnection implements Closeable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			if (e instanceof BatchUpdateException) {
-				System.err.println(((BatchUpdateException) e).getNextException().getMessage());
+				System.err.println(e.getNextException().getMessage());
 			}
 		}
 	}
@@ -360,13 +328,13 @@ public class RichConnection implements Closeable {
 				int year = Integer.parseInt(string.substring(0, 4));
 				if (year < 1700 || year > 2200)
 					return false;
+
 				int month = Integer.parseInt(string.substring(5, 7));
 				if (month < 1 || month > 12)
 					return false;
+
 				int day = Integer.parseInt(string.substring(8, 10));
-				if (day < 1 || day > 31)
-					return false;
-				return true;
+				return day >= 1 && day <= 31;
 			} catch (Exception e) {
 				return false;
 			}
@@ -374,9 +342,9 @@ public class RichConnection implements Closeable {
 	}
 
 	private Set<String> createTable(String tableName, List<Row> rows) {
-		Set<String> numericFields = new HashSet<String>();
+		Set<String> numericFields = new HashSet<>();
 		Row firstRow = rows.get(0);
-		List<FieldInfo> fields = new ArrayList<FieldInfo>(rows.size());
+		List<FieldInfo> fields = new ArrayList<>(rows.size());
 		for (String field : firstRow.getFieldNames())
 			fields.add(new FieldInfo(field));
 		for (Row row : rows) {
@@ -390,9 +358,9 @@ public class RichConnection implements Closeable {
 		}
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("CREATE TABLE " + tableName + " (\n");
+		sql.append("CREATE TABLE ").append(tableName).append(" (\n");
 		for (FieldInfo fieldInfo : fields) {
-			sql.append("  " + fieldInfo.toString() + ",\n");
+			sql.append("  ").append(fieldInfo.toString()).append(",\n");
 			if (fieldInfo.isNumeric)
 				numericFields.add(fieldInfo.name);
 		}
@@ -443,10 +411,10 @@ public class RichConnection implements Closeable {
 
 		private boolean		hasNext;
 
-		private Set<String>	columnNames	= new HashSet<String>();
+		private Set<String>	columnNames	= new HashSet<>();
 
 		public DBRowIterator(String sql) {
-			Statement statement = null;
+			Statement statement;
 			try {
 				sql.trim();
 				if (sql.endsWith(";"))
@@ -459,12 +427,12 @@ public class RichConnection implements Closeable {
 				}
 				long start = System.currentTimeMillis();
 				statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-				resultSet = statement.executeQuery(sql.toString());
+				resultSet = statement.executeQuery(sql);
 				hasNext = resultSet.next();
 				if (verbose)
 					outputQueryStats(statement, System.currentTimeMillis() - start);
 			} catch (SQLException e) {
-				System.err.println(sql.toString());
+				System.err.println(sql);
 				System.err.println(e.getMessage());
 				throw new RuntimeException(e);
 			}
