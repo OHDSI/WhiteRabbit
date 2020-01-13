@@ -161,6 +161,11 @@ public class Database implements Serializable {
 				index = fieldName2ColumnIndex.get("Max length");
 				if (index != null && index >= 0 && index < row.size())
 					field.setMaxLength((int) (Double.parseDouble(row.get(index))));
+
+				index = fieldName2ColumnIndex.get("Description");
+				if (index != null && index >= 0 && index < row.size())
+					field.setComment(row.get(index));
+
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 				table.getFields().add(field);
 			}
