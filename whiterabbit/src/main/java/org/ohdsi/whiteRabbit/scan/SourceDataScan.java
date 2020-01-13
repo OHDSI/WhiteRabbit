@@ -576,11 +576,13 @@ public class SourceDataScan {
 		for (Object value : values) {
 			Cell cell = row.createCell(row.getPhysicalNumberOfCells());
 
-			if (value instanceof Integer || value instanceof Long || value instanceof Double)
+			if (value instanceof Integer || value instanceof Long || value instanceof Double) {
 				cell.setCellValue(Double.parseDouble(value.toString()));
-			else
+			} else if (value != null) {
 				cell.setCellValue(value.toString());
-
+			} else {
+				cell.setCellValue("");
+			}
 		}
 	}
 
