@@ -324,43 +324,40 @@ public class SourceDataScan {
 			}
 		} else {
 			String query = null;
-			if (dbType == DbType.ORACLE)
-				query = "SELECT COLUMN_NAME,DATA_TYPE FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
-			else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
+			if (dbType == DbType.ORACLE) {
+				query = "SELECT COLUMN_NAME, DATA_TYPE, NULL AS COLUMN_DESCRIPTION " +
+						"FROM ALL_TAB_COLUMNS WHERE table_name = '" + table + "' AND owner = '" + database.toUpperCase() + "'";
+			} else if (dbType == DbType.MSSQL || dbType == DbType.PDW) {
 				String trimmedDatabase = database;
 				if (database.startsWith("[") && database.endsWith("]"))
 					trimmedDatabase = database.substring(1, database.length() - 1);
 				String[] parts = table.split("\\.");
-				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_SCHEMA='" + parts[0] +
-						"' AND TABLE_NAME='" + parts[1]	+ "';";
-			} else if (dbType == DbType.MYSQL)
-				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table
+				query = "SELECT COLUMN_NAME, DATA_TYPE, NULL AS COLUMN_DESCRIPTION " +
+						"FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_SCHEMA='" + parts[0] +
+						"' AND TABLE_NAME='" + parts[1] + "';";
+			} else if (dbType == DbType.MYSQL) {
+				query = "SELECT COLUMN_NAME, DATA_TYPE, NULL AS COLUMN_DESCRIPTION " +
+						"FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table
 						+ "';";
-			else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT)
-				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
+			} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) {
+				query = "SELECT COLUMN_NAME, DATA_TYPE, COL_DESCRIPTION((table_schema||'.'||table_name)::REGCLASS, ordinal_position) AS COLUMN_DESCRIPTION " +
+						"FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database.toLowerCase() + "' AND TABLE_NAME = '"
 						+ table.toLowerCase() + "' ORDER BY ordinal_position;";
-			else if (dbType == DbType.TERADATA) {
-				query = "SELECT ColumnName, ColumnType FROM dbc.columns WHERE DatabaseName= '" + database.toLowerCase() + "' AND TableName = '"
+			} else if (dbType == DbType.TERADATA) {
+				query = "SELECT ColumnName AS COLUMN_NAME, ColumnType AS DATA_TYPE, NULL AS COLUMN_DESCRIPTION " +
+						"FROM dbc.columns WHERE DatabaseName= '" + database.toLowerCase() + "' AND TableName = '"
 						+ table.toLowerCase() + "';";
+			} else if (dbType == DbType.BIGQUERY) {
+				query = "SELECT column_name AS COLUMN_NAME, data_type as DATA_TYPE, NULL AS COLUMN_DESCRIPTION " +
+						"FROM " + database + ".INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"" + table + "\";";
 			}
-			else if (dbType == DbType.BIGQUERY) {
-				query = "SELECT column_name AS COLUMN_NAME, data_type as DATA_TYPE FROM " + database + ".INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"" + table + "\";";
-			}
+
 			for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
 				row.upperCaseFieldNames();
-				FieldInfo fieldInfo;
-				if (dbType == DbType.TERADATA) {
-					fieldInfo = new FieldInfo(row.get("COLUMNNAME"));
-				} else {
-					fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
-				}
-				if (dbType == DbType.TERADATA) {
-					fieldInfo.type = row.get("COLUMNTYPE");
-				} else {
-					fieldInfo.type = row.get("DATA_TYPE");
-				}
+				FieldInfo fieldInfo = new FieldInfo(row.get("COLUMN_NAME"));
+				fieldInfo.type = row.get("DATA_TYPE");
+				fieldInfo.label = row.get("COLUMN_DESCRIPTION");
 				fieldInfo.rowCount = connection.getTableSize(table);
-				;
 				fieldInfos.add(fieldInfo);
 			}
 		}
@@ -434,7 +431,6 @@ public class SourceDataScan {
 				if (lineNr == sampleSize)
 					break;
 			}
-			inputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -446,9 +442,39 @@ public class SourceDataScan {
 		return fieldInfos;
 	}
 
+	public static class FieldInfoBuilder {
+		private String name;
+		private String type;
+		private String label;
+		private long rowCount;
+
+		public FieldInfoBuilder(String name) {
+			this.name = name;
+		}
+
+		public FieldInfoBuilder setType(String type) {
+			this.type = type;
+			return this;
+		}
+
+		public FieldInfoBuilder setLabel(String label) {
+			this.label = label;
+			return this;
+		}
+
+		public FieldInfoBuilder setRowCount(long rowCount) {
+			this.rowCount = rowCount;
+			return this;
+		}
+
+		public FieldInfo build() {
+			return new FieldInfo(this);
+		}
+	}
+
 	private class FieldInfo {
-		public String				type;
 		public String				name;
+		public String				type;
 		public String				label;
 		public CountingSet<String>	valueCounts		= new CountingSet<>();
 		public long					sumLength		= 0;
@@ -465,6 +491,13 @@ public class SourceDataScan {
 
 		public FieldInfo(String name) {
 			this.name = name;
+		}
+
+		public FieldInfo(FieldInfoBuilder builder) {
+			this.name = builder.name;
+			this.type = builder.type;
+			this.label = builder.label;
+			this.rowCount = builder.rowCount;
 		}
 
 		public void trim() {
