@@ -164,7 +164,7 @@ public class Database implements Serializable {
 
 				index = fieldName2ColumnIndex.get("Description");
 				if (index != null && index >= 0 && index < row.size())
-					field.setComment(row.get(index));
+					field.setDescription(row.get(index));
 
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 				table.getFields().add(field);
