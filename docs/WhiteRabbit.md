@@ -1,18 +1,14 @@
-# https://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit
-
 # WhiteRabbit
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitlogo.png )
 
-
 ## Introduction
-
 
 ### Scope and purpose
 
 WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of
 longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](documentation:cdm:single-page). The source data can be in
-comma-separated text files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift). Note that the CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Microsoft APS, Amazon RedShift).
+comma-separated text files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, Google BigQuery). Note that the CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Microsoft APS, Amazon RedShift, Google BigQuery). 
 
 WhiteRabbit’s main function is to perform a scan of the source data, providing detailed
 information on the tables, fields, and values that appear in a field. This scan will generate a
@@ -20,7 +16,6 @@ report that can be used as a reference when designing the ETL, for instance by u
 tool. White Rabbit differs from standard data profiling tools in that it attempts to
 prevent the display of personally identifiable information (PII) data values in the generated
 output data file.
-
 
 ### Process Overview
 
@@ -34,7 +29,6 @@ ETL into an OMOP CDM:
 Once the scan report is created, this report can then be used in the Rabbit-In-a-Hat tool or as a
 stand-alone data profiling document.
 
-
 ## Installation and support
 
 All source code and installation instructions available on GitHub: https://github.com/OHDSI/WhiteRabbit
@@ -43,25 +37,21 @@ Any bugs/issues/enhancements should be posted to the GitHub repository: https://
 
 Any questions/comments/feedback/discussion can be posted on the OHDSI Developer Forum: http://forums.ohdsi.org/c/developers
 
-
 ## Using the Application Functions
-
 
 ### Specifying the Location of Data
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreenshot.png )
-
 
 #### Working Folder
 
 Any files that WhiteRabbit creates will be exported to this local folder. Use the “Pick Folder”
 button to navigate in your local environment where you would like the scan document to go.
 
-
 #### Source Data
 
 Here you can specify the location of the source data. The following source types are supported:
-delimited text files, MySQL, Oracle, SQL Server, and PostgreSQL. Below are connection
+delimited text files, MySQL, Oracle, SQL Server, PostgreSQL, and Google BigQuery. Below are connection
 instructions for each data type of data source. Once you have entered the necessary
 information, the “Test connection” button can ensure a connection can be made.
 
@@ -84,7 +74,7 @@ directory.
   * _**Database name:**_ this field contains the schema (i.e. 'user' in Oracle terms) containing the tables
 
 **SQL Server**
-  * _**Server location:**_ the name or IP address of the server running SQL Server. You can also specify the port (ex: <host>:<port>), which defaults to 1433.
+  * _**Server location:**_ the name or IP address of the server running SQL Server. You can also specify the port (ex: <host>:<port>), which defaults to 1433. 
   * _**User name:**_ name of the user used to log into the server. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ name of the database containing the tables
@@ -99,14 +89,34 @@ When the SQL Server JDBC drivers are installed, you can also use Windows authent
 At this time WhiteRabbit does not run on this platform.
 
 **PostgreSQL**
+
   * _**Server location:**_ this field contains the host name and database name (<host>/<database>)
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ this field contains the schema containing the source tables
 
+**Google BigQuery**
+
+Google BigQuery (GBQ) supports two different connection/authentication methods -- application default credentials and service account authentication. The former method is considered more secure because it writes auditing events to stackdriver. The specific method used is determined by the arguments provided to the configuration panel as described below.
+
+
+Authentication via application default credentials:
+
+When using application default credentials authentication, you must run the following gcloud command in the user account only once: 'gcloud auth application-default login' (do not include the single quote characters). An application key is written to ~/.config/gcloud/application_default_credentails.json.
+
+  * _**Server location:**_ name of the GBQ ProjectID
+  * _**User name:**_ not used
+  * _**Password:**_ not used
+  * _**Database name:**_ data set name within ProjectID named in Server location field
+
+Authentication via service account credentials:
+  * _**Server location:**_ name of GBQ ProjectID
+  * _**User name:**_ OAuth service account email address
+  * _**Password:**_ OAuth private key path (file location of private key JSON file). Must be a valid full file pathname
+  * _**Database name:**_ data set name within ProjectID named in Server location field
+
 
 ### Scanning a Database
-
 
 #### Performing the Scan
 
@@ -123,13 +133,11 @@ There are a few setting options as well with the scan:
 
 Once all settings are completed, press the “Scan tables” button. After the scan is completed the report will be written to the working folder.
 
-
 #### Running from the command line
 
 For various reasons one could prefer to run WhiteRabbit from the command line. This is possible by specifying all the options one would normally select in the user interface in an .ini file. An example ini file can be found [here](https://github.com/OHDSI/WhiteRabbit/blob/master/iniFileExamples/WhiteRabbit.ini). Then, we can reference the ini file when calling WhiteRabbit from the command line:
 
 ```java -jar WhiteRabbit.jar -ini WhiteRabbit.ini```
-
 
 #### Reading the Scan
 
@@ -144,7 +152,7 @@ For a tab that describes a single table, the columns names from the source table
 The report is powerful in understanding your source data by highlighting what exists. For example, if the following results were given back on the “SEX” column within one of the tables scanned, we can see that there were two common values (1 and 2) that appeared 61,491 and 35,401 times respectively. WhiteRabbit will not define 1 as male and 2 as female; the data holder will typically need to define source codes unique to the source system. However these two values (1 & 2) are not the only values present in the data because we see this list was truncated. These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values. When generating an ETL we should not only plan to handle the high-frequency gender concepts 1 and 2 but the other low-frequency values that exist within this column.
 
 ##### Scan Report Metrics
-TODO
+**TODO**
  - N rows
  - N rows checked
  - Data type
@@ -154,7 +162,6 @@ TODO
  - v0.10: Numeric stats: Mean, Std, Min, Max, Median, q1, q2, q3
 
 ### Generating Fake Data
-
+**TODO**
 This feature allows one to create a fake dataset based on a WhiteRabbit scan report. This dataset could be used to develop ETL code when direct access to the data is not available.
-
 This feature is currently still experimental.

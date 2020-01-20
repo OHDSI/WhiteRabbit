@@ -1,4 +1,3 @@
-# https://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat
 
 # Rabbit-In-a-Hat
 
@@ -46,7 +45,7 @@ To open an existing Rabbit-In-a-Hat document use _File --> Open ETL specs_.
 
 ### Selecting Desired CDM Version
 
-Rabbit-In-a-Hat allows you to select which CDM version (v4 or v5) you'd like to built your ETL specification against.
+Rabbit-In-a-Hat allows you to select which CDM version (v4, v5 or v6) you'd like to built your ETL specification against.
 
 See the graphic below for how to select your desired CDM:
 ![Switching between CDMv4 and CDMv5](http://i.imgur.com/LOqhp7H.gif)
@@ -123,6 +122,8 @@ Once the document is completed, this should be shared with the individuals who p
 To make sure the ETL process is working as specified, it is highly recommended to create [unit tests](https://en.wikipedia.org/wiki/Unit_testing) that evaluate the behavior of the ETL process.
 To efficiently create a set of unit tests Rabbit-in-a-Hat can [generate a testing framework](documentation:software:whiterabbit:test_framework).
 
+**TODO**: Link to generate testing framework page
 
-### Generating sql skeleton
-TODO
+
+## Generating a sql skeleton
+**TODO**

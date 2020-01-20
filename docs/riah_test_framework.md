@@ -1,4 +1,3 @@
-# https://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit:test_framework
 
 # Rabbit-In-a-Hat testing framework
 
@@ -29,7 +28,7 @@ In Rabbit-in-a-Hat, have your ETL specifications open. The source data schema sh
 
 Next, create an empty R script, and start by sourcing the R file that was just created:
 
-```
+```R
 source("MyTestFrameWork.R")
 ```
 
@@ -60,10 +59,11 @@ One further function is available:
 
 
 ### Defining unit tests
-TODO: lookup functions
+**TODO**: lookup functions
+
 Using these functions, we can define tests. Here is an example unit test:
 
-```
+```R
 declareTest(101, "Person gender mappings")
 add_enrollment(member_id = "M000000101", gender_of_member = "male")
 add_enrollment(member_id = "M000000102", gender_of_member = "female")
@@ -77,19 +77,21 @@ In this example we furthermore describe what we expect to see in the CDM data sc
 
 We can add many such tests to our R script. For an example of a full set of test definitions, see the [HCUP ETL unit tests](https://github.com/OHDSI/JCdmBuilder/blob/master/tests/HCUPETLToV5/HcupTests.R).
 
+**TODO**: Synthea example
 
 ### Test Coverage
-TODO
+**TODO**
+
 The framework also contains functions to display statistics on how well your tests cover your mappings.
 A summary can be printed by running:
 
-```
+```R
 summaryTestFramework()
 ```
 
 This will display the following:
-```
-```summary```
+```R
+statistic                   summary
 n_tests                        6.00
 n_cases                        3.00
 n_source_fields_tested         3.00
@@ -101,19 +103,19 @@ target_coverage (%)            2.22
 ```
 
 Stats:
- - n_tests: total number of expects, expect_no's or expect_counts are defined
- - n_cases: total number of cases defined with `declareTest` function.
- - n_source_fields_tested: number of source fields for which a test data is defined
- - n_source_fields_mapped_from: number of source fields for which a mapping was defined in Rabbit-In-A-Hat
- - source_coverage: percentage of mapped source fields for which a test has been defined
- - n_target_fields_tested: number of target fields for which one or more expects, expect_no's or expect_counts have been defined
- - n_target_fields_mapped_to: number of target fields for which a mapping was defined in Rabbit-In-A-Hat
- - target_coverage: percentage of mapped target fields for which a test has been defined
+ * n_tests: total number of expects, expect_no's or expect_counts are defined
+ * n_cases: total number of cases defined with `declareTest` function.
+ * n_source_fields_tested: number of source fields for which a test data is defined
+ * n_source_fields_mapped_from: number of source fields for which a mapping was defined in Rabbit in a Hat
+ * source_coverage: percentage of mapped source fields for which a test has been defined
+ * n_target_fields_tested: number of target fields for which one or more expects, expect_no's or expect_counts have been defined
+ * n_target_fields_mapped_to: number of target fields for which a mapping was defined in Rabbit in a Hat
+ * target_coverage: percentage of mapped target fields for which a test has been defined
 
-Note that the mapping coverages highly depend on the mappings defined in Rabbit-In-A-Hat. If this mapping is incomplete or adjusted in the meantime, the coverage will deviate. Please update the mappings in Rabbit-In-A-Hat and regenerate the testing framework.
+Note that the mapping coverages highly depend on the mappings defined in Rabbit in a Hat. If this mapping is incomplete or adjusted in the meantime, the coverage will deviate. Please update the mappings in Rabbit-In-A-Hat and regenerate the testing framework.
 
 If the coverage is low, you can get all source and target field for which no test has been defined with the following functions:
-```
+```R
 getUntestedSourceFields()
 getUntestedTargetFields()
 ```
@@ -121,29 +123,30 @@ getUntestedTargetFields()
 
 ### Generate test data in the source data schema
 
-#### Sql
+#### SQL
 After we have defined all our tests we need to run
-```
+```R
 insertSql <- generateInsertSql(databaseSchema = "nativeTestSchema")
 testSql <- generateTestSql(databaseSchema = "cdmTestSchema")
 ```
 to generate the SQL for inserting the test data in the database (insertSql), and for running the tests on the ETL-ed data (testSql). The insertion SQL assumes that the data schema already exists in `nativeTestSchema`, and will first remove any records that might be in the tables. We can execute the SQL in any SQL client, or we can use OHDSI's [DatabaseConnector package](https://github.com/OHDSI/DatabaseConnector). For example:
 
-```
+```R
 library(DatabaseConnector)
 connectionDetails <- createConnectionDetails(user = "joe",
-```password = "secret",```
-```dbms = "sql server",```
-```server = "my_server.domain.org")```
+                                             password = "secret",
+                                             dbms = "sql server",
+                                             server = "my_server.domain.org")
 connection <- connect(connectionDetails)
 
 executeSql(connection, paste(insertSql, collapse = "\n"))
 ```
 
-#### Csv
-TODO
+#### CSV
+**TODO**
+
 In case the source data are csv files rather than database tables, we use this function:
-```
+```R
 insertSql <- generateSourceCsv(directory = "test_data", separator = ",")
 ```
 
@@ -159,13 +162,13 @@ Now that the test source data is populated. You can run the ETL process you woul
 
 The test SQL will create a table called `test_results` in `cdmTestSchema`, and populate it with the results of the tests. (If the table already exists it will first be dropped). Again, we could use any SQL client to run this SQL, or we could use DatabaseConnector:
 
-```
+```R
 executeSql(connection, paste(testSql, collapse = "\n"))
 ```
 
 Aftwerwards, we can query the results table to see the results for each test:
 
-```
+```R
 querySql(connection, "SELECT * FROM test_results")
 ```
 
@@ -180,10 +183,11 @@ In this case we see there were two expect statements under test 101 (Person gend
 
 
 ### Export tests
-TODO
+**TODO**
+
 We can create an overview of defined tests and export it, for example if you want to list the tests separately.
 
-```
+```R
 getTestsOverview()
 exportTestsOverviewToFile(filename = "all_test_cases.csv")
 ```

@@ -1,6 +1,10 @@
-# https://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#best_practices
 
 # Best Practices
+**TODO**
+ * Add some references and examples
+   * the wiki/ohdsi.org with ETL best practices (poster with steps).
+   * CDM implementers forum
+   * Sharing RiaH output (Synthea docs example)
 
 The following lists best practices in using WhiteRabbit and Rabbit-In-a-Hat to manage your ETL documentation process:
   * **Overall Process:**
