@@ -15,11 +15,11 @@ Rabbit-In-a-Hat comes with WhiteRabbit and is designed to read and display a Whi
 ### Process Overview
 
 The typical sequence for using this software to generate documentation of an ETL:
-  - Scanned results from WhiteRabbit completed
-  - Open scanned results; interface displays source tables and CDM tables
-  - Connect source tables to CDM tables where the source table provides information for that corresponding CDM table
-  - For each source table to CDM table connection, further define the connection with source column to CDM column detail
-  - Save Rabbit-In-a-Hat work and export to a MS Word document.
+1. Scanned results from WhiteRabbit completed
+1. Open scanned results; interface displays source tables and CDM tables
+1. Connect source tables to CDM tables where the source table provides information for that corresponding CDM table
+1. For each source table to CDM table connection, further define the connection with source column to CDM column detail
+1. Save Rabbit-In-a-Hat work and export to a MS Word document.
 
 
 ## Installation and support

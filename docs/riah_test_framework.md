@@ -1,7 +1,7 @@
 
-# Rabbit-In-a-Hat testing framework
+# Rabbit in a Hat testing framework
 
-[Rabbit-In-a-Hat](documentation:software:whiterabbit#rabbit-in-a-hat) can generate a framework for creating a set of [unit tests](https://en.wikipedia.org/wiki/Unit_testing). The framework consists of a set of R functions tailored to the source and target schema in your ETL. These functions can then be used to define the unit tests.
+[Rabbit in a Hat](documentation:software:whiterabbit#rabbit-in-a-hat) can generate a framework for creating a set of [unit tests](https://en.wikipedia.org/wiki/Unit_testing). The framework consists of a set of R functions tailored to the source and target schema in your ETL. These functions can then be used to define the unit tests.
 
 Unit testing assumes that you have your data in source format somewhere in a database. You should already have created an ETL process that will extract from the source database, transform it into CDM format, and load it into a CDM schema. The unit test framework can be used to make sure that your ETL process is doing what it is supposed to do. For this you will need to create a new, empty database with exactly the same structure as your source database, and a new empty database where a test CDM database will live. The framework can be used to insert test data into the empty source schema. You can then run your ETL process on the test data to populate the test CDM database. you can then use the framework to verify that the output of the ETL in the test CDM database is what you'd expect given the test source data.
 
@@ -10,18 +10,18 @@ Unit testing assumes that you have your data in source format somewhere in a dat
 
 These are the steps to perform unit testing:
 
-  -  Create the testing framework for your source and target database schemas.
-  -  Using the framework in R, define a set of unit tests
-  -  Use the framework to generate testing data in the source data schema
-  -  Run your ETL on the test data to produce data in the CDM schema
-  -  Use the framework to evaluate whether the CDM data meets the defined expectations
+1.  Create the testing framework for your source and target database schemas.
+1.  Using the framework in R, define a set of unit tests
+1.  Use the framework to generate testing data in the source data schema
+1.  Run your ETL on the test data to produce data in the CDM schema
+1.  Use the framework to evaluate whether the CDM data meets the defined expectations
 
 It is advised to use [R-Studio](https://www.rstudio.com/) for defining your unit tests. One reason is that RStudio will automatically prompt you with possible function and argument names after you've only typed the first few characters.
 
 
 ## Creating the testing framework
 
-In Rabbit-in-a-Hat, have your ETL specifications open. The source data schema should be loaded from the White-Rabbit scan report, and the target data schema should be selected (usually the OMOP CDM v5). Go to _File → Generate ETL Test Framework_, and use a file name with the .R extension, for example `MyTestFrameWork.R`.
+In Rabbit in a Hat, have your ETL specifications open. The source data schema should be loaded from the White-Rabbit scan report, and the target data schema should be selected (usually the OMOP CDM v5). Go to _File → Generate ETL Test Framework_, and use a file name with the .R extension, for example `MyTestFrameWork.R`.
 
 
 ## Defining unit tests using the framework
@@ -112,7 +112,7 @@ Stats:
  * n_target_fields_mapped_to: number of target fields for which a mapping was defined in Rabbit in a Hat
  * target_coverage: percentage of mapped target fields for which a test has been defined
 
-Note that the mapping coverages highly depend on the mappings defined in Rabbit in a Hat. If this mapping is incomplete or adjusted in the meantime, the coverage will deviate. Please update the mappings in Rabbit-In-A-Hat and regenerate the testing framework.
+Note that the mapping coverages highly depend on the mappings defined in Rabbit in a Hat. If this mapping is incomplete or adjusted in the meantime, the coverage will deviate. Please update the mappings in Rabbit in a Hat and regenerate the testing framework.
 
 If the coverage is low, you can get all source and target field for which no test has been defined with the following functions:
 ```R

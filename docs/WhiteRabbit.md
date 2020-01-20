@@ -21,10 +21,10 @@ output data file.
 
 The typical sequence for using this software to scan source data in preparation of developing an
 ETL into an OMOP CDM:
-  - Set working folder, the location on the local desktop computer where results will be exported.
-  - Connect to the source database or CSV text file and test connection.
-  - Select the tables of interest for the scan and scan the tables.
-  - WhiteRabbit creates an export of information about the source data.
+1. Set working folder, the location on the local desktop computer where results will be exported.
+1. Connect to the source database or CSV text file and test connection.
+1. Select the tables of interest for the scan and scan the tables.
+1. WhiteRabbit creates an export of information about the source data.
 
 Once the scan report is created, this report can then be used in the Rabbit-In-a-Hat tool or as a
 stand-alone data profiling document.
@@ -80,9 +80,9 @@ directory.
   * _**Database name:**_ name of the database containing the tables
 
 When the SQL Server JDBC drivers are installed, you can also use Windows authentication.  In this case, user name and password should be empty.
-  - Download the .exe from http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx.
-  - Run it, thereby extracting its contents to a folder.
-  - In the extracted folder you will find the file _sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll_ (64-bits) or _sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll_ (32-bits), which needs to be moved to a location on the system path, for example to _c:/windows/system32_.
+1. Download the .exe from http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx.
+1. Run it, thereby extracting its contents to a folder.
+1. In the extracted folder you will find the file _sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll_ (64-bits) or _sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll_ (32-bits), which needs to be moved to a location on the system path, for example to _c:/windows/system32_.
 
 **MS APS**
 
@@ -153,13 +153,13 @@ The report is powerful in understanding your source data by highlighting what ex
 
 ##### Scan Report Metrics
 **TODO**
- - N rows
- - N rows checked
- - Data type
- - Max. Length
- - N Empty
- - N Unique (sometimes inexact; only an upper limit)
- - v0.10: Numeric stats: Mean, Std, Min, Max, Median, q1, q2, q3
+ * N rows
+ * N rows checked
+ * Data type
+ * Max. Length
+ * N Empty
+ * N Unique (sometimes inexact; only an upper limit)
+ * v0.10: Numeric stats: Mean, Std, Min, Max, Median, q1, q2, q3
 
 ### Generating Fake Data
 **TODO**
