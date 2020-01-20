@@ -3,9 +3,11 @@ build/
 dist/
 /Error.txt
 /.gitignore
-/Error1.txt
-/ScanReport.xlsx
 /.classpath
-target/
 *.iml
 .idea/
+
+# Repo specific ignors
+/ScanReport.xlsx
+target/
+Try*.java
