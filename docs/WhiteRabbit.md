@@ -61,6 +61,10 @@ information, the “Test connection” button can ensure a connection can be mad
 WhiteRabbit will look for the files to scan in the same folder you set up as a working
 directory.
 
+**SAS**
+**TODO: ** 
+Only scan SAS, WR not able to produce fake data for SAS yet.
+
 **MySQL**
   * _**Server location:**_ the name or IP address of the server running MySQL. You can also specify the port (ex: <host>:<port>), which defaults to 3306.
   * _**User name:**_ name of the user used to log into the server
