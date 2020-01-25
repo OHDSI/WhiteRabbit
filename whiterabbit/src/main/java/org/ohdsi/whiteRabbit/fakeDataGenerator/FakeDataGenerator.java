@@ -242,7 +242,7 @@ public class FakeDataGenerator {
 			} else { // Sample from values:
 				int index = random.nextInt(totalFrequency);
 				int i = 0;
-				while (i < values.length - 1 && cumulativeFrequency[i] < index)
+				while (i < values.length - 1 && cumulativeFrequency[i] <= index)
 					i++;
 				if (!type.equals("VarChar") && values[i].trim().length() == 0)
 					return "";
