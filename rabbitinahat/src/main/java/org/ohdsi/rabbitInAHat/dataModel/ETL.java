@@ -213,7 +213,7 @@ public class ETL implements Serializable {
 	public void discardCounts() {
 		for (Table table : sourceDb.getTables())
 			for (Field field : table.getFields())
-				field.setValueCounts(new String[0][]);
+				field.setValueCounts(new ValueCounts());
 	}
 
 	public boolean hasStemTable() {

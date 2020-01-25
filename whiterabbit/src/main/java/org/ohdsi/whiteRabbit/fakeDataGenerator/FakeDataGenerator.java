@@ -26,6 +26,7 @@ import org.ohdsi.databases.RichConnection;
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.rabbitInAHat.dataModel.ValueCounts;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
@@ -181,26 +182,23 @@ public class FakeDataGenerator {
 		private Random		random			= new Random();
 
 		public ValueGenerator(Field field) {
-			String[][] valueCounts = field.getValueCounts();
+			ValueCounts valueCounts = field.getValueCounts();
 			type = field.getType();
-			if (valueCounts[0][0].equals("List truncated...")) {
+			if (valueCounts.size() == 0) {
 				length = field.getMaxLength();
 				generatorType = RANDOM;
 			} else {
-				int length = valueCounts.length;
-				if (valueCounts[length - 1][1].equals("")) // Last value could be "List truncated..."
-					length--;
+				int length = valueCounts.size();
 
+				int runningTotal = 0;
 				values = new String[length];
 				cumulativeFrequency = new int[length];
-				totalFrequency = 0;
 				for (int i = 0; i < length; i++) {
-					int frequency = (int) (Double.parseDouble(valueCounts[i][1]));
-					totalFrequency += frequency;
-
-					values[i] = valueCounts[i][0];
-					cumulativeFrequency[i] = totalFrequency;
+					values[i] = valueCounts.get(i).getValue();
+					runningTotal += valueCounts.get(i).getFrequency();
+					cumulativeFrequency[i] = runningTotal;
 				}
+				totalFrequency = valueCounts.getSummedFrequency();
 				generatorType = REGULAR;
 			}
 		}

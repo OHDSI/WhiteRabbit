@@ -169,7 +169,7 @@ public class Database implements Serializable {
 		return database;
 	}
 
-	private static String[][] getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
+	private static ValueCounts getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
 		Sheet tableSheet = null;
 		String targetSheetName = Table.createSheetNameFromTableName(tableName);
 		for (Sheet sheet : workbook) {
@@ -178,29 +178,43 @@ public class Database implements Serializable {
 				break;
 			}
 		}
-		if (tableSheet == null) // Sheet not found for table, return empty array
-			return new String[0][0];
+
+		// Sheet not found for table, return empty
+		if (tableSheet == null) {
+			return new ValueCounts();
+		}
 
 		Iterator<org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row> iterator = tableSheet.iterator();
 		org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row header = iterator.next();
 		int index = header.indexOf(fieldName);
-		List<String[]> list = new ArrayList<String[]>();
+
+		ValueCounts valueCounts = new ValueCounts();
 		if (index != -1) // Could happen when people manually delete columns
 			while (iterator.hasNext()) {
 				org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row row = iterator.next();
 				if (row.size() > index) {
 					String value = row.get(index);
 					String count;
-					if (row.size() > index + 1)
+
+					if (row.size() > index + 1) {
 						count = row.get(index + 1);
-					else
+					} else {
 						count = "";
-					if (value.equals("") && count.equals(""))
+					}
+
+					if (value.equals("") && count.equals("")) {
 						break;
-					list.add(new String[] { value, count });
+					}
+
+					// If the count is not a number, ignore this row
+					try {
+						valueCounts.add(value, (int) (Double.parseDouble(count)));
+					} catch (NumberFormatException e) {
+//						 System.out.println("Count could not be parsed for value: " + value);
+					}
 				}
 			}
-		return list.toArray(new String[list.size()][2]);
+		return valueCounts;
 	}
 
 }

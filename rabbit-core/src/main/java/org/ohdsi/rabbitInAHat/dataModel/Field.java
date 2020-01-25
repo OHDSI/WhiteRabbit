@@ -25,7 +25,7 @@ public class Field implements MappableItem {
 	private Table				table;
 	private String				name;
 	private String				comment				= "";
-	private String[][]			valueCounts;
+	private ValueCounts			valueCounts = new ValueCounts();
 	private boolean				isNullable;
 	private String				type;
 	private String				description			= "";
@@ -66,11 +66,11 @@ public class Field implements MappableItem {
 		this.name = name;
 	}
 
-	public String[][] getValueCounts() {
+	public ValueCounts getValueCounts() {
 		return valueCounts;
 	}
 
-	public void setValueCounts(String[][] valueCounts) {
+	public void setValueCounts(ValueCounts valueCounts) {
 		this.valueCounts = valueCounts;
 	}
 

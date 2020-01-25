@@ -115,12 +115,8 @@ public class ETLTestFrameWorkGenerator {
 				writer.println("  defaults <- list()");
 				for (Field field : table.getFields()) {
 					String rFieldName = convertToRName(field.getName());
-					String defaultValue;
-					if (field.getValueCounts().length == 0)
-						defaultValue = "";
-					else
-						defaultValue = field.getValueCounts()[0][0];
-					if (!defaultValue.equals("") && !defaultValue.equals("List truncated..."))
+					String defaultValue = field.getValueCounts().getMostFrequentValue();
+					if (defaultValue != null)
 						writer.println("  defaults$" + rFieldName + " <- '" + defaultValue + "'");
 					else
 						writer.println("  defaults$" + rFieldName + " <- ''");
