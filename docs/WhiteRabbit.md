@@ -40,7 +40,7 @@ Any questions/comments/feedback/discussion can be posted on the OHDSI Developer 
 
 ## Using the Application Functions
 
-### Specifying the Location of Data
+### Specifying the Location of Source Data
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreenshot.png )
 
@@ -63,7 +63,8 @@ Once you have entered the necessary information, the “Test connection” butto
 WhiteRabbit will look for the files to scan in the same folder you set up as a working directory.
 
 **SAS**
-No parameters have to be provided for SAS files.
+
+  * No parameters have to be provided for SAS files.
 
 WhiteRabbit will look for `.sas7bdat` files to scan in the same folder you set up as a working directory.
 
@@ -88,9 +89,9 @@ Note that it is currently not possible to produce fake data for SAS files from a
   * _**Database name:**_ name of the database containing the tables
 
 When the SQL Server JDBC drivers are installed, you can also use Windows authentication.  In this case, user name and password should be empty.
-1. Download the .exe from http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx.
-1. Run it, thereby extracting its contents to a folder.
-1. In the extracted folder you will find the file _sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll_ (64-bits) or _sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll_ (32-bits), which needs to be moved to a location on the system path, for example to _c:/windows/system32_.
+  1. Download the .exe from http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx.
+  2. Run it, thereby extracting its contents to a folder.
+  3. In the extracted folder you will find the file `_sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll_` (64-bits) or `_sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll_` (32-bits), which needs to be moved to a location on the system path, for example to `c:/windows/system32`.
 
 **PostgreSQL**
 
