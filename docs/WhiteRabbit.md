@@ -7,8 +7,10 @@ nav_order: 2
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitlogo.png )
 
 # Introduction
+{: .no_toc}
 
 ## Scope and purpose
+{: .no_toc}
 
 WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](documentation:cdm:single-page).
 The source data can be in comma-separated text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery).
@@ -19,6 +21,7 @@ This scan will generate a report that can be used as a reference when designing 
 White Rabbit differs from standard data profiling tools in that it attempts to prevent the display of personally identifiable information (PII) data values in the generated output data file.
 
 ## Process Overview
+{: .no_toc}
 
 The typical sequence for using this software to scan source data in preparation of developing an ETL into an OMOP CDM:
 1. Set working folder, the location on the local desktop computer where results will be exported.
@@ -29,21 +32,24 @@ The typical sequence for using this software to scan source data in preparation 
 Once the scan report is created, this report can then be used in the Rabbit-In-a-Hat tool or as a stand-alone data profiling document.
 
 # Table of Contents
+{: .no_toc}
+
+1. TOC
 {:toc}
 
 # Installation and support
 
-All source code and installation instructions available on GitHub: https://github.com/OHDSI/WhiteRabbit
+All source code and installation instructions available on GitHub: <https://github.com/OHDSI/WhiteRabbit>
 
-Any bugs/issues/enhancements should be posted to the GitHub repository: https://github.com/OHDSI/WhiteRabbit/issues
+Any bugs/issues/enhancements should be posted to the GitHub repository: <https://github.com/OHDSI/WhiteRabbit/issues>
 
-Any questions/comments/feedback/discussion can be posted on the OHDSI Developer Forum: http://forums.ohdsi.org/c/developers
+Any questions/comments/feedback/discussion can be posted on the OHDSI Developer Forum: <http://forums.ohdsi.org/c/developers>
 
 # Using the Application Functions
 
 ## Specifying the Location of Source Data
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreenshot.png )
+![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreenshot.png)
 
 ### Working Folder
 
@@ -58,32 +64,31 @@ The following source types are supported:
 Below are connection instructions for each data type of data source.
 Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.
 
-**Delimited text files**
+#### Delimited text files
   * **_Delimiter:_** specifies the delimiter that separates columns, default is ‘,’ and your can write ‘tab’ for tab delimited.
 
 WhiteRabbit will look for the files to scan in the same folder you set up as a working directory.
 
-**SAS**
-
+#### SAS
   * No parameters have to be provided for SAS files.
 
 WhiteRabbit will look for `.sas7bdat` files to scan in the same folder you set up as a working directory.
 
 Note that it is currently not possible to produce fake data for SAS files from a scan report.
 
-**MySQL**
+#### MySQL
   * _**Server location:**_ the name or IP address of the server running MySQL. You can also specify the port (ex: `<host>:<port>`), which defaults to 3306.
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ name of the database containing the tables
 
-**Oracle**
+#### Oracle
   * _**Server location:**_ this field contains the SID, service name, and optionally the port:  `<host>/<sid>`, `<host>:<port>/<sid>`, `<host>/< service name >`, or `<host>:<port>/<service name>`
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ this field contains the schema (i.e. 'user' in Oracle terms) containing the tables
 
-**SQL Server**
+#### SQL Server
   * _**Server location:**_ the name or IP address of the server running SQL Server. You can also specify the port (ex: `<host>:<port>`), which defaults to 1433.
   * _**User name:**_ name of the user used to log into the server. Optionally, the domain can be specified as `<domain>/<user>` (e.g. 'MyDomain/Joe')
   * _**Password:**_ password for the supplied user name
@@ -94,14 +99,14 @@ When the SQL Server JDBC drivers are installed, you can also use Windows authent
   2. Run it, thereby extracting its contents to a folder.
   3. In the extracted folder you will find the file `_sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll_` (64-bits) or `_sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll_` (32-bits), which needs to be moved to a location on the system path, for example to `c:/windows/system32`.
 
-**PostgreSQL**
+#### PostgreSQL
 
   * _**Server location:**_ this field contains the host name and database name (<host>/<database>)
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ this field contains the schema containing the source tables
 
-**Google BigQuery**
+#### Google BigQuery
 
 Google BigQuery (GBQ) supports two different connection/authentication methods -- application default credentials and service account authentication.
 The former method is considered more secure because it writes auditing events to stackdriver.

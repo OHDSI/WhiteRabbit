@@ -31,6 +31,9 @@ The typical sequence for using this software to generate documentation of an ETL
 Rabbit-In-a-Hat comes with WhiteRabbit, refer to [WhiteRabbit's installation section](WhiteRabbit.md).
 
 # Table of Contents
+{: .no_toc}
+
+1. TOC
 {:toc}
 
 # Getting Started

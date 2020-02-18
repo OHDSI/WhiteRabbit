@@ -7,6 +7,8 @@ nav_order: 1
 
 # Rabbit in a Hat testing framework
 {: .no_toc }
+
+## Introduction
 [Rabbit in a Hat](documentation:software:whiterabbit#rabbit-in-a-hat) can generate a framework for creating a set of [unit tests](https://en.wikipedia.org/wiki/Unit_testing).
 The framework consists of a set of R functions tailored to the source and target schema in your ETL.
 These functions can then be used to define the unit tests.
@@ -19,11 +21,7 @@ The testing framework can be used to insert test data into the empty source sche
 Next, you can run your ETL process on the test data to populate the test CDM database.
 Finally, you can use the framework to verify that the output of the ETL in the test CDM database is what you'd expect given the test source data.
 
-## Table of Contents
-{:toc}
-
-## Overview
-
+## Process Overview
 These are the steps to perform unit testing:
 
 1. Create the testing framework for your source and target database schemas
@@ -35,6 +33,11 @@ These are the steps to perform unit testing:
 It is advised to use [R-Studio](https://www.rstudio.com/) for defining your unit tests.
 One reason is that RStudio will automatically prompt you with possible function and argument names after you've only typed the first few characters.
 
+## Table of Contents
+{: .no_toc}
+
+1. TOC
+{:toc}
 
 ## Creating the testing framework
 
