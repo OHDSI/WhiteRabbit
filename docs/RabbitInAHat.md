@@ -8,13 +8,17 @@ has_toc: false
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:rabbitinahatlogo.png)
 
-## Introduction
-### Scope and purpose
+# Introduction
+{: .no_toc }
+
+## Scope and purpose
+{: .no_toc }
 Rabbit-In-a-Hat comes with WhiteRabbit and is designed to read and display a WhiteRabbit scan document.
 WhiteRabbit generates information about the source data while Rabbit-In-a-Hat uses that information and through a graphical user interface to allow a user to connect source data to tables and columns within the CDM.
 Rabbit-In-a-Hat generates documentation for the ETL process it does not generate code to create an ETL.
 
-### Process Overview
+## Process Overview
+{: .no_toc }
 The typical sequence for using this software to generate documentation of an ETL:
 1. Scanned results from WhiteRabbit completed
 2. Open scanned results; interface displays source tables and CDM tables
@@ -23,10 +27,14 @@ The typical sequence for using this software to generate documentation of an ETL
 5. Save Rabbit-In-a-Hat work and export to a MS Word document.
 
 ## Installation and support
+{: .no_toc }
 Rabbit-In-a-Hat comes with WhiteRabbit, refer to [WhiteRabbit's installation section](WhiteRabbit.md).
 
-## Getting Started
-### Creating a New Document
+# Table of Contents
+{:toc}
+
+# Getting Started
+## Creating a New Document
 To create a new document, navigate to _File --> Open Scan Report_.
 Use the “Open” window to browse for the scan document created by WhiteRabbit.
 When a scan report is opened, the tables scanned will appear in orange boxes on the “Source” side of the Tables.
@@ -35,10 +43,10 @@ Save the Rabbit-In-a-Hat document by going _File --> Save as_.
 
 Side note: the minimal requirement for a valid scan report is to have the following named columns in the *first* sheet: 'Table', 'Field', 'N rows' (numeric) and 'N rows checked' (numeric).
 
-### Open an Existing Document
+## Open an Existing Document
 To open an existing Rabbit-In-a-Hat document use _File --> Open ETL specs_.
 
-### Selecting Desired CDM Version
+## Selecting Desired CDM Version
 Rabbit-In-a-Hat allows you to select which CDM version (v4, v5 or v6) you'd like to built your ETL specification against.
 
 See the graphic below for how to select your desired CDM:
@@ -51,7 +59,7 @@ When a new CDM is selected, Rabbit-In-a-Hat will drop any mappings if the mappin
 For instance, switching from CDMv4 to CDMv5, a mapping from source to CDM person.person_source_value will be kept because the person table has person_source_value in both CDMv4 and CDMv5.
 However, person.assocaited_provider_id exists only in CDMv4 and has been renamed to [person.provider_id in CDMv5](http://www.ohdsi.org/web/wiki/doku.php?id=documentation:cdm:person) and so that mapping will not be kept when switching between these two CDMs.
 
-### Loading in a Custom CDM
+## Loading in a Custom CDM
 There are times when users might need to load in a customized version of the CDM, for instance if they are sandboxing new features.
 To load in a custom CDM schema, first you must create a CSV file that uses the same format as [the existing CDMv5 schema file](https://github.com/OHDSI/WhiteRabbit/blob/master/src/org/ohdsi/rabbitInAHat/dataModel/CDMV5.csv).
 
@@ -61,7 +69,7 @@ Once you have created the CSV file, load it into RiaH as shown below:
 
 Please note that the name of the file you load in becomes the label that appears above the target tables, so "My Super File.csv" will create the label "My Super File" above the target tables, so name your CSV accordingly.
 
-### Stem table
+## Stem table
 In some cases a source domains maps to multiple OMOP CDM target domains. 
 For example lab values that map to both the measurement and observation domain. 
 Using the stem table will remove some overhead of repeating the mapping for every target and will also ease implementation (see below).
@@ -84,7 +92,7 @@ The [OMOP CDM Data Model Conventions](https://github.com/OHDSI/CommonDataModel/w
 Removing the stem table can be done through _Edit --> Remove stem table_. 
 Note that this will remove any mappings already made to/from the stem table.
  
-### Concept id hints (_v0.9.0_)
+## Concept id hints (_v0.9.0_)
 A number of CDM fields have a limited number of standard concept_id(s) that can be used. 
 Examples are: `gender_concept_id`, `_type_concept_id`'s, `route_concept_id` and `visit_concept_id`.
 To help choosing the right concept_id during ETL design, Rabbit-In-a-Hat shows the list of possible concept ids of a CDM field
@@ -96,7 +104,7 @@ when clicking on a target field. Note that all standard and non-standard target 
 The concept id hints are stored statically in [a csv file](https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel/CDMConceptIDHints_v5.0_MAR-18.csv) and are not automatically updated.
 The [code used to create the aforementioned csv file](https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel/concept_id_hint_select.sql) is also included in the repo.
 
-## Connecting Source Tables to CDM Tables
+# Connecting Source Tables to CDM Tables
 It is assumed that the owners of the source data should be able to provide detail of what the data table contains, Rabbit-In-a-Hat will describe the columns within the table but will not provide the context a data owner should provide.
 For the CDM tables, if more information is needed navigate to the [OMOP CDM wiki](https://github.com/ohdsi/commondatamodel/wiki) and review the current OMOP specification.
 
@@ -118,7 +126,7 @@ Continue this process until all tables that are needed to build a CDM are mapped
 One source table can map to multiple CDM tables and one CDM table can receive multiple mappings.
 There may be tables in the source data that should not be map into the CDM and there may be tables in the CDM that cannot be populated from the source data.
 
-## Connecting Source Fields to CDM Fields
+# Connecting Source Fields to CDM Fields
 By double clicking on an arrow connecting a source and CDM table, it will open a _Fields_ pane below the arrow selected.
 The _Fields_ pane will have all the source table and CDM fields and is meant to make the specific column mappings between tables.
 Hovering over a source table will generate an arrow head that can then be selected and dragged to its corresponding CDM field. For example, in the _drug_claims_ to _drug_exposure_ table mapping example, the source data owners know that _patient_id_ is the patient identifier and corresponds to the _CDM.person_id_. Also, just as before, the arrow can be selected and _Logic_ and _Comments_ can be added.
@@ -135,7 +143,7 @@ Continue this process until all source columns necessary in all mapped tables ha
 Not all columns must be mapped into a CDM column and not all CDM columns require a mapping.
 One source column may supply information to multiple CDM columns and one CDM column can receive information from multiple columns.
 
-## Generating an ETL Document
+# Generating an ETL Document
 To generate an ETL MS Word document use _File --> Generate ETL document --> Generate ETL Word document_ and select a location to save.
 The ETL document can also be exported to markdown or html.
 In this case, a file per target table is created and you will be prompted to select a folder.
@@ -149,11 +157,11 @@ Once the document is completed, this should be shared with the individuals who p
 The markdown and html format enable easy publishing as a web page on e.g. Github.
 A good example is the [Synthea ETL documentation](https://ohdsi.github.io/ETL-Synthea/).
 
-## Generating a testing framework
+# Generating a testing framework
 To make sure the ETL process is working as specified, it is highly recommended to create [unit tests](https://en.wikipedia.org/wiki/Unit_testing) that evaluate the behavior of the ETL process.
 To efficiently create a set of unit tests Rabbit-in-a-Hat can [generate a testing framework](riah_test_framework.md).
 
-## Generating a SQL skeleton (_v0.9.0_)
+# Generating a SQL skeleton (_v0.9.0_)
 The step after documenting your ETL process is to implement it in an ETL framework of your choice.
 As many implementations involve SQL, Rabbit-In-a-Hat provides a convenience function to export your design to 
 a SQL skeleton. This contains all field to field mappings, with logic/descriptions as comments, as non-functional pseudo-code.

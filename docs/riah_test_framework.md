@@ -3,10 +3,10 @@ layout: default
 title: Testing Framework
 parent: Rabbit in a Hat
 nav_order: 1
-------------
+---
 
 # Rabbit in a Hat testing framework
-
+{: .no_toc }
 [Rabbit in a Hat](documentation:software:whiterabbit#rabbit-in-a-hat) can generate a framework for creating a set of [unit tests](https://en.wikipedia.org/wiki/Unit_testing).
 The framework consists of a set of R functions tailored to the source and target schema in your ETL.
 These functions can then be used to define the unit tests.
@@ -19,6 +19,7 @@ The testing framework can be used to insert test data into the empty source sche
 Next, you can run your ETL process on the test data to populate the test CDM database.
 Finally, you can use the framework to verify that the output of the ETL in the test CDM database is what you'd expect given the test source data.
 
+## Table of Contents
 {:toc}
 
 ## Overview

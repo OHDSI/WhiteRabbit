@@ -16,6 +16,6 @@ The following lists best practices in using WhiteRabbit and Rabbit-In-a-Hat to m
     * Derived CDM tables, like DRUG_ERA, typically will not receive a mapping from the source data because they are generated off the CDM table (in this case DRUG_ERA is generated off DRUG_EXPOSURE).
 
 References:
-* ETL implementation best practices: https://www.ohdsi.org/web/wiki/doku.php?id=documentation:etl_best_practices
-* Example ETLs: https://www.ohdsi.org/web/wiki/doku.php?id=documentation:example_etls
-* Ask your ETL questions on the implementers forum: https://forums.ohdsi.org/c/implementers
+* ETL implementation best practices: <https://www.ohdsi.org/web/wiki/doku.php?id=documentation:etl_best_practices>
+* Example ETLs: <https://www.ohdsi.org/web/wiki/doku.php?id=documentation:example_etls>
+* Ask your ETL questions on the implementers forum: <https://forums.ohdsi.org/c/implementers>

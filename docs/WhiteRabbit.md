@@ -6,9 +6,9 @@ nav_order: 2
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitlogo.png )
 
-## Introduction
+# Introduction
 
-### Scope and purpose
+## Scope and purpose
 
 WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](documentation:cdm:single-page).
 The source data can be in comma-separated text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery).
@@ -18,7 +18,7 @@ WhiteRabbit’s main function is to perform a scan of the source data, providing
 This scan will generate a report that can be used as a reference when designing the ETL, for instance by using the Rabbit-In-a-Hat tool.
 White Rabbit differs from standard data profiling tools in that it attempts to prevent the display of personally identifiable information (PII) data values in the generated output data file.
 
-### Process Overview
+## Process Overview
 
 The typical sequence for using this software to scan source data in preparation of developing an ETL into an OMOP CDM:
 1. Set working folder, the location on the local desktop computer where results will be exported.
@@ -28,7 +28,10 @@ The typical sequence for using this software to scan source data in preparation 
 
 Once the scan report is created, this report can then be used in the Rabbit-In-a-Hat tool or as a stand-alone data profiling document.
 
-## Installation and support
+# Table of Contents
+{:toc}
+
+# Installation and support
 
 All source code and installation instructions available on GitHub: https://github.com/OHDSI/WhiteRabbit
 
@@ -36,18 +39,18 @@ Any bugs/issues/enhancements should be posted to the GitHub repository: https://
 
 Any questions/comments/feedback/discussion can be posted on the OHDSI Developer Forum: http://forums.ohdsi.org/c/developers
 
-## Using the Application Functions
+# Using the Application Functions
 
-### Specifying the Location of Source Data
+## Specifying the Location of Source Data
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreenshot.png )
 
-#### Working Folder
+### Working Folder
 
 Any files that WhiteRabbit creates will be exported to this local folder.
 Use the “Pick Folder” button to navigate in your local environment where you would like the scan document to go.
 
-#### Source Data
+### Source Data
 
 Here you can specify the location of the source data.
 The following source types are supported:
@@ -121,9 +124,9 @@ Authentication via service account credentials:
   * _**Database name:**_ data set name within ProjectID named in Server location field
 
 
-### Scanning a Database
+## Scanning a Database
 
-#### Performing the Scan
+### Performing the Scan
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreen-scan.png )
 
@@ -140,7 +143,7 @@ There are a few setting options as well with the scan:
 
 Once all settings are completed, press the “Scan tables” button. After the scan is completed the report will be written to the working folder.
 
-#### Running from the command line
+### Running from the command line
 
 For various reasons one could prefer to run WhiteRabbit from the command line.
 This is possible by specifying all the options one would normally select in the user interface in an .ini file.
@@ -149,7 +152,7 @@ Then, we can reference the ini file when calling WhiteRabbit from the command li
 
 ```java -jar WhiteRabbit.jar -ini WhiteRabbit.ini```
 
-#### Reading the Scan
+### Reading the Scan
 
 After the scan is completed, a “ScanReport” Excel document will be created in the working folder location selected earlier.
 The document will have multiple tabs, one as an “Overview” and then one tab for each database table or delimited text files selected for the scan.
@@ -185,7 +188,7 @@ However these two values (1 & 2) are not the only values present in the data bec
 These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values.
 When generating an ETL we should not only plan to handle the high-frequency gender concepts 1 and 2 but the other low-frequency values that exist within this column.
 
-### Generating Fake Data
+## Generating Fake Data
 This feature allows one to create a fake dataset based on a WhiteRabbit scan report.
 Fake data can be generated outputted directly to database tables or as csv.
 The resulting dataset could be used to develop ETL code when direct access to the data is not available.
