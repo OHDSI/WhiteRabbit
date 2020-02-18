@@ -1,3 +1,8 @@
+---
+layout: default
+title: Best Practices
+nav_order: 4
+---
 
 # Best Practices
 The following lists best practices in using WhiteRabbit and Rabbit-In-a-Hat to manage your ETL documentation process:

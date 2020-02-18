@@ -1,5 +1,10 @@
-
-# Rabbit-In-a-Hat
+---
+layout: default
+title: Rabbit in a Hat
+nav_order: 3
+has_children: true
+has_toc: false
+---
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:rabbitinahatlogo.png)
 

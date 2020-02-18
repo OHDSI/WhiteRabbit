@@ -1,3 +1,9 @@
+---
+layout: default
+title: Testing Framework
+parent: Rabbit in a Hat
+nav_order: 1
+------------
 
 # Rabbit in a Hat testing framework
 
@@ -13,6 +19,7 @@ The testing framework can be used to insert test data into the empty source sche
 Next, you can run your ETL process on the test data to populate the test CDM database.
 Finally, you can use the framework to verify that the output of the ETL in the test CDM database is what you'd expect given the test source data.
 
+{:toc}
 
 ## Overview
 
@@ -132,14 +139,14 @@ target_coverage (%)            2.22
 ```
 
 Statistics:
- * n_tests: total number of expects, expect_no's or expect_counts are defined
- * n_cases: total number of cases defined with `declareTest` function.
- * n_source_fields_tested: number of source fields for which a test data is defined
- * n_source_fields_mapped_from: number of source fields for which a mapping was defined in Rabbit in a Hat
- * source_coverage: percentage of mapped source fields for which a test has been defined
- * n_target_fields_tested: number of target fields for which one or more expects, expect_no's or expect_counts have been defined
- * n_target_fields_mapped_to: number of target fields for which a mapping was defined in Rabbit in a Hat
- * target_coverage: percentage of mapped target fields for which a test has been defined
+ * `n_tests`: total number of expects, expect_no's or expect_counts are defined
+ * `n_cases`: total number of cases defined with `declareTest` function.
+ * `n_source_fields_tested`: number of source fields for which a test data is defined
+ * `n_source_fields_mapped_from`: number of source fields for which a mapping was defined in Rabbit in a Hat
+ * `source_coverage`: percentage of mapped source fields for which a test has been defined
+ * `n_target_fields_tested`: number of target fields for which one or more expects, expect_no's or expect_counts have been defined
+ * `n_target_fields_mapped_to`: number of target fields for which a mapping was defined in Rabbit in a Hat
+ * `target_coverage`: percentage of mapped target fields for which a test has been defined
 
 Note that the mapping coverages depends on the mappings defined in Rabbit in a Hat.
 If this mapping is incomplete or adjusted in the meantime, the `target_coverage` is possibly incorrect.

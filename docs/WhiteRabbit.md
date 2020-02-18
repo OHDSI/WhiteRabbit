@@ -4,8 +4,6 @@ title: White Rabbit
 nav_order: 2
 ---
 
-# WhiteRabbit
-
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitlogo.png )
 
 ## Introduction
