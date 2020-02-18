@@ -22,10 +22,10 @@ Screenshots
 <table border = "">
 <tr valign="top">
 <td width = 50%>
-  <img src="https://github.com/OHDSI/WhiteRabbit/blob/master/man/WRScreenshot.png" alt="White Rabbit" title="White Rabbit" />
+  <img src="https://github.com/OHDSI/WhiteRabbit/blob/master/docs/images/WRScreenshot.png" alt="White Rabbit" title="White Rabbit" />
 </td>
 <td width = 50%>
- <img src="https://github.com/OHDSI/WhiteRabbit/blob/master/man/RIAHScreenshot.png" alt="Rabbit in a Hat" title="Rabbit in a Hat" />
+ <img src="https://github.com/OHDSI/WhiteRabbit/blob/master/docs/images/RIAHScreenshot.png" alt="Rabbit in a Hat" title="Rabbit in a Hat" />
 </td>
 </tr><tr>
 <td>White Rabbit</td><td>Rabbit in a Hat</td>
