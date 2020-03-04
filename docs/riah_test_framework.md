@@ -9,7 +9,7 @@ nav_order: 1
 {: .no_toc }
 
 ## Introduction
-[Rabbit in a Hat](documentation:software:whiterabbit#rabbit-in-a-hat) can generate a framework for creating a set of [unit tests](https://en.wikipedia.org/wiki/Unit_testing).
+Rabbit in a Hat can generate a framework for creating a set of [unit tests](https://en.wikipedia.org/wiki/Unit_testing).
 The framework consists of a set of R functions tailored to the source and target schema in your ETL.
 These functions can then be used to define the unit tests.
 

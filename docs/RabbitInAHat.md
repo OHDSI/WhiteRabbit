@@ -60,7 +60,7 @@ By default, Rabbit-In-a-Hat will attempt to pereserve as many mappings between t
 When a new CDM is selected, Rabbit-In-a-Hat will drop any mappings if the mapping's CDM table or CDM column name no longer exist
 
 For instance, switching from CDMv4 to CDMv5, a mapping from source to CDM person.person_source_value will be kept because the person table has person_source_value in both CDMv4 and CDMv5.
-However, person.assocaited_provider_id exists only in CDMv4 and has been renamed to [person.provider_id in CDMv5](http://www.ohdsi.org/web/wiki/doku.php?id=documentation:cdm:person) and so that mapping will not be kept when switching between these two CDMs.
+However, person.associated_provider_id exists only in CDMv4 and has been renamed to [person.provider_id in CDMv5](https://github.com/OHDSI/CommonDataModel/wiki/PERSON) and so that mapping will not be kept when switching between these two CDMs.
 
 ## Loading in a Custom CDM
 There are times when users might need to load in a customized version of the CDM, for instance if they are sandboxing new features.

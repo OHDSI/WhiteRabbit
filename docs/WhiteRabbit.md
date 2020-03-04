@@ -12,7 +12,7 @@ nav_order: 2
 ## Scope and purpose
 {: .no_toc}
 
-WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](documentation:cdm:single-page).
+WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](https://github.com/OHDSI/CommonDataModel/wiki).
 The source data can be in comma-separated text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery).
 Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Microsoft APS, Amazon RedShift, Google BigQuery, Impala).
 

@@ -84,8 +84,8 @@ import org.ohdsi.whiteRabbit.scan.SourceDataScan;
  */
 public class WhiteRabbitMain implements ActionListener {
 
-	public final static String	WIKI_URL						= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit";
-	public final static String	ACTION_CMD_HELP					= "Open help Wiki";
+	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit";
+	public final static String ACTION_CMD_HELP = "Open documentation";
 
 	private JFrame				frame;
 	private JTextField			folderField;
@@ -1081,16 +1081,16 @@ public class WhiteRabbitMain implements ActionListener {
 	public void actionPerformed(ActionEvent event) {
 		switch (event.getActionCommand()) {
 			case ACTION_CMD_HELP:
-				doOpenWiki();
+				doOpenDocumentation();
 				break;
 
 		}
 	}
 
-	private void doOpenWiki() {
+	private void doOpenDocumentation() {
 		try {
 			Desktop desktop = Desktop.getDesktop();
-			desktop.browse(new URI(WIKI_URL));
+			desktop.browse(new URI(DOCUMENTATION_URL));
 		} catch (URISyntaxException | IOException ex) {
 
 		}
