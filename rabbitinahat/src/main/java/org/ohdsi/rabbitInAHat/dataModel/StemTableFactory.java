@@ -47,9 +47,8 @@ public class StemTableFactory {
 		try {
 			Table sourceStemTable = new Table();
 			sourceStemTable.setStem(true);
+			sourceStemTable.setName("STEM");
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(tableStream))) {
-				if (sourceStemTable.getName() == null)
-					sourceStemTable.setName(row.get("TABLE_NAME").toLowerCase());
 				Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), sourceStemTable);
 				field.setNullable(row.get("IS_NULLABLE").equals("YES"));
 				field.setType(row.get("DATA_TYPE"));

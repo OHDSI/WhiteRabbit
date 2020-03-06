@@ -58,6 +58,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	public static int				ITEM_HEIGHT					= 50;
 	public static int				ITEM_WIDTH					= 200;
+	public static int				STEM_ITEM_WIDTH				= 100;
 	public static int				MARGIN						= 10;
 	public static int				HEADER_HEIGHT				= 25;
 	public static int				HEADER_TOP_MARGIN			= 0;
@@ -67,6 +68,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	private int						sourceX						= 10;
 	private int						cdmX						= 200;
+	private int						sourceStemX					= 105;
+	private int						targetStemX					= 105;
 
 	private Mapping<?>				mapping;
 	private List<LabeledRectangle>	sourceComponents			= new ArrayList<LabeledRectangle>();
@@ -162,14 +165,14 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		for (MappableItem item : mapping.getSourceItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				if (item.isStem())
-					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
+					sourceComponents.add(new LabeledRectangle(0, 400, STEM_ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
 				else
 					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0)));
 			}
 		for (MappableItem item : mapping.getTargetItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				if (item.isStem())
-					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
+					cdmComponents.add(new LabeledRectangle(0, 400, STEM_ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
 				else
 					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255)));
 			}
@@ -234,6 +237,16 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		int y = HEADER_HEIGHT + HEADER_TOP_MARGIN;
 		for (int i = 0; i < components.size(); i++) {
 			LabeledRectangle item = components.get(i);
+
+			if (item.getItem().isStem()) {
+				if (xpos == cdmX) {
+					item.setLocation(targetStemX, HEADER_HEIGHT + HEADER_TOP_MARGIN);
+				} else {
+					item.setLocation(sourceStemX, HEADER_HEIGHT + HEADER_TOP_MARGIN);
+				}
+				continue;
+			}
+
 			if (y > avoidY - ITEM_HEIGHT && y <= avoidY + MARGIN)
 				y += MARGIN + ITEM_HEIGHT;
 
@@ -241,8 +254,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				item.setLocation(xpos, y);
 				y += MARGIN + ITEM_HEIGHT;
 			}
-
 		}
+
 	}
 
 	public Dimension getMinimumSize() {
@@ -265,6 +278,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void setSize(int width, int height) {
 		sourceX = MARGIN;
 		cdmX = width - MARGIN - ITEM_WIDTH;
+		targetStemX = (sourceX + cdmX) / 2;
+		sourceStemX = (sourceX + cdmX) / 2 + STEM_ITEM_WIDTH;
 
 		layoutItems();
 		super.setSize(width, height);
@@ -587,8 +602,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			dragRectangle = null;
 			layoutItems();
 		} else if (dragArrow != null) { // dragging arrow to set source and target
-			if (event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX + ITEM_WIDTH)
-
+			boolean arrowInCdm = event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX + ITEM_WIDTH;
+			boolean arrowInStem = event.getX() > targetStemX - ARROW_START_WIDTH && event.getX() < targetStemX + STEM_ITEM_WIDTH;
+			if (arrowInCdm || arrowInStem) {
 				for (LabeledRectangle component : getVisibleRectangles(cdmComponents)) {
 					if (component.contains(event.getPoint(), ARROW_START_WIDTH, 0)) {
 						dragArrow.setTarget(component);
@@ -601,6 +617,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 						break;
 					}
 				}
+			}
 			if (dragArrowPreviousTarget != null && dragArrow.getTarget() != dragArrowPreviousTarget) { // Retargeted an existing arrow, remove old map from
 																										// model
 				mapping.removeSourceToTargetMap(dragArrow.getSource().getItem(), dragArrowPreviousTarget.getItem());
