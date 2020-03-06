@@ -16,7 +16,7 @@ import org.ohdsi.utilities.collections.Pair;
 
 public class StemTableFactory {
 
-	private static final String STEM_TABLE_NAME = "STEM";
+	private static final String STEM_TABLE_NAME = "stem_table";
 
 	public static void addStemTable(ETL etl) {
 		Database sourceDatabase = etl.getSourceDatabase();
