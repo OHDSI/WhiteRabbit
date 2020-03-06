@@ -16,6 +16,8 @@ import org.ohdsi.utilities.collections.Pair;
 
 public class StemTableFactory {
 
+	private static final String STEM_TABLE_NAME = "STEM";
+
 	public static void addStemTable(ETL etl) {
 		Database sourceDatabase = etl.getSourceDatabase();
 		Database targetDatabase = etl.getTargetDatabase();
@@ -47,7 +49,7 @@ public class StemTableFactory {
 		try {
 			Table sourceStemTable = new Table();
 			sourceStemTable.setStem(true);
-			sourceStemTable.setName("STEM");
+			sourceStemTable.setName(STEM_TABLE_NAME);
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(tableStream))) {
 				Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), sourceStemTable);
 				field.setNullable(row.get("IS_NULLABLE").equals("YES"));
@@ -56,7 +58,6 @@ public class StemTableFactory {
 				field.setStem(true);
 				sourceStemTable.getFields().add(field);
 			}
-			sourceStemTable.setDb(sourceDatabase);
 			sourceDatabase.getTables().add(sourceStemTable);
 			Table targetStemTable = new Table(sourceStemTable);
 			targetStemTable.setDb(targetDatabase);

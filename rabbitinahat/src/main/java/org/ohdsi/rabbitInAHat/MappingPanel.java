@@ -56,15 +56,16 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	private static final long		serialVersionUID			= 4589294949568810155L;
 
-	public static int				ITEM_HEIGHT					= 50;
-	public static int				ITEM_WIDTH					= 200;
-	public static int 				STEM_TABLE_ITEM_WIDTH 		= 80;
-	public static int				MARGIN						= 10;
-	public static int				HEADER_HEIGHT				= 25;
-	public static int				HEADER_TOP_MARGIN			= 0;
-	public static int				MIN_SPACE_BETWEEN_COLUMNS	= 200;
-	public static int				ARROW_START_WIDTH			= 50;
-	public static int				BORDER_HEIGHT				= 25;
+	public static final int				ITEM_HEIGHT					= 50;
+	public static final int				ITEM_WIDTH					= 200;
+	public static final int 			STEM_ITEM_WIDTH 			= 80;
+	public static final int				MARGIN						= 10;
+	public static final int				HEADER_HEIGHT				= 25;
+	public static final int				HEADER_TOP_MARGIN			= 0;
+	public static final int				MIN_SPACE_BETWEEN_COLUMNS	= 200;
+	public static final int				ARROW_START_WIDTH			= 50;
+	public static final int				BORDER_HEIGHT				= 25;
+	public static final int 			STEM_TABLE_MARGIN           = 0;
 
 	private int						sourceX						= 10;
 	private int						cdmX						= 200;
@@ -165,14 +166,14 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		for (MappableItem item : mapping.getSourceItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				if (item.isStem())
-					sourceComponents.add(new LabeledRectangle(0, 400, item instanceof Table ? STEM_TABLE_ITEM_WIDTH : ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
+					sourceComponents.add(new LabeledRectangle(0, 400, item instanceof Table ? STEM_ITEM_WIDTH : ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
 				else
 					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0)));
 			}
 		for (MappableItem item : mapping.getTargetItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				if (item.isStem())
-					cdmComponents.add(new LabeledRectangle(0, 400, item instanceof Table ? STEM_TABLE_ITEM_WIDTH : ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
+					cdmComponents.add(new LabeledRectangle(0, 400, item instanceof Table ? STEM_ITEM_WIDTH : ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
 				else
 					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255)));
 			}
@@ -235,14 +236,17 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		if (dragRectangle != null && dragRectangle.getX() == xpos)
 			avoidY = dragRectangle.getY();
 		int y = HEADER_HEIGHT + HEADER_TOP_MARGIN;
+		if (ObjectExchange.etl.hasStemTable()) {
+			// Move all non-stem items
+			y = HEADER_TOP_MARGIN + ITEM_HEIGHT;
+		}
 		for (LabeledRectangle component : components) {
-
 			// Exception for laying out the stem table
 			if (component.getItem().isStem() && component.getItem() instanceof Table) {
 				if (xpos == cdmX) { // is target item
-					component.setLocation(targetStemX, HEADER_HEIGHT + HEADER_TOP_MARGIN);
+					component.setLocation(targetStemX, HEADER_TOP_MARGIN);
 				} else { // is source item
-					component.setLocation(sourceStemX, HEADER_HEIGHT + HEADER_TOP_MARGIN);
+					component.setLocation(sourceStemX, HEADER_TOP_MARGIN);
 				}
 				continue;
 			}
@@ -279,8 +283,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void setSize(int width, int height) {
 		sourceX = MARGIN;
 		cdmX = width - MARGIN - ITEM_WIDTH;
-		targetStemX = (sourceX + cdmX) / 2;
-		sourceStemX = (sourceX + cdmX) / 2 + STEM_TABLE_ITEM_WIDTH;
+
+		targetStemX = (sourceX + cdmX + ITEM_WIDTH) / 2 - STEM_ITEM_WIDTH - STEM_TABLE_MARGIN;
+		sourceStemX = (sourceX + cdmX + ITEM_WIDTH) / 2 + STEM_TABLE_MARGIN;
 
 		layoutItems();
 		super.setSize(width, height);
@@ -391,9 +396,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		}
 
 		boolean clickInSource = event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH;
-		boolean clickInSourceStem = event.getX() > sourceStemX && event.getX() < sourceStemX + STEM_TABLE_ITEM_WIDTH;
+		boolean clickInSourceStem = event.getX() > sourceStemX && event.getX() < sourceStemX + STEM_ITEM_WIDTH;
 		boolean clickInTarget = event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH;
-		boolean clickInTargetStem = event.getX() > targetStemX && event.getX() < targetStemX + STEM_TABLE_ITEM_WIDTH;
+		boolean clickInTargetStem = event.getX() > targetStemX && event.getX() < targetStemX + STEM_ITEM_WIDTH;
 		boolean clickInArrow = event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX;
 
 		if (clickInSource || clickInSourceStem) {
@@ -611,7 +616,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			layoutItems();
 		} else if (dragArrow != null) { // dragging arrow to set source and target
 			boolean arrowInCdm = event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX + ITEM_WIDTH;
-			boolean arrowInStem = event.getX() > targetStemX - ARROW_START_WIDTH && event.getX() < targetStemX + STEM_TABLE_ITEM_WIDTH;
+			boolean arrowInStem = event.getX() > targetStemX - ARROW_START_WIDTH && event.getX() < targetStemX + STEM_ITEM_WIDTH;
 			if (arrowInCdm || arrowInStem) {
 				for (LabeledRectangle component : getVisibleRectangles(cdmComponents)) {
 					if (component.contains(event.getPoint(), ARROW_START_WIDTH, 0)) {
