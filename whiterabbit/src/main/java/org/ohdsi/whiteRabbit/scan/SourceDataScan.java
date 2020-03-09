@@ -412,8 +412,7 @@ public class SourceDataScan {
 				fieldInfo.label = column.getLabel();
 				fieldInfo.rowCount = sasFileProperties.getRowCount();
 				if (!scanValues) {
-					// Note: type given by sas parser is either NUMBER or STRING.
-					// If scanning values, this produces a more granular type.
+					// Either NUMBER or STRING; scanning values produces a more granular type and is preferred
 					fieldInfo.type = column.getType().getName().replace("java.lang.", "");
 				}
 				fieldInfos.add(fieldInfo);
@@ -423,7 +422,7 @@ public class SourceDataScan {
 				Object[] row = sasFileReader.readNext();
 
 				if (row.length != fieldInfos.size()) {
-					// A formatting error, skip
+					StringUtilities.outputWithTime("WARNING: row " + lineNr + " not scanned due to field count mismatch.");
 					continue;
 				}
 
@@ -434,7 +433,6 @@ public class SourceDataScan {
 				if (lineNr == sampleSize)
 					break;
 			}
-			inputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
