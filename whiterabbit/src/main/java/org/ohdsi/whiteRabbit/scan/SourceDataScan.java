@@ -47,6 +47,8 @@ import org.ohdsi.utilities.collections.Pair;
 import org.ohdsi.utilities.files.ReadTextFile;
 import org.ohdsi.whiteRabbit.DbSettings;
 
+import static java.lang.Long.max;
+
 public class SourceDataScan {
 
 	public static int	MAX_VALUES_IN_MEMORY				= 100000;
@@ -158,6 +160,27 @@ public class SourceDataScan {
 
 		sheetNameLookup = new HashMap<>();
 		createOverviewSheet(workbook, tableToFieldInfos);
+
+		// Create table overview sheet
+		Sheet tableOverviewSheet = workbook.createSheet("Table Overview");
+
+		// Table level summary statistics
+		addRow(tableOverviewSheet, "Table", "Alias", "Description", "N rows", "N rows checked", "N Fields", "N Fields Empty");
+		for (String tableName : tableToFieldInfos.keySet()) {
+			long rowCount = -1;
+			long rowCheckedCount = -1;
+			long nFields = 0;
+			long nFieldsEmpty = 0;
+			for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
+				rowCount = max(rowCount, fieldInfo.rowCount);
+				rowCheckedCount = max(rowCheckedCount, fieldInfo.nProcessed);
+				nFields += 1;
+				if (scanValues) {
+					nFieldsEmpty += fieldInfo.getFractionEmpty() == 1 ? 1 : 0;
+				}
+			}
+			addRow(tableOverviewSheet, tableName, "", "", rowCount, rowCheckedCount, nFields, scanValues ? nFieldsEmpty : "");
+		}
 
 		if (scanValues) {
 			createValueSheet(workbook, tableToFieldInfos);
@@ -295,7 +318,7 @@ public class SourceDataScan {
 				addRow(valueSheet, row);
 			}
 			// Save some memory by dereferencing tables already included in the report:
-			tableToFieldInfos.remove(tableName);
+			tableToFieldInfos.remove(tableName);  // Disabled for generation of table overview sheet.
 		}
 	}
 
