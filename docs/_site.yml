@@ -1,0 +1,28 @@
+name: "OHDSI White Rabbit"
+output_dir: "."
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    css: style.css
+    includes:
+      in_header: "images/favicon.html"
+exclude: ["ReadMe.md"]
+navbar:
+  title: '<div><img src="images/ohdsi16x16.png"></img> OHDSI White Rabbit</div>'  
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "White Rabbit"
+      icon: fa-cube
+      href: WhiteRabbit.html
+    - text: "Rabbit In A Hat"
+      icon: fa-clipboard-check
+      href: RabbitInAHat.html  
+    - text: "Test Framework"
+      icon: fa-pen-alt
+      href: riah_test_framework.html
+    - text: "Best Practices"
+      icon: fa-life-ring
+      href: best_practices.html   
