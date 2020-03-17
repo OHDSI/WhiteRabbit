@@ -1,10 +1,7 @@
 ---
-layout: default
 title: Best Practices
-nav_order: 4
 ---
 
-# Best Practices
 The following lists best practices in using WhiteRabbit and Rabbit-In-a-Hat to manage your ETL documentation process:
   * **Overall Process:**
     * When going through the ETL exercise, it is critical to get all key stakeholders in the room such as the data owners and individuals who plan to perform/manage research using the CDM. We have found different stakeholders have different perspectives on source data and the conversation that occurs improves the ETL process.

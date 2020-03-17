@@ -1,18 +1,12 @@
 ---
-layout: default
 title: White Rabbit
-nav_order: 2
 ---
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitlogo.png )
 
 # Introduction
-{: .no_toc}
-
 ## Scope and purpose
-{: .no_toc}
-
-WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](documentation:cdm:single-page).
+WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](www.github.com/OHDSI/CommonDataModel/wiki).
 The source data can be in comma-separated text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery).
 Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Microsoft APS, Amazon RedShift, Google BigQuery, Impala).
 
@@ -21,8 +15,6 @@ This scan will generate a report that can be used as a reference when designing 
 White Rabbit differs from standard data profiling tools in that it attempts to prevent the display of personally identifiable information (PII) data values in the generated output data file.
 
 ## Process Overview
-{: .no_toc}
-
 The typical sequence for using this software to scan source data in preparation of developing an ETL into an OMOP CDM:
 1. Set working folder, the location on the local desktop computer where results will be exported.
 2. Connect to the source database or CSV text file and test connection.
@@ -30,12 +22,6 @@ The typical sequence for using this software to scan source data in preparation 
 4. WhiteRabbit creates an export of information about the source data.
 
 Once the scan report is created, this report can then be used in the Rabbit-In-a-Hat tool or as a stand-alone data profiling document.
-
-# Table of Contents
-{: .no_toc}
-
-1. TOC
-{:toc}
 
 # Installation and support
 

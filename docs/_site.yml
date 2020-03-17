@@ -12,7 +12,8 @@ exclude: ["ReadMe.md"]
 navbar:
   title: '<div><img src="images/ohdsi16x16.png"></img> OHDSI White Rabbit</div>'  
   left:
-    - icon: fa-home
+    - text: "Home"
+      icon: fa-home
       href: index.html
     - text: "White Rabbit"
       icon: fa-cube

@@ -1,14 +1,8 @@
 ---
-layout: default
-title: Testing Framework
-parent: Rabbit in a Hat
-nav_order: 1
+title: Rabbit in a Hat testing framework
 ---
 
-# Rabbit in a Hat testing framework
-{: .no_toc }
-
-## Introduction
+# Introduction
 [Rabbit in a Hat](documentation:software:whiterabbit#rabbit-in-a-hat) can generate a framework for creating a set of [unit tests](https://en.wikipedia.org/wiki/Unit_testing).
 The framework consists of a set of R functions tailored to the source and target schema in your ETL.
 These functions can then be used to define the unit tests.
@@ -21,7 +15,7 @@ The testing framework can be used to insert test data into the empty source sche
 Next, you can run your ETL process on the test data to populate the test CDM database.
 Finally, you can use the framework to verify that the output of the ETL in the test CDM database is what you'd expect given the test source data.
 
-## Process Overview
+# Process Overview
 These are the steps to perform unit testing:
 
 1. Create the testing framework for your source and target database schemas
@@ -33,20 +27,14 @@ These are the steps to perform unit testing:
 It is advised to use [R-Studio](https://www.rstudio.com/) for defining your unit tests.
 One reason is that RStudio will automatically prompt you with possible function and argument names after you've only typed the first few characters.
 
-## Table of Contents
-{: .no_toc}
-
-1. TOC
-{:toc}
-
-## Creating the testing framework
+# Creating the testing framework
 
 In Rabbit in a Hat, have your ETL specifications open.
 The source data schema should be loaded from the White-Rabbit scan report, and the target data schema should be selected (usually the OMOP CDM v5).
 Go to _File → Generate ETL Test Framework_, and use a file name with the .R extension, for example `MyTestFrameWork.R`.
 
 
-## Defining unit tests using the framework
+# Defining unit tests using the framework
 
 Next, create an empty R script, and start by sourcing the R file that was just created:
 
@@ -57,7 +45,7 @@ source("MyTestFrameWork.R")
 Be sure to run this command immediately to make the function definitions available to R-Studio.
 
 
-### Available functions
+## Available functions
 
 The test framework defines the following functions **for each table in the source schema**:
 * `get_defaults_<table name>` shows the default field values that will be used when creating a record in the table. At the start, these default values have been taken from the White-Rabbit scan report, using the most frequent value.
@@ -74,7 +62,7 @@ One further function is available:
 * `declareTest` is used to group multiple statements under a single identifier. For example `declareTest(id = 1, description = "Test person ID")`.
 
 
-### Defining unit tests
+## Defining unit tests
 
 Using these functions, we can define tests.
 Here is an example unit test:
@@ -100,7 +88,7 @@ For examples of a full set of test definitions, see:
 * [HCUP unit tests](https://github.com/OHDSI/JCdmBuilder/blob/master/tests/HCUPETLToV5/HcupTests.R)
 * [JMDC unit tests](https://github.com/OHDSI/ETL-CDMBuilder/blob/master/man/JMDC/TEST_CASES/JmdcTests.R)
 
-#### Lookup functions
+### Lookup functions
 
 For some tests you need unknown values from other cdm tables.
 In this case you can use the lookup function for the required table.
@@ -117,7 +105,7 @@ expect_condition_occurrence(person_id=lookup_person("person_id", person_source_v
 These lookups can also be nested.
 
 
-### Test Coverage (_v0.9.0_)
+## Test Coverage (_v0.9.0_)
 
 The framework also contains a function to show statistics on how well your tests cover your mappings.
 Note that this does not show information on whether the tests passed.
@@ -163,9 +151,9 @@ getUntestedTargetFields()
 ```
 
 
-### Generate test data in the source data schema
+## Generate test data in the source data schema
 
-#### SQL
+### SQL
 After we have defined all our tests we need to run
 ```R
 insertSql <- generateInsertSql(databaseSchema = "nativeTestSchema")
@@ -184,7 +172,7 @@ connection <- connect(connectionDetails)
 executeSql(connection, paste(insertSql, collapse = "\n"))
 ```
 
-#### CSV (_v0.9.0_)
+### CSV (_v0.9.0_)
 
 In case the source data are csv files rather than database tables, we use this function:
 ```R
@@ -194,13 +182,13 @@ generateSourceCsv(directory = "test_data", separator = ",")
 And point the ETL to the given directory with test data.
 
 
-### Run your ETL on the test data
+## Run your ETL on the test data
 
 Now that the test source data is populated, you can run the ETL process you would like to test.
 The ETL should transform the data in `nativeTestSchema`, or in the csv directory, to CDM data in `cdmTestSchema`.
 
 
-### Test whether the CDM data meets expectations
+## Test whether the CDM data meets expectations
 
 The test SQL will create a table called `test_results` in `cdmTestSchema`, and populate it with the results of the tests.
 If the table already exists it will first be dropped.
@@ -238,7 +226,7 @@ FAILED unit tests: 1/178 (0.6%)
 2  1 RMG-PD1 is assigned person_id Expect person   FAIL
 ```
 
-### Export tests (_v0.9.0_)
+## Export tests (_v0.9.0_)
 
 We can create an overview of defined tests and export it, for example if you want to list the tests separately.
 

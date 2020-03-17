@@ -1,24 +1,16 @@
 ---
-layout: default
 title: Rabbit in a Hat
-nav_order: 3
-has_children: true
-has_toc: false
 ---
 
 ![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:rabbitinahatlogo.png)
 
 # Introduction
-{: .no_toc }
-
 ## Scope and purpose
-{: .no_toc }
 Rabbit-In-a-Hat comes with WhiteRabbit and is designed to read and display a WhiteRabbit scan document.
 WhiteRabbit generates information about the source data while Rabbit-In-a-Hat uses that information and through a graphical user interface to allow a user to connect source data to tables and columns within the CDM.
 Rabbit-In-a-Hat generates documentation for the ETL process it does not generate code to create an ETL.
 
 ## Process Overview
-{: .no_toc }
 The typical sequence for using this software to generate documentation of an ETL:
 1. Scanned results from WhiteRabbit completed
 2. Open scanned results; interface displays source tables and CDM tables
@@ -27,14 +19,7 @@ The typical sequence for using this software to generate documentation of an ETL
 5. Save Rabbit-In-a-Hat work and export to a MS Word document.
 
 ## Installation and support
-{: .no_toc }
 Rabbit-In-a-Hat comes with WhiteRabbit, refer to [WhiteRabbit's installation section](WhiteRabbit.md).
-
-# Table of Contents
-{: .no_toc}
-
-1. TOC
-{:toc}
 
 # Getting Started
 ## Creating a New Document
@@ -134,13 +119,13 @@ By double clicking on an arrow connecting a source and CDM table, it will open a
 The _Fields_ pane will have all the source table and CDM fields and is meant to make the specific column mappings between tables.
 Hovering over a source table will generate an arrow head that can then be selected and dragged to its corresponding CDM field. For example, in the _drug_claims_ to _drug_exposure_ table mapping example, the source data owners know that _patient_id_ is the patient identifier and corresponds to the _CDM.person_id_. Also, just as before, the arrow can be selected and _Logic_ and _Comments_ can be added.
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:rabbitinahat-fields.png )
+![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:rabbitinahat-fields.png)
 
 If you select the source table orange box, Rabbit-In-a-Hat will expose values the source data has for that table.
 This is meant to help in the process in understanding the source data and what logic may be required to handle the data in the ETL.
 In the example below _ndcnum_ is selected and raw NDC codes are displayed starting with most frequent (note that in the WhiteRabbit scan a “Min cell count” could have been selected and values below that frequency will not show).
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:rabbitinahat-fieldex.png )
+![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:rabbitinahat-fieldex.png)
 
 Continue this process until all source columns necessary in all mapped tables have been mapped to the corresponding CDM column.
 Not all columns must be mapped into a CDM column and not all CDM columns require a mapping.
