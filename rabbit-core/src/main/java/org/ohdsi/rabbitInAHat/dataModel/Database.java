@@ -21,11 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -48,6 +44,7 @@ public class Database implements Serializable {
 	private List<Table>			tables				= new ArrayList<Table>();
 	private static final long	serialVersionUID	= -3912166654601191039L;
 	private String				dbName				= "";
+	private static String		CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints_v5.0_MAR-18.csv";
 
 	public List<Table> getTables() {
 		return tables;
@@ -77,8 +74,9 @@ public class Database implements Serializable {
 
 		database.dbName = dbName.substring(0, dbName.lastIndexOf("."));
 
-		Map<String, Table> nameToTable = new HashMap<String, Table>();
+		Map<String, Table> nameToTable = new HashMap<>();
 		try {
+			ConceptsMap conceptsMap = new ConceptsMap(CONCEPT_ID_HINTS_FILE_NAME);
 
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
 				String tableNameColumn;
@@ -115,17 +113,13 @@ public class Database implements Serializable {
 				field.setNullable(row.get(isNullableColumn).equals(nullableValue));
 				field.setType(row.get(dataTypeColumn));
 				field.setDescription(row.get(descriptionColumn));
+				field.setConceptIdHints(conceptsMap.get(table.getName(), field.getName()));
+
 				table.getFields().add(field);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage());
 		}
-		// Collections.sort(database.tables, new Comparator<Table>() {
-		//
-		// @Override
-		// public int compare(Table o1, Table o2) {
-		// return o1.getName().compareTo(o2.getName());
-		// }});
 		return database;
 	}
 
@@ -158,8 +152,9 @@ public class Database implements Serializable {
 				field.setNullable(fractionEmpty == null || !fractionEmpty.equals("0"));
 				field.setType(row.getByHeaderName(ScanFieldName.TYPE));
 				field.setMaxLength(row.getIntByHeaderName(ScanFieldName.MAX_LENGTH));
-
+				field.setDescription(row.getStringByHeaderName(ScanFieldName.DESCRIPTION));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
+
 				table.getFields().add(field);
 			}
 		}

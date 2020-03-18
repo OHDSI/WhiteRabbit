@@ -83,17 +83,17 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
 	public final static String		ACTION_MARK_COMPLETED				= "Mark Highlighted As Complete";
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
-	public final static String		ACTION_HELP							= "Open help Wiki";
+	public final static String		ACTION_HELP							= "Open documentation";
 
-	public final static String		WIKI_URL							= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat";
-	private final static FileFilter	FILE_FILTER_GZ						= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
-	private final static FileFilter	FILE_FILTER_JSON					= new FileNameExtensionFilter("JSON Files (*.json)", "json");
-	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
-	private final static FileFilter	FILE_FILTER_HTML					= new FileNameExtensionFilter("HTML documents (*.html)", "html");
-	private final static FileFilter	FILE_FILTER_MD						= new FileNameExtensionFilter("Markdown documents (*.md)", "md");
-	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
-	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
-	private final static FileFilter	FILE_FILTER_XLSX					= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
+	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit";
+	private final static FileFilter FILE_FILTER_GZ = new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
+	private final static FileFilter FILE_FILTER_JSON = new FileNameExtensionFilter("JSON Files (*.json)", "json");
+	private final static FileFilter FILE_FILTER_DOCX = new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
+	private final static FileFilter FILE_FILTER_HTML = new FileNameExtensionFilter("HTML documents (*.html)", "html");
+	private final static FileFilter FILE_FILTER_MD = new FileNameExtensionFilter("Markdown documents (*.md)", "md");
+	private final static FileFilter FILE_FILTER_CSV = new FileNameExtensionFilter("Text Files (*.csv)", "csv");
+	private final static FileFilter FILE_FILTER_R = new FileNameExtensionFilter("R script (*.r)", "r");
+	private final static FileFilter FILE_FILTER_XLSX = new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
 
 	public final static String		DBMS_SQLSERVER						= "SQL Server";
 	public final static String		DBMS_REDSHIFT						= "Redshift";
@@ -481,13 +481,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doGenerateEtlWordDoc(chooseSavePath(FILE_FILTER_DOCX));
 				break;
 			case ACTION_GENERATE_ETL_HTML_DOCUMENT:
-				doGenerateEtlHtmlDoc(chooseSavePath(FILE_FILTER_HTML));
+				doGenerateEtlHtmlDoc(chooseSaveDirectory());
 				break;
 			case ACTION_GENERATE_ETL_MD_DOCUMENT:
-				doGenerateEtlMdDoc(chooseSavePath(FILE_FILTER_MD));
+				doGenerateEtlMdDoc(chooseSaveDirectory());
 				break;
 			case ACTION_GENERATE_TEST_FRAMEWORK:
 				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
+				break;
 			case ACTION_GENERATE_SQL:
 				doGenerateSql(chooseSaveDirectory());
 				break;
@@ -543,7 +544,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doUnmarkCompleted();
 				break;
 			case ACTION_HELP:
-				doOpenWiki();
+				doOpenDocumentation();
 				break;
 		}
 	}
@@ -581,10 +582,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doOpenWiki() {
+	private void doOpenDocumentation() {
 		try {
 			Desktop desktop = Desktop.getDesktop();
-			desktop.browse(new URI(WIKI_URL));
+			desktop.browse(new URI(DOCUMENTATION_URL));
 		} catch (URISyntaxException | IOException ex) {
 
 		}
@@ -740,20 +741,20 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doGenerateEtlHtmlDoc(String filename) {
-		if (filename != null) {
+	private void doGenerateEtlHtmlDoc(String directoryName) {
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
-			generator.generate(filename, DocumentType.HTML);
+			generator.generate(directoryName, DocumentType.HTML);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
 
-	private void doGenerateEtlMdDoc(String filename) {
-		if (filename != null) {
+	private void doGenerateEtlMdDoc(String directoryName) {
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
-			generator.generate(filename, DocumentType.MARKDOWN);
+			generator.generate(directoryName, DocumentType.MARKDOWN);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
