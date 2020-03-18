@@ -12,21 +12,20 @@ exclude: ["ReadMe.md"]
 navbar:
   title: '<div><img src="images/ohdsi16x16.png"></img> OHDSI White Rabbit</div>'  
   left:
-    - text: "Home"
-      icon: fa-home
+    - icon: glyphicon-home
       href: index.html
     - text: "White Rabbit"
-      icon: fa-cube
+      icon: glyphicon-list
       href: WhiteRabbit.html
     - text: "Rabbit In A Hat"
-      icon: fa-clipboard-check
+      icon: glyphicon-list-alt
       href: RabbitInAHat.html  
     - text: "Test Framework"
-      icon: fa-pen-alt
+      icon: glyphicon-dashboard
       href: riah_test_framework.html
     - text: "Best Practices"
-      icon: fa-life-ring
+      icon: glyphicon-check
       href: best_practices.html   
   right:
-    - icon: fa-github
+    - icon: glyphicon-link
       href: https://github.com/ohdsi/whiterabbit

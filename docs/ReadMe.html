@@ -351,35 +351,34 @@ div.tocify {
       <ul class="nav navbar-nav">
         <li>
   <a href="index.html">
-    <span class="fa fa-home"></span>
+    <span class="glyphicon glyphicon-home"></span>
      
-    Home
   </a>
 </li>
 <li>
   <a href="WhiteRabbit.html">
-    <span class="fa fa-cube"></span>
+    <span class="glyphicon glyphicon-list"></span>
      
     White Rabbit
   </a>
 </li>
 <li>
   <a href="RabbitInAHat.html">
-    <span class="fa fa-clipboard-check"></span>
+    <span class="glyphicon glyphicon-list-alt"></span>
      
     Rabbit In A Hat
   </a>
 </li>
 <li>
   <a href="riah_test_framework.html">
-    <span class="fa fa-pen-alt"></span>
+    <span class="glyphicon glyphicon-dashboard"></span>
      
     Test Framework
   </a>
 </li>
 <li>
   <a href="best_practices.html">
-    <span class="fa fa-life-ring"></span>
+    <span class="glyphicon glyphicon-check"></span>
      
     Best Practices
   </a>
@@ -388,7 +387,7 @@ div.tocify {
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/ohdsi/whiterabbit">
-    <span class="fa fa-github"></span>
+    <span class="glyphicon glyphicon-link"></span>
      
   </a>
 </li>
@@ -415,9 +414,8 @@ div.tocify {
 <div id="render-html" class="section level2">
 <h2>Render html</h2>
 <p>To generate the site from markdown files, run the following R script with the <code>./docs</code> folder as working directory. Run this in a standalone R session, this is orders of magnitude faster compared to running in RStudio.</p>
-<pre class="r"><code>library(rmarkdown)
-
-devtools::install_github(&quot;ropenscilabs/icon&quot;)
+<pre class="r"><code>#devtools::install_github(&quot;ropenscilabs/icon&quot;)
+library(rmarkdown)
 rmarkdown::render_site()</code></pre>
 </div>
 </div>
