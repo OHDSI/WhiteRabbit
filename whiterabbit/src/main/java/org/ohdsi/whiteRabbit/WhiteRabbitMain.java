@@ -92,7 +92,8 @@ public class WhiteRabbitMain implements ActionListener {
 	private JComboBox<String>	scanRowCount;
 	private JComboBox<String>	scanValuesCount;
 	private JCheckBox			scanValueScan;
-	private JCheckBox calculateNumericStats;
+	private JCheckBox 			calculateNumericStats;
+	private JComboBox<String>	numericStatsSampleSize;
 	private JSpinner			scanMinCellCount;
 	private JSpinner			generateRowCount;
 	private JComboBox<String>	sourceType;
@@ -224,14 +225,17 @@ public class WhiteRabbitMain implements ActionListener {
 		SourceDataScan sourceDataScan = new SourceDataScan();
 		int maxRows = Integer.parseInt(iniFile.get("ROWS_PER_TABLE"));
 		boolean scanValues = iniFile.get("SCAN_FIELD_VALUES").equalsIgnoreCase("yes");
-		boolean calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
 		int minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
 		int maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
+		boolean calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
+		int numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+
 		sourceDataScan.setSampleSize(maxRows);
 		sourceDataScan.setScanValues(scanValues);
 		sourceDataScan.setMinCellCount(minCellCount);
 		sourceDataScan.setMaxValues(maxValues);
-		sourceDataScan.setCalculateNumericStats(calculateNumericStats);
+		sourceDataScan.setDoCalculateNumericStats(calculateNumericStats);
+		sourceDataScan.setNumStatsSamplerSize(numericStatsSamplerSize);
 		sourceDataScan.process(dbSettings, iniFile.get("WORKING_FOLDER") + "/ScanReport.xlsx");
 	}
 
@@ -429,8 +433,8 @@ public class WhiteRabbitMain implements ActionListener {
 		JPanel southPanel = new JPanel();
 		southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
 
-		JPanel scanOptionsPanel = new JPanel();
-		scanOptionsPanel.setLayout(new BoxLayout(scanOptionsPanel, BoxLayout.X_AXIS));
+		JPanel scanOptionsTopPanel = new JPanel();
+		scanOptionsTopPanel.setLayout(new BoxLayout(scanOptionsTopPanel, BoxLayout.X_AXIS));
 
 		scanValueScan = new JCheckBox("Scan field values", true);
 		scanValueScan.setToolTipText("Include a frequency count of field values in the scan report");
@@ -439,41 +443,52 @@ public class WhiteRabbitMain implements ActionListener {
 			scanRowCount.setEnabled(((JCheckBox) event.getSource()).isSelected());
 			scanValuesCount.setEnabled(((JCheckBox) event.getSource()).isSelected());
 			calculateNumericStats.setEnabled(((JCheckBox) event.getSource()).isSelected());
+			numericStatsSampleSize.setEnabled(((JCheckBox) event.getSource()).isSelected());
 		});
-		scanOptionsPanel.add(scanValueScan);
-		scanOptionsPanel.add(Box.createHorizontalGlue());
+		scanOptionsTopPanel.add(scanValueScan);
+		scanOptionsTopPanel.add(Box.createHorizontalGlue());
 
-		scanOptionsPanel.add(new JLabel("Min cell count "));
+		scanOptionsTopPanel.add(new JLabel("Min cell count "));
 		scanMinCellCount = new JSpinner();
 		scanMinCellCount.setValue(5);
 		scanMinCellCount.setToolTipText("Minimum frequency for a field value to be included in the report");
-		scanOptionsPanel.add(scanMinCellCount);
-		scanOptionsPanel.add(Box.createHorizontalGlue());
+		scanOptionsTopPanel.add(scanMinCellCount);
+		scanOptionsTopPanel.add(Box.createHorizontalGlue());
 
-		scanOptionsPanel.add(new JLabel("Max distinct values "));
+		scanOptionsTopPanel.add(new JLabel("Max distinct values "));
 		scanValuesCount = new JComboBox<>(new String[] { "100", "1,000", "10,000" });
 		scanValuesCount.setSelectedIndex(1);
 		scanValuesCount.setToolTipText("Maximum number of distinct values per field to be reported");
-		scanOptionsPanel.add(scanValuesCount);
-		scanOptionsPanel.add(Box.createHorizontalGlue());
+		scanOptionsTopPanel.add(scanValuesCount);
+		scanOptionsTopPanel.add(Box.createHorizontalGlue());
 
-		scanOptionsPanel.add(new JLabel("Rows per table "));
+		scanOptionsTopPanel.add(new JLabel("Rows per table "));
 		scanRowCount = new JComboBox<>(new String[] { "100,000", "500,000", "1 million", "all" });
 		scanRowCount.setSelectedIndex(0);
 		scanRowCount.setToolTipText("Maximum number of rows per table to be scanned for field values");
-		scanOptionsPanel.add(scanRowCount);
+		scanOptionsTopPanel.add(scanRowCount);
 
-		calculateNumericStats = new JCheckBox("Numeric stats", true);
+		southPanel.add(scanOptionsTopPanel);
+
+		JPanel scanOptionsLowerPanel = new JPanel();
+		scanOptionsLowerPanel.setLayout(new BoxLayout(scanOptionsLowerPanel, BoxLayout.X_AXIS));
+
+		calculateNumericStats = new JCheckBox("Numeric stats", false);
 		calculateNumericStats.setToolTipText("Include average, standard deviation and quartiles of numeric fields");
-		scanOptionsPanel.add(calculateNumericStats);
+		calculateNumericStats.addChangeListener(event -> numericStatsSampleSize.setEnabled(((JCheckBox) event.getSource()).isSelected()));
+		scanOptionsLowerPanel.add(calculateNumericStats);
+		scanOptionsLowerPanel.add(Box.createHorizontalGlue());
 
-		southPanel.add(scanOptionsPanel);
+		scanOptionsLowerPanel.add(new JLabel("Numeric stats reservoir size: "));
+		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million"});
+		numericStatsSampleSize.setSelectedIndex(0);
+		numericStatsSampleSize.setToolTipText("Maximum number of rows used to calculate numeric statistics");
+		scanOptionsLowerPanel.add(numericStatsSampleSize);
+		scanOptionsLowerPanel.add(Box.createHorizontalGlue());
+
+		southPanel.add(scanOptionsLowerPanel);
 
 		southPanel.add(Box.createVerticalStrut(3));
-
-		JPanel scanButtonPanel = new JPanel();
-		scanButtonPanel.setLayout(new BoxLayout(scanButtonPanel, BoxLayout.X_AXIS));
-		scanButtonPanel.add(Box.createHorizontalGlue());
 
 		JButton scanButton = new JButton("Scan tables");
 		scanButton.setBackground(new Color(151, 220, 141));
@@ -484,8 +499,7 @@ public class WhiteRabbitMain implements ActionListener {
 			}
 		});
 		componentsToDisableWhenRunning.add(scanButton);
-		scanButtonPanel.add(scanButton);
-		southPanel.add(scanButtonPanel);
+		scanOptionsLowerPanel.add(scanButton);
 
 		panel.add(southPanel, BorderLayout.SOUTH);
 
@@ -969,12 +983,21 @@ public class WhiteRabbitMain implements ActionListener {
 		else if (scanValuesCount.getSelectedItem().toString().equals("10,000"))
 			valuesCount = 10000;
 
+		int numStatsSamplerSize = 0;
+		if (numericStatsSampleSize.getSelectedItem().toString().equals("100,000"))
+			numStatsSamplerSize = 100000;
+		else if (numericStatsSampleSize.getSelectedItem().toString().equals("500,000"))
+			numStatsSamplerSize = 500000;
+		else if (numericStatsSampleSize.getSelectedItem().toString().equals("1 million"))
+			numStatsSamplerSize = 1000000;
+
 		ScanThread scanThread = new ScanThread(
 				rowCount,
 				valuesCount,
 				scanValueScan.isSelected(),
 				Integer.parseInt(scanMinCellCount.getValue().toString()),
-				calculateNumericStats.isSelected()
+				calculateNumericStats.isSelected(),
+				numStatsSamplerSize
 		);
 		scanThread.start();
 	}
@@ -994,12 +1017,13 @@ public class WhiteRabbitMain implements ActionListener {
 
 		SourceDataScan sourceDataScan = new SourceDataScan();
 
-		public ScanThread(int maxRows, int maxValues, boolean scanValues, int minCellCount, boolean calculateNumericStats) {
+		public ScanThread(int maxRows, int maxValues, boolean scanValues, int minCellCount, boolean calculateNumericStats, int numericStatsSampleSize) {
 			sourceDataScan.setSampleSize(maxRows);
 			sourceDataScan.setScanValues(scanValues);
 			sourceDataScan.setMinCellCount(minCellCount);
 			sourceDataScan.setMaxValues(maxValues);
-			sourceDataScan.setCalculateNumericStats(calculateNumericStats);
+			sourceDataScan.setDoCalculateNumericStats(calculateNumericStats);
+			sourceDataScan.setNumStatsSamplerSize(numericStatsSampleSize);
 		}
 
 		public void run() {

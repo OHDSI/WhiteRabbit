@@ -63,7 +63,8 @@ public class SourceDataScan {
 	private char		delimiter = ',';
 	private int			sampleSize;
 	private boolean		scanValues = false;
-	private boolean		calculateNumericStats = false;
+	private boolean 	doCalculateNumericStats = false;
+	private int			numStatsSamplerSize;
 	private int			minCellCount;
 	private int			maxValues;
 	private DbType		dbType;
@@ -85,8 +86,12 @@ public class SourceDataScan {
 		this.maxValues = maxValues;
 	}
 
-	public void setCalculateNumericStats(boolean calculateNumericStats) {
-		this.calculateNumericStats = calculateNumericStats;
+	public void setDoCalculateNumericStats(boolean doCalculateNumericStats) {
+		this.doCalculateNumericStats = doCalculateNumericStats;
+	}
+
+	public void setNumStatsSamplerSize(int numStatsSamplerSize) {
+		this.numStatsSamplerSize = numStatsSamplerSize;
 	}
 
 	public void process(DbSettings dbSettings, String filename) {
@@ -492,7 +497,9 @@ public class SourceDataScan {
 
 		public FieldInfo(String name) {
 			this.name = name;
-			this.sample = new UniformSamplingReservoir(50); // TODO: sampler maxSize to be set in WR ui
+			if (doCalculateNumericStats) {
+				this.sample = new UniformSamplingReservoir(numStatsSamplerSize);
+			}
 		}
 
 		public void trim() {
@@ -570,7 +577,7 @@ public class SourceDataScan {
 				this.trim();
 			}
 
-			if (calculateNumericStats && (isInteger || isReal) && !trimValue.isEmpty()) { // TODO: || isDate
+			if (doCalculateNumericStats && (isInteger || isReal) && !trimValue.isEmpty()) { // TODO: || isDate
 				// TODO: warning
 				sample.add(Double.parseDouble(trimValue));
 			}
