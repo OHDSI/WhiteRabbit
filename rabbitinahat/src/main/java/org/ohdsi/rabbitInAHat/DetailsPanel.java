@@ -381,19 +381,15 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			table.setBorder(new MatteBorder(1, 0, 1, 0, Color.BLACK));
 			table.setCellSelectionEnabled(true);
 
-			// Make first column wider if source panel or second column if this is a target field panel
-			int wideColumnIndex = isTargetFieldPanel ? 1 : 0;
-			TableColumn column;
-			for (int i = 0; i < table.getColumnCount(); i++) {
-				column = table.getColumnModel().getColumn(i);
-				if (i == wideColumnIndex) {
-					column.setPreferredWidth(500);
-				} else {
-					column.setPreferredWidth(50);
-				}
+			if (isTargetFieldPanel) {
+				// Wide columns for concept name and class id
+				table.getColumnModel().getColumn(1).setPreferredWidth(100);
+				table.getColumnModel().getColumn(2).setPreferredWidth(100);
 			}
 
 			if (!isTargetFieldPanel) {
+				// Wide column for value name
+				table.getColumnModel().getColumn(0).setPreferredWidth(500);
 				// Right align the frequency and percentage
 				DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
 				rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -481,7 +477,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			nameLabel			= new JLabel("");
 			rowCountLabel		= new JLabel("");
 			description			= new DescriptionTextArea ("");
-			valueTable			= new SimpleTableModel("Concept ID", "Concept Name", "Standard?");
+			valueTable			= new SimpleTableModel("Concept ID", "Concept Name", "Class", "Standard?");
 			commentsArea		= new JTextArea();
 			isTargetFieldPanel  = true;
 			super.initialise();
@@ -492,7 +488,12 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			valueTable.clear();
 			if (field.getConceptIdHints() != null) {
 				for (ConceptsMap.Concept conceptIdHint : field.getConceptIdHints()) {
-					valueTable.add(conceptIdHint.getConceptId(), conceptIdHint.getConceptName(), conceptIdHint.getStandardConcept());
+					valueTable.add(
+							conceptIdHint.getConceptId(),
+							conceptIdHint.getConceptName(),
+							conceptIdHint.getConceptClassId(),
+							conceptIdHint.getStandardConcept()
+					);
 				}
 			}
 		}
