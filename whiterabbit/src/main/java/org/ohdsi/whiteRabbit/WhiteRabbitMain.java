@@ -181,6 +181,15 @@ public class WhiteRabbitMain implements ActionListener {
 						dbSettings.domain = parts[0];
 					}
 				}
+			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Azure")) {
+				dbSettings.dbType = DbType.AZURE;
+				if (iniFile.get("USER_NAME").length() != 0) { // Not using windows authentication
+					String[] parts = iniFile.get("USER_NAME").split("/");
+					if (parts.length == 2) {
+						dbSettings.user = parts[1];
+						dbSettings.domain = parts[0];
+					}
+				}
 			} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("PDW")) {
 				dbSettings.dbType = DbType.PDW;
 				if (iniFile.get("USER_NAME").length() != 0) { // Not using windows authentication
@@ -268,7 +277,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourcePanel.setLayout(new GridLayout(0, 2));
 		sourcePanel.setBorder(BorderFactory.createTitledBorder("Source data location"));
 		sourcePanel.add(new JLabel("Data type"));
-		sourceType = new JComboBox<>(new String[] { "Delimited text files", "SAS7bdat", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "PDW", "Redshift", "Teradata", "BigQuery" });
+		sourceType = new JComboBox<>(new String[] { "Delimited text files", "SAS7bdat", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "MS Access", "PDW", "Redshift", "Teradata", "BigQuery", "Azure"});
 		sourceType.setToolTipText("Select the type of source data available");
 		sourceType.addItemListener(itemEvent -> {
 			String selectedSourceType = itemEvent.getItem().toString();
@@ -279,7 +288,7 @@ public class WhiteRabbitMain implements ActionListener {
 			sourceServerField.setEnabled(sourceIsDatabase);
 			sourceUserField.setEnabled(sourceIsDatabase);
 			sourcePasswordField.setEnabled(sourceIsDatabase);
-			sourceDatabaseField.setEnabled(sourceIsDatabase);
+			sourceDatabaseField.setEnabled(sourceIsDatabase && !selectedSourceType.equals("Azure"));
 			sourceDelimiterField.setEnabled(sourceIsFiles);
 			addAllButton.setEnabled(sourceIsDatabase);
 
@@ -299,14 +308,22 @@ public class WhiteRabbitMain implements ActionListener {
 				sourcePasswordField.setToolTipText("GBQ SA only: OAuthPvtKeyPath");
 				sourceDatabaseField.setToolTipText("GBQ SA & UA: Data Set within ProjectID");
 			} else if (sourceIsDatabase) {
-				sourceServerField.setToolTipText("This field contains the name or IP address of the database server");
+				if (selectedSourceType.equals("Azure")) {
+					sourceServerField.setToolTipText("For Azure, this field contains the host name and database name (<host>;database=<database>)");
+				} else {
+					sourceServerField.setToolTipText("This field contains the name or IP address of the database server");
+				}
 				if (selectedSourceType.equals("SQL Server")) {
 					sourceUserField.setToolTipText("The user used to log in to the server. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')");
 				} else {
 					sourceUserField.setToolTipText("The user used to log in to the server");
 				}
 				sourcePasswordField.setToolTipText("The password used to log in to the server");
-				sourceDatabaseField.setToolTipText("The name of the database containing the source tables");
+				if (selectedSourceType.equals("Azure")) {
+					sourceDatabaseField.setToolTipText("For Azure, leave this empty");
+				} else {
+					sourceDatabaseField.setToolTipText("The name of the database containing the source tables");
+				}
 			}
 		});
 		sourcePanel.add(sourceType);
@@ -791,6 +808,10 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.MSACCESS;
 			else if (sourceType.getSelectedItem().toString().equals("Teradata"))
 				dbSettings.dbType = DbType.TERADATA;
+			else if (sourceType.getSelectedItem().toString().equals("Azure")) {
+				dbSettings.dbType = DbType.AZURE;
+				dbSettings.database = "";
+			}
 		}
 		return dbSettings;
 	}
@@ -805,7 +826,7 @@ public class WhiteRabbitMain implements ActionListener {
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Working folder not found", JOptionPane.ERROR_MESSAGE);
 			}
 		} else {
-			if (dbSettings.database == null || dbSettings.database.equals("")) {
+			if (sourceDatabaseField.isEnabled() && (dbSettings.database == null || dbSettings.database.equals(""))) {
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap("Please specify database name", 80), "Error connecting to server",
 						JOptionPane.ERROR_MESSAGE);
 				return;
