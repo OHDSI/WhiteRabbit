@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -237,6 +236,7 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -265,6 +265,12 @@ $(document).ready(function () {
 }
 }
 
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
 
 .toc-content {
   padding-left: 30px;
@@ -347,6 +353,7 @@ div.tocify {
   <a href="index.html">
     <span class="fa fa-home"></span>
      
+    Home
   </a>
 </li>
 <li>
@@ -379,7 +386,12 @@ div.tocify {
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/ohdsi/whiterabbit">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -396,7 +408,7 @@ div.tocify {
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p><a href="documentation:software:whiterabbit#rabbit-in-a-hat">Rabbit in a Hat</a> can generate a framework for creating a set of <a href="https://en.wikipedia.org/wiki/Unit_testing">unit tests</a>. The framework consists of a set of R functions tailored to the source and target schema in your ETL. These functions can then be used to define the unit tests.</p>
+<p>Rabbit in a Hat can generate a framework for creating a set of <a href="https://en.wikipedia.org/wiki/Unit_testing">unit tests</a>. The framework consists of a set of R functions tailored to the source and target schema in your ETL. These functions can then be used to define the unit tests.</p>
 <p>Unit testing assumes that you have your data in source format somewhere in a database. You should already have created an ETL process that will extract from the source database, transform it into CDM format, and load it into a CDM schema. The unit test framework can be used to make sure that your ETL process is doing what it is supposed to do. For this you will need to create a new, empty database with exactly the same structure as your source database, and a new empty database where a test CDM database will live. The testing framework can be used to insert test data into the empty source schema. Next, you can run your ETL process on the test data to populate the test CDM database. Finally, you can use the framework to verify that the output of the ETL in the test CDM database is what you’d expect given the test source data.</p>
 </div>
 <div id="process-overview" class="section level1">
@@ -412,19 +424,33 @@ div.tocify {
 <p>It is advised to use <a href="https://www.rstudio.com/">R-Studio</a> for defining your unit tests. One reason is that RStudio will automatically prompt you with possible function and argument names after you’ve only typed the first few characters.</p>
 </div>
 <div id="creating-the-testing-framework" class="section level1">
-<h1>Creating the testing framework</h1>
+<h1>Creating the Testing Framework</h1>
 <p>In Rabbit in a Hat, have your ETL specifications open. The source data schema should be loaded from the White-Rabbit scan report, and the target data schema should be selected (usually the OMOP CDM v5). Go to <em>File → Generate ETL Test Framework</em>, and use a file name with the .R extension, for example <code>MyTestFrameWork.R</code>.</p>
 </div>
-<div id="defining-unit-tests-using-the-framework" class="section level1">
-<h1>Defining unit tests using the framework</h1>
+<div id="using-the-testing-framework" class="section level1">
+<h1>Using the Testing Framework</h1>
 <p>Next, create an empty R script, and start by sourcing the R file that was just created:</p>
 <pre class="r"><code>source(&quot;MyTestFrameWork.R&quot;)</code></pre>
 <p>Be sure to run this command immediately to make the function definitions available to R-Studio.</p>
 <div id="available-functions" class="section level2">
 <h2>Available functions</h2>
-<p>The test framework defines the following functions <strong>for each table in the source schema</strong>: * <code>get_defaults_&lt;table name&gt;</code> shows the default field values that will be used when creating a record in the table. At the start, these default values have been taken from the White-Rabbit scan report, using the most frequent value. * <code>set_defaults_&lt;table name&gt;</code> can be used to change the default values of one or more fields in the table. For example <code>set_defaults_enrollment(enrollment_date = "2000-01-01")</code>. * <code>add_&lt;table name&gt;</code> can be used to specify that a record should be created in the table. The arguments can be used to specify field values. For fields where the user doesn’t specify a value, the default value is used. For example <code>add_enrollment(member_id = "M00000001")</code>.</p>
-<p>The following functions are defined <strong>for each table in the CDM schema</strong>: * <code>expect_&lt;table name&gt;</code> can be used to state the expectation that at least one record with the defined properties should exist in the table. For example <code>expect_person(person_id = 1, person_source_value = "M00000001")</code>. * <code>expect_no_&lt;table name&gt;</code> can be used to state the expectation that no record with the defined properties should exist in the table. For example <code>expect_no_condition_occurrence(person_id = 1)</code>. * <code>expect_count_&lt;table name&gt;</code> can be used to state the expectation that a specific number of records with the defined properties should exist in the table. For example <code>expect_count_condition_occurrence(person_id = 1, rowCount = 3)</code>. * <code>lookup_&lt;table name&gt;</code> can be used to get a specific value from another table. For example to get the <code>person_id</code> by <code>person_source_value</code>.</p>
-<p>One further function is available: * <code>declareTest</code> is used to group multiple statements under a single identifier. For example <code>declareTest(id = 1, description = "Test person ID")</code>.</p>
+<p>The test framework defines the following functions <strong>for each table in the source schema</strong>:</p>
+<ul>
+<li><code>get_defaults_&lt;table name&gt;</code> shows the default field values that will be used when creating a record in the table. At the start, these default values have been taken from the White-Rabbit scan report, using the most frequent value.</li>
+<li><code>set_defaults_&lt;table name&gt;</code> can be used to change the default values of one or more fields in the table. For example <code>set_defaults_enrollment(enrollment_date = "2000-01-01")</code>.</li>
+<li><code>add_&lt;table name&gt;</code> can be used to specify that a record should be created in the table. The arguments can be used to specify field values. For fields where the user doesn’t specify a value, the default value is used. For example <code>add_enrollment(member_id = "M00000001")</code>.</li>
+</ul>
+<p>The following functions are defined <strong>for each table in the CDM schema</strong>:</p>
+<ul>
+<li><code>expect_&lt;table name&gt;</code> can be used to state the expectation that at least one record with the defined properties should exist in the table. For example <code>expect_person(person_id = 1, person_source_value = "M00000001")</code>.</li>
+<li><code>expect_no_&lt;table name&gt;</code> can be used to state the expectation that no record with the defined properties should exist in the table. For example <code>expect_no_condition_occurrence(person_id = 1)</code>.</li>
+<li><code>expect_count_&lt;table name&gt;</code> can be used to state the expectation that a specific number of records with the defined properties should exist in the table. For example <code>expect_count_condition_occurrence(person_id = 1, rowCount = 3)</code>.</li>
+<li><code>lookup_&lt;table name&gt;</code> can be used to get a specific value from another table. For example to get the <code>person_id</code> by <code>person_source_value</code>.</li>
+</ul>
+<p>One further function is available:</p>
+<ul>
+<li><code>declareTest</code> is used to group multiple statements under a single identifier. For example <code>declareTest(id = 1, description = "Test person ID")</code>.</li>
+</ul>
 </div>
 <div id="defining-unit-tests" class="section level2">
 <h2>Defining unit tests</h2>
@@ -436,7 +462,12 @@ expect_person(person_id = 101, gender_concept_id = 8507, gender_source_value = &
 expect_person(person_id = 102, gender_concept_id = 8532, gender_source_value = &quot;female&quot;)</code></pre>
 <p>In this example, we define a test for gender mappings. We specify that two records should be created in the <code>enrollment</code> table in the source schema, and we specify different values for the <code>member_id</code> field and <code>gender_of_member</code> field. Note that the <code>enrollment</code> table might have many other fields, for example defining the start and end of enrollment, but that we don’t have to specify these in this example because these fields will take their default values, typically taken from the White-Rabbit scan report.</p>
 <p>In this example we furthermore describe what we expect to see in the CDM data schema. In this case we formulate expectations for the <code>person</code> table.</p>
-<p>We can add many such tests to our R script. For examples of a full set of test definitions, see: * <a href="https://github.com/OHDSI/ETL-Synthea/tree/master/extras">Synthea unit tests</a>. * <a href="https://github.com/OHDSI/JCdmBuilder/blob/master/tests/HCUPETLToV5/HcupTests.R">HCUP unit tests</a> * <a href="https://github.com/OHDSI/ETL-CDMBuilder/blob/master/man/JMDC/TEST_CASES/JmdcTests.R">JMDC unit tests</a></p>
+<p>We can add many such tests to our R script. For examples of a full set of test definitions, see:</p>
+<ul>
+<li><a href="https://github.com/OHDSI/ETL-Synthea/tree/master/extras">Synthea unit tests</a>.</li>
+<li><a href="https://github.com/OHDSI/JCdmBuilder/blob/master/tests/HCUPETLToV5/HcupTests.R">HCUP unit tests</a></li>
+<li><a href="https://github.com/OHDSI/ETL-CDMBuilder/blob/master/man/JMDC/TEST_CASES/JmdcTests.R">JMDC unit tests</a></li>
+</ul>
 <div id="lookup-functions" class="section level3">
 <h3>Lookup functions</h3>
 <p>For some tests you need unknown values from other cdm tables. In this case you can use the lookup function for the required table. This creates where conditions on the other cdm table in the test sql. In the example below, we do not know which person_id got assigned to this test person, so we lookup the id by source value:</p>
@@ -462,14 +493,24 @@ source_coverage (%)           37.50
 n_target_fields_tested         1.00
 n_target_fields_mapped_to     45.00
 target_coverage (%)            2.22</code></pre>
-<p>Statistics: * <code>n_tests</code>: total number of expects, expect_no’s or expect_counts are defined * <code>n_cases</code>: total number of cases defined with <code>declareTest</code> function. * <code>n_source_fields_tested</code>: number of source fields for which a test data is defined * <code>n_source_fields_mapped_from</code>: number of source fields for which a mapping was defined in Rabbit in a Hat * <code>source_coverage</code>: percentage of mapped source fields for which a test has been defined * <code>n_target_fields_tested</code>: number of target fields for which one or more expects, expect_no’s or expect_counts have been defined * <code>n_target_fields_mapped_to</code>: number of target fields for which a mapping was defined in Rabbit in a Hat * <code>target_coverage</code>: percentage of mapped target fields for which a test has been defined</p>
+<p>Statistics:</p>
+<ul>
+<li><code>n_tests</code>: total number of expects, expect_no’s or expect_counts are defined</li>
+<li><code>n_cases</code>: total number of cases defined with <code>declareTest</code> function.</li>
+<li><code>n_source_fields_tested</code>: number of source fields for which a test data is defined</li>
+<li><code>n_source_fields_mapped_from</code>: number of source fields for which a mapping was defined in Rabbit in a Hat</li>
+<li><code>source_coverage</code>: percentage of mapped source fields for which a test has been defined</li>
+<li><code>n_target_fields_tested</code>: number of target fields for which one or more expects, expect_no’s or expect_counts have been defined</li>
+<li><code>n_target_fields_mapped_to</code>: number of target fields for which a mapping was defined in Rabbit in a Hat</li>
+<li><code>target_coverage</code>: percentage of mapped target fields for which a test has been defined</li>
+</ul>
 <p>Note that the mapping coverages depends on the mappings defined in Rabbit in a Hat. If this mapping is incomplete or adjusted in the meantime, the <code>target_coverage</code> is possibly incorrect. In this case, please update the mappings in Rabbit in a Hat and regenerate the testing framework.</p>
 <p>You can get all source and target field for which no test has been defined with the following functions:</p>
 <pre class="r"><code>getUntestedSourceFields()
 getUntestedTargetFields()</code></pre>
 </div>
-<div id="generate-test-data-in-the-source-data-schema" class="section level2">
-<h2>Generate test data in the source data schema</h2>
+<div id="generate-test-data" class="section level2">
+<h2>Generate test data</h2>
 <div id="sql" class="section level3">
 <h3>SQL</h3>
 <p>After we have defined all our tests we need to run</p>
@@ -496,8 +537,8 @@ executeSql(connection, paste(insertSql, collapse = &quot;\n&quot;))</code></pre>
 <h2>Run your ETL on the test data</h2>
 <p>Now that the test source data is populated, you can run the ETL process you would like to test. The ETL should transform the data in <code>nativeTestSchema</code>, or in the csv directory, to CDM data in <code>cdmTestSchema</code>.</p>
 </div>
-<div id="test-whether-the-cdm-data-meets-expectations" class="section level2">
-<h2>Test whether the CDM data meets expectations</h2>
+<div id="test-the-cdm-expectations" class="section level2">
+<h2>Test the CDM expectations</h2>
 <p>The test SQL will create a table called <code>test_results</code> in <code>cdmTestSchema</code>, and populate it with the results of the tests. If the table already exists it will first be dropped. Again, we could use any SQL client to run this SQL, or we could use DatabaseConnector:</p>
 <pre class="r"><code>executeSql(connection, paste(testSql, collapse = &quot;\n&quot;))</code></pre>
 <p>Afterwards, we can query the results table to see the results for each test:</p>

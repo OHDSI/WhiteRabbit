@@ -27,3 +27,6 @@ navbar:
     - text: "Best Practices"
       icon: fa-life-ring
       href: best_practices.html   
+  right:
+    - icon: fa-github
+      href: https://github.com/ohdsi/whiterabbit

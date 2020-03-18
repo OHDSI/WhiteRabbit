@@ -11,7 +11,7 @@
 
 
 
-<title>Best Practices</title>
+<title>ReadMe.utf8.md</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,6 +19,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -250,6 +253,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -257,6 +323,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -325,37 +401,31 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Best Practices</h1>
 
 </div>
 
 
-<p>The following lists best practices in using WhiteRabbit and Rabbit-In-a-Hat to manage your ETL documentation process:</p>
-<ul>
-<li><strong>Overall Process:</strong>
-<ul>
-<li>When going through the ETL exercise, it is critical to get all key stakeholders in the room such as the data owners and individuals who plan to perform/manage research using the CDM. We have found different stakeholders have different perspectives on source data and the conversation that occurs improves the ETL process.</li>
-</ul></li>
-<li><strong>WhiteRabbit:</strong>
-<ul>
-<li>If it is known some tables will not be needed from the source data, do not include them in the scan. If there is a question to if the table is necessary it is better to include it.</li>
-</ul></li>
-<li><strong>Rabbit-In-a-Hat:</strong>
-<ul>
-<li>Start with mapping tables to tables and then dive into how one table’s fields map into CDM fields. In other words, stay at the table level until all tables a mapped, and then start to map fields.</li>
-<li>If your source data does not contain certain information you do not need to impute or generate information to fulfil a CDM requirement. For example, if your source data does not contain an end date for when a medication was stopped you do not need to population the DRUG_EXPOSURE.DRUG_EXPOSURE_START_DATE column.</li>
-<li>Derived CDM tables, like DRUG_ERA, typically will not receive a mapping from the source data because they are generated off the CDM table (in this case DRUG_ERA is generated off DRUG_EXPOSURE).</li>
-</ul></li>
-</ul>
-<p>References:</p>
-<ul>
-<li>ETL implementation best practices: <a href="https://www.ohdsi.org/web/wiki/doku.php?id=documentation:etl_best_practices" class="uri">https://www.ohdsi.org/web/wiki/doku.php?id=documentation:etl_best_practices</a></li>
-<li>Example ETLs: <a href="https://www.ohdsi.org/web/wiki/doku.php?id=documentation:example_etls" class="uri">https://www.ohdsi.org/web/wiki/doku.php?id=documentation:example_etls</a></li>
-<li>Ask your ETL questions on the implementers forum: <a href="https://forums.ohdsi.org/c/implementers" class="uri">https://forums.ohdsi.org/c/implementers</a></li>
-</ul>
+<div id="documentation" class="section level1">
+<h1>Documentation</h1>
+<p>This folder contains the raw and rendered documentation of WhiteRabbit.</p>
+<div id="contribute" class="section level2">
+<h2>Contribute</h2>
+<p>Contributions to the documentation are very welcome and even a must when new features are implemented. To update the documentation, edit one of the following markdown files or create a new markdown file: - <a href="/docs/WhiteRabbit.md">WhiteRabbit.md</a> - <a href="/docs/RabbitInAHat.md">RabbitInAHat.md</a> - <a href="/docs/riah_test_framework.md">riah_test_framework.md</a> - <a href="/docs/best_practices.md">best_practices.md</a></p>
+</div>
+<div id="render-html" class="section level2">
+<h2>Render html</h2>
+<p>To generate the site from markdown files, run the following R script with the <code>./docs</code> folder as working directory. Run this in a standalone R session, this is orders of magnitude faster compared to running in RStudio.</p>
+<pre class="r"><code>library(rmarkdown)
+
+devtools::install_github(&quot;ropenscilabs/icon&quot;)
+rmarkdown::render_site()</code></pre>
+</div>
+</div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -388,6 +458,32 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

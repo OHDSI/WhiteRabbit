@@ -14,6 +14,7 @@ To generate the site from markdown files, run the following R script with the `.
 Run this in a standalone R session, this is orders of magnitude faster compared to running in RStudio.
 
 ```R
+#devtools::install_github("ropenscilabs/icon")
 library(rmarkdown)
 rmarkdown::render_site()
 ```

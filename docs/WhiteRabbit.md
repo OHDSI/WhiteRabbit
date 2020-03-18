@@ -1,8 +1,5 @@
----
-title: White Rabbit
----
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitlogo.png )
+![](images/whiterabbitlogo.png )
 
 # Introduction
 ## Scope and purpose
@@ -35,7 +32,7 @@ Any questions/comments/feedback/discussion can be posted on the OHDSI Developer 
 
 ## Specifying the Location of Source Data
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreenshot.png)
+![](images/whiterabbitscreenshot.png)
 
 ### Working Folder
 
@@ -109,6 +106,7 @@ An application key is written to `~/.config/gcloud/application_default_credentai
   * _**Database name:**_ data set name within ProjectID named in Server location field
 
 Authentication via service account credentials:
+
   * _**Server location:**_ name of GBQ ProjectID
   * _**User name:**_ OAuth service account email address
   * _**Password:**_ OAuth private key path (file location of private key JSON file). Must be a valid full file pathname
@@ -119,7 +117,7 @@ Authentication via service account credentials:
 
 ### Performing the Scan
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreen-scan.png )
+![](images/whiterabbitscreen-scan.png)
 
 A scan generates a report containing information on the source data that can be used to help design the ETL.
 Using the Scan tab in WhiteRabbit you can either select individual tables in the selected source database by clicking on ‘Add’ (Ctrl + mouse click),
@@ -170,7 +168,7 @@ this indicates that there are one or more additional unique source values that a
 Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data.
 These two columns (distinct values and frequency) will repeat for all the source columns in the table profiled in the workbook.
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreen-readingthescanex.png )
+![](images/whiterabbitscreen-readingthescanex.png )
 
 The report is powerful in understanding your source data by highlighting what exists.
 For example, the above results were given back on the “SEX” column within one of the tables scanned, we can see that there were two common values (1 and 2) that appeared 61,491 and 35,401 times respectively.
