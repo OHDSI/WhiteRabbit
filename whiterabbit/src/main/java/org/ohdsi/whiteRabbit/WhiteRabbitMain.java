@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright 2019 Observational Health Data Sciences and Informatics
- * 
+ *
  * This file is part of WhiteRabbit
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,8 +66,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.csv.CSVFormat;
@@ -94,6 +92,7 @@ public class WhiteRabbitMain implements ActionListener {
 	private JComboBox<String>	scanRowCount;
 	private JComboBox<String>	scanValuesCount;
 	private JCheckBox			scanValueScan;
+	private JCheckBox calculateNumericStats;
 	private JSpinner			scanMinCellCount;
 	private JSpinner			generateRowCount;
 	private JComboBox<String>	sourceType;
@@ -225,9 +224,15 @@ public class WhiteRabbitMain implements ActionListener {
 		SourceDataScan sourceDataScan = new SourceDataScan();
 		int maxRows = Integer.parseInt(iniFile.get("ROWS_PER_TABLE"));
 		boolean scanValues = iniFile.get("SCAN_FIELD_VALUES").equalsIgnoreCase("yes");
+		boolean calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
 		int minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
 		int maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
-		sourceDataScan.process(dbSettings, maxRows, scanValues, minCellCount, maxValues, iniFile.get("WORKING_FOLDER") + "/ScanReport.xlsx");
+		sourceDataScan.setSampleSize(maxRows);
+		sourceDataScan.setScanValues(scanValues);
+		sourceDataScan.setMinCellCount(minCellCount);
+		sourceDataScan.setMaxValues(maxValues);
+		sourceDataScan.setCalculateNumericStats(calculateNumericStats);
+		sourceDataScan.process(dbSettings, iniFile.get("WORKING_FOLDER") + "/ScanReport.xlsx");
 	}
 
 	private JComponent createTabsPanel() {
@@ -429,14 +434,11 @@ public class WhiteRabbitMain implements ActionListener {
 
 		scanValueScan = new JCheckBox("Scan field values", true);
 		scanValueScan.setToolTipText("Include a frequency count of field values in the scan report");
-		scanValueScan.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				scanMinCellCount.setEnabled(((JCheckBox) arg0.getSource()).isSelected());
-				scanRowCount.setEnabled(((JCheckBox) arg0.getSource()).isSelected());
-				scanValuesCount.setEnabled(((JCheckBox) arg0.getSource()).isSelected());
-			}
+		scanValueScan.addChangeListener(event -> {
+			scanMinCellCount.setEnabled(((JCheckBox) event.getSource()).isSelected());
+			scanRowCount.setEnabled(((JCheckBox) event.getSource()).isSelected());
+			scanValuesCount.setEnabled(((JCheckBox) event.getSource()).isSelected());
+			calculateNumericStats.setEnabled(((JCheckBox) event.getSource()).isSelected());
 		});
 		scanOptionsPanel.add(scanValueScan);
 		scanOptionsPanel.add(Box.createHorizontalGlue());
@@ -449,17 +451,21 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsPanel.add(new JLabel("Max distinct values "));
-		scanValuesCount = new JComboBox<String>(new String[] { "100", "1,000", "10,000" });
+		scanValuesCount = new JComboBox<>(new String[] { "100", "1,000", "10,000" });
 		scanValuesCount.setSelectedIndex(1);
 		scanValuesCount.setToolTipText("Maximum number of distinct values per field to be reported");
 		scanOptionsPanel.add(scanValuesCount);
 		scanOptionsPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsPanel.add(new JLabel("Rows per table "));
-		scanRowCount = new JComboBox<String>(new String[] { "100,000", "500,000", "1 million", "all" });
+		scanRowCount = new JComboBox<>(new String[] { "100,000", "500,000", "1 million", "all" });
 		scanRowCount.setSelectedIndex(0);
 		scanRowCount.setToolTipText("Maximum number of rows per table to be scanned for field values");
 		scanOptionsPanel.add(scanRowCount);
+
+		calculateNumericStats = new JCheckBox("Numeric stats", true);
+		calculateNumericStats.setToolTipText("Include average, standard deviation and quartiles of numeric fields");
+		scanOptionsPanel.add(calculateNumericStats);
 
 		southPanel.add(scanOptionsPanel);
 
@@ -963,7 +969,13 @@ public class WhiteRabbitMain implements ActionListener {
 		else if (scanValuesCount.getSelectedItem().toString().equals("10,000"))
 			valuesCount = 10000;
 
-		ScanThread scanThread = new ScanThread(rowCount, valuesCount, scanValueScan.isSelected(), Integer.parseInt(scanMinCellCount.getValue().toString()));
+		ScanThread scanThread = new ScanThread(
+				rowCount,
+				valuesCount,
+				scanValueScan.isSelected(),
+				Integer.parseInt(scanMinCellCount.getValue().toString()),
+				calculateNumericStats.isSelected()
+		);
 		scanThread.start();
 	}
 
@@ -980,23 +992,20 @@ public class WhiteRabbitMain implements ActionListener {
 
 	private class ScanThread extends Thread {
 
-		private int		maxRows;
-		private int		maxValues;
-		private boolean	scanValues;
-		private int		minCellCount;
+		SourceDataScan sourceDataScan = new SourceDataScan();
 
-		public ScanThread(int maxRows, int maxValues, boolean scanValues, int minCellCount) {
-			this.maxRows = maxRows;
-			this.scanValues = scanValues;
-			this.minCellCount = minCellCount;
-			this.maxValues = maxValues;
+		public ScanThread(int maxRows, int maxValues, boolean scanValues, int minCellCount, boolean calculateNumericStats) {
+			sourceDataScan.setSampleSize(maxRows);
+			sourceDataScan.setScanValues(scanValues);
+			sourceDataScan.setMinCellCount(minCellCount);
+			sourceDataScan.setMaxValues(maxValues);
+			sourceDataScan.setCalculateNumericStats(calculateNumericStats);
 		}
 
 		public void run() {
 			for (JComponent component : componentsToDisableWhenRunning)
 				component.setEnabled(false);
 			try {
-				SourceDataScan sourceDataScan = new SourceDataScan();
 				DbSettings dbSettings = getSourceDbSettings();
 				if (dbSettings != null) {
 					for (String table : tables) {
@@ -1004,7 +1013,7 @@ public class WhiteRabbitMain implements ActionListener {
 							table = folderField.getText() + "/" + table;
 						dbSettings.tables.add(table);
 					}
-					sourceDataScan.process(dbSettings, maxRows, scanValues, minCellCount, maxValues, folderField.getText() + "/ScanReport.xlsx");
+					sourceDataScan.process(dbSettings, folderField.getText() + "/ScanReport.xlsx");
 				}
 			} catch (Exception e) {
 				handleError(e);

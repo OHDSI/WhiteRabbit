@@ -60,19 +60,36 @@ public class SourceDataScan {
 	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
 	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
 
-	private char		delimiter							= ',';
+	private char		delimiter = ',';
 	private int			sampleSize;
-	private boolean		scanValues;
+	private boolean		scanValues = false;
+	private boolean		calculateNumericStats = false;
 	private int			minCellCount;
 	private int			maxValues;
 	private DbType		dbType;
 	private String		database;
 
-	public void process(DbSettings dbSettings, int sampleSize, boolean scanValues, int minCellCount, int maxValues, String filename) {
+	public void setSampleSize(int sampleSize) {
 		this.sampleSize = sampleSize;
+	}
+
+	public void setScanValues(boolean scanValues) {
 		this.scanValues = scanValues;
+	}
+
+	public void setMinCellCount(int minCellCount) {
 		this.minCellCount = minCellCount;
+	}
+
+	public void setMaxValues(int maxValues) {
 		this.maxValues = maxValues;
+	}
+
+	public void setCalculateNumericStats(boolean calculateNumericStats) {
+		this.calculateNumericStats = calculateNumericStats;
+	}
+
+	public void process(DbSettings dbSettings, String filename) {
 		Map<String, List<FieldInfo>> tableToFieldInfos;
 		if (dbSettings.dataType == DbSettings.CSVFILES) {
 			if (!scanValues)
@@ -553,8 +570,8 @@ public class SourceDataScan {
 				this.trim();
 			}
 
-			// TODO: toggle sampling in WR ui
-			if ((isInteger || isReal) && !trimValue.isEmpty()) { // TODO: || isDate
+			if (calculateNumericStats && (isInteger || isReal) && !trimValue.isEmpty()) { // TODO: || isDate
+				// TODO: warning
 				sample.add(Double.parseDouble(trimValue));
 			}
 
@@ -597,11 +614,11 @@ public class SourceDataScan {
 		}
 
 		private double getmean() {
-			return 0d;
+			return Double.NaN;
 		}
 
 		private double getstdev() {
-			return 0d;
+			return Double.NaN;
 		}
 
 		private double getQ1() {
@@ -617,11 +634,11 @@ public class SourceDataScan {
 		}
 
 		private double getmin() {
-			return 0d;
+			return Double.NaN;
 		}
 
 		private double getmax() {
-			return 0d;
+			return Double.NaN;
 		}
 
 	}
