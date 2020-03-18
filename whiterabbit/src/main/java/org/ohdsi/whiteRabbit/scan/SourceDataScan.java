@@ -140,20 +140,20 @@ public class SourceDataScan {
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 		CellStyle percentageStyle = workbook.createCellStyle();
-		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0%"));
+		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
 
 		// Create overview sheet
 		Sheet overviewSheet = workbook.createSheet("Overview");
 		if (!scanValues) {
-			addRow(overviewSheet, "Table", "Field", "Type", "N rows");
+			addRow(overviewSheet, "Table", "Field", "Description", "Type", "N rows");
 			for (String table : tables) {
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
-                    addRow(overviewSheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), fieldInfo.rowCount);
+                    addRow(overviewSheet, table, fieldInfo.name, fieldInfo.label, fieldInfo.getTypeDescription(), fieldInfo.rowCount);
                 }
 				addRow(overviewSheet, "");
 			}
 		} else {
-			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "N unique values", "Fraction unique values");
+			addRow(overviewSheet, "Table", "Field", "Description", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "N unique values", "Fraction unique values");
 			int sheetIndex = 0;
 			Map<String, String> sheetNameLookup = new HashMap<>();
 			for (String tableName : tables) {
@@ -166,7 +166,7 @@ public class SourceDataScan {
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
 					Long uniqueCount = fieldInfo.uniqueCount;
 					Double fractionUnique = fieldInfo.getFractionUnique();
-                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(),
+                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.label, fieldInfo.getTypeDescription(),
 							fieldInfo.maxLength,
 							fieldInfo.rowCount,
 							fieldInfo.nProcessed,
@@ -174,7 +174,7 @@ public class SourceDataScan {
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique
 					);
-					this.setCellStyles(overviewSheet, percentageStyle, 6, 8);
+					this.setCellStyles(overviewSheet, percentageStyle, 7, 9);
                 }
 				addRow(overviewSheet, "");
 				sheetIndex += 1;
@@ -410,20 +410,30 @@ public class SourceDataScan {
 		try(FileInputStream inputStream = new FileInputStream(new File(filename))) {
 			SasFileReader sasFileReader = new SasFileReaderImpl(inputStream);
 
-			// It is possible to retrieve more information from the sasFileProperties, like data type and length.
 			SasFileProperties sasFileProperties = sasFileReader.getSasFileProperties();
 			for (Column column : sasFileReader.getColumns()) {
-				fieldInfos.add(new FieldInfo(column.getName()));
+				FieldInfo fieldInfo = new FieldInfo(column.getName());
+				fieldInfo.label = column.getLabel();
+				fieldInfo.rowCount = sasFileProperties.getRowCount();
+				if (!scanValues) {
+					// Either NUMBER or STRING; scanning values produces a more granular type and is preferred
+					fieldInfo.type = column.getType().getName().replace("java.lang.", "");
+				}
+				fieldInfos.add(fieldInfo);
 			}
 
 			for (int lineNr = 0; lineNr < sasFileProperties.getRowCount(); lineNr++) {
 				Object[] row = sasFileReader.readNext();
 
-				if (row.length == fieldInfos.size()) { // Else there appears to be a formatting error, so skip
-					for (int i = 0; i < row.length; i++) {
-						fieldInfos.get(i).processValue(row[i] == null ? "" : row[i].toString());
-					}
+				if (row.length != fieldInfos.size()) {
+					StringUtilities.outputWithTime("WARNING: row " + lineNr + " not scanned due to field count mismatch.");
+					continue;
 				}
+
+				for (int i = 0; i < row.length; i++) {
+					fieldInfos.get(i).processValue(row[i] == null ? "" : row[i].toString());
+				}
+
 				if (lineNr == sampleSize)
 					break;
 			}
@@ -441,6 +451,7 @@ public class SourceDataScan {
 	private class FieldInfo {
 		public String				type;
 		public String				name;
+		public String				label;
 		public CountingSet<String>	valueCounts		= new CountingSet<>();
 		public long					sumLength		= 0;
 		public int					maxLength		= 0;
@@ -567,11 +578,13 @@ public class SourceDataScan {
 		for (Object value : values) {
 			Cell cell = row.createCell(row.getPhysicalNumberOfCells());
 
-			if (value instanceof Integer || value instanceof Long || value instanceof Double)
+			if (value instanceof Integer || value instanceof Long || value instanceof Double) {
 				cell.setCellValue(Double.parseDouble(value.toString()));
-			else
+			} else if (value != null) {
 				cell.setCellValue(value.toString());
-
+			} else {
+				cell.setCellValue("");
+			}
 		}
 	}
 

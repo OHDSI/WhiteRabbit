@@ -149,7 +149,6 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	private void launchCommandLine(String iniFileName) {
-		// TODO: add option to scan sas7bdat from command line, using ini file
 		IniFile iniFile = new IniFile(iniFileName);
 		DbSettings dbSettings = new DbSettings();
 		if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Delimited text files")) {
@@ -158,6 +157,8 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.delimiter = '\t';
 			else
 				dbSettings.delimiter = iniFile.get("DELIMITER").charAt(0);
+		} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("SAS7bdat")) {
+			dbSettings.dataType = DbSettings.SASFILES;
 		} else {
 			dbSettings.dataType = DbSettings.DATABASE;
 			dbSettings.user = iniFile.get("USER_NAME");
