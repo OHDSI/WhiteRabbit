@@ -15,122 +15,46 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * <p>The maximum size of the reservoir can be increased to get more accurate quartile estimations.
  * As long as the number of samples is lower than the maximum size of the reservoir, the quartiles
- * are computed exactly.
- *  * TODO: sum and mean
- *  * TODO: all data types
+ * are computed exactly. Otherwise they are an estimate. The minimum, maximum and average are always
+ * calculated exactly.
  */
 public class UniformSamplingReservoir {
     private double[] samples;
     private int maxSize;
     private long count;
+    private double sum;
+    private double minimum;
+    private double maximum;
     private transient int currentLength;
-    private static final int MAX_SIZE_DEFAULT = 999;
 
     public static void main(String[] args) {
         UniformSamplingReservoir us = new UniformSamplingReservoir(10);
-        for (int i = 0; i < 15; i++) {
+        for (int i = 20; i > 0; i--) {
             us.add(i);
         }
 
         System.out.println(us.getSamples().toString());
         System.out.println(us.getCount());
         System.out.println(us.getQuartiles().toString());
-    }
-
-    /** Empty reservoir with default maximum size. */
-    public UniformSamplingReservoir() {
-        this(new double[] {}, 0, MAX_SIZE_DEFAULT);
-    }
-
-    /** Empty reservoir with given maximum size. */
-    public UniformSamplingReservoir(int maxSize) {
-        this(new double[] {}, 0, maxSize);
+        System.out.println(us.sum);
+        System.out.println(us.getAverage());
+        System.out.println(us.getMinimum());
+        System.out.println(us.getMaximum());
     }
 
     /**
-     * Create a reservoir that samples from given values.
-     * @param allValues list of values to sample from.
-     * @throws NullPointerException if given allValues are {@code null}.
-     */
-    public UniformSamplingReservoir(double... allValues) {
-        this(allValues, allValues.length, MAX_SIZE_DEFAULT);
-    }
-
-    /**
-     * Create a reservoir that samples from given values.
-     * @param samples list of values to sample from.
-     * @param count current size of the number of samples that the reservoir represents.
+     * Create an empty reservoir.
      * @param maxSize maximum reservoir size.
      * @throws NullPointerException if given allValues are {@code null}
      */
-    public UniformSamplingReservoir(double[] samples, long count, int maxSize) {
-        initializeReservoir(samples, count, maxSize);
-    }
-
-    /** Sample from given list of samples to initialize the reservoir. */
-    private void initializeReservoir(double[] initSamples, long initCount, int initMaxSize) {
-        if (initSamples == null) {
-            throw new IllegalArgumentException("Samples may not be null");
-        }
-        if (initMaxSize <= 0) {
+    public UniformSamplingReservoir(int maxSize) {
+        if (maxSize <= 0) {
             throw new IllegalArgumentException("Reservoir maximum size must be strictly positive");
         }
-        if (initCount < initSamples.length) {
-            throw new IllegalArgumentException(
-                    "Reservoir count must be larger or equal than number of samples.");
-        }
-        this.maxSize = initMaxSize;
-        this.samples = new double[initMaxSize];
-        this.count = initCount;
-
-        int length = (int)Math.min(initSamples.length, count);
-
-        if (length == 0) {
-            currentLength = 0;
-            return;
-        }
-
-        subsample(initSamples, length);
-        Arrays.sort(this.samples, 0, currentLength);
-    }
-
-    private void subsample(double[] initSamples, int length) {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-
-        // There are much more samples than the size permits. Random sample from the
-        // given list. Duplicate addresses are retried, and for each hit there is at least a
-        // 50% probability of getting a number that has not yet been picked.
-        if (length > maxSize * 2) {
-            Set<Integer> indexSet = new HashSet<>();
-            int sampleIndex = 0;
-            while (sampleIndex < maxSize) {
-                int initIndex = random.nextInt(length);
-                // only add to samples if index set does not yet contain value
-                if (indexSet.add(initIndex)) {
-                    this.samples[sampleIndex] = initSamples[initIndex];
-                    sampleIndex++;
-                }
-            }
-            currentLength = maxSize;
-
-            // There are not much more samples than the size permits. Make a list from all indexes
-            // and at random pick and remove index from that. Put all the samples at given
-            // indexes in the reservoir. Do not do retry sampling as above, as the final entry may
-            // have a probability of 1/maxSize of actually being picked.
-        } else if (length > maxSize) {
-            LinkedList<Integer> allInitIndexes = new LinkedList<>();
-            for (int i = 0; i < length; i++) {
-                allInitIndexes.add(i);
-            }
-            for (int sampleIndex = 0; sampleIndex < maxSize; sampleIndex++) {
-                int initIndex = allInitIndexes.remove(random.nextInt(allInitIndexes.size()));
-                this.samples[sampleIndex] = initSamples[initIndex];
-            }
-            currentLength = maxSize;
-        } else {
-            System.arraycopy(initSamples, 0, this.samples, 0, length);
-            currentLength = length;
-        }
+        this.maxSize = maxSize;
+        this.samples = new double[maxSize];
+        this.count = 0;
+        this.currentLength = 0;
     }
 
     /** Add a sample to the reservoir. */
@@ -145,6 +69,9 @@ public class UniformSamplingReservoir {
             currentLength++;
         }
 
+        sum += value;
+        minimum = Math.min(value, minimum);
+        maximum = Math.max(value, maximum);
         count++;
     }
 
@@ -213,6 +140,18 @@ public class UniformSamplingReservoir {
         }
 
         return quartiles;
+    }
+
+    public double getAverage() {
+        return sum/count;
+    }
+
+    public double getMinimum() {
+        return minimum;
+    }
+
+    public double getMaximum() {
+        return maximum;
     }
 
     /** Get the currently stored samples. */
