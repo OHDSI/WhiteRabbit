@@ -23,12 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,6 +41,7 @@ import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.databases.RichConnection.QueryResult;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.utilities.DateUtilities;
 import org.ohdsi.utilities.ScanFieldName;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.collections.CountingSet;
@@ -577,9 +574,13 @@ public class SourceDataScan {
 				this.trim();
 			}
 
-			if (doCalculateNumericStats && (isInteger || isReal) && !trimValue.isEmpty()) { // TODO: || isDate
-				// TODO: warning
-				sample.add(Double.parseDouble(trimValue));
+			if (doCalculateNumericStats && !trimValue.isEmpty()) {
+				// TODO: warning if throwing away elements (=estimating)
+				if (isInteger || isReal) {
+					sample.add(Double.parseDouble(trimValue));
+				} else if (isDate) {
+					sample.add(DateUtilities.parseDate(trimValue));
+				}
 			}
 
 		}
@@ -620,32 +621,46 @@ public class SourceDataScan {
 			}
 		}
 
+		private Object formatNumericValue(double value) {
+			if (isDate) {
+				Date date = new Date((long) value);
+				return new SimpleDateFormat("yyyy-MM-dd").format(date);
+			} else if (isInteger || isReal) {
+				return value;
+			} else {
+				return Double.NaN;
+			}
+		}
+
 		private double getmean() {
-			return Double.NaN;
+			return Double.NaN; // todo
 		}
 
 		private double getstdev() {
-			return Double.NaN;
+			return Double.NaN; // todo
 		}
 
-		private double getQ1() {
-			return sample.getQuartiles().get(0);
+		private Object getQ1() {
+			double q1 = sample.getQuartiles().get(0);
+			return formatNumericValue(q1);
 		}
 
-		private double getQ2() {
-			return sample.getQuartiles().get(1);
+		private Object getQ2() {
+			double q2 = sample.getQuartiles().get(1);
+			return formatNumericValue(q2);
 		}
 
-		private double getQ3() {
-			return sample.getQuartiles().get(2);
+		private Object getQ3() {
+			double q3 = sample.getQuartiles().get(2);
+			return formatNumericValue(q3);
 		}
 
 		private double getmin() {
-			return Double.NaN;
+			return Double.NaN; // todo
 		}
 
 		private double getmax() {
-			return Double.NaN;
+			return Double.NaN; // todo
 		}
 
 	}
