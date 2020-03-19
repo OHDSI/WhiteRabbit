@@ -145,7 +145,8 @@ There are a few setting options as well with the scan:
     * “Min cell count” is an option when scanning field values. By default this is set to 25, meaning values in the source data that appear less than 25 will not appear in the report.
     * “Rows per table” is an option when scanning field values. By default, WhiteRabbit will random 1 million rows in the table. There are other options to review 100,000 or all rows within the table.
   * Unchecking the “Scan field values” tells WhiteRabbit to not review or report on any of the raw data items.
-
+  * Checking the "Numeric Stats" box will include numeric statistics. See the section on ['Numerical Statistics'](#numeric-statistics-(develop)).
+  
 Once all settings are completed, press the “Scan tables” button. After the scan is completed the report will be written to the working folder.
 
 ### Running from the command line
@@ -192,6 +193,21 @@ WhiteRabbit will not define 1 as male and 2 as female; the data holder will typi
 However these two values (1 & 2) are not the only values present in the data because we see this list was truncated.
 These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values.
 When generating an ETL we should not only plan to handle the high-frequency gender concepts 1 and 2 but the other low-frequency values that exist within this column.
+
+#### Numerical statistics (develop)
+If the option for numerical statistics is checked, then a set of statistics is calculated for all integer, real and date data types. 
+The following statistics are added to the Overview sheet:
+
+* Average
+* Standard Deviation (sample)
+* Minimum
+* Maximum
+* Quartiles (sample)
+
+Depending on the set reservoir size, some statistics are approximations rather than true population statistics.
+If the number of values is smaller than the reservoir size, then the standard deviation and three quartile boundaries are based on only the sample.
+The sample is taken using a Uniform Sampling Reservoir to resemble the underlying distributions as close as possible.
+The average, minimum and maximum are always true population statistics.
 
 ## Generating Fake Data
 This feature allows one to create a fake dataset based on a WhiteRabbit scan report.
