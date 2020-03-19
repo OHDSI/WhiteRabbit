@@ -2,11 +2,8 @@ package org.ohdsi.whiteRabbit.scan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -21,25 +18,27 @@ import java.util.concurrent.ThreadLocalRandom;
 public class UniformSamplingReservoir {
     private double[] samples;
     private int maxSize;
-    private long count;
-    private double sum;
-    private double minimum;
-    private double maximum;
-    private transient int currentLength;
+    private long populationCount;
+    private double populationSum;
+    private double populationMinimum;
+    private double populationMaximum;
+    private transient int currentSampleLength;
 
     public static void main(String[] args) {
-        UniformSamplingReservoir us = new UniformSamplingReservoir(10);
-        for (int i = 20; i > 0; i--) {
+        UniformSamplingReservoir us = new UniformSamplingReservoir(50);
+        for (int i = 21; i > 0; i--) {
             us.add(i);
         }
 
         System.out.println(us.getSamples().toString());
         System.out.println(us.getCount());
-        System.out.println(us.getQuartiles().toString());
-        System.out.println(us.sum);
-        System.out.println(us.getAverage());
-        System.out.println(us.getMinimum());
-        System.out.println(us.getMaximum());
+        System.out.println(us.getSampleQuartiles().toString());
+        System.out.println(us.populationSum);
+        System.out.println(us.getPopulationMean());
+        System.out.println(us.getPopulationMinimum());
+        System.out.println(us.getPopulationMaximum());
+        System.out.println(us.getSampleMean());
+        System.out.println(us.getSampleStandardDeviation());
     }
 
     /**
@@ -53,30 +52,30 @@ public class UniformSamplingReservoir {
         }
         this.maxSize = maxSize;
         this.samples = new double[maxSize];
-        this.count = 0;
-        this.currentLength = 0;
+        this.populationCount = 0;
+        this.currentSampleLength = 0;
     }
 
     /** Add a sample to the reservoir. */
     public void add(double value) {
-        if (currentLength == maxSize) {
-            long removeIndex = ThreadLocalRandom.current().nextLong(count);
+        if (currentSampleLength == maxSize) {
+            long removeIndex = ThreadLocalRandom.current().nextLong(populationCount);
             if (removeIndex < maxSize) {
                 removeAndAdd((int)removeIndex, value);
             }
         } else {
-            removeAndAdd(currentLength, value);
-            currentLength++;
+            removeAndAdd(currentSampleLength, value);
+            currentSampleLength++;
         }
 
-        sum += value;
-        minimum = Math.min(value, minimum);
-        maximum = Math.max(value, maximum);
-        count++;
+        populationSum += value;
+        populationMinimum = Math.min(value, populationMinimum);
+        populationMaximum = Math.max(value, populationMaximum);
+        populationCount++;
     }
 
     private void removeAndAdd(int removeIndex, double value) {
-        int addIndex = Arrays.binarySearch(samples, 0, currentLength, value);
+        int addIndex = Arrays.binarySearch(samples, 0, currentSampleLength, value);
         if (addIndex < 0) {
             addIndex = -addIndex - 1;
         }
@@ -108,10 +107,10 @@ public class UniformSamplingReservoir {
      * the maximum size of the reservoir, this will be an estimate.
      * @return list with size three, of the 25, 50 and 75 percentiles.
      */
-    public List<Double> getQuartiles() {
+    public List<Double> getSampleQuartiles() {
         List<Double> quartiles = new ArrayList<>(3);
 
-        switch (currentLength) {
+        switch (currentSampleLength) {
             case 0:
                 quartiles.add(Double.NaN);
                 quartiles.add(Double.NaN);
@@ -124,12 +123,12 @@ public class UniformSamplingReservoir {
                 break;
             default:
                 for (int i = 1; i <= 3; i++) {
-                    double pos = i * (currentLength + 1) * 0.25d; // 25 percentile steps
+                    double pos = i * (currentSampleLength + 1) * 0.25d; // 25 percentile steps
                     int intPos = (int) pos;
                     if (intPos == 0) {
                         quartiles.add(samples[0]);
-                    } else if (intPos == currentLength) {
-                        quartiles.add(samples[currentLength - 1]);
+                    } else if (intPos == currentSampleLength) {
+                        quartiles.add(samples[currentSampleLength - 1]);
                     } else {
                         double diff = pos - intPos;
                         double base = samples[intPos - 1];
@@ -142,22 +141,37 @@ public class UniformSamplingReservoir {
         return quartiles;
     }
 
-    public double getAverage() {
-        return sum/count;
+    public double getSampleMean() {
+        return Arrays.stream(samples).limit(currentSampleLength).sum() / currentSampleLength;
     }
 
-    public double getMinimum() {
-        return minimum;
+    /**
+     * Get the standard deviation of the underlying distribution. If the number of samples is larger than
+     * the maximum size of the reservoir, this will be an estimate.
+     * @return double standard deviation
+     */
+    public double getSampleStandardDeviation() {
+        double sampleMean = getSampleMean();
+        double varianceSum = Arrays.stream(samples).limit(currentSampleLength).map(x -> Math.pow(x - sampleMean, 2d)).sum();
+        return Math.sqrt(varianceSum / (currentSampleLength-1));
     }
 
-    public double getMaximum() {
-        return maximum;
+    public double getPopulationMean() {
+        return populationSum / populationCount;
+    }
+
+    public double getPopulationMinimum() {
+        return populationMinimum;
+    }
+
+    public double getPopulationMaximum() {
+        return populationMaximum;
     }
 
     /** Get the currently stored samples. */
     public List<Double> getSamples() {
-        List<Double> doubleList = new ArrayList<>(currentLength);
-        for (int i = 0; i < currentLength; i++) {
+        List<Double> doubleList = new ArrayList<>(currentSampleLength);
+        for (int i = 0; i < currentSampleLength; i++) {
             doubleList.add(samples[i]);
         }
         return doubleList;
@@ -170,7 +184,7 @@ public class UniformSamplingReservoir {
 
     /** Get the number of samples that are being represented by the reservoir. */
     public long getCount() {
-        return count;
+        return populationCount;
     }
 
     @Override
@@ -182,14 +196,14 @@ public class UniformSamplingReservoir {
             return false;
         }
         UniformSamplingReservoir that = (UniformSamplingReservoir) o;
-        return count == that.count
+        return populationCount == that.populationCount
                 && maxSize == that.maxSize
                 && Arrays.equals(samples, that.samples);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(samples, maxSize, count);
+        return Objects.hash(samples, maxSize, populationCount);
     }
 
     @Override
@@ -197,7 +211,7 @@ public class UniformSamplingReservoir {
         return "UniformSamplingReservoir{"
                 + "samples=" + Arrays.toString(samples)
                 + ", maxSize=" + maxSize
-                + ", count=" + count
+                + ", count=" + populationCount
                 + '}';
     }
 }

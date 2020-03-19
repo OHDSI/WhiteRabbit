@@ -192,14 +192,20 @@ public class SourceDataScan {
 				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
 					Long uniqueCount = fieldInfo.uniqueCount;
 					Double fractionUnique = fieldInfo.getFractionUnique();
-                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.label, fieldInfo.getTypeDescription(),
+					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.label, fieldInfo.getTypeDescription(),
 							fieldInfo.maxLength,
 							fieldInfo.rowCount,
 							fieldInfo.nProcessed,
 							fieldInfo.getFractionEmpty(),
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique,
-							fieldInfo.getAverage(), fieldInfo.getstdev(), fieldInfo.getMinimum(), fieldInfo.getQ1(), fieldInfo.getQ2(), fieldInfo.getQ3(), fieldInfo.getMaximum()
+							fieldInfo.getAverage(),
+							fieldInfo.getStandardDeviation(),
+							fieldInfo.getMinimum(),
+							fieldInfo.getQ1(),
+							fieldInfo.getQ2(),
+							fieldInfo.getQ3(),
+							fieldInfo.getMaximum()
 					);
 					this.setCellStyles(overviewSheet, percentageStyle, 7, 9);
                 }
@@ -631,38 +637,40 @@ public class SourceDataScan {
 			}
 		}
 
-		private Object getAverage() {
-			double average = samplingReservoir.getAverage();
-			return formatNumericValue(average);
-		}
-
-		private double getstdev() {
-			return Double.NaN; // todo
-		}
-
-		private Object getQ1() {
-			double q1 = samplingReservoir.getQuartiles().get(0);
-			return formatNumericValue(q1);
-		}
-
-		private Object getQ2() {
-			double q2 = samplingReservoir.getQuartiles().get(1);
-			return formatNumericValue(q2);
-		}
-
-		private Object getQ3() {
-			double q3 = samplingReservoir.getQuartiles().get(2);
-			return formatNumericValue(q3);
-		}
-
 		private Object getMinimum() {
-			double min = samplingReservoir.getMinimum();
+			double min = samplingReservoir.getPopulationMinimum();
 			return formatNumericValue(min);
 		}
 
 		private Object getMaximum() {
-			double max = samplingReservoir.getMaximum();
+			double max = samplingReservoir.getPopulationMaximum();
 			return formatNumericValue(max);
+		}
+
+		private Object getAverage() {
+			double average = samplingReservoir.getPopulationMean();
+			return formatNumericValue(average);
+		}
+
+		private Object getStandardDeviation() {
+			double stddev = samplingReservoir.getSampleStandardDeviation();
+			// Convert millis to days if date
+			return isDate ? stddev/1000/3600/24 : stddev;
+		}
+
+		private Object getQ1() {
+			double q1 = samplingReservoir.getSampleQuartiles().get(0);
+			return formatNumericValue(q1);
+		}
+
+		private Object getQ2() {
+			double q2 = samplingReservoir.getSampleQuartiles().get(1);
+			return formatNumericValue(q2);
+		}
+
+		private Object getQ3() {
+			double q3 = samplingReservoir.getSampleQuartiles().get(2);
+			return formatNumericValue(q3);
 		}
 
 	}
