@@ -59,8 +59,8 @@ public class SourceDataScan {
 
 	private char		delimiter = ',';
 	private int			sampleSize;
-	private boolean		scanValues = false;
-	private boolean 	doCalculateNumericStats = false;
+	private boolean scanValues = false;
+	private boolean calculateNumericStats = false;
 	private int			numStatsSamplerSize;
 	private int			minCellCount;
 	private int			maxValues;
@@ -83,8 +83,8 @@ public class SourceDataScan {
 		this.maxValues = maxValues;
 	}
 
-	public void setDoCalculateNumericStats(boolean doCalculateNumericStats) {
-		this.doCalculateNumericStats = doCalculateNumericStats;
+	public void setCalculateNumericStats(boolean calculateNumericStats) {
+		this.calculateNumericStats = calculateNumericStats;
 	}
 
 	public void setNumStatsSamplerSize(int numStatsSamplerSize) {
@@ -159,63 +159,84 @@ public class SourceDataScan {
 		Collections.sort(tables);
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
-		CellStyle percentageStyle = workbook.createCellStyle();
-		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
 
 		// Create overview sheet
 		Sheet overviewSheet = workbook.createSheet("Overview");
-		if (!scanValues) {
-			addRow(overviewSheet, ScanFieldName.TABLE, ScanFieldName.FIELD, ScanFieldName.DESCRIPTION, ScanFieldName.TYPE, ScanFieldName.N_ROWS);
-			for (String table : tables) {
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
-                    addRow(overviewSheet, table, fieldInfo.name, fieldInfo.label, fieldInfo.getTypeDescription(), fieldInfo.rowCount);
-                }
-				addRow(overviewSheet, "");
+
+		// Create heading
+		List<String> overviewHeader = new ArrayList<>(Arrays.asList(
+				ScanFieldName.TABLE,
+				ScanFieldName.FIELD,
+				ScanFieldName.DESCRIPTION,
+				ScanFieldName.TYPE,
+				ScanFieldName.MAX_LENGTH,
+				ScanFieldName.N_ROWS
+		));
+		if (scanValues) {
+			overviewHeader.addAll(Arrays.asList(
+					ScanFieldName.N_ROWS_CHECKED,
+					ScanFieldName.FRACTION_EMPTY,
+					ScanFieldName.UNIQUE_COUNT,
+					ScanFieldName.FRACTION_UNIQUE
+			));
+			if (calculateNumericStats) {
+				overviewHeader.addAll(Arrays.asList(
+						ScanFieldName.AVERAGE,
+						ScanFieldName.STDEV,
+						ScanFieldName.MIN,
+						ScanFieldName.Q1,
+						ScanFieldName.Q2,
+						ScanFieldName.Q3,
+						ScanFieldName.MAX
+				));
 			}
-		} else {
-			addRow(overviewSheet,
-					ScanFieldName.TABLE, ScanFieldName.FIELD, ScanFieldName.DESCRIPTION, ScanFieldName.TYPE, ScanFieldName.MAX_LENGTH,
-					ScanFieldName.N_ROWS, ScanFieldName.N_ROWS_CHECKED, ScanFieldName.FRACTION_EMPTY,
-					ScanFieldName.UNIQUE_COUNT, ScanFieldName.FRACTION_UNIQUE,
-					ScanFieldName.AVERAGE, ScanFieldName.STDEV,
-					ScanFieldName.MIN, ScanFieldName.Q1, ScanFieldName.Q2, ScanFieldName.Q3, ScanFieldName.MAX
-			);
-			int sheetIndex = 0;
-			Map<String, String> sheetNameLookup = new HashMap<>();
-			for (String tableName : tables) {
-				// Make tablename unique
-				String tableNameIndexed = Table.indexTableNameForSheet(tableName, sheetIndex);
+		}
+		addRow(overviewSheet, overviewHeader.toArray());
 
-				String sheetName = Table.createSheetNameFromTableName(tableNameIndexed);
-				sheetNameLookup.put(tableName, sheetName);
+		// Add fields
+		int sheetIndex = 0;
+		for (String tableName : tables) {
+			// Make tablename unique
+			String tableNameIndexed = Table.indexTableNameForSheet(tableName, sheetIndex);
+			sheetIndex += 1;
+			for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
+				List<Object> values = new ArrayList<>(Arrays.asList(
+						tableNameIndexed,
+						fieldInfo.name,
+						fieldInfo.label,
+						fieldInfo.getTypeDescription(),
+						fieldInfo.maxLength,
+						fieldInfo.rowCount
+				));
 
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
+				if (scanValues) {
 					Long uniqueCount = fieldInfo.uniqueCount;
 					Double fractionUnique = fieldInfo.getFractionUnique();
-					addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.label, fieldInfo.getTypeDescription(),
-							fieldInfo.maxLength,
-							fieldInfo.rowCount,
+					values.addAll(Arrays.asList(
 							fieldInfo.nProcessed,
 							fieldInfo.getFractionEmpty(),
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
-							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique,
-							fieldInfo.getAverage(),
-							fieldInfo.getStandardDeviation(),
-							fieldInfo.getMinimum(),
-							fieldInfo.getQ1(),
-							fieldInfo.getQ2(),
-							fieldInfo.getQ3(),
-							fieldInfo.getMaximum()
-					);
-					this.setCellStyles(overviewSheet, percentageStyle, 7, 9);
-                }
-				addRow(overviewSheet, "");
-				sheetIndex += 1;
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique
+					));
+					if (calculateNumericStats) {
+						values.addAll(Arrays.asList(
+								fieldInfo.getAverage(),
+								fieldInfo.getStandardDeviation(),
+								fieldInfo.getMinimum(),
+								fieldInfo.getQ1(),
+								fieldInfo.getQ2(),
+								fieldInfo.getQ3(),
+								fieldInfo.getMaximum()
+						));
+					}
+				}
+				addRow(overviewSheet, values.toArray());
 			}
+			addRow(overviewSheet, "");
 
-			// Create per table scan values
-			for (String tableName : tables) {
-				Sheet valueSheet = workbook.createSheet(sheetNameLookup.get(tableName));
+			if (scanValues) {
+				// Create per table scan value sheet
+				Sheet valueSheet = workbook.createSheet(tableNameIndexed);
 
 				List<FieldInfo> fieldInfos = tableToFieldInfos.get(tableName);
 				List<List<Pair<String, Integer>>> valueCounts = new ArrayList<>();
@@ -251,6 +272,13 @@ public class SourceDataScan {
 				// Save some memory by derefencing tables already included in the report:
 				tableToFieldInfos.remove(tableName);
 			}
+		}
+
+		if (scanValues) {
+			// Format fraction empty and fraction unique columns
+			CellStyle percentageStyle = workbook.createCellStyle();
+			percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
+			this.setColumnStyles(overviewSheet, percentageStyle, 7, 9);
 		}
 
 		try {
@@ -500,7 +528,7 @@ public class SourceDataScan {
 
 		public FieldInfo(String name) {
 			this.name = name;
-			if (doCalculateNumericStats) {
+			if (calculateNumericStats) {
 				this.samplingReservoir = new UniformSamplingReservoir(numStatsSamplerSize);
 			}
 		}
@@ -580,7 +608,7 @@ public class SourceDataScan {
 				this.trim();
 			}
 
-			if (doCalculateNumericStats && !trimValue.isEmpty()) {
+			if (calculateNumericStats && !trimValue.isEmpty()) {
 				if (isInteger || isReal) {
 					samplingReservoir.add(Double.parseDouble(trimValue));
 				} else if (isDate) {
@@ -701,12 +729,15 @@ public class SourceDataScan {
 		}
 	}
 
-	private void setCellStyles(Sheet sheet, CellStyle style, int... colNums) {
-		Row row = sheet.getRow(sheet.getLastRowNum());
-		for(int i : colNums) {
-			Cell cell = row.getCell(i);
-			if (cell != null)
-				cell.setCellStyle(style);
+	private void setColumnStyles(Sheet sheet, CellStyle style, int... colNums) {
+		int numberOfRows = sheet.getPhysicalNumberOfRows();
+		for (int i = 0; i < numberOfRows; i++) {
+			Row row = sheet.getRow(i);
+			for(int j : colNums) {
+				Cell cell = row.getCell(j);
+				if (cell != null)
+					cell.setCellStyle(style);
+			}
 		}
 	}
 }

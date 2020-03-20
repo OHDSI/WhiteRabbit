@@ -234,7 +234,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourceDataScan.setScanValues(scanValues);
 		sourceDataScan.setMinCellCount(minCellCount);
 		sourceDataScan.setMaxValues(maxValues);
-		sourceDataScan.setDoCalculateNumericStats(calculateNumericStats);
+		sourceDataScan.setCalculateNumericStats(calculateNumericStats);
 		sourceDataScan.setNumStatsSamplerSize(numericStatsSamplerSize);
 		sourceDataScan.process(dbSettings, iniFile.get("WORKING_FOLDER") + "/ScanReport.xlsx");
 	}
@@ -1022,7 +1022,7 @@ public class WhiteRabbitMain implements ActionListener {
 			sourceDataScan.setScanValues(scanValues);
 			sourceDataScan.setMinCellCount(minCellCount);
 			sourceDataScan.setMaxValues(maxValues);
-			sourceDataScan.setDoCalculateNumericStats(calculateNumericStats);
+			sourceDataScan.setCalculateNumericStats(calculateNumericStats);
 			sourceDataScan.setNumStatsSamplerSize(numericStatsSampleSize);
 		}
 
