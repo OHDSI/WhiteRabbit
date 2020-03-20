@@ -17,10 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.whiteRabbit.scan;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -66,6 +63,7 @@ public class SourceDataScan {
 	private int			maxValues;
 	private DbType		dbType;
 	private String		database;
+	private Map<String, String> sheetNameLookup;
 
 	public void setSampleSize(int sampleSize) {
 		this.sampleSize = sampleSize;
@@ -155,12 +153,26 @@ public class SourceDataScan {
 	private void generateReport(Map<String, List<FieldInfo>> tableToFieldInfos, String filename) {
 		System.out.println("Generating scan report");
 		removeEmptyTables(tableToFieldInfos);
-		List<String> tables = new ArrayList<>(tableToFieldInfos.keySet());
-		Collections.sort(tables);
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 
-		// Create overview sheet
+		sheetNameLookup = new HashMap<>();
+		createOverviewSheet(workbook, tableToFieldInfos);
+
+		if (scanValues) {
+			createValueSheet(workbook, tableToFieldInfos);
+		}
+
+		try (FileOutputStream out = new FileOutputStream(new File(filename))) {
+			workbook.write(out);
+			out.close();
+			StringUtilities.outputWithTime("Scan report generated: " + filename);
+		} catch (IOException ex) {
+			throw new RuntimeException(ex.getMessage());
+		}
+	}
+
+	private void createOverviewSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
 		Sheet overviewSheet = workbook.createSheet("Overview");
 
 		// Create heading
@@ -195,9 +207,12 @@ public class SourceDataScan {
 
 		// Add fields
 		int sheetIndex = 0;
-		for (String tableName : tables) {
+		for (String tableName : tableToFieldInfos.keySet()) {
 			// Make tablename unique
 			String tableNameIndexed = Table.indexTableNameForSheet(tableName, sheetIndex);
+
+			sheetNameLookup.put(tableName, Table.createSheetNameFromTableName(tableNameIndexed));
+
 			sheetIndex += 1;
 			for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
 				List<Object> values = new ArrayList<>(Arrays.asList(
@@ -233,45 +248,6 @@ public class SourceDataScan {
 				addRow(overviewSheet, values.toArray());
 			}
 			addRow(overviewSheet, "");
-
-			if (scanValues) {
-				// Create per table scan value sheet
-				Sheet valueSheet = workbook.createSheet(tableNameIndexed);
-
-				List<FieldInfo> fieldInfos = tableToFieldInfos.get(tableName);
-				List<List<Pair<String, Integer>>> valueCounts = new ArrayList<>();
-				Object[] header = new Object[fieldInfos.size() * 2];
-				int maxCount = 0;
-				for (int i = 0; i < fieldInfos.size(); i++) {
-					FieldInfo fieldInfo = fieldInfos.get(i);
-					header[i * 2] = fieldInfo.name;
-					if (fieldInfo.isFreeText)
-						header[(i * 2) + 1] = "Word count";
-					else
-						header[(i * 2) + 1] = "Frequency";
-					List<Pair<String, Integer>> counts = fieldInfo.getSortedValuesWithoutSmallValues();
-					valueCounts.add(counts);
-					if (counts.size() > maxCount)
-						maxCount = counts.size();
-				}
-				addRow(valueSheet, header);
-				for (int i = 0; i < maxCount; i++) {
-					Object[] row = new Object[fieldInfos.size() * 2];
-					for (int j = 0; j < fieldInfos.size(); j++) {
-						List<Pair<String, Integer>> counts = valueCounts.get(j);
-						if (counts.size() > i) {
-							row[j * 2] = counts.get(i).getItem1();
-							row[(j * 2) + 1] = counts.get(i).getItem2() == -1 ? "" : counts.get(i).getItem2();
-						} else {
-							row[j * 2] = "";
-							row[(j * 2) + 1] = "";
-						}
-					}
-					addRow(valueSheet, row);
-				}
-				// Save some memory by derefencing tables already included in the report:
-				tableToFieldInfos.remove(tableName);
-			}
 		}
 
 		if (scanValues) {
@@ -280,16 +256,49 @@ public class SourceDataScan {
 			percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
 			this.setColumnStyles(overviewSheet, percentageStyle, 7, 9);
 		}
+	}
 
-		try {
-			FileOutputStream out = new FileOutputStream(new File(filename));
-			workbook.write(out);
-			out.close();
-			StringUtilities.outputWithTime("Scan report generated: " + filename);
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
+	private void createValueSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
+		for (String tableName : tableToFieldInfos.keySet()) {
+			Sheet valueSheet = workbook.createSheet(sheetNameLookup.get(tableName));
+
+			List<FieldInfo> fieldInfos = tableToFieldInfos.get(tableName);
+			List<List<Pair<String, Integer>>> valueCounts = new ArrayList<>();
+			Object[] header = new Object[fieldInfos.size() * 2];
+			int maxCount = 0;
+			for (int i = 0; i < fieldInfos.size(); i++) {
+				FieldInfo fieldInfo = fieldInfos.get(i);
+				header[i * 2] = fieldInfo.name;
+				if (fieldInfo.isFreeText)
+					header[(i * 2) + 1] = "Word count";
+				else
+					header[(i * 2) + 1] = "Frequency";
+				List<Pair<String, Integer>> counts = fieldInfo.getSortedValuesWithoutSmallValues();
+				valueCounts.add(counts);
+				if (counts.size() > maxCount)
+					maxCount = counts.size();
+			}
+			addRow(valueSheet, header);
+			for (int i = 0; i < maxCount; i++) {
+				Object[] row = new Object[fieldInfos.size() * 2];
+				for (int j = 0; j < fieldInfos.size(); j++) {
+					List<Pair<String, Integer>> counts = valueCounts.get(j);
+					if (counts.size() > i) {
+						row[j * 2] = counts.get(i).getItem1();
+						row[(j * 2) + 1] = counts.get(i).getItem2() == -1 ? "" : counts.get(i).getItem2();
+					} else {
+						row[j * 2] = "";
+						row[(j * 2) + 1] = "";
+					}
+				}
+				addRow(valueSheet, row);
+			}
+			// Save some memory by derefencing tables already included in the report:
+			// TODO: this gives a ConcurrentModification exception
+//			tableToFieldInfos.remove(tableName);
 		}
 	}
+
 
 	private void removeEmptyTables(Map<String, List<FieldInfo>> tableToFieldInfos) {
 		tableToFieldInfos.entrySet()
