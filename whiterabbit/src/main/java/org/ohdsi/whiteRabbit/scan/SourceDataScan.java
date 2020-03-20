@@ -627,11 +627,11 @@ public class SourceDataScan {
 		}
 
 		private Object formatNumericValue(double value) {
-			if (isDate) {
+			if (isInteger || isReal) {
+				return value;
+			} else if (isDate) {
 				Date date = new Date((long) value);
 				return new SimpleDateFormat("yyyy-MM-dd").format(date);
-			} else if (isInteger || isReal) {
-				return value;
 			} else {
 				return Double.NaN;
 			}
@@ -654,8 +654,14 @@ public class SourceDataScan {
 
 		private Object getStandardDeviation() {
 			double stddev = samplingReservoir.getSampleStandardDeviation();
-			// Convert millis to days if date
-			return isDate ? stddev/1000/3600/24 : stddev;
+			if (isInteger || isReal) {
+				return stddev;
+			} else if (isDate) {
+				// Convert milliseconds to days
+				return stddev/1000/3600/24;
+			} else {
+				return Double.NaN;
+			}
 		}
 
 		private Object getQ1() {

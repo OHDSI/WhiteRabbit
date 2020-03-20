@@ -20,26 +20,9 @@ public class UniformSamplingReservoir {
     private int maxSize;
     private long populationCount;
     private double populationSum;
-    private double populationMinimum;
-    private double populationMaximum;
+    private double populationMinimum = Double.POSITIVE_INFINITY;
+    private double populationMaximum = Double.NEGATIVE_INFINITY;
     private transient int currentSampleLength;
-
-    public static void main(String[] args) {
-        UniformSamplingReservoir us = new UniformSamplingReservoir(50);
-        for (int i = 21; i > 0; i--) {
-            us.add(i);
-        }
-
-        System.out.println(us.getSamples().toString());
-        System.out.println(us.getCount());
-        System.out.println(us.getSampleQuartiles().toString());
-        System.out.println(us.populationSum);
-        System.out.println(us.getPopulationMean());
-        System.out.println(us.getPopulationMinimum());
-        System.out.println(us.getPopulationMaximum());
-        System.out.println(us.getSampleMean());
-        System.out.println(us.getSampleStandardDeviation());
-    }
 
     /**
      * Create an empty reservoir.
@@ -213,5 +196,22 @@ public class UniformSamplingReservoir {
                 + ", maxSize=" + maxSize
                 + ", count=" + populationCount
                 + '}';
+    }
+
+    public static void main(String[] args) {
+        UniformSamplingReservoir us = new UniformSamplingReservoir(50);
+        for (int i = 0; i < 21; i++) {
+            us.add(i);
+        }
+
+        System.out.println(us.getSamples().toString());
+        System.out.println(us.getCount());
+        System.out.println(us.getSampleQuartiles().toString());
+        System.out.println(us.populationSum);
+        System.out.println(us.getPopulationMean());
+        System.out.println(us.getPopulationMinimum());
+        System.out.println(us.getPopulationMaximum());
+        System.out.println(us.getSampleMean());
+        System.out.println(us.getSampleStandardDeviation());
     }
 }
