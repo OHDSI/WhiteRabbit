@@ -99,7 +99,6 @@ public class Database implements Serializable {
 					dataTypeColumn = "type";
 					descriptionColumn = "description";
 				}
-				System.out.println(row.toString());
 				Table table = nameToTable.get(row.get(tableNameColumn).toLowerCase());
 
 				if (table == null) {
@@ -167,6 +166,11 @@ public class Database implements Serializable {
 				index = fieldName2ColumnIndex.get("Max length");
 				if (index != null && index >= 0 && index < row.size())
 					field.setMaxLength((int) (Double.parseDouble(row.get(index))));
+
+				index = fieldName2ColumnIndex.get("Description");
+				if (index != null && index >= 0 && index < row.size())
+					field.setDescription(row.get(index));
+
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 				table.getFields().add(field);
 			}

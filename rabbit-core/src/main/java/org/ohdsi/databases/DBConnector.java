@@ -35,7 +35,7 @@ public class DBConnector {
 	public static Connection connect(String server, String domain, String user, String password, DbType dbType) {
 		if (dbType.equals(DbType.MYSQL))
 			return DBConnector.connectToMySQL(server, user, password);
-		else if (dbType.equals(DbType.MSSQL) || dbType.equals(DbType.PDW))
+		else if (dbType.equals(DbType.MSSQL) || dbType.equals(DbType.PDW) || dbType.equals(DbType.AZURE))
 			return DBConnector.connectToMSSQL(server, domain, user, password);
 		else if (dbType.equals(DbType.ORACLE))
 			return DBConnector.connectToOracle(server, domain, user, password);
