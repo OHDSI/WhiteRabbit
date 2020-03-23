@@ -229,18 +229,6 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		addMenuItem(fileMenu, ACTION_SAVE, KeyEvent.VK_S);
 		addMenuItem(fileMenu, ACTION_SAVE_AS);
 
-		JMenu generateEtlDocumentMenu = new JMenu("Generate ETL document");
-		fileMenu.add(generateEtlDocumentMenu);
-		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_WORD_DOCUMENT);
-		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_HTML_DOCUMENT);
-		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_MD_DOCUMENT);
-		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_SOURCE_FIELD_LIST);
-		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_TARGET_FIELD_LIST);
-		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_TABLE_MAPPING_LIST);
-
-		addMenuItem(fileMenu, ACTION_GENERATE_TEST_FRAMEWORK);
-		addMenuItem(fileMenu, ACTION_GENERATE_SQL);
-
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
 		addMenuItem(editMenu, ACTION_DISCARD_COUNTS);
@@ -268,6 +256,21 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		addMenuItem(arrowMenu, ACTION_REMOVE_MAPPING, KeyEvent.VK_R);
 		addMenuItem(arrowMenu, ACTION_MARK_COMPLETED, KeyEvent.VK_D);
 		addMenuItem(arrowMenu, ACTION_UNMARK_COMPLETED, KeyEvent.VK_I);
+
+		JMenu exportMenu = new JMenu("Export");
+		menuBar.add(exportMenu);
+		JMenu generateEtlDocumentMenu = new JMenu("Generate ETL Document");
+		exportMenu.add(generateEtlDocumentMenu);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_WORD_DOCUMENT);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_HTML_DOCUMENT);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_MD_DOCUMENT);
+		JMenu generateOverviewsMenu = new JMenu("Generate Overview Tables");
+		exportMenu.add(generateOverviewsMenu);
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_SOURCE_FIELD_LIST);
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_TARGET_FIELD_LIST);
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_TABLE_MAPPING_LIST);
+		addMenuItem(exportMenu, ACTION_GENERATE_TEST_FRAMEWORK);
+		addMenuItem(exportMenu, ACTION_GENERATE_SQL);
 
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
