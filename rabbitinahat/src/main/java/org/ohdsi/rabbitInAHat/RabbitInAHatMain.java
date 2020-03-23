@@ -66,6 +66,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Generate ETL Markdown Document";
 	public final static String 		ACTION_GENERATE_SOURCE_FIELD_LIST   = "Generate Source Field list";
 	public final static String 		ACTION_GENERATE_TARGET_FIELD_LIST   = "Generate Target Field list";
+	public final static String 		ACTION_GENERATE_TABLE_MAPPING_LIST  = "Generate Table Mapping list";
 	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "Generate ETL Test Framework";
 	public final static String		ACTION_GENERATE_SQL                 = "Generate SQL Skeleton";
 	public final static String		ACTION_DISCARD_COUNTS				= "Discard Value Counts";
@@ -266,6 +267,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		generateTargetFieldList.addActionListener(this);
 		generateEtlDocument.add(generateTargetFieldList);
 
+		JMenuItem generateTableMappingList = new JMenuItem(ACTION_GENERATE_TABLE_MAPPING_LIST);
+		generateTableMappingList.addActionListener(this);
+		generateEtlDocument.add(generateTableMappingList);
+
 		JMenuItem generateTestFrameworkItem = new JMenuItem(ACTION_GENERATE_TEST_FRAMEWORK);
 		generateTestFrameworkItem.addActionListener(this);
 		fileMenu.add(generateTestFrameworkItem);
@@ -420,6 +425,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".md")));
 			else if (filter[0] == FILE_FILTER_R)
 				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".R")));
+			else if (filter[0] == FILE_FILTER_CSV)
+				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".csv")));
 		}
 		chooser.resetChoosableFileFilters();
 
@@ -504,6 +511,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				break;
 			case ACTION_GENERATE_TARGET_FIELD_LIST:
 				doGenerateTargetFields(chooseSavePath(FILE_FILTER_CSV));
+				break;
+			case ACTION_GENERATE_TABLE_MAPPING_LIST:
+				doGenerateTableMappings(chooseSavePath(FILE_FILTER_CSV));
 				break;
 			case ACTION_GENERATE_SQL:
 				doGenerateSql(chooseSaveDirectory());
@@ -787,6 +797,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
         if (filename != null) {
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             ETLSummaryGenerator.generateTargetFieldListCsv(ObjectExchange.etl, filename);
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
+    private void doGenerateTableMappings(String filename) {
+        if (filename != null) {
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            ETLSummaryGenerator.generateTableMappingsCsv(ObjectExchange.etl, filename);
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
