@@ -239,7 +239,7 @@ public class ETL implements Serializable {
 		for (Map.Entry<ItemToItemMap, List<ItemToItemMap>> tableMapToFieldToField : tableMapToFieldToFieldMaps.entrySet()) {
 			String sourceTableName = tableMapToFieldToField.getKey().getSourceItem().getName();
 			for (ItemToItemMap fieldToField : tableMapToFieldToField.getValue()) {
-				if (fieldToField.getTargetItem() == targetField && !fieldToField.getSourceItem().isFilter()) {
+				if (fieldToField.getTargetItem() == targetField) {
 					String sourceFieldName = fieldToField.getSourceItem().getName();
 					result.add(String.format("%s.%s", sourceTableName, sourceFieldName));
 				}

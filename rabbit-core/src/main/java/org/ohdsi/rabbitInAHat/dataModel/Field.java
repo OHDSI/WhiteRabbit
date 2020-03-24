@@ -31,7 +31,6 @@ public class Field implements MappableItem {
 	private String				description			= "";
 	private int					maxLength;
 	private boolean				isStem;
-	private boolean				isFilter;
 	private List<ConceptsMap.Concept> conceptIdHints;
 
 	public Field(String name, Table table) {
@@ -137,13 +136,5 @@ public class Field implements MappableItem {
 
 	public void setConceptIdHints(List<ConceptsMap.Concept> conceptIdHints) {
 		this.conceptIdHints = conceptIdHints;
-	}
-
-	public boolean isFilter() {
-		return isFilter;
-	}
-
-	public void setFilter(boolean filter) {
-		isFilter = filter;
 	}
 }

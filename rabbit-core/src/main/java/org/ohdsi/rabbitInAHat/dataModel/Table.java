@@ -29,7 +29,6 @@ public class Table implements MappableItem {
 	private String				comment				= "";
 	private List<Field>			fields				= new ArrayList<Field>();
 	private boolean				isStem				= false;
-	private boolean				isFilter			= false;
 	private static final long	serialVersionUID	= 8866500385429215492L;
 
 	public Table() {
@@ -113,8 +112,6 @@ public class Table implements MappableItem {
 	public void setStem(boolean isStem) {
 		this.isStem = isStem;
 	}
-
-	public boolean isFilter() { return isFilter; }
 
 	public static String indexTableNameForSheet(String tableName, int index) {
 		String name = tableName;

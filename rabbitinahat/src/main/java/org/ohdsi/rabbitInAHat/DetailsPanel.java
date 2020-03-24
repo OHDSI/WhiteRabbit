@@ -302,7 +302,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			fieldTable.clear();
 			
 			for (Field field : table.getFields()){
-				if (field.isFilter()) continue;
 				fieldTable.add(field.outputName(), field.getType(),field.getDescription());
 			}
 			

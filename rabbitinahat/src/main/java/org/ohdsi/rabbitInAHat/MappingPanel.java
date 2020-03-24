@@ -166,19 +166,13 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				else
 					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0)));
 			}
-		for (MappableItem item : mapping.getTargetItems()) {
+		for (MappableItem item : mapping.getTargetItems())
 			if (!showOnlyConnectedItems || isConnected(item)) {
-				Color color;
-				if (item.isStem()) {
-					color = new Color(160, 0, 160);
-				} else if (item.isFilter()) {
-					color = new Color(160, 0, 0);
-				} else {
-					color = new Color(128, 128, 255);
-				}
-				cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, color));
+				if (item.isStem())
+					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
+				else
+					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255)));
 			}
-		}
 		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
 			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents),
 					map);
