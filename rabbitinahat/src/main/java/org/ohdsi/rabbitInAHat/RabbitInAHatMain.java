@@ -62,13 +62,13 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_OPEN_ETL_SPECS				= "Open ETL Specs";
 	public final static String		ACTION_OPEN_SCAN_REPORT				= "Open Scan Report";
 	public final static String		ACTION_GENERATE_ETL_WORD_DOCUMENT	= "Generate ETL Word Document";
-	public final static String		ACTION_GENERATE_ETL_HTML_DOCUMENT	= "Generate ETL HTML Document";
-	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Generate ETL Markdown Document";
+	public final static String		ACTION_GENERATE_ETL_HTML_DOCUMENT	= "Generate ETL HTML Documents";
+	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Generate ETL Markdown Documents";
 	public final static String 		ACTION_GENERATE_SOURCE_FIELD_LIST   = "Generate Source Field list";
 	public final static String 		ACTION_GENERATE_TARGET_FIELD_LIST   = "Generate Target Field list";
 	public final static String 		ACTION_GENERATE_TABLE_MAPPING_LIST  = "Generate Table Mapping list";
 	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "Generate ETL Test Framework";
-	public final static String		ACTION_GENERATE_SQL                 = "Generate SQL Skeleton";
+	public final static String		ACTION_GENERATE_SQL                 = "Generate SQL Skeleton Files";
 	public final static String		ACTION_DISCARD_COUNTS				= "Discard Value Counts";
 	public final static String		ACTION_FILTER						= "Filter";
 	public final static String		ACTION_MAKE_MAPPING					= "Make Mappings";
@@ -189,6 +189,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 		if (args.length == 1) {
 			doOpenSpecs(args[0]);
+			chooser = new JFileChooser();
+			chooser.setSelectedFile(new File(args[0]));
 		}
 		if (args.length > 1 && args[0].equals("-folder")) {
 			chooser = new JFileChooser(args[1]);
@@ -257,14 +259,14 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		addMenuItem(arrowMenu, ACTION_MARK_COMPLETED, KeyEvent.VK_D);
 		addMenuItem(arrowMenu, ACTION_UNMARK_COMPLETED, KeyEvent.VK_I);
 
-		JMenu exportMenu = new JMenu("Export");
+		JMenu exportMenu = new JMenu("Generate");
 		menuBar.add(exportMenu);
-		JMenu generateEtlDocumentMenu = new JMenu("Generate ETL Document");
+		JMenu generateEtlDocumentMenu = new JMenu("ETL Document");
 		exportMenu.add(generateEtlDocumentMenu);
 		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_WORD_DOCUMENT);
 		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_HTML_DOCUMENT);
 		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_MD_DOCUMENT);
-		JMenu generateOverviewsMenu = new JMenu("Generate Overview Tables");
+		JMenu generateOverviewsMenu = new JMenu("Overview Table");
 		exportMenu.add(generateOverviewsMenu);
 		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_SOURCE_FIELD_LIST);
 		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_TARGET_FIELD_LIST);
@@ -325,76 +327,77 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	/**
 	 * Display file chooser for a path to save or open to
-	 * 
-	 * @param saveMode
-	 *            true to display a save dialog, false for open
-	 * @param filter
-	 *            restrict files displayed
+	 *
+	 * @param saveMode true to display a save dialog, false for open
+	 * @param directoryMode true to select folder instead of file
+	 * @param presetFileName the filename to assign by default (in saveMode)
+	 * @param filter   restrict files displayed
 	 * @return if file selected, absolute path of selected file otherwise null
 	 */
-	private String choosePath(boolean saveMode, boolean directoryMode, FileFilter... filter) {
+	private String choosePath(boolean saveMode, boolean directoryMode, String presetFileName, FileFilter... filter) {
 		String result = null;
+		FileFilter primaryFileFilter = filter[0];
 
+		// Create chooser and the last selected file
 		if (chooser == null) {
 			chooser = new JFileChooser();
-		} else if (saveMode && chooser.getSelectedFile() != null){
-			if (filter[0] == FILE_FILTER_GZ)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".json.gz")));
-			else if (filter[0] == FILE_FILTER_DOCX)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".docx")));
-			else if (filter[0] == FILE_FILTER_HTML)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".html")));
-			else if (filter[0] == FILE_FILTER_MD)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".md")));
-			else if (filter[0] == FILE_FILTER_R)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".R")));
-			else if (filter[0] == FILE_FILTER_CSV)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".csv")));
+		}
+
+		if (presetFileName != null) {
+			chooser.setSelectedFile(new File(chooser.getCurrentDirectory(), presetFileName));
 		}
 		chooser.resetChoosableFileFilters();
 
 		if (directoryMode) {
+			chooser.setDialogTitle("Select Folder");
 			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			chooser.setAcceptAllFileFilterUsed(false);
 		} else {
+			chooser.setDialogTitle("Select File");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-			chooser.setFileFilter(filter[0]);
-			for (int i = 1; i < filter.length; i++)
+			chooser.setFileFilter(primaryFileFilter);
+			for (int i = 1; i < filter.length; i++) {
 				chooser.addChoosableFileFilter(filter[i]);
+			}
 		}
 
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
 		if (dialogResult == JFileChooser.APPROVE_OPTION) {
-			if (directoryMode)
+			if (directoryMode && !chooser.getSelectedFile().isDirectory()) {
 				result = chooser.getCurrentDirectory().getAbsolutePath();
-			else
+			} else {
 				result = chooser.getSelectedFile().getAbsolutePath();
+			}
 		}
 
 		return result;
 	}
 
-	private String choosePath(boolean saveMode, FileFilter... filter) {
-		return choosePath(saveMode, false, filter);
+	private String choosePath(boolean saveMode, boolean directoryMode, FileFilter... filter) {
+		return choosePath(saveMode, directoryMode, null, filter);
 	}
 
-	private String chooseSavePath(FileFilter... fileFilter) {
-		String path = choosePath(true, fileFilter);
-		if (path != null && fileFilter[0] == FILE_FILTER_GZ && !path.toLowerCase().endsWith(".json.gz") && !path.toLowerCase().endsWith(".json"))
+	private String chooseSavePath(String presetFileName, FileFilter... fileFilters) {
+		String path = choosePath(true, false, presetFileName, fileFilters);
+		if (path != null && fileFilters[0] == FILE_FILTER_GZ && !path.toLowerCase().endsWith(".json.gz") && !path.toLowerCase().endsWith(".json"))
 			path += ".json.gz";
-		if (path != null && fileFilter[0] == FILE_FILTER_DOCX && !path.toLowerCase().endsWith(".docx"))
+		if (path != null && fileFilters[0] == FILE_FILTER_DOCX && !path.toLowerCase().endsWith(".docx"))
 			path += ".docx";
-		if (path != null && fileFilter[0] == FILE_FILTER_HTML && !path.toLowerCase().endsWith(".html"))
+		if (path != null && fileFilters[0] == FILE_FILTER_HTML && !path.toLowerCase().endsWith(".html"))
 			path += ".html";
-		if (path != null && fileFilter[0] == FILE_FILTER_MD && !path.toLowerCase().endsWith(".md"))
+		if (path != null && fileFilters[0] == FILE_FILTER_MD && !path.toLowerCase().endsWith(".md"))
 			path += ".md";
-		if (path != null && fileFilter[0] == FILE_FILTER_R && !path.toLowerCase().endsWith(".R"))
+		if (path != null && fileFilters[0] == FILE_FILTER_R && !path.toLowerCase().endsWith(".R"))
 			path += ".R";
 		return path;
 	}
 
+	private String chooseSavePath(FileFilter... fileFilter) {
+		return chooseSavePath(null, fileFilter);
+	}
+
 	private String chooseOpenPath(FileFilter... fileFilter) {
-		return choosePath(false, fileFilter);
+		return choosePath(false, false, fileFilter);
 	}
 
 	private String chooseSaveDirectory() {
@@ -403,9 +406,9 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		String filename = ObjectExchange.etl.getFilename();
 		switch (event.getActionCommand()) {
 			case ACTION_SAVE:
-				String filename = ObjectExchange.etl.getFilename();
 				doSave((filename == null || !filename.toLowerCase().endsWith(".json.gz")) ? chooseSavePath(FILE_FILTER_GZ) : filename);
 				break;
 			case ACTION_SAVE_AS:
@@ -418,7 +421,8 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doOpenScanReport(chooseOpenPath(FILE_FILTER_XLSX));
 				break;
 			case ACTION_GENERATE_ETL_WORD_DOCUMENT:
-				doGenerateEtlWordDoc(chooseSavePath(FILE_FILTER_DOCX));
+				filename = filename.replaceAll("\\..*$", ".docx");
+				doGenerateEtlWordDoc(chooseSavePath(filename, FILE_FILTER_DOCX));
 				break;
 			case ACTION_GENERATE_ETL_HTML_DOCUMENT:
 				doGenerateEtlHtmlDoc(chooseSaveDirectory());
@@ -427,16 +431,16 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 				doGenerateEtlMdDoc(chooseSaveDirectory());
 				break;
 			case ACTION_GENERATE_TEST_FRAMEWORK:
-				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
+				doGenerateTestFramework(chooseSavePath("TestFramework.R", FILE_FILTER_R));
 				break;
 			case ACTION_GENERATE_SOURCE_FIELD_LIST:
-				doGenerateSourceFields(chooseSavePath(FILE_FILTER_CSV));
+				doGenerateSourceFields(chooseSavePath("source_field_list.csv", FILE_FILTER_CSV));
 				break;
 			case ACTION_GENERATE_TARGET_FIELD_LIST:
-				doGenerateTargetFields(chooseSavePath(FILE_FILTER_CSV));
+				doGenerateTargetFields(chooseSavePath("target_field_list.csv", FILE_FILTER_CSV));
 				break;
 			case ACTION_GENERATE_TABLE_MAPPING_LIST:
-				doGenerateTableMappings(chooseSavePath(FILE_FILTER_CSV));
+				doGenerateTableMappings(chooseSavePath("table_mapping_list.csv", FILE_FILTER_CSV));
 				break;
 			case ACTION_GENERATE_SQL:
 				doGenerateSql(chooseSaveDirectory());
@@ -540,10 +544,10 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doSetTargetCustom(String fileName) {
+	private void doSetTargetCustom(String filename) {
 
-		if (fileName != null) {
-			File file = new File(fileName);
+		if (filename != null) {
+			File file = new File(filename);
 			InputStream stream;
 
 			try {
