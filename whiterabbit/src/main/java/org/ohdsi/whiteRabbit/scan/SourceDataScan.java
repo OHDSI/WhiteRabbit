@@ -174,6 +174,8 @@ public class SourceDataScan {
 
 	private void createOverviewSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
 		Sheet overviewSheet = workbook.createSheet("Overview");
+		CellStyle percentageStyle = workbook.createCellStyle();
+		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
 
 		// Create heading
 		List<String> overviewHeader = new ArrayList<>(Arrays.asList(
@@ -245,21 +247,20 @@ public class SourceDataScan {
 						));
 					}
 				}
-				addRow(overviewSheet, values.toArray());
+				Row row = addRow(overviewSheet, values.toArray());
+				if (scanValues) {
+					setColumnStyles(row, percentageStyle, 7, 9);
+				}
 			}
 			addRow(overviewSheet, "");
-		}
-
-		if (scanValues) {
-			// Format fraction empty and fraction unique columns
-			CellStyle percentageStyle = workbook.createCellStyle();
-			percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
-			this.setColumnStyles(overviewSheet, percentageStyle, 7, 9);
 		}
 	}
 
 	private void createValueSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
-		for (String tableName : tableToFieldInfos.keySet()) {
+		// Make a copy of the tableNames, such that we can dereference the table at the end of each loop to save memory
+		String[] tableNames = tableToFieldInfos.keySet().toArray(new String[0]);
+
+		for (String tableName : tableNames) {
 			Sheet valueSheet = workbook.createSheet(sheetNameLookup.get(tableName));
 
 			List<FieldInfo> fieldInfos = tableToFieldInfos.get(tableName);
@@ -293,9 +294,8 @@ public class SourceDataScan {
 				}
 				addRow(valueSheet, row);
 			}
-			// Save some memory by derefencing tables already included in the report:
-			// TODO: this gives a ConcurrentModification exception
-//			tableToFieldInfos.remove(tableName);
+			// Save some memory by dereferencing tables already included in the report:
+			tableToFieldInfos.remove(tableName);
 		}
 	}
 
@@ -718,7 +718,7 @@ public class SourceDataScan {
 
 	}
 
-	private void addRow(Sheet sheet, Object... values) {
+	private Row addRow(Sheet sheet, Object... values) {
 		Row row = sheet.createRow(sheet.getPhysicalNumberOfRows());
 		for (Object value : values) {
 			Cell cell = row.createCell(row.getPhysicalNumberOfCells());
@@ -736,16 +736,14 @@ public class SourceDataScan {
 				cell.setCellValue("");
 			}
 		}
+		return row;
 	}
 
-	private void setColumnStyles(Sheet sheet, CellStyle style, int... colNums) {
-		int numberOfRows = sheet.getPhysicalNumberOfRows();
-		for (int i = 0; i < numberOfRows; i++) {
-			Row row = sheet.getRow(i);
-			for(int j : colNums) {
-				Cell cell = row.getCell(j);
-				if (cell != null)
-					cell.setCellStyle(style);
+	private void setColumnStyles(Row row, CellStyle style, int... colNums) {
+		for(int j : colNums) {
+			Cell cell = row.getCell(j);
+			if (cell != null) {
+				cell.setCellStyle(style);
 			}
 		}
 	}
