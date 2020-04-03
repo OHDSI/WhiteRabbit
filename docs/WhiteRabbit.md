@@ -1,18 +1,9 @@
----
-layout: default
-title: White Rabbit
-nav_order: 2
----
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitlogo.png )
+![](images/whiterabbitlogo.png )
 
 # Introduction
-{: .no_toc}
-
 ## Scope and purpose
-{: .no_toc}
-
-WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](documentation:cdm:single-page).
+WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](www.github.com/OHDSI/CommonDataModel/wiki).
 The source data can be in comma-separated text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery).
 Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Microsoft APS, Amazon RedShift, Google BigQuery, Impala).
 
@@ -21,8 +12,6 @@ This scan will generate a report that can be used as a reference when designing 
 White Rabbit differs from standard data profiling tools in that it attempts to prevent the display of personally identifiable information (PII) data values in the generated output data file.
 
 ## Process Overview
-{: .no_toc}
-
 The typical sequence for using this software to scan source data in preparation of developing an ETL into an OMOP CDM:
 1. Set working folder, the location on the local desktop computer where results will be exported.
 2. Connect to the source database or CSV text file and test connection.
@@ -30,12 +19,6 @@ The typical sequence for using this software to scan source data in preparation 
 4. WhiteRabbit creates an export of information about the source data.
 
 Once the scan report is created, this report can then be used in the Rabbit-In-a-Hat tool or as a stand-alone data profiling document.
-
-# Table of Contents
-{: .no_toc}
-
-1. TOC
-{:toc}
 
 # Installation and support
 
@@ -49,7 +32,7 @@ Any questions/comments/feedback/discussion can be posted on the OHDSI Developer 
 
 ## Specifying the Location of Source Data
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreenshot.png)
+![](images/whiterabbitscreenshot.png)
 
 ### Working Folder
 
@@ -123,6 +106,7 @@ An application key is written to `~/.config/gcloud/application_default_credentai
   * _**Database name:**_ data set name within ProjectID named in Server location field
 
 Authentication via service account credentials:
+
   * _**Server location:**_ name of GBQ ProjectID
   * _**User name:**_ OAuth service account email address
   * _**Password:**_ OAuth private key path (file location of private key JSON file). Must be a valid full file pathname
@@ -133,7 +117,7 @@ Authentication via service account credentials:
 
 ### Performing the Scan
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreen-scan.png )
+![](images/whiterabbitscreen-scan.png)
 
 A scan generates a report containing information on the source data that can be used to help design the ETL.
 Using the Scan tab in WhiteRabbit you can either select individual tables in the selected source database by clicking on ‘Add’ (Ctrl + mouse click),
@@ -184,7 +168,7 @@ this indicates that there are one or more additional unique source values that a
 Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data.
 These two columns (distinct values and frequency) will repeat for all the source columns in the table profiled in the workbook.
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreen-readingthescanex.png )
+![](images/whiterabbitscreen-readingthescanex.png )
 
 The report is powerful in understanding your source data by highlighting what exists.
 For example, the above results were given back on the “SEX” column within one of the tables scanned, we can see that there were two common values (1 and 2) that appeared 61,491 and 35,401 times respectively.

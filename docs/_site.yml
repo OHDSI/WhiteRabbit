@@ -1,0 +1,31 @@
+name: "OHDSI White Rabbit"
+output_dir: "."
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    css: style.css
+    includes:
+      in_header: "images/favicon.html"
+exclude: ["ReadMe.md"]
+navbar:
+  title: '<div><img src="images/ohdsi16x16.png"></img> OHDSI White Rabbit</div>'  
+  left:
+    - icon: glyphicon-home
+      href: index.html
+    - text: "White Rabbit"
+      icon: glyphicon-list
+      href: WhiteRabbit.html
+    - text: "Rabbit In A Hat"
+      icon: glyphicon-list-alt
+      href: RabbitInAHat.html  
+    - text: "Test Framework"
+      icon: glyphicon-dashboard
+      href: riah_test_framework.html
+    - text: "Best Practices"
+      icon: glyphicon-check
+      href: best_practices.html   
+  right:
+    - icon: glyphicon-link
+      href: https://github.com/ohdsi/whiterabbit
