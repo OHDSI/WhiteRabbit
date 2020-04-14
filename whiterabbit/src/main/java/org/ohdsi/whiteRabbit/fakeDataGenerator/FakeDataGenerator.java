@@ -147,11 +147,8 @@ public class FakeDataGenerator {
 		public ValueGenerator(Field field, boolean forcePrimaryKey) {
 			ValueCounts valueCounts = field.getValueCounts();
 			type = field.getType();
-			if (forcePrimaryKey) {
-				length = field.getMaxLength();
-				generatorType = PRIMARY_KEY;
-				pk_cursor = 0;
-			} else if (valueCounts.isEmpty()) {
+
+			if (valueCounts.isEmpty()) {
 				length = field.getMaxLength();
 				generatorType = RANDOM;
 			} else {
@@ -173,6 +170,11 @@ public class FakeDataGenerator {
 				}
 				totalFrequency = runningTotal;
 				generatorType = REGULAR;
+			}
+
+			if (forcePrimaryKey) {
+				generatorType = PRIMARY_KEY;
+				pk_cursor = 0;
 			}
 		}
 
