@@ -237,13 +237,13 @@ public class SourceDataScan {
 					));
 					if (calculateNumericStats) {
 						values.addAll(Arrays.asList(
-								fieldInfo.getAverage(),
-								fieldInfo.getStandardDeviation(),
-								fieldInfo.getMinimum(),
-								fieldInfo.getQ1(),
-								fieldInfo.getQ2(),
-								fieldInfo.getQ3(),
-								fieldInfo.getMaximum()
+								fieldInfo.average,
+								fieldInfo.stdev,
+								fieldInfo.minimum,
+								fieldInfo.q1,
+								fieldInfo.q2,
+								fieldInfo.q3,
+								fieldInfo.maximum
 						));
 					}
 				}
@@ -534,6 +534,13 @@ public class SourceDataScan {
 		public boolean isFreeText = false;
 		public boolean tooManyValues = false;
 		public UniformSamplingReservoir samplingReservoir;
+		public Object average;
+		public Object stdev;
+		public Object minimum;
+		public Object maximum;
+		public Object q1;
+		public Object q2;
+		public Object q3;
 
 		public FieldInfo(String name) {
 			this.name = name;
@@ -543,9 +550,22 @@ public class SourceDataScan {
 		}
 
 		public void trim() {
+			// Only keep values that are used in scan report
 			if (valueCounts.size() > maxValues) {
 				valueCounts.keepTopN(maxValues);
 			}
+
+			// Calculate numeric stats and dereference sampling reservoir to save memory.
+			if (calculateNumericStats) {
+				average = getAverage();
+				stdev = getStandardDeviation();
+				minimum = getMinimum();
+				maximum = getMaximum();
+				q1 = getQ1();
+				q2 = getQ2();
+				q3 = getQ3();
+			}
+			samplingReservoir = null;
 		}
 
 		public boolean hasValuesTrimmed() {
