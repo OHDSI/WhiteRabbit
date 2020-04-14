@@ -74,4 +74,8 @@ public class ValueCounts {
         return valueCounts.size();
     }
 
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
 }
