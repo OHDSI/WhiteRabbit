@@ -564,17 +564,17 @@ public class SourceDataScan {
 			if (type != null)
 				return type;
 			else if (nProcessed == emptyCount)
-				return "empty";
+				return DataType.EMPTY.name();
 			else if (isFreeText)
-				return "text";
+				return DataType.TEXT.name();
 			else if (isDate)
-				return "date";
+				return DataType.DATE.name();
 			else if (isInteger)
-				return "int";
+				return DataType.INT.name();
 			else if (isReal)
-				return "real";
+				return DataType.REAL.name();
 			else
-				return "varchar";
+				return DataType.VARCHAR.name();
 		}
 
 		public Double getFractionUnique() {
@@ -664,8 +664,16 @@ public class SourceDataScan {
 		}
 
 		private Object formatNumericValue(double value) {
-			if (isInteger || isReal) {
+			return formatNumericValue(value, false);
+		}
+
+		private Object formatNumericValue(double value, boolean dateAsDays) {
+			if (getTypeDescription().equals(DataType.EMPTY.name())) {
+				return Double.NaN;
+			} else if (isInteger || isReal) {
 				return value;
+			} else if (isDate && dateAsDays) {
+				return value/1000/3600/24;
 			} else if (isDate) {
 				Date date = new Date((long) value);
 				return new SimpleDateFormat("yyyy-MM-dd").format(date);
@@ -691,14 +699,7 @@ public class SourceDataScan {
 
 		private Object getStandardDeviation() {
 			double stddev = samplingReservoir.getSampleStandardDeviation();
-			if (isInteger || isReal) {
-				return stddev;
-			} else if (isDate) {
-				// Convert milliseconds to days
-				return stddev/1000/3600/24;
-			} else {
-				return Double.NaN;
-			}
+			return formatNumericValue(stddev, true);
 		}
 
 		private Object getQ1() {
