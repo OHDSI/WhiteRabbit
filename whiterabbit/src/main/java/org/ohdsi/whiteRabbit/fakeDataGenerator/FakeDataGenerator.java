@@ -36,6 +36,7 @@ public class FakeDataGenerator {
 	private int targetType;
 	private int maxRowsPerTable = 1000;
 	private boolean firstFieldAsKey;
+	private boolean doUniformSampling;
 
 
 	private static int REGULAR = 0;
@@ -43,13 +44,14 @@ public class FakeDataGenerator {
 	private static int PRIMARY_KEY = 2;
 
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder) {
-		generateData(dbSettings, maxRowsPerTable, filename, folder, false);
+		generateData(dbSettings, maxRowsPerTable, filename, folder, false, false);
 	}
 
-	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder, boolean firstFieldAsKey) {
+	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder, boolean firstFieldAsKey, boolean doUniformSampling) {
 		this.maxRowsPerTable = maxRowsPerTable;
 		this.targetType = dbSettings.dataType;
 		this.firstFieldAsKey = firstFieldAsKey;
+		this.doUniformSampling = doUniformSampling;
 
 		StringUtilities.outputWithTime("Starting creation of fake data");
 		System.out.println("Loading scan report from " + filename);
@@ -160,7 +162,13 @@ public class FakeDataGenerator {
 				cumulativeFrequency = new int[length];
 				for (int i = 0; i < length; i++) {
 					values[i] = valueCounts.get(i).getValue();
-					runningTotal += valueCounts.get(i).getFrequency();
+					int frequency;
+					if (doUniformSampling) {
+						frequency = 1;
+					} else {
+						frequency = valueCounts.get(i).getFrequency();
+					}
+					runningTotal += frequency;
 					cumulativeFrequency[i] = runningTotal;
 				}
 				totalFrequency = runningTotal;
