@@ -198,7 +198,7 @@ public class FakeDataGenerator {
 					runningTotal += valueCounts.get(i).getFrequency();
 					cumulativeFrequency[i] = runningTotal;
 				}
-				totalFrequency = valueCounts.getSummedFrequency();
+				totalFrequency = runningTotal;
 				generatorType = REGULAR;
 			}
 		}

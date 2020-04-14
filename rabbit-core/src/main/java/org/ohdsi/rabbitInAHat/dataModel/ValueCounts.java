@@ -1,12 +1,27 @@
+/*******************************************************************************
+ * Copyright 2020 Observational Health Data Sciences and Informatics
+ *
+ * This file is part of WhiteRabbit
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package org.ohdsi.rabbitInAHat.dataModel;
 
 import java.util.ArrayList;
 
-/**
- * Created by Maxim Moinat.
- */
-public class ValueCounts extends ArrayList<ValueCounts.ValueCount> {
-    private int summedFrequency = 0;
+public class ValueCounts {
+    private ArrayList<ValueCounts.ValueCount> valueCounts = new ArrayList<>();
+    private int totalFrequency = 0;
 
     public class ValueCount {
         private String value;
@@ -28,27 +43,35 @@ public class ValueCounts extends ArrayList<ValueCounts.ValueCount> {
         public int getFrequency() {
             return frequency;
         }
-
-        public void setFrequency(int frequency) {
-            this.frequency = frequency;
-        }
     }
 
     public boolean add(String value, int frequency) {
-        summedFrequency += frequency;
-        return super.add(new ValueCount(value, frequency));
+        totalFrequency += frequency;
+        return valueCounts.add(new ValueCount(value, frequency));
+    }
+
+    public ArrayList<ValueCounts.ValueCount> getAll() {
+        return valueCounts;
+    }
+
+    public ValueCounts.ValueCount get(int i) {
+        return valueCounts.get(i);
     }
 
     public String getMostFrequentValue() {
         // Assumption: first added value is the most frequent one (that is how the scan report is structured)
-        if (this.size() > 0) {
-            return this.get(0).getValue();
+        if (valueCounts.size() > 0) {
+            return valueCounts.get(0).getValue();
         }
         return null;
     }
 
-    public int getSummedFrequency() {
-        return summedFrequency;
+    public int getTotalFrequency() {
+        return totalFrequency;
+    }
+
+    public int size() {
+        return valueCounts.size();
     }
 
 }

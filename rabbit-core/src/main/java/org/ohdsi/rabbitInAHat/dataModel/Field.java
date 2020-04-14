@@ -17,6 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat.dataModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Field implements MappableItem {

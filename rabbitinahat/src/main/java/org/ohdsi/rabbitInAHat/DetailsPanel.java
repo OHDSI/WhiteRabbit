@@ -435,7 +435,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			valueTable.clear();
 
 			int rowsCheckedCount = field.getRowsCheckedCount();
-			for (ValueCounts.ValueCount valueCount : field.getValueCounts()) {
+			for (ValueCounts.ValueCount valueCount : field.getValueCounts().getAll()) {
 				double valueCountPercent = valueCount.getFrequency() / (double) rowsCheckedCount;
 				String valuePercent;
 				if (valueCountPercent < 0.001) {
@@ -449,7 +449,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 				valueTable.add(valueCount.getValue(), valueNumber, valuePercent);
 			}
 
-			if (rowsCheckedCount != field.getValueCounts().getSummedFrequency()) {
+			if (rowsCheckedCount != field.getValueCounts().getTotalFrequency()) {
 				valueTable.add("Truncated...", "", "");
 			}
 		}
