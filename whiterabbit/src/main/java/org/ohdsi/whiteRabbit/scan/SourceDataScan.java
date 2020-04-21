@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright 2019 Observational Health Data Sciences and Informatics
- * 
+ *
  * This file is part of WhiteRabbit
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,18 +17,11 @@
  ******************************************************************************/
 package org.ohdsi.whiteRabbit.scan;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,6 +38,8 @@ import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.databases.RichConnection.QueryResult;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.utilities.DateUtilities;
+import org.ohdsi.utilities.ScanFieldName;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.collections.CountingSet;
 import org.ohdsi.utilities.collections.CountingSet.Count;
@@ -59,19 +54,42 @@ public class SourceDataScan {
 	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
 	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
 
-	private char		delimiter							= ',';
+	private char		delimiter = ',';
 	private int			sampleSize;
-	private boolean		scanValues;
+	private boolean scanValues = false;
+	private boolean calculateNumericStats = false;
+	private int			numStatsSamplerSize;
 	private int			minCellCount;
 	private int			maxValues;
 	private DbType		dbType;
 	private String		database;
+	private Map<String, String> sheetNameLookup;
 
-	public void process(DbSettings dbSettings, int sampleSize, boolean scanValues, int minCellCount, int maxValues, String filename) {
+	public void setSampleSize(int sampleSize) {
 		this.sampleSize = sampleSize;
+	}
+
+	public void setScanValues(boolean scanValues) {
 		this.scanValues = scanValues;
+	}
+
+	public void setMinCellCount(int minCellCount) {
 		this.minCellCount = minCellCount;
+	}
+
+	public void setMaxValues(int maxValues) {
 		this.maxValues = maxValues;
+	}
+
+	public void setCalculateNumericStats(boolean calculateNumericStats) {
+		this.calculateNumericStats = calculateNumericStats;
+	}
+
+	public void setNumStatsSamplerSize(int numStatsSamplerSize) {
+		this.numStatsSamplerSize = numStatsSamplerSize;
+	}
+
+	public void process(DbSettings dbSettings, String filename) {
 		Map<String, List<FieldInfo>> tableToFieldInfos;
 		if (dbSettings.dataType == DbSettings.CSVFILES) {
 			if (!scanValues)
@@ -89,7 +107,7 @@ public class SourceDataScan {
 		// GBQ requires database. Put database value into domain var
 		if (dbSettings.dbType == DbType.BIGQUERY) {
 			dbSettings.domain = dbSettings.database;
-		};
+		}
 
 		try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
 			connection.setVerbose(false);
@@ -135,100 +153,152 @@ public class SourceDataScan {
 	private void generateReport(Map<String, List<FieldInfo>> tableToFieldInfos, String filename) {
 		System.out.println("Generating scan report");
 		removeEmptyTables(tableToFieldInfos);
-		List<String> tables = new ArrayList<String>(tableToFieldInfos.keySet());
-		Collections.sort(tables);
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
-		CellStyle percentageStyle = workbook.createCellStyle();
-		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0%"));
 
-		// Create overview sheet
-		Sheet overviewSheet = workbook.createSheet("Overview");
-		if (!scanValues) {
-			addRow(overviewSheet, "Table", "Field", "Type", "N rows");
-			for (String table : tables) {
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
-                    addRow(overviewSheet, table, fieldInfo.name, fieldInfo.getTypeDescription(), Long.valueOf(fieldInfo.rowCount));
-                }
-				addRow(overviewSheet, "");
-			}
-		} else {
-			addRow(overviewSheet, "Table", "Field", "Type", "Max length", "N rows", "N rows checked", "Fraction empty", "N unique values", "Fraction unique values");
-			int sheetIndex = 0;
-			Map<String, String> sheetNameLookup = new HashMap<>();
-			for (String tableName : tables) {
-				// Make tablename unique
-				String tableNameIndexed = Table.indexTableNameForSheet(tableName, sheetIndex);
+		sheetNameLookup = new HashMap<>();
+		createOverviewSheet(workbook, tableToFieldInfos);
 
-				String sheetName = Table.createSheetNameFromTableName(tableNameIndexed);
-				sheetNameLookup.put(tableName, sheetName);
-
-				for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
-					Long uniqueCount = fieldInfo.uniqueCount;
-					Double fractionUnique = fieldInfo.getFractionUnique();
-                    addRow(overviewSheet, tableNameIndexed, fieldInfo.name, fieldInfo.getTypeDescription(),
-							Integer.valueOf(fieldInfo.maxLength),
-							Long.valueOf(fieldInfo.rowCount),
-                            Long.valueOf(fieldInfo.nProcessed),
-							fieldInfo.getFractionEmpty(),
-							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
-							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique
-					);
-					this.setCellStyles(overviewSheet, percentageStyle, 6, 8);
-                }
-				addRow(overviewSheet, "");
-				sheetIndex += 1;
-			}
-
-			// Create per table scan values
-			for (String tableName : tables) {
-				Sheet valueSheet = workbook.createSheet(sheetNameLookup.get(tableName));
-
-				List<FieldInfo> fieldInfos = tableToFieldInfos.get(tableName);
-				List<List<Pair<String, Integer>>> valueCounts = new ArrayList<>();
-				Object[] header = new Object[fieldInfos.size() * 2];
-				int maxCount = 0;
-				for (int i = 0; i < fieldInfos.size(); i++) {
-					FieldInfo fieldInfo = fieldInfos.get(i);
-					header[i * 2] = fieldInfo.name;
-					if (fieldInfo.isFreeText)
-						header[(i * 2) + 1] = "Word count";
-					else
-						header[(i * 2) + 1] = "Frequency";
-					List<Pair<String, Integer>> counts = fieldInfo.getSortedValuesWithoutSmallValues();
-					valueCounts.add(counts);
-					if (counts.size() > maxCount)
-						maxCount = counts.size();
-				}
-				addRow(valueSheet, header);
-				for (int i = 0; i < maxCount; i++) {
-					Object[] row = new Object[fieldInfos.size() * 2];
-					for (int j = 0; j < fieldInfos.size(); j++) {
-						List<Pair<String, Integer>> counts = valueCounts.get(j);
-						if (counts.size() > i) {
-							row[j * 2] = counts.get(i).getItem1();
-							row[(j * 2) + 1] = counts.get(i).getItem2() == -1 ? "" : counts.get(i).getItem2();
-						} else {
-							row[j * 2] = "";
-							row[(j * 2) + 1] = "";
-						}
-					}
-					addRow(valueSheet, row);
-				}
-				// Save some memory by derefencing tables already included in the report:
-				tableToFieldInfos.remove(tableName);
-			}
+		if (scanValues) {
+			createValueSheet(workbook, tableToFieldInfos);
 		}
 
-		try {
-			FileOutputStream out = new FileOutputStream(new File(filename));
+		try (FileOutputStream out = new FileOutputStream(new File(filename))) {
 			workbook.write(out);
 			out.close();
 			StringUtilities.outputWithTime("Scan report generated: " + filename);
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
+		} catch (IOException ex) {
+			throw new RuntimeException(ex.getMessage());
 		}
 	}
+
+	private void createOverviewSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
+		Sheet overviewSheet = workbook.createSheet("Overview");
+		CellStyle percentageStyle = workbook.createCellStyle();
+		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
+
+		// Create heading
+		List<String> overviewHeader = new ArrayList<>(Arrays.asList(
+				ScanFieldName.TABLE,
+				ScanFieldName.FIELD,
+				ScanFieldName.DESCRIPTION,
+				ScanFieldName.TYPE,
+				ScanFieldName.MAX_LENGTH,
+				ScanFieldName.N_ROWS
+		));
+		if (scanValues) {
+			overviewHeader.addAll(Arrays.asList(
+					ScanFieldName.N_ROWS_CHECKED,
+					ScanFieldName.FRACTION_EMPTY,
+					ScanFieldName.UNIQUE_COUNT,
+					ScanFieldName.FRACTION_UNIQUE
+			));
+			if (calculateNumericStats) {
+				overviewHeader.addAll(Arrays.asList(
+						ScanFieldName.AVERAGE,
+						ScanFieldName.STDEV,
+						ScanFieldName.MIN,
+						ScanFieldName.Q1,
+						ScanFieldName.Q2,
+						ScanFieldName.Q3,
+						ScanFieldName.MAX
+				));
+			}
+		}
+		addRow(overviewSheet, overviewHeader.toArray());
+
+		// Add fields
+		int sheetIndex = 0;
+		for (String tableName : tableToFieldInfos.keySet()) {
+			// Make tablename unique
+			String tableNameIndexed = Table.indexTableNameForSheet(tableName, sheetIndex);
+
+			sheetNameLookup.put(tableName, Table.createSheetNameFromTableName(tableNameIndexed));
+
+			sheetIndex += 1;
+			for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
+				List<Object> values = new ArrayList<>(Arrays.asList(
+						tableNameIndexed,
+						fieldInfo.name,
+						fieldInfo.label,
+						fieldInfo.getTypeDescription(),
+						fieldInfo.maxLength,
+						fieldInfo.rowCount
+				));
+
+				if (scanValues) {
+					Long uniqueCount = fieldInfo.uniqueCount;
+					Double fractionUnique = fieldInfo.getFractionUnique();
+					values.addAll(Arrays.asList(
+							fieldInfo.nProcessed,
+							fieldInfo.getFractionEmpty(),
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique
+					));
+					if (calculateNumericStats) {
+						values.addAll(Arrays.asList(
+								fieldInfo.average,
+								fieldInfo.stdev,
+								fieldInfo.minimum,
+								fieldInfo.q1,
+								fieldInfo.q2,
+								fieldInfo.q3,
+								fieldInfo.maximum
+						));
+					}
+				}
+				Row row = addRow(overviewSheet, values.toArray());
+				if (scanValues) {
+					setColumnStyles(row, percentageStyle, 7, 9);
+				}
+			}
+			addRow(overviewSheet, "");
+		}
+	}
+
+	private void createValueSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
+		// Make a copy of the tableNames, such that we can dereference the table at the end of each loop to save memory
+		String[] tableNames = tableToFieldInfos.keySet().toArray(new String[0]);
+
+		for (String tableName : tableNames) {
+			Sheet valueSheet = workbook.createSheet(sheetNameLookup.get(tableName));
+
+			List<FieldInfo> fieldInfos = tableToFieldInfos.get(tableName);
+			List<List<Pair<String, Integer>>> valueCounts = new ArrayList<>();
+			Object[] header = new Object[fieldInfos.size() * 2];
+			int maxCount = 0;
+			for (int i = 0; i < fieldInfos.size(); i++) {
+				FieldInfo fieldInfo = fieldInfos.get(i);
+				header[i * 2] = fieldInfo.name;
+				if (fieldInfo.isFreeText)
+					header[(i * 2) + 1] = "Word count";
+				else
+					header[(i * 2) + 1] = "Frequency";
+				List<Pair<String, Integer>> counts = fieldInfo.getSortedValuesWithoutSmallValues();
+				valueCounts.add(counts);
+				if (counts.size() > maxCount)
+					maxCount = counts.size();
+			}
+			addRow(valueSheet, header);
+			for (int i = 0; i < maxCount; i++) {
+				Object[] row = new Object[fieldInfos.size() * 2];
+				for (int j = 0; j < fieldInfos.size(); j++) {
+					List<Pair<String, Integer>> counts = valueCounts.get(j);
+					if (counts.size() > i) {
+						row[j * 2] = counts.get(i).getItem1();
+						row[(j * 2) + 1] = counts.get(i).getItem2() == -1 ? "" : counts.get(i).getItem2();
+					} else {
+						row[j * 2] = "";
+						row[(j * 2) + 1] = "";
+					}
+				}
+				addRow(valueSheet, row);
+			}
+			// Save some memory by dereferencing tables already included in the report:
+			tableToFieldInfos.remove(tableName);
+		}
+	}
+
 
 	private void removeEmptyTables(Map<String, List<FieldInfo>> tableToFieldInfos) {
 		tableToFieldInfos.entrySet()
@@ -255,9 +325,8 @@ public class SourceDataScan {
 						break;
 					}
 				}
-				for (FieldInfo fieldInfo : fieldInfos) {
+				for (FieldInfo fieldInfo : fieldInfos)
 					fieldInfo.trim();
-				}
 			} catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
 			} finally {
@@ -276,12 +345,12 @@ public class SourceDataScan {
 		if (sampleSize == -1) {
 			if (dbType == DbType.MSACCESS)
 				query = "SELECT * FROM [" + table + "]";
-			else if (dbType == DbType.MSSQL || dbType == DbType.PDW)
+			else if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE)
 				query = "SELECT * FROM [" + table.replaceAll("\\.", "].[") + "]";
 			else
 				query = "SELECT * FROM " + table;
 		} else {
-			if (dbType == DbType.MSSQL)
+			if (dbType == DbType.MSSQL || dbType == DbType.AZURE)
 				query = "SELECT * FROM [" + table.replaceAll("\\.", "].[") + "] TABLESAMPLE (" + sampleSize + " ROWS)";
 			else if (dbType == DbType.MYSQL)
 				query = "SELECT * FROM " + table + " ORDER BY RAND() LIMIT " + sampleSize;
@@ -308,7 +377,7 @@ public class SourceDataScan {
 	}
 
 	private List<FieldInfo> fetchTableStructure(RichConnection connection, String table) {
-		List<FieldInfo> fieldInfos = new ArrayList<FieldInfo>();
+		List<FieldInfo> fieldInfos = new ArrayList<>();
 
 		if (dbType == DbType.MSACCESS) {
 			ResultSet rs = connection.getMsAccessFieldNames(table);
@@ -333,6 +402,10 @@ public class SourceDataScan {
 				String[] parts = table.split("\\.");
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_SCHEMA='" + parts[0] +
 						"' AND TABLE_NAME='" + parts[1]	+ "';";
+			} else if (dbType == DbType.AZURE) {
+				String[] parts = table.split("\\.");
+				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='" + parts[0] +
+						"' AND TABLE_NAME='" + parts[1]	+ "';";
 			} else if (dbType == DbType.MYSQL)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table
 						+ "';";
@@ -346,6 +419,7 @@ public class SourceDataScan {
 			else if (dbType == DbType.BIGQUERY) {
 				query = "SELECT column_name AS COLUMN_NAME, data_type as DATA_TYPE FROM " + database + ".INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"" + table + "\";";
 			}
+
 			for (org.ohdsi.utilities.files.Row row : connection.query(query)) {
 				row.upperCaseFieldNames();
 				FieldInfo fieldInfo;
@@ -360,7 +434,6 @@ public class SourceDataScan {
 					fieldInfo.type = row.get("DATA_TYPE");
 				}
 				fieldInfo.rowCount = connection.getTableSize(table);
-				;
 				fieldInfos.add(fieldInfo);
 			}
 		}
@@ -406,24 +479,33 @@ public class SourceDataScan {
 		try(FileInputStream inputStream = new FileInputStream(new File(filename))) {
 			SasFileReader sasFileReader = new SasFileReaderImpl(inputStream);
 
-			// It is possible to retrieve more information from the sasFileProperties, like data type and length.
 			SasFileProperties sasFileProperties = sasFileReader.getSasFileProperties();
 			for (Column column : sasFileReader.getColumns()) {
-				fieldInfos.add(new FieldInfo(column.getName()));
+				FieldInfo fieldInfo = new FieldInfo(column.getName());
+				fieldInfo.label = column.getLabel();
+				fieldInfo.rowCount = sasFileProperties.getRowCount();
+				if (!scanValues) {
+					// Either NUMBER or STRING; scanning values produces a more granular type and is preferred
+					fieldInfo.type = column.getType().getName().replace("java.lang.", "");
+				}
+				fieldInfos.add(fieldInfo);
 			}
 
 			for (int lineNr = 0; lineNr < sasFileProperties.getRowCount(); lineNr++) {
 				Object[] row = sasFileReader.readNext();
 
-				if (row.length == fieldInfos.size()) { // Else there appears to be a formatting error, so skip
-					for (int i = 0; i < row.length; i++) {
-						fieldInfos.get(i).processValue(row[i] == null ? "" : row[i].toString());
-					}
+				if (row.length != fieldInfos.size()) {
+					StringUtilities.outputWithTime("WARNING: row " + lineNr + " not scanned due to field count mismatch.");
+					continue;
 				}
+
+				for (int i = 0; i < row.length; i++) {
+					fieldInfos.get(i).processValue(row[i] == null ? "" : row[i].toString());
+				}
+
 				if (lineNr == sampleSize)
 					break;
 			}
-			inputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -436,29 +518,54 @@ public class SourceDataScan {
 	}
 
 	private class FieldInfo {
-		public String				type;
-		public String				name;
-		public CountingSet<String>	valueCounts		= new CountingSet<>();
-		public long					sumLength		= 0;
-		public int					maxLength		= 0;
-		public long					nProcessed		= 0;
-		public long					emptyCount		= 0;
-		public long					uniqueCount		= 0;
-		public long					rowCount		= -1;
-		public boolean				isInteger		= true;
-		public boolean				isReal			= true;
-		public boolean				isDate			= true;
-		public boolean				isFreeText		= false;
-		public boolean				tooManyValues	= false;
+		public String type;
+		public String name;
+		public String label;
+		public CountingSet<String> valueCounts = new CountingSet<>();
+		public long sumLength = 0;
+		public int maxLength = 0;
+		public long nProcessed = 0;
+		public long emptyCount = 0;
+		public long uniqueCount = 0;
+		public long rowCount = -1;
+		public boolean isInteger = true;
+		public boolean isReal = true;
+		public boolean isDate = true;
+		public boolean isFreeText = false;
+		public boolean tooManyValues = false;
+		public UniformSamplingReservoir samplingReservoir;
+		public Object average;
+		public Object stdev;
+		public Object minimum;
+		public Object maximum;
+		public Object q1;
+		public Object q2;
+		public Object q3;
 
 		public FieldInfo(String name) {
 			this.name = name;
+			if (calculateNumericStats) {
+				this.samplingReservoir = new UniformSamplingReservoir(numStatsSamplerSize);
+			}
 		}
 
 		public void trim() {
+			// Only keep values that are used in scan report
 			if (valueCounts.size() > maxValues) {
 				valueCounts.keepTopN(maxValues);
 			}
+
+			// Calculate numeric stats and dereference sampling reservoir to save memory.
+			if (calculateNumericStats) {
+				average = getAverage();
+				stdev = getStandardDeviation();
+				minimum = getMinimum();
+				maximum = getMaximum();
+				q1 = getQ1();
+				q2 = getQ2();
+				q3 = getQ3();
+			}
+			samplingReservoir = null;
 		}
 
 		public boolean hasValuesTrimmed() {
@@ -473,75 +580,71 @@ public class SourceDataScan {
 		}
 
 		public String getTypeDescription() {
+			// TODO: standardize in enum. Type names deviated in fakedata generator.
 			if (type != null)
 				return type;
 			else if (nProcessed == emptyCount)
-				return "empty";
+				return DataType.EMPTY.name();
 			else if (isFreeText)
-				return "text";
+				return DataType.TEXT.name();
 			else if (isDate)
-				return "date";
+				return DataType.DATE.name();
 			else if (isInteger)
-				return "int";
+				return DataType.INT.name();
 			else if (isReal)
-				return "real";
+				return DataType.REAL.name();
 			else
-				return "varchar";
+				return DataType.VARCHAR.name();
 		}
 
 		public Double getFractionUnique() {
 			if (nProcessed == 0 || uniqueCount == 1) {
 				return 0d;
-			}
-			else {
+			} else {
 				return uniqueCount / (double) nProcessed;
 			}
 
 		}
 
 		public void processValue(String value) {
-			String trimValue = value.trim();
 			nProcessed++;
 			sumLength += value.length();
 			if (value.length() > maxLength)
 				maxLength = value.length();
 
+			String trimValue = value.trim();
 			if (trimValue.length() == 0)
 				emptyCount++;
 
 			if (!isFreeText) {
 				boolean newlyAdded = valueCounts.add(value);
-				if  (newlyAdded) uniqueCount++;
+				if (newlyAdded) uniqueCount++;
 
 				if (trimValue.length() != 0) {
-					if (isReal && !StringUtilities.isNumber(trimValue))
-						isReal = false;
-					if (isInteger && !StringUtilities.isLong(trimValue))
-						isInteger = false;
-					if (isDate && !StringUtilities.isDate(trimValue))
-						isDate = false;
+					evaluateDataType(trimValue);
 				}
-				if (nProcessed == N_FOR_FREE_TEXT_CHECK) {
-					if (!isInteger && !isReal && !isDate) {
-						double averageLength = sumLength / (double) (nProcessed - emptyCount);
-						if (averageLength >= MIN_AVERAGE_LENGTH_FOR_FREE_TEXT) {
-							isFreeText = true;
-							CountingSet<String> wordCounts = new CountingSet<String>();
-							for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet())
-								for (String word : StringUtilities.mapToWords(entry.getKey().toLowerCase()))
-									wordCounts.add(word, entry.getValue().count);
-							valueCounts = wordCounts;
-						}
-					}
+
+				if (nProcessed == N_FOR_FREE_TEXT_CHECK && !isInteger && !isReal && !isDate) {
+					doFreeTextCheck();
 				}
 			} else {
 				valueCounts.addAll(StringUtilities.mapToWords(trimValue.toLowerCase()));
 			}
 
+			// if over this large constant number, then trimmed back to size used in report (maxValues).
 			if (!tooManyValues && valueCounts.size() > MAX_VALUES_IN_MEMORY) {
 				tooManyValues = true;
 				this.trim();
 			}
+
+			if (calculateNumericStats && !trimValue.isEmpty()) {
+				if (isInteger || isReal) {
+					samplingReservoir.add(Double.parseDouble(trimValue));
+				} else if (isDate) {
+					samplingReservoir.add(DateUtilities.parseDate(trimValue));
+				}
+			}
+
 		}
 
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {
@@ -557,27 +660,111 @@ public class SourceDataScan {
 			}
 			return result;
 		}
+
+		private void evaluateDataType(String value) {
+			if (isReal && !StringUtilities.isNumber(value))
+				isReal = false;
+			if (isInteger && !StringUtilities.isLong(value))
+				isInteger = false;
+			if (isDate && !StringUtilities.isDate(value))
+				isDate = false;
+		}
+
+		private void doFreeTextCheck() {
+			double averageLength = sumLength / (double) (nProcessed - emptyCount);
+			if (averageLength >= MIN_AVERAGE_LENGTH_FOR_FREE_TEXT) {
+				isFreeText = true;
+				// Reset value count to word count
+				CountingSet<String> wordCounts = new CountingSet<>();
+				for (Map.Entry<String, Count> entry : valueCounts.key2count.entrySet())
+					for (String word : StringUtilities.mapToWords(entry.getKey().toLowerCase()))
+						wordCounts.add(word, entry.getValue().count);
+				valueCounts = wordCounts;
+			}
+		}
+
+		private Object formatNumericValue(double value) {
+			return formatNumericValue(value, false);
+		}
+
+		private Object formatNumericValue(double value, boolean dateAsDays) {
+			if (getTypeDescription().equals(DataType.EMPTY.name())) {
+				return Double.NaN;
+			} else if (isInteger || isReal) {
+				return value;
+			} else if (isDate && dateAsDays) {
+				return value;
+			} else if (isDate) {
+				return LocalDate.ofEpochDay((long) value).toString();
+			} else {
+				return Double.NaN;
+			}
+		}
+
+		private Object getMinimum() {
+			double min = samplingReservoir.getPopulationMinimum();
+			return formatNumericValue(min);
+		}
+
+		private Object getMaximum() {
+			double max = samplingReservoir.getPopulationMaximum();
+			return formatNumericValue(max);
+		}
+
+		private Object getAverage() {
+			double average = samplingReservoir.getPopulationMean();
+			return formatNumericValue(average);
+		}
+
+		private Object getStandardDeviation() {
+			double stddev = samplingReservoir.getSampleStandardDeviation();
+			return formatNumericValue(stddev, true);
+		}
+
+		private Object getQ1() {
+			double q1 = samplingReservoir.getSampleQuartiles().get(0);
+			return formatNumericValue(q1);
+		}
+
+		private Object getQ2() {
+			double q2 = samplingReservoir.getSampleQuartiles().get(1);
+			return formatNumericValue(q2);
+		}
+
+		private Object getQ3() {
+			double q3 = samplingReservoir.getSampleQuartiles().get(2);
+			return formatNumericValue(q3);
+		}
+
 	}
 
-	private void addRow(Sheet sheet, Object... values) {
+	private Row addRow(Sheet sheet, Object... values) {
 		Row row = sheet.createRow(sheet.getPhysicalNumberOfRows());
 		for (Object value : values) {
 			Cell cell = row.createCell(row.getPhysicalNumberOfCells());
 
-			if (value instanceof Integer || value instanceof Long || value instanceof Double)
-				cell.setCellValue(Double.parseDouble(value.toString()));
-			else
+			if (value instanceof Integer || value instanceof Long || value instanceof Double) {
+				double numVal = Double.parseDouble(value.toString());
+				if (Double.isNaN(numVal) || Double.isInfinite(numVal)) {
+					cell.setCellValue("");
+				} else {
+					cell.setCellValue(numVal);
+				}
+			} else if (value != null) {
 				cell.setCellValue(value.toString());
-
+			} else {
+				cell.setCellValue("");
+			}
 		}
+		return row;
 	}
 
-	private void setCellStyles(Sheet sheet, CellStyle style, int... colNums) {
-		Row row = sheet.getRow(sheet.getLastRowNum());
-		for(int i : colNums) {
-			Cell cell = row.getCell(i);
-			if (cell != null)
+	private void setColumnStyles(Row row, CellStyle style, int... colNums) {
+		for(int j : colNums) {
+			Cell cell = row.getCell(j);
+			if (cell != null) {
 				cell.setCellStyle(style);
+			}
 		}
 	}
 }

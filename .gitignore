@@ -2,15 +2,13 @@
 build/
 dist/
 /Error.txt
-/.gitignore
 /Error1.txt
 /.classpath
-target/
 *.iml
 .idea/
 
+# Repo specific ignores
 /ScanReport.xlsx
-*ScanReport*
 *swp
 tmp/*
 Try*

@@ -30,7 +30,7 @@ public class Field implements MappableItem {
 	private boolean				isNullable;
 	private String				type;
 	private String				description			= "";
-	private int					maxLength;
+	private Integer				maxLength;
 	private boolean				isStem;
 	private List<ConceptsMap.Concept> conceptIdHints;
 
@@ -115,11 +115,11 @@ public class Field implements MappableItem {
 		return comment;
 	}
 
-	public int getMaxLength() {
+	public Integer getMaxLength() {
 		return maxLength;
 	}
 
-	public void setMaxLength(int maxLength) {
+	public void setMaxLength(Integer maxLength) {
 		this.maxLength = maxLength;
 	}
 
