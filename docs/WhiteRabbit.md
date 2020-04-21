@@ -183,15 +183,16 @@ If the option for numerical statistics is checked, then a set of statistics is c
 The following statistics are added to the Overview sheet:
 
 * Average
-* Standard Deviation (sample)
+* Standard Deviation (sampled)
 * Minimum
 * Maximum
-* Quartiles (sample)
+* Quartiles: q1, median, q3 (sampled)
 
-Depending on the set reservoir size, some statistics are approximations rather than true population statistics.
-If the number of values is smaller than the reservoir size, then the standard deviation and three quartile boundaries are based on only the sample.
-The sample is taken using a Uniform Sampling Reservoir to resemble the underlying distributions as close as possible.
+If the number of values is smaller than the set reservoir size, then the standard deviation and three quartile boundaries are the exact population statistics. 
+Otherwise, the statistics are approximated based on a representative sample.
 The average, minimum and maximum are always true population statistics.
+For dates, the numerical statistics are calculated by using epoch days. 
+The standard deviation of dates is given in days, the other statistics are converted to a date representation.
 
 ## Generating Fake Data
 This feature allows one to create a fake dataset based on a WhiteRabbit scan report.

@@ -20,7 +20,7 @@ package org.ohdsi.whiteRabbit.scan;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -693,10 +693,9 @@ public class SourceDataScan {
 			} else if (isInteger || isReal) {
 				return value;
 			} else if (isDate && dateAsDays) {
-				return value/1000/3600/24;
+				return value;
 			} else if (isDate) {
-				Date date = new Date((long) value);
-				return new SimpleDateFormat("yyyy-MM-dd").format(date);
+				return LocalDate.ofEpochDay((long) value).toString();
 			} else {
 				return Double.NaN;
 			}

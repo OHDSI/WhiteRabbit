@@ -17,9 +17,8 @@
  ******************************************************************************/
 package org.ohdsi.utilities;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class DateUtilities {
     /**
@@ -27,7 +26,7 @@ public class DateUtilities {
      * Two recognised date formats:
      *  - yyyy*dd*MM
      *  - MM*dd*yy
-     * TODO: what if time included? What if datetime database field?
+     * If the time included, the value is NOT recognised as a date.
      * @param dateString value to be parsed
      * @return long date as time in millis
      */
@@ -41,11 +40,7 @@ public class DateUtilities {
             pattern = "MM" + separator + "dd" + separator + "yy";
         }
 
-        try {
-            Date date = new SimpleDateFormat(pattern).parse(dateString);
-            return date.getTime();
-        } catch (ParseException e) {
-            return 0L;
-        }
+        LocalDate localDate = LocalDate.from(DateTimeFormatter.ofPattern(pattern).parse(dateString));
+        return localDate.toEpochDay();
     }
 }

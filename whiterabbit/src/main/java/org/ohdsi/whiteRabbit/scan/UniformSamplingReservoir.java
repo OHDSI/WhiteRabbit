@@ -1,5 +1,7 @@
 package org.ohdsi.whiteRabbit.scan;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +21,7 @@ public class UniformSamplingReservoir {
     private double[] samples;
     private int maxSize;
     private long populationCount;
-    private double populationSum;
+    private BigDecimal populationSum;
     private double populationMinimum = Double.POSITIVE_INFINITY;
     private double populationMaximum = Double.NEGATIVE_INFINITY;
     private transient int currentSampleLength;
@@ -35,6 +37,7 @@ public class UniformSamplingReservoir {
         }
         this.maxSize = maxSize;
         this.samples = new double[maxSize];
+        this.populationSum = new BigDecimal(0);
         this.populationCount = 0;
         this.currentSampleLength = 0;
     }
@@ -51,7 +54,7 @@ public class UniformSamplingReservoir {
             currentSampleLength++;
         }
 
-        populationSum += value;
+        populationSum = populationSum.add(new BigDecimal(value));
         populationMinimum = Math.min(value, populationMinimum);
         populationMaximum = Math.max(value, populationMaximum);
         populationCount++;
@@ -140,7 +143,10 @@ public class UniformSamplingReservoir {
     }
 
     public double getPopulationMean() {
-        return populationSum / populationCount;
+        if (populationCount == 0) {
+            return Double.NaN;
+        }
+        return populationSum.divide(new BigDecimal(populationCount), 8, RoundingMode.HALF_UP).doubleValue();
     }
 
     public double getPopulationMinimum() {
@@ -207,7 +213,7 @@ public class UniformSamplingReservoir {
         System.out.println(us.getSamples().toString());
         System.out.println(us.getCount());
         System.out.println(us.getSampleQuartiles().toString());
-        System.out.println(us.populationSum);
+        System.out.println(us.populationSum.doubleValue());
         System.out.println(us.getPopulationMean());
         System.out.println(us.getPopulationMinimum());
         System.out.println(us.getPopulationMaximum());
