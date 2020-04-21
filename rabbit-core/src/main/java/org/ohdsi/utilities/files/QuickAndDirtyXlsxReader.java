@@ -159,7 +159,7 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 			fullSheet.append(line);
 
 		for (String rowLine : StringUtilities.multiFindBetween(fullSheet.toString(), "<row", "</row>")) {
-			Row row = new Row();
+			Row row = new Row(sheet);
 			row.addAll(findCellValues(rowLine));
 			if (row.size() != 0)
 				sheet.add(row);
@@ -529,6 +529,15 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 		private static final long	serialVersionUID	= -8597151681911998153L;
 		private String				name;
 		private int					order;
+		private Map<String, Integer> fieldName2ColumnIndex = new HashMap<>();
+
+		public boolean add(Row row) {
+			// Assume first row is the header, preprocess it
+			if (this.size() == 0) {
+				createFieldNameIndex(row);
+			}
+			return super.add(row);
+		}
 
 		public String getName() {
 			return name;
@@ -538,10 +547,62 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 			this.name = name;
 		}
 
+		private void createFieldNameIndex(List<String> row) {
+			int i = 0;
+			for (String header : row) {
+				fieldName2ColumnIndex.put(header, i);
+				i += 1;
+			}
+		}
+
+		private Integer getFieldIndex(String fieldName) {
+			return fieldName2ColumnIndex.get(fieldName);
+		}
 	}
 
 	public class Row extends ArrayList<String> {
 		private static final long	serialVersionUID	= -6391290892840364766L;
+		private final Sheet sheet;
 
+		public Row(Sheet sheet) {
+			this.sheet = sheet;
+		}
+
+		/**
+		 * Lookup index of the fieldName in first row of the sheet that this row belongs to.
+		 * Use index to get value of this row.
+		 * @param fieldName name of the field, as it appears in the header
+		 * @return null if fieldName not in the header
+		 */
+		public String getByHeaderName(String fieldName) {
+			return getStringByHeaderName(fieldName);
+		}
+
+		public String getStringByHeaderName(String fieldName) {
+			// Someone may have manually deleted data, so can't assume fieldName
+			// is always there:
+			Integer index = sheet.getFieldIndex(fieldName);
+			if (index != null && index < this.size())
+				return this.get(index);
+			return null;
+		}
+
+		public Double getDoubleByHeaderName(String fieldName) {
+			String value = getStringByHeaderName(fieldName);
+			if (value != null) {
+				return Double.parseDouble(value);
+			} else {
+				return null;
+			}
+		}
+
+		public Integer getIntByHeaderName(String fieldName) {
+			Double value = getDoubleByHeaderName(fieldName);
+			if (value == null) {
+				return null;
+			} else {
+				return value.intValue();
+			}
+		}
 	}
 }

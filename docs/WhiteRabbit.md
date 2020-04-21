@@ -1,18 +1,9 @@
----
-layout: default
-title: White Rabbit
-nav_order: 2
----
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitlogo.png )
+![](images/whiterabbitlogo.png )
 
 # Introduction
-{: .no_toc}
-
 ## Scope and purpose
-{: .no_toc}
-
-WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](https://github.com/OHDSI/CommonDataModel/wiki).
+WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](https://github.com/OHDSI/CommonDataModel).
 The source data can be in comma-separated text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery).
 Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Microsoft APS, Amazon RedShift, Google BigQuery, Impala).
 
@@ -21,8 +12,6 @@ This scan will generate a report that can be used as a reference when designing 
 White Rabbit differs from standard data profiling tools in that it attempts to prevent the display of personally identifiable information (PII) data values in the generated output data file.
 
 ## Process Overview
-{: .no_toc}
-
 The typical sequence for using this software to scan source data in preparation of developing an ETL into an OMOP CDM:
 1. Set working folder, the location on the local desktop computer where results will be exported.
 2. Connect to the source database or CSV text file and test connection.
@@ -30,12 +19,6 @@ The typical sequence for using this software to scan source data in preparation 
 4. WhiteRabbit creates an export of information about the source data.
 
 Once the scan report is created, this report can then be used in the Rabbit-In-a-Hat tool or as a stand-alone data profiling document.
-
-# Table of Contents
-{: .no_toc}
-
-1. TOC
-{:toc}
 
 # Installation and support
 
@@ -49,7 +32,7 @@ Any questions/comments/feedback/discussion can be posted on the OHDSI Developer 
 
 ## Specifying the Location of Source Data
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreenshot.png)
+![](images/whiterabbitscreenshot.png)
 
 ### Working Folder
 
@@ -123,6 +106,7 @@ An application key is written to `~/.config/gcloud/application_default_credentai
   * _**Database name:**_ data set name within ProjectID named in Server location field
 
 Authentication via service account credentials:
+
   * _**Server location:**_ name of GBQ ProjectID
   * _**User name:**_ OAuth service account email address
   * _**Password:**_ OAuth private key path (file location of private key JSON file). Must be a valid full file pathname
@@ -133,7 +117,7 @@ Authentication via service account credentials:
 
 ### Performing the Scan
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreen-scan.png )
+![](images/whiterabbitscreen-scan.png)
 
 A scan generates a report containing information on the source data that can be used to help design the ETL.
 Using the Scan tab in WhiteRabbit you can either select individual tables in the selected source database by clicking on ‘Add’ (Ctrl + mouse click),
@@ -145,7 +129,8 @@ There are a few setting options as well with the scan:
     * “Min cell count” is an option when scanning field values. By default this is set to 25, meaning values in the source data that appear less than 25 will not appear in the report.
     * “Rows per table” is an option when scanning field values. By default, WhiteRabbit will random 1 million rows in the table. There are other options to review 100,000 or all rows within the table.
   * Unchecking the “Scan field values” tells WhiteRabbit to not review or report on any of the raw data items.
-
+  * Checking the "Numeric Stats" box will include numeric statistics. See the section on ['Numerical Statistics'](#numeric-statistics-(develop)).
+  
 Once all settings are completed, press the “Scan tables” button. After the scan is completed the report will be written to the working folder.
 
 ### Running from the command line
@@ -184,7 +169,7 @@ this indicates that there are one or more additional unique source values that a
 Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data.
 These two columns (distinct values and frequency) will repeat for all the source columns in the table profiled in the workbook.
 
-![](https://www.ohdsi.org/web/wiki/lib/exe/fetch.php?media=documentation:software:whiterabbitscreen-readingthescanex.png )
+![](images/whiterabbitscreen-readingthescanex.png )
 
 The report is powerful in understanding your source data by highlighting what exists.
 For example, the above results were given back on the “SEX” column within one of the tables scanned, we can see that there were two common values (1 and 2) that appeared 61,491 and 35,401 times respectively.
@@ -192,6 +177,22 @@ WhiteRabbit will not define 1 as male and 2 as female; the data holder will typi
 However these two values (1 & 2) are not the only values present in the data because we see this list was truncated.
 These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values.
 When generating an ETL we should not only plan to handle the high-frequency gender concepts 1 and 2 but the other low-frequency values that exist within this column.
+
+#### Numerical statistics (develop)
+If the option for numerical statistics is checked, then a set of statistics is calculated for all integer, real and date data types. 
+The following statistics are added to the Overview sheet:
+
+* Average
+* Standard Deviation (sampled)
+* Minimum
+* Maximum
+* Quartiles: q1, median, q3 (sampled)
+
+If the number of values is smaller than the set reservoir size, then the standard deviation and three quartile boundaries are the exact population statistics. 
+Otherwise, the statistics are approximated based on a representative sample.
+The average, minimum and maximum are always true population statistics.
+For dates, the numerical statistics are calculated by using epoch days. 
+The standard deviation of dates is given in days, the other statistics are converted to a date representation.
 
 ## Generating Fake Data
 This feature allows one to create a fake dataset based on a WhiteRabbit scan report.
