@@ -41,15 +41,28 @@ public class ConceptsMap {
     private void load(String filename) throws IOException{
         try (InputStream conceptStream = Database.class.getResourceAsStream(filename)) {
             for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(conceptStream))) {
-                String tableName = conceptRow.get("omop_cdm_table");
-                String fieldName = conceptRow.get("omop_cdm_field");
+                String omopTableName = conceptRow.get("omop_cdm_table");
+                String omopFieldName = conceptRow.get("omop_cdm_field");
 
                 Concept concept = new Concept();
                 concept.setConceptId(conceptRow.get("concept_id"));
                 concept.setConceptName(conceptRow.get("concept_name"));
                 concept.setStandardConcept(conceptRow.get("standard_concept"));
 
-                this.put(tableName, fieldName, concept);
+                // Optional fields
+                if (conceptRow.isSet("domain_id")) {
+                    concept.setDomainId(conceptRow.get("domain_id"));
+                }
+
+                if (conceptRow.isSet("vocabulary_id")) {
+                    concept.setVocabularyId(conceptRow.get("vocabulary_id"));
+                }
+
+                if (conceptRow.isSet("concept_class_id")) {
+                    concept.setConceptClassId(conceptRow.get("concept_class_id"));
+                }
+
+                this.put(omopTableName, omopFieldName, concept);
             }
         } catch (IOException e) {
             throw new IOException("Could not load concept_id hints: " + e.getMessage());
@@ -71,6 +84,9 @@ public class ConceptsMap {
         private String conceptId;
         private String conceptName;
         private String standardConcept;
+        private String domainId;
+        private String vocabularyId;
+        private String conceptClassId;
 
         public String getConceptId() {
             return conceptId;
@@ -94,6 +110,30 @@ public class ConceptsMap {
 
         void setStandardConcept(String standardConcept) {
             this.standardConcept = standardConcept;
+        }
+
+        public String getDomainId() {
+            return domainId;
+        }
+
+        public void setDomainId(String domainId) {
+            this.domainId = domainId;
+        }
+
+        public String getVocabularyId() {
+            return vocabularyId;
+        }
+
+        public void setVocabularyId(String vocabularyId) {
+            this.vocabularyId = vocabularyId;
+        }
+
+        public String getConceptClassId() {
+            return conceptClassId;
+        }
+
+        public void setConceptClassId(String conceptClassId) {
+            this.conceptClassId = conceptClassId;
         }
 
         public String toString() {
