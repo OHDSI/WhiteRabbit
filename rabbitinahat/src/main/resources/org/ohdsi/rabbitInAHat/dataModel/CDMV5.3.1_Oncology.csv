@@ -85,8 +85,8 @@ measurement_source_value,No,VARCHAR(50),The Measurement name as it appears in th
 measurement_source_concept_id,No,INTEGER,A foreign key to a Concept in the Standard Vocabularies that refers to the code used in the source.,measurement,cdm
 unit_source_value,No,VARCHAR(50),The source code for the unit as it appears in the source data. This code is mapped to a standard unit concept in the Standardized Vocabularies and the original code is stored here for reference.,measurement,cdm
 value_source_value,No,VARCHAR(50),The source value associated with the content of the value_as_number or value_as_concept_id as stored in the source data.,measurement,cdm
-modifier_of_event_id,No,INTEGER,"A foreign key to an event table (e.g., PROCEDURE_OCCURRENCE_ID).",measurement,cdm
-modifier_of_field_concept_id,No,INTEGER,A foreign key that refers to a Standard Concept identifier in the Standardized Vocabularies referring to the field represented in the OBSERVATION_EVENT_ID.,measurement,cdm
+modifier_of_event_id,No,INTEGER,"A foreign key identifier to the event (e.g. condition, procedure, episode) record for which the modifier is recorded.",measurement,cdm
+modifier_of_field_concept_id,No,INTEGER,	The concept representing the table field concept that contains the value of the event id for which the modifier is recorded (e.g. CONDITION_OCCURRENCE.condition_occurrence_id).,measurement,cdm
 note_id,Yes,INTEGER,A unique identifier for each note.,note,cdm
 person_id,Yes,INTEGER,A foreign key identifier to the Person about whom the Note was recorded. The demographic details of that Person are stored in the PERSON table.,note,cdm
 note_date,Yes,DATE,The date the note was recorded.,note,cdm
@@ -351,13 +351,13 @@ episode_id,Yes,INTEGER,A unique identifier for each Episode,episode,cdm
 person_id,Yes,INTEGER,A foreign key identifier to the Person who is undergoing the Episode. The demographic details of that Person are stored in the PERSON table.,episode,cdm
 episode_concept_id,Yes,INTEGER,"A foreign key that refers to a standard Episode Concept identifier in the Standardized Vocabularies. Examples of an Episode Concept can be: Treatment Regimen, Treatment Cycle, Disease First Occurrence, Remission, Relapse, Episode of Care",episode,cdm
 episode_start_datetime,Yes,DATE,The date and time on which the Episode was started.,episode,cdm
-episode_end_datetime,Yes,DATE,The date and time on which the Episode was ended.,episode,cdm
+episode_end_datetime,No,DATE,The date and time on which the Episode was ended.,episode,cdm
 episode_parent_id,No,INTEGER,A foreign key that refers to a parent Episode entry representing an entire episode if the episode spans multiple cycles.,episode,cdm
 episode_number,No,INTEGER,An ordinal count for an Episode that spans multiple times,episode,cdm
-episode_object_concept_id,Yes,INTEGER,"A foreign key that refers to a concept identifier in the Standardized Vocabularies describing disease, treatment, or other abstraction that the episode describes. For example, 'Breast Carcinoma' or 'Chemotherapy'.",episode,cdm
-episode_type_concept_id,Yes,INTEGER,"A foreign key that refers to a standard Episode Type Concept identifier in the Standardized Vocabularies reflecting the provenance of the episode derivation. It may reference a derivation algorithm, sources such as cancer registry, EMR, etc.",episode,cdm
+episode_object_concept_id,Yes,INTEGER,"	A foreign key that refers to a concept identifier in the Standardized Vocabularies describing the disease, treatment, or other abstraction that the episode describes. Episode entries from the 'Disease Episode' concept class should have an episode_object_concept_id that comes from the Condition domain. Episode entries from the 'Treatment Episode' concept class should have an episode_object_concept_id that comes from the 'Procedure' or 'Regimen' domain.",episode,cdm
+episode_type_concept_id,Yes,INTEGER,"A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the source data from which the Episode was recorded, the level of standardization, and the type of occurrence. These belong to the 'Episode Type' vocabulary.",episode,cdm
 episode_source_value,No,VARCHAR(50),"The source code for the Episode as it appears in the source data. This code is mapped to a standard episode Concept in the Standardized Vocabularies and the original code is, stored here for reference.",episode,cdm
 episode_source_concept_id,No,INTEGER,A foreign key to a Episode Concept that refers to the code used in the source.,episode,cdm
 episode_id,Yes,INTEGER,A foreign key identifier to the Episode that the Episode Event belongs to,episode_event,cdm
-event_id,No,INTEGER,"A foreign key identifier to the underlying event (condition, procedure, measurement, etc.) record in a respective table for which an episode is recorded.",episode_event,cdm
-event_field_concept_id,No,INTEGER,"A foreign key identifier to the standardized concept corresponding to the table (condition_occurrence, procedure_occurrence, etc.)  where the underlying event is stored.",episode_event,cdm
+event_id,Yes,INTEGER,"	A foreign key identifier to the underlying event (condition, procedure, measurement, etc.) record in a respective table for which an episode is recorded.",episode_event,cdm
+event_field_concept_id,No,INTEGER,"A foreign key identifier to the standardized concept corresponding to the table primary key column (condition_occurrence.condition_occurrence_id, procedure_occurrence.procedure_occurrence_id, measurement.measurement_id etc.) where the underlying event is stored.",episode_event,cdm
