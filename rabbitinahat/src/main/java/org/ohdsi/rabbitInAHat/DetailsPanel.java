@@ -383,7 +383,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 			if (isTargetFieldPanel) {
 				// Wide columns for concept name and class id
-				table.getColumnModel().getColumn(1).setPreferredWidth(100);
+				table.getColumnModel().getColumn(1).setPreferredWidth(300);
 				table.getColumnModel().getColumn(2).setPreferredWidth(100);
 			}
 
