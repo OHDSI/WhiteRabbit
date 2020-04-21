@@ -1,6 +1,7 @@
 package org.ohdsi.whiteRabbit.scan;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -146,7 +147,8 @@ public class UniformSamplingReservoir {
         if (populationCount == 0) {
             return Double.NaN;
         }
-        return populationSum.divide(new BigDecimal(populationCount), 8, RoundingMode.HALF_UP).doubleValue();
+        BigDecimal popCount = BigDecimal.valueOf(populationCount);
+        return populationSum.divide(popCount, populationSum.scale() + popCount.precision(), RoundingMode.HALF_UP).doubleValue();
     }
 
     public double getPopulationMinimum() {
