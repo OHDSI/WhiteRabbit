@@ -159,28 +159,9 @@ public class SourceDataScan {
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 
 		sheetNameLookup = new HashMap<>();
-		createOverviewSheet(workbook, tableToFieldInfos);
+		createFieldOverviewSheet(workbook, tableToFieldInfos);
 
-		// Create table overview sheet
-		Sheet tableOverviewSheet = workbook.createSheet("Table Overview");
-
-		// Table level summary statistics
-		addRow(tableOverviewSheet, "Table", "Alias", "Description", "N rows", "N rows checked", "N Fields", "N Fields Empty");
-		for (String tableName : tableToFieldInfos.keySet()) {
-			long rowCount = -1;
-			long rowCheckedCount = -1;
-			long nFields = 0;
-			long nFieldsEmpty = 0;
-			for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
-				rowCount = max(rowCount, fieldInfo.rowCount);
-				rowCheckedCount = max(rowCheckedCount, fieldInfo.nProcessed);
-				nFields += 1;
-				if (scanValues) {
-					nFieldsEmpty += fieldInfo.getFractionEmpty() == 1 ? 1 : 0;
-				}
-			}
-			addRow(tableOverviewSheet, tableName, "", "", rowCount, rowCheckedCount, nFields, scanValues ? nFieldsEmpty : "");
-		}
+		createTableOverviewSheet(workbook, tableToFieldInfos);
 
 		if (scanValues) {
 			createValueSheet(workbook, tableToFieldInfos);
@@ -195,7 +176,7 @@ public class SourceDataScan {
 		}
 	}
 
-	private void createOverviewSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
+	private void createFieldOverviewSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
 		Sheet overviewSheet = workbook.createSheet("Overview");
 		CellStyle percentageStyle = workbook.createCellStyle();
 		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
@@ -276,6 +257,41 @@ public class SourceDataScan {
 				}
 			}
 			addRow(overviewSheet, "");
+		}
+	}
+
+	private void createTableOverviewSheet(SXSSFWorkbook workbook, Map<String, List<FieldInfo>> tableToFieldInfos) {
+		Sheet tableOverviewSheet = workbook.createSheet("Table Overview");
+
+		addRow(tableOverviewSheet,ScanFieldName.TABLE,
+				ScanFieldName.DESCRIPTION,
+				ScanFieldName.N_ROWS,
+				ScanFieldName.N_ROWS_CHECKED,
+				ScanFieldName.N_FIELDS,
+				ScanFieldName.N_FIELDS_EMPTY
+		);
+
+		for (String tableName : tableToFieldInfos.keySet()) {
+			long rowCount = -1;
+			long rowCheckedCount = -1;
+			long nFields = 0;
+			long nFieldsEmpty = 0;
+			String description = ""; // TODO
+			for (FieldInfo fieldInfo : tableToFieldInfos.get(tableName)) {
+				rowCount = max(rowCount, fieldInfo.rowCount);
+				rowCheckedCount = max(rowCheckedCount, fieldInfo.nProcessed);
+				nFields += 1;
+				if (scanValues) {
+					nFieldsEmpty += fieldInfo.getFractionEmpty() == 1 ? 1 : 0;
+				}
+			}
+			addRow(tableOverviewSheet,tableName,
+					description,
+					rowCount,
+					rowCheckedCount,
+					nFields,
+					scanValues ? nFieldsEmpty : ""
+			);
 		}
 	}
 
