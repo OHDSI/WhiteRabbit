@@ -297,7 +297,7 @@ public class SourceDataScan {
 					rowCount,
 					rowCheckedCount,
 					nFields,
-					scanValues ? nFieldsEmpty : ""
+					scanValues ? nFieldsEmpty : -1
 			);
 		}
 	}
