@@ -182,10 +182,10 @@ public class Database implements Serializable {
 		return database;
 	}
 
-	public static Table createTable(String name, String comment, Integer nRows, Integer nRowsChecked) {
+	public static Table createTable(String name, String description, Integer nRows, Integer nRowsChecked) {
 		Table table = new Table();
 		table.setName(name.toLowerCase());
-		table.setComment(comment);
+		table.setDescription(description);
 		table.setRowCount((nRows == null || nRows == -1) ? nRowsChecked : nRows);
 		return table;
 	}

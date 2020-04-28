@@ -24,6 +24,7 @@ public class Table implements MappableItem {
 
 	private Database			db;
 	private String				name;
+	private String				description			= "";
 	private int					rowCount;
 	private int					rowsCheckedCount;
 	private String				comment				= "";
@@ -69,6 +70,14 @@ public class Table implements MappableItem {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public int getRowCount() {
