@@ -421,7 +421,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			rowCountLabel.setText(field.getType());
 			description.setText(field.getDescription());
 
-			// Hide description if it's empty
+			// Hide description if it's empty, TODO: always show.
 			description.getParent().setVisible(!description.getText().isEmpty());
 
 			this.createValueList(field);

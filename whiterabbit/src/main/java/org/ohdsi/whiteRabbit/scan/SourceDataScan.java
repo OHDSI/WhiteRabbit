@@ -288,7 +288,7 @@ public class SourceDataScan {
 			long nFieldsEmpty = 0;
 			for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
 				rowCount = max(rowCount, fieldInfo.rowCount);
-				rowCheckedCount = max(rowCheckedCount, fieldInfo.nProcessed); // TODO: how can there be a nProcessed without values scanned?
+				rowCheckedCount = max(rowCheckedCount, fieldInfo.nProcessed);
 				nFields += 1;
 				if (scanValues) {
 					nFieldsEmpty += fieldInfo.getFractionEmpty() == 1 ? 1 : 0;
@@ -504,16 +504,23 @@ public class SourceDataScan {
 				column = column.replace("\\\"", "\"");
 				row.set(i, column);
 			}
+
 			if (lineNr == 1) {
-				for (String cell : row)
+				for (String cell : row) {
 					fieldInfos.add(new FieldInfo(cell));
+				}
+
+				if (!scanValues) {
+					return fieldInfos;
+				}
 			} else {
 				if (row.size() == fieldInfos.size()) { // Else there appears to be a formatting error, so skip
-					for (int i = 0; i < row.size(); i++)
+					for (int i = 0; i < row.size(); i++) {
 						fieldInfos.get(i).processValue(row.get(i));
+					}
 				}
 			}
-			if (lineNr == sampleSize)
+			if (lineNr > sampleSize)
 				break;
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
@@ -533,11 +540,16 @@ public class SourceDataScan {
 			if (!scanValues) {
 				// Either NUMBER or STRING; scanning values produces a more granular type and is preferred
 				fieldInfo.type = column.getType().getName().replace("java.lang.", "");
+				fieldInfo.maxLength = column.getLength();
 			}
 			fieldInfos.add(fieldInfo);
 		}
 
-		for (int lineNr = 0; lineNr < sasFileProperties.getRowCount(); lineNr++) {
+		if (!scanValues) {
+			return fieldInfos;
+		}
+
+		for (int lineNr = 0; lineNr < sasFileProperties.getRowCount() && lineNr < sampleSize; lineNr++) {
 			Object[] row = sasFileReader.readNext();
 
 			if (row.length != fieldInfos.size()) {
@@ -548,9 +560,6 @@ public class SourceDataScan {
 			for (int i = 0; i < row.length; i++) {
 				fieldInfos.get(i).processValue(row[i] == null ? "" : row[i].toString());
 			}
-
-			if (lineNr == sampleSize)
-				break;
 		}
 
 		for (FieldInfo fieldInfo : fieldInfos) {
@@ -623,9 +632,10 @@ public class SourceDataScan {
 		}
 
 		public String getTypeDescription() {
-			// TODO: standardize in enum. Type names deviated in fakedata generator.
 			if (type != null)
 				return type;
+			else if (!scanValues) // If not type assigned and not values scanned, do not derive
+				return "";
 			else if (nProcessed == emptyCount)
 				return DataType.EMPTY.name();
 			else if (isFreeText)
