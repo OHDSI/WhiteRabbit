@@ -39,6 +39,7 @@ import org.ohdsi.databases.RichConnection.QueryResult;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.DateUtilities;
 import org.ohdsi.utilities.ScanFieldName;
+import org.ohdsi.utilities.ScanSheetName;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.collections.CountingSet;
 import org.ohdsi.utilities.collections.CountingSet.Count;
@@ -182,7 +183,7 @@ public class SourceDataScan {
 	}
 
 	private void createFieldOverviewSheet(SXSSFWorkbook workbook) {
-		Sheet overviewSheet = workbook.createSheet("Overview");
+		Sheet overviewSheet = workbook.createSheet(ScanSheetName.FIELD_OVERVIEW);
 		CellStyle percentageStyle = workbook.createCellStyle();
 		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
 
@@ -267,9 +268,10 @@ public class SourceDataScan {
 	}
 
 	private void createTableOverviewSheet(SXSSFWorkbook workbook) {
-		Sheet tableOverviewSheet = workbook.createSheet("Table Overview");
+		Sheet tableOverviewSheet = workbook.createSheet(ScanSheetName.TABLE_OVERVIEW);
 
-		addRow(tableOverviewSheet,ScanFieldName.TABLE,
+		addRow(tableOverviewSheet,
+				ScanFieldName.TABLE, // TODO: for long table names, use name prefixed with index as in field overview
 				ScanFieldName.DESCRIPTION,
 				ScanFieldName.N_ROWS,
 				ScanFieldName.N_ROWS_CHECKED,
@@ -286,13 +288,14 @@ public class SourceDataScan {
 			long nFieldsEmpty = 0;
 			for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
 				rowCount = max(rowCount, fieldInfo.rowCount);
-				rowCheckedCount = max(rowCheckedCount, fieldInfo.nProcessed);
+				rowCheckedCount = max(rowCheckedCount, fieldInfo.nProcessed); // TODO: how can there be a nProcessed without values scanned?
 				nFields += 1;
 				if (scanValues) {
 					nFieldsEmpty += fieldInfo.getFractionEmpty() == 1 ? 1 : 0;
 				}
 			}
-			addRow(tableOverviewSheet,tableName,
+			addRow(tableOverviewSheet,
+					tableName,
 					description,
 					rowCount,
 					rowCheckedCount,

@@ -26,6 +26,7 @@ import java.util.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.ohdsi.utilities.ScanFieldName;
+import org.ohdsi.utilities.ScanSheetName;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 
@@ -135,26 +136,35 @@ public class Database implements Serializable {
 
 	public static Database generateModelFromScanReport(String filename) {
 		Database database = new Database();
-		Map<String, Table> nameToTable = new HashMap<>();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
-		Sheet sheet = workbook.get(0);
-		Iterator<org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row> iterator = sheet.iterator();
 
-		iterator.next();  // Skip header
-		while (iterator.hasNext()) {
-			org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row row = iterator.next();
+		// Create table lookup from tables overview, if exists
+		Map<String, Table> nameToTable = createTablesFromTableOverview(workbook, database);
+
+		// Field overview is the first sheet
+		Sheet overviewSheet = workbook.get(0);
+		Iterator<QuickAndDirtyXlsxReader.Row> overviewRows = overviewSheet.iterator();
+
+		overviewRows.next();  // Skip header
+		while (overviewRows.hasNext()) {
+			QuickAndDirtyXlsxReader.Row row = overviewRows.next();
 			String tableName = row.getStringByHeaderName(ScanFieldName.TABLE);
 			if (tableName.length() != 0) {
+				// Get table created from table overview or created before
 				Table table = nameToTable.get(tableName);
+
+				// If not exists, create table from field overview sheet
 				if (table == null) {
-					table = new Table();
-					table.setName(tableName.toLowerCase());
-					Integer nRows =  row.getIntByHeaderName(ScanFieldName.N_ROWS);
-					Integer nRowChecked =  row.getIntByHeaderName(ScanFieldName.N_ROWS_CHECKED);
-					table.setRowCount((nRows == null || nRows == -1) ? nRowChecked : nRows);
+					table = createTable(
+							tableName,
+							"",
+							row.getIntByHeaderName(ScanFieldName.N_ROWS),
+							row.getIntByHeaderName(ScanFieldName.N_ROWS_CHECKED)
+					);
 					nameToTable.put(tableName, table);
 					database.tables.add(table);
 				}
+
 				String fieldName = row.getStringByHeaderName(ScanFieldName.FIELD);
 				Field field = new Field(fieldName.toLowerCase(), table);
 
@@ -170,6 +180,48 @@ public class Database implements Serializable {
 		}
 		// database.defaultOrdering = new ArrayList<Table>(database.tables);
 		return database;
+	}
+
+	public static Table createTable(String name, String comment, Integer nRows, Integer nRowsChecked) {
+		Table table = new Table();
+		table.setName(name.toLowerCase());
+		table.setComment(comment);
+		table.setRowCount((nRows == null || nRows == -1) ? nRowsChecked : nRows);
+		return table;
+	}
+
+	public static Map<String, Table> createTablesFromTableOverview(QuickAndDirtyXlsxReader workbook, Database database) {
+		Sheet tableOverviewSheet = null;
+		for (Sheet sheet : workbook) {
+			if (sheet.getName().equals(ScanSheetName.TABLE_OVERVIEW)) {
+				tableOverviewSheet = sheet;
+				break;
+			}
+		}
+
+		if (tableOverviewSheet == null) { // No table overview sheet, empty nameToTable
+			return new HashMap<>();
+		}
+
+		Map<String, Table> nameToTable = new HashMap<>();
+
+		Iterator<org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row> tableRows = tableOverviewSheet.iterator();
+		tableRows.next();  // Skip header
+		while (tableRows.hasNext()) {
+			org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row row = tableRows.next();
+			String tableName = row.getByHeaderName(ScanFieldName.TABLE);
+			Table table = createTable(
+					tableName,
+					row.getByHeaderName(ScanFieldName.DESCRIPTION),
+					row.getIntByHeaderName(ScanFieldName.N_ROWS),
+					row.getIntByHeaderName(ScanFieldName.N_ROWS_CHECKED)
+			);
+			// Add to lookup and database
+			nameToTable.put(tableName, table);
+			database.tables.add(table);
+		}
+
+		return nameToTable;
 	}
 
 	private static String[][] getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
