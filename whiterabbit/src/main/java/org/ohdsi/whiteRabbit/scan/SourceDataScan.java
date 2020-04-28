@@ -66,7 +66,7 @@ public class SourceDataScan {
 	private DbType		dbType;
 	private String		database;
 	private Map<Table, List<FieldInfo>> tableToFieldInfos;
-	private Map<String, String> sheetNameLookup;
+	private Map<String, String> indexedTableNameLookup;
 
 
 	public void setSampleSize(int sampleSize) {
@@ -164,7 +164,14 @@ public class SourceDataScan {
 
 		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 
-		sheetNameLookup = new HashMap<>();
+		int i = 0;
+		indexedTableNameLookup = new HashMap<>();
+		for (Table table : tableToFieldInfos.keySet()) {
+			String tableNameIndexed = Table.indexTableNameForSheet(table.getName(), i);
+			indexedTableNameLookup.put(table.getName(), tableNameIndexed);
+			i++;
+		}
+
 		createFieldOverviewSheet(workbook);
 
 		createTableOverviewSheet(workbook);
@@ -218,15 +225,10 @@ public class SourceDataScan {
 		addRow(overviewSheet, overviewHeader.toArray());
 
 		// Add fields
-		int sheetIndex = 0;
 		for (Table table : tableToFieldInfos.keySet()) {
 			String tableName = table.getName();
-			// Make tablename unique
-			String tableNameIndexed = Table.indexTableNameForSheet(tableName, sheetIndex);
+			String tableNameIndexed = indexedTableNameLookup.get(tableName);
 
-			sheetNameLookup.put(tableName, Table.createSheetNameFromTableName(tableNameIndexed));
-
-			sheetIndex += 1;
 			for (FieldInfo fieldInfo : tableToFieldInfos.get(table)) {
 				List<Object> values = new ArrayList<>(Arrays.asList(
 						tableNameIndexed,
@@ -271,7 +273,7 @@ public class SourceDataScan {
 		Sheet tableOverviewSheet = workbook.createSheet(ScanSheetName.TABLE_OVERVIEW);
 
 		addRow(tableOverviewSheet,
-				ScanFieldName.TABLE, // TODO: for long table names, use name prefixed with index as in field overview
+				ScanFieldName.TABLE,
 				ScanFieldName.DESCRIPTION,
 				ScanFieldName.N_ROWS,
 				ScanFieldName.N_ROWS_CHECKED,
@@ -281,6 +283,7 @@ public class SourceDataScan {
 
 		for (Table table : tableToFieldInfos.keySet()) {
 			String tableName = table.getName();
+			String tableNameIndexed = indexedTableNameLookup.get(tableName);
 			String description = table.getComment();
 			long rowCount = -1;
 			long rowCheckedCount = -1;
@@ -295,7 +298,7 @@ public class SourceDataScan {
 				}
 			}
 			addRow(tableOverviewSheet,
-					tableName,
+					tableNameIndexed,
 					description,
 					rowCount,
 					rowCheckedCount,
@@ -311,7 +314,8 @@ public class SourceDataScan {
 
 		for (Table table : tables) {
 			String tableName = table.getName();
-			Sheet valueSheet = workbook.createSheet(sheetNameLookup.get(tableName));
+			String tableNameIndexed = indexedTableNameLookup.get(tableName);
+			Sheet valueSheet = workbook.createSheet(Table.createSheetNameFromTableName(tableNameIndexed));
 
 			List<FieldInfo> fieldInfos = tableToFieldInfos.get(table);
 			List<List<Pair<String, Integer>>> valueCounts = new ArrayList<>();
@@ -345,7 +349,7 @@ public class SourceDataScan {
 				addRow(valueSheet, row);
 			}
 			// Save some memory by dereferencing tables already included in the report:
-			tableToFieldInfos.remove(table);  // TODO: Disabled for generation of table overview sheet.
+			tableToFieldInfos.remove(table);
 		}
 	}
 
