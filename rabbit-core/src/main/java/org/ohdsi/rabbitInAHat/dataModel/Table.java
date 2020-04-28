@@ -34,6 +34,11 @@ public class Table implements MappableItem {
 	public Table() {
 		super();
 	}
+
+	public Table(String name) {
+		super();
+		this.setName(name);
+	}
 	
 	public Table(Table table) {
 		super();
