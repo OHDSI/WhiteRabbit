@@ -156,6 +156,8 @@ getUntestedTargetFields()
 ```
 
 ## Generate test data
+There are two ways to generate test data, either as SQL insert statements or as csv files.
+Please choose the format that is appropriate for your ETL application.
 
 ### SQL
 After we have defined all our tests we need to run
