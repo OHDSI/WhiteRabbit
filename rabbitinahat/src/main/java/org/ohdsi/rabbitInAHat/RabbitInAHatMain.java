@@ -24,6 +24,7 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -225,41 +226,22 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		menuBar.add(fileMenu);
 
-		JMenuItem openScanReportItem = new JMenuItem(ACTION_OPEN_SCAN_REPORT);
-		openScanReportItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, menuShortcutMask));
-		fileMenu.add(openScanReportItem).addActionListener(evt -> this.doOpenScanReport());
-
-		JMenuItem openItem = new JMenuItem(ACTION_OPEN_ETL_SPECS);
-		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, menuShortcutMask));
-		fileMenu.add(openItem).addActionListener(evt -> this.doOpenSpecs());
-
-		JMenuItem saveItem = new JMenuItem(ACTION_SAVE);
-		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, menuShortcutMask));
-		fileMenu.add(saveItem).addActionListener(evt -> this.doSave());
-
-		JMenuItem saveAsItem = new JMenuItem(ACTION_SAVE_AS);
-		fileMenu.add(saveAsItem).addActionListener(evt -> this.doSaveAs());
+		addMenuItem(fileMenu, ACTION_OPEN_SCAN_REPORT, evt -> this.doOpenScanReport(), KeyEvent.VK_W);
+		addMenuItem(fileMenu, ACTION_OPEN_ETL_SPECS, evt -> this.doOpenSpecs(), KeyEvent.VK_O);
+		addMenuItem(fileMenu, ACTION_SAVE, evt -> this.doSave(), KeyEvent.VK_S);
+		addMenuItem(fileMenu, ACTION_SAVE_AS, evt -> this.doSaveAs());
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
+		addMenuItem(editMenu, ACTION_DISCARD_COUNTS, evt -> this.doDiscardCounts());
+		addMenuItem(editMenu, ACTION_FILTER, evt -> this.doOpenFilterDialog(), KeyEvent.VK_F);
+		addMenuItem(editMenu, ACTION_ADD_STEM_TABLE, evt -> this.doAddStemTable());
+		addMenuItem(editMenu, ACTION_REMOVE_STEM_TABLE, evt -> this.doRemoveStemTable());
 
-		JMenuItem discardCounts = new JMenuItem(ACTION_DISCARD_COUNTS);
-		editMenu.add(discardCounts).addActionListener(evt -> this.doDiscardCounts());
+		JMenu targetDatabaseMenu = new JMenu("Set Target Database");
+		editMenu.add(targetDatabaseMenu);
 
-		JMenuItem filter = new JMenuItem(ACTION_FILTER);
-		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));
-		editMenu.add(filter).addActionListener(evt -> this.doOpenFilterDialog());
-
-		JMenuItem addStemTable = new JMenuItem(ACTION_ADD_STEM_TABLE);
-		editMenu.add(addStemTable).addActionListener(evt -> this.doAddStemTable());
-
-		JMenuItem removeStemTable = new JMenuItem(ACTION_REMOVE_STEM_TABLE);
-		editMenu.add(removeStemTable).addActionListener(evt -> this.doRemoveStemTable());
-
-		JMenu targetMenu = new JMenu("Set Target Database");
-		editMenu.add(targetMenu);
 		ButtonGroup targetGroup = new ButtonGroup();
-
 		Pair<String, CDMVersion>[] cdmOptions = new Pair[]{
 				 new Pair<>(ACTION_SET_TARGET_V4, CDMVersion.CDMV4)
 				,new Pair<>(ACTION_SET_TARGET_V5, CDMVersion.CDMV5)
@@ -279,79 +261,53 @@ public class RabbitInAHatMain implements ResizeListener {
 				targetCDM.setSelected(true);
 			}
 			targetGroup.add(targetCDM);
-			targetMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCDM(cdmOption.getItem2()));
+			targetDatabaseMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCDM(cdmOption.getItem2()));
 		}
 
 		targetCDM = new JRadioButtonMenuItem(ACTION_SET_TARGET_CUSTOM);
 		targetGroup.add(targetCDM);
-		targetMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV)));
+		targetDatabaseMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV)));
 
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
-
-		JMenuItem makeMappings = new JMenuItem(ACTION_MAKE_MAPPING);
-		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));
-		arrowMenu.add(makeMappings).addActionListener(evt -> this.doMakeMappings());
-
-		JMenuItem removeMappings = new JMenuItem(ACTION_REMOVE_MAPPING);
-		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));
-		arrowMenu.add(removeMappings).addActionListener(evt -> this.doRemoveMappings());
-
-		JMenuItem markCompleted = new JMenuItem(ACTION_MARK_COMPLETED);
-		markCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, menuShortcutMask));
-		arrowMenu.add(markCompleted).addActionListener(evt -> this.doMarkCompleted());
-
-		JMenuItem unmarkCompleted = new JMenuItem(ACTION_UNMARK_COMPLETED);
-		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, menuShortcutMask));
-		arrowMenu.add(unmarkCompleted).addActionListener(evt -> this.doUnmarkCompleted());
+		addMenuItem(arrowMenu, ACTION_MAKE_MAPPING, evt -> this.doMakeMappings(), KeyEvent.VK_M);
+		addMenuItem(arrowMenu, ACTION_REMOVE_MAPPING, evt -> this.doRemoveMappings(), KeyEvent.VK_R);
+		addMenuItem(arrowMenu, ACTION_MARK_COMPLETED, evt -> this.doMarkCompleted(), KeyEvent.VK_D);
+		addMenuItem(arrowMenu, ACTION_UNMARK_COMPLETED, evt -> this.doUnmarkCompleted(), KeyEvent.VK_I);
 
 		JMenu exportMenu = new JMenu("Generate");
 		menuBar.add(exportMenu);
 		JMenu generateEtlDocumentMenu = new JMenu("ETL Document");
 
 		exportMenu.add(generateEtlDocumentMenu);
-		JMenuItem generateWordDocItem = new JMenuItem(ACTION_GENERATE_ETL_WORD_DOCUMENT);
-		generateEtlDocumentMenu.add(generateWordDocItem).addActionListener(evt -> this.doGenerateEtlWordDoc());
-
-		JMenuItem generateHtmlDocItem = new JMenuItem(ACTION_GENERATE_ETL_HTML_DOCUMENT);
-		generateEtlDocumentMenu.add(generateHtmlDocItem).addActionListener(evt -> this.doGenerateEtlHtmlDoc());
-
-		JMenuItem generateMdDocItem = new JMenuItem(ACTION_GENERATE_ETL_MD_DOCUMENT);
-		generateEtlDocumentMenu.add(generateMdDocItem).addActionListener(evt -> this.doGenerateEtlMdDoc());
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_WORD_DOCUMENT, evt -> this.doGenerateEtlWordDoc());
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_HTML_DOCUMENT, evt -> this.doGenerateEtlHtmlDoc());
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_MD_DOCUMENT, evt -> this.doGenerateEtlMdDoc());
 
 		JMenu generateOverviewsMenu = new JMenu("Overview Table");
 		exportMenu.add(generateOverviewsMenu);
 
-		JMenuItem generateSourceFieldList = new JMenuItem(ACTION_GENERATE_SOURCE_FIELD_LIST);
-		generateOverviewsMenu.add(generateSourceFieldList).addActionListener(evt -> this.doGenerateSourceFields());
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_SOURCE_FIELD_LIST, evt -> this.doGenerateSourceFields());
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_TARGET_FIELD_LIST, evt -> this.doGenerateTargetFields());
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_TABLE_MAPPING_LIST, evt -> this.doGenerateTableMappings());
 
-		JMenuItem generateTargetFieldList = new JMenuItem(ACTION_GENERATE_TARGET_FIELD_LIST);
-		generateOverviewsMenu.add(generateTargetFieldList).addActionListener(evt -> this.doGenerateTargetFields());
-
-		JMenuItem generateTableMappings = new JMenuItem(ACTION_GENERATE_TABLE_MAPPING_LIST);
-		generateOverviewsMenu.add(generateTableMappings).addActionListener(evt -> this.doGenerateTableMappings());
-
-		JMenuItem generateTestFrameworkItem = new JMenuItem(ACTION_GENERATE_TEST_FRAMEWORK);
-		exportMenu.add(generateTestFrameworkItem).addActionListener(evt -> this.doGenerateTestFramework());
-
-		JMenuItem generateSql = new JMenuItem(ACTION_GENERATE_SQL);
-		exportMenu.add(generateSql).addActionListener(evt -> this.doGenerateSql());
+		addMenuItem(exportMenu, ACTION_GENERATE_TEST_FRAMEWORK, evt -> this.doGenerateTestFramework());
+		addMenuItem(exportMenu, ACTION_GENERATE_SQL, evt -> this.doGenerateSql());
 
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
-		JMenuItem helpItem = new JMenuItem(ACTION_HELP);
-		helpMenu.add(helpItem).addActionListener(evt -> this.doOpenDocumentation());
+		addMenuItem(helpMenu, ACTION_HELP, evt -> this.doOpenDocumentation());
 
 		return menuBar;
+	}d
+
+	public void addMenuItem(JMenu menu, String description, ActionListener actionListener) {
+		addMenuItem(menu, description, actionListener, null);
 	}
 
-	public void addMenuItem(JMenu menu, String action) {
-		addMenuItem(menu, action, null);
-	}
-
-	public void addMenuItem(JMenu menu, String action, Integer keyEvent) {
-		JMenuItem menuItem = new JMenuItem(action);
-//		menuItem.addActionListener(this);
+	public void addMenuItem(JMenu menu, String description, ActionListener actionListener, Integer keyEvent) {
+		JMenuItem menuItem = new JMenuItem(description);
+		menuItem.addActionListener(actionListener);
 		if (keyEvent != null) {
 			menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		}
