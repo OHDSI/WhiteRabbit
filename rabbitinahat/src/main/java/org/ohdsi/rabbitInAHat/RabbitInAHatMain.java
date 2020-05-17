@@ -185,13 +185,17 @@ public class RabbitInAHatMain implements ResizeListener {
 		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
 
+		// When running from command line, allow for a few times of arguments; opening specification, open folder and open a scanreport.
 		if (args.length == 1) {
 			doOpenSpecs(args[0]);
-			chooser = new JFileChooser();
-			chooser.setSelectedFile(new File(args[0]));
-		}
-		if (args.length > 1 && args[0].equals("-folder")) {
-			chooser = new JFileChooser(args[1]);
+		} else if (args.length > 1) {
+		   if (args[0].equals("--folder")) {
+			   chooser = new JFileChooser(args[1]);
+		   }
+
+		   if (args[0].equals("--scanReport")) {
+			   doOpenScanReport(args[1]);
+		   }
 		}
 	}
 
@@ -560,52 +564,56 @@ public class RabbitInAHatMain implements ResizeListener {
 	private void doOpenScanReport() {
 		String filename = chooseOpenPath(FILE_FILTER_XLSX);
 		if (filename != null) {
-			boolean replace = true;
-			if (ObjectExchange.etl.getSourceDatabase().getTables().size() != 0) {
-				Object[] options = { "Replace current data", "Load data on field values only" };
-				int result = JOptionPane.showOptionDialog(frame, "You already have source data loaded. Do you want to", "Replace source data?",
-						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-				if (result == -1)
-					return;
-				if (result == 1)
-					replace = false;
+			doOpenScanReport(filename);
+		}
+	}
+
+	private void doOpenScanReport(String filename) {
+		boolean replace = true;
+		if (ObjectExchange.etl.getSourceDatabase().getTables().size() != 0) {
+			Object[] options = { "Replace current data", "Load data on field values only" };
+			int result = JOptionPane.showOptionDialog(frame, "You already have source data loaded. Do you want to", "Replace source data?",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			if (result == -1)
+				return;
+			if (result == 1)
+				replace = false;
+		}
+		frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		if (replace) {
+			ETL etl = new ETL();
+			doRemoveStemTable();
+			try {
+				etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
+				etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());
+				tableMappingPanel.setMapping(etl.getTableToTableMapping());
+				ObjectExchange.etl = etl;
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
 			}
-			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			if (replace) {
-				ETL etl = new ETL();
-				doRemoveStemTable();
-				try {
-					etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
-					etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());
-					tableMappingPanel.setMapping(etl.getTableToTableMapping());
-					ObjectExchange.etl = etl;
-				} catch (Exception e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-			} else {
-				try {
-					Database newData = Database.generateModelFromScanReport(filename);
-					Database oldData = ObjectExchange.etl.getSourceDatabase();
-					for (Table newTable : newData.getTables()) {
-						Table oldTable = (Table) findByName(newTable.getName(), oldData.getTables());
-						if (oldTable != null) {
-							for (Field newField : newTable.getFields()) {
-								Field oldField = (Field) findByName(newField.getName(), oldTable.getFields());
-								if (oldField != null) {
-									oldField.setValueCounts(newField.getValueCounts());
-								}
+		} else {
+			try {
+				Database newData = Database.generateModelFromScanReport(filename);
+				Database oldData = ObjectExchange.etl.getSourceDatabase();
+				for (Table newTable : newData.getTables()) {
+					Table oldTable = (Table) findByName(newTable.getName(), oldData.getTables());
+					if (oldTable != null) {
+						for (Field newField : newTable.getFields()) {
+							Field oldField = (Field) findByName(newField.getName(), oldTable.getFields());
+							if (oldField != null) {
+								oldField.setValueCounts(newField.getValueCounts());
 							}
 						}
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
 				}
-
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
 			}
-			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
 		}
+		frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
 	private MappableItem findByName(String name, List<? extends MappableItem> list) {
