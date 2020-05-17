@@ -129,5 +129,13 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <resources>
+            <!-- Resource filtering to make version information available. From https://stackoverflow.com/a/26573884 -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>

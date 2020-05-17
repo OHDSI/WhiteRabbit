@@ -73,6 +73,7 @@ import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.DirectoryUtilities;
 import org.ohdsi.utilities.StringUtilities;
+import org.ohdsi.utilities.Version;
 import org.ohdsi.utilities.files.IniFile;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
@@ -81,8 +82,6 @@ import org.ohdsi.whiteRabbit.scan.SourceDataScan;
  * This is the WhiteRabbit main class
  */
 public class WhiteRabbitMain implements ActionListener {
-
-	public static String version = "0.10.0-SNAPSHOT";
 
 	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit";
 	public final static String ACTION_CMD_HELP = "Open documentation";
@@ -1164,7 +1163,7 @@ public class WhiteRabbitMain implements ActionListener {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu helpMenu = new JMenu("Help");
 
-		JMenuItem versionItem = new JMenuItem("White Rabbit v" + version);
+		JMenuItem versionItem = new JMenuItem("White Rabbit v" +  Version.getVersion(this.getClass()));
 		versionItem.setEnabled(false);
 		helpMenu.add(versionItem);
 

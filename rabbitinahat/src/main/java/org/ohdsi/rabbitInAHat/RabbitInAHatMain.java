@@ -50,14 +50,13 @@ import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.utilities.Version;
 import org.ohdsi.utilities.collections.Pair;
 
 /**
  * This is the main class for the RabbitInAHat application
  */
 public class RabbitInAHatMain implements ResizeListener {
-
-	public static String version = "0.10.0-SNAPSHOT";
 
 	public final static String		ACTION_SAVE							= "Save";
 	public final static String		ACTION_SAVE_AS						= "Save As";
@@ -83,7 +82,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_SET_TARGET_V530				= "CDM v5.3.0";
 	public final static String		ACTION_SET_TARGET_V531				= "CDM v5.3.1";
 	public final static String		ACTION_SET_TARGET_V60				= "CDM v6.0";
-	public final static String 		ACTION_SET_TARGET_V60_O = "CDM v6.0 + Oncology";
+	public final static String 		ACTION_SET_TARGET_V60_O 			= "CDM v6.0 + Oncology";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
 	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
@@ -302,7 +301,7 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
-		addMenuItem(helpMenu, "Rabbit in a Hat v" + version, null).setEnabled(false);
+		addMenuItem(helpMenu, "Rabbit in a Hat v" + Version.getVersion(this.getClass()), null).setEnabled(false);
 		addMenuItem(helpMenu, ACTION_HELP, evt -> this.doOpenDocumentation());
 
 		return menuBar;
