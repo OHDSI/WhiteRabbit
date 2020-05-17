@@ -1,11 +1,12 @@
 ---
-layout: default
 title: Best Practices
-nav_order: 4
+output:
+  html_document:
+    toc: false
 ---
 
-# Best Practices
 The following lists best practices in using WhiteRabbit and Rabbit-In-a-Hat to manage your ETL documentation process:
+
   * **Overall Process:**
     * When going through the ETL exercise, it is critical to get all key stakeholders in the room such as the data owners and individuals who plan to perform/manage research using the CDM. We have found different stakeholders have different perspectives on source data and the conversation that occurs improves the ETL process.
   * **WhiteRabbit:**
@@ -16,6 +17,7 @@ The following lists best practices in using WhiteRabbit and Rabbit-In-a-Hat to m
     * Derived CDM tables, like DRUG_ERA, typically will not receive a mapping from the source data because they are generated off the CDM table (in this case DRUG_ERA is generated off DRUG_EXPOSURE).
 
 References:
+
 * ETL implementation best practices: <https://www.ohdsi.org/web/wiki/doku.php?id=documentation:etl_best_practices>
 * Example ETLs: <https://www.ohdsi.org/web/wiki/doku.php?id=documentation:example_etls>
 * Ask your ETL questions on the implementers forum: <https://forums.ohdsi.org/c/implementers>

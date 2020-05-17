@@ -25,13 +25,24 @@ import java.util.*;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.ohdsi.utilities.ScanFieldName;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 
 public class Database implements Serializable {
 
 	public enum CDMVersion {
-		CDMV4("CDMV4.csv"), CDMV5("CDMV5.csv"), CDMV501("CDMV5.0.1.csv"), CDMV510("CDMV5.1.0.csv"), CDMV520("CDMV5.2.0.csv"), CDMV530("CDMV5.3.0.csv"), CDMV531("CDMV5.3.1.csv"), CDMV60("CDMV6.0.csv");
+		  CDMV4("CDMV4.csv")
+		, CDMV5("CDMV5.csv")
+		, CDMV501("CDMV5.0.1.csv")
+		, CDMV510("CDMV5.1.0.csv")
+		, CDMV520("CDMV5.2.0.csv")
+		, CDMV530("CDMV5.3.0.csv")
+		, CDMV531("CDMV5.3.1.csv")
+		, CDMV531_O("CDMV5.3.1_Oncology.csv")
+		, CDMV60("CDMV6.0.csv")
+		, CDMV60_O("CDMV6.0_Oncology.csv")
+		;
 
 		private final String fileName;
 
@@ -43,7 +54,7 @@ public class Database implements Serializable {
 	private List<Table>			tables				= new ArrayList<Table>();
 	private static final long	serialVersionUID	= -3912166654601191039L;
 	private String				dbName				= "";
-	private static String		CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints_v5.0_MAR-18.csv";
+	private static String		CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints_v5.0_02-OCT-19.csv";
 
 	public List<Table> getTables() {
 		return tables;
@@ -124,49 +135,36 @@ public class Database implements Serializable {
 
 	public static Database generateModelFromScanReport(String filename) {
 		Database database = new Database();
-		Map<String, Table> nameToTable = new HashMap<String, Table>();
+		Map<String, Table> nameToTable = new HashMap<>();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
 		Sheet sheet = workbook.get(0);
 		Iterator<org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row> iterator = sheet.iterator();
-		Map<String, Integer> fieldName2ColumnIndex = new HashMap<String, Integer>();
-		for (String header : iterator.next())
-			fieldName2ColumnIndex.put(header, fieldName2ColumnIndex.size());
 
+		iterator.next();  // Skip header
 		while (iterator.hasNext()) {
 			org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row row = iterator.next();
-			String tableName = row.get(fieldName2ColumnIndex.get("Table"));
+			String tableName = row.getStringByHeaderName(ScanFieldName.TABLE);
 			if (tableName.length() != 0) {
 				Table table = nameToTable.get(tableName);
 				if (table == null) {
 					table = new Table();
 					table.setName(tableName.toLowerCase());
-					table.setRowCount((int) Double.parseDouble(row.get(fieldName2ColumnIndex.get("N rows"))));
-					table.setRowsCheckedCount((int) Double.parseDouble(row.get(fieldName2ColumnIndex.get("N rows checked"))));
+					Integer nRows =  row.getIntByHeaderName(ScanFieldName.N_ROWS);
+					Integer nRowChecked =  row.getIntByHeaderName(ScanFieldName.N_ROWS_CHECKED);
+					table.setRowCount((nRows == null || nRows == -1) ? nRowChecked : nRows);
 					nameToTable.put(tableName, table);
 					database.tables.add(table);
 				}
-				String fieldName = row.get(fieldName2ColumnIndex.get("Field"));
+				String fieldName = row.getStringByHeaderName(ScanFieldName.FIELD);
 				Field field = new Field(fieldName.toLowerCase(), table);
-				Integer index;
-				// Someone may have manually deleted data, so can't assume this
-				// is always there:
-				index = fieldName2ColumnIndex.get("Fraction empty");
-				if (index != null && index < row.size())
-					field.setNullable(!row.get(index).equals("0"));
 
-				index = fieldName2ColumnIndex.get("Type");
-				if (index != null && index < row.size())
-					field.setType(row.get(index));
-
-				index = fieldName2ColumnIndex.get("Max length");
-				if (index != null && index >= 0 && index < row.size())
-					field.setMaxLength((int) (Double.parseDouble(row.get(index))));
-
-				index = fieldName2ColumnIndex.get("Description");
-				if (index != null && index >= 0 && index < row.size())
-					field.setDescription(row.get(index));
-
+				String fractionEmpty = row.getByHeaderName(ScanFieldName.FRACTION_EMPTY);
+				field.setNullable(fractionEmpty == null || !fractionEmpty.equals("0"));
+				field.setType(row.getByHeaderName(ScanFieldName.TYPE));
+				field.setMaxLength(row.getIntByHeaderName(ScanFieldName.MAX_LENGTH));
+				field.setDescription(row.getStringByHeaderName(ScanFieldName.DESCRIPTION));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
+
 				table.getFields().add(field);
 			}
 		}

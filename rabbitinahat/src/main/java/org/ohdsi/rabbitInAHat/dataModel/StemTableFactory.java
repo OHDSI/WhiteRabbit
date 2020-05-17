@@ -36,7 +36,13 @@ public class StemTableFactory {
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1")) {
 			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
 			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
+		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1_oncology")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
+		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0_oncology")) {
 			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
 			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
 		} else {
