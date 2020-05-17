@@ -18,4 +18,6 @@ public interface ScanFieldName {
     String Q2 = "Median";
     String Q3 = "75%";
     String MAX = "Max";
+    String N_FIELDS = "N Fields";
+    String N_FIELDS_EMPTY = "N Fields Empty";
 }
