@@ -34,7 +34,7 @@ import org.ohdsi.whiteRabbit.DbSettings;
 public class FakeDataGenerator {
 
 	private RichConnection					connection;
-	private int								targetType;
+	private DbSettings.SourceType 			targetType;
 	private int								maxRowsPerTable	= 1000;
 
 	private static int						REGULAR			= 0;
@@ -43,13 +43,13 @@ public class FakeDataGenerator {
 
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder) {
 		this.maxRowsPerTable = maxRowsPerTable;
-		this.targetType = dbSettings.dataType;
+		this.targetType = dbSettings.sourceType;
 
 		StringUtilities.outputWithTime("Starting creation of fake data");
 		System.out.println("Loading scan report from " + filename);
 		Database database = Database.generateModelFromScanReport(filename);
 
-		if (targetType == DbSettings.DATABASE) {
+		if (targetType == DbSettings.SourceType.DATABASE) {
 			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
 			connection.use(dbSettings.database);
 			for (Table table : database.getTables()) {

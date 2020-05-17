@@ -1,7 +1,6 @@
 package org.ohdsi.whiteRabbit.scan;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;

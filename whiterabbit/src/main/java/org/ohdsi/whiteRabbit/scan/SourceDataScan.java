@@ -21,6 +21,7 @@ import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,10 +38,7 @@ import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.databases.RichConnection.QueryResult;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
-import org.ohdsi.utilities.DateUtilities;
-import org.ohdsi.utilities.ScanFieldName;
-import org.ohdsi.utilities.ScanSheetName;
-import org.ohdsi.utilities.StringUtilities;
+import org.ohdsi.utilities.*;
 import org.ohdsi.utilities.collections.CountingSet;
 import org.ohdsi.utilities.collections.CountingSet.Count;
 import org.ohdsi.utilities.collections.Pair;
@@ -56,17 +54,21 @@ public class SourceDataScan {
 	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
 	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
 
-	private char		delimiter = ',';
-	private int			sampleSize;
+	private SXSSFWorkbook workbook;
+	private char delimiter = ',';
+	private int sampleSize;
 	private boolean scanValues = false;
 	private boolean calculateNumericStats = false;
-	private int			numStatsSamplerSize;
-	private int			minCellCount;
-	private int			maxValues;
-	private DbType		dbType;
-	private String		database;
+	private int numStatsSamplerSize;
+	private int minCellCount;
+	private int maxValues;
+	private DbSettings.SourceType sourceType;
+	private DbType dbType;
+	private String database;
 	private Map<Table, List<FieldInfo>> tableToFieldInfos;
 	private Map<String, String> indexedTableNameLookup;
+
+	private LocalDateTime startTimeStamp;
 
 
 	public void setSampleSize(int sampleSize) {
@@ -94,12 +96,17 @@ public class SourceDataScan {
 	}
 
 	public void process(DbSettings dbSettings, String outputFileName) {
+		startTimeStamp = LocalDateTime.now();
+		sourceType = dbSettings.sourceType;
+		dbType = dbSettings.dbType;
+		database = dbSettings.database;
+
 		tableToFieldInfos = new HashMap<>();
-		if (dbSettings.dataType == DbSettings.CSVFILES) {
+		if (sourceType == DbSettings.SourceType.CSV_FILES) {
 			if (!scanValues)
 				this.minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
 			processCsvFiles(dbSettings);
-		} else if (dbSettings.dataType == DbSettings.SASFILES) {
+		} else if (sourceType == DbSettings.SourceType.SAS_FILES) {
 			processSasFiles(dbSettings);
 		} else {
 			processDatabase(dbSettings);
@@ -117,9 +124,6 @@ public class SourceDataScan {
 		try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
 			connection.setVerbose(false);
 			connection.use(dbSettings.database);
-
-			dbType = dbSettings.dbType;
-			database = dbSettings.database;
 
 			tableToFieldInfos = dbSettings.tables.stream()
 					.collect(Collectors.toMap(
@@ -162,7 +166,7 @@ public class SourceDataScan {
 		System.out.println("Generating scan report");
 		removeEmptyTables();
 
-		SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+		workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 
 		int i = 0;
 		indexedTableNameLookup = new HashMap<>();
@@ -172,13 +176,14 @@ public class SourceDataScan {
 			i++;
 		}
 
-		createFieldOverviewSheet(workbook);
-
-		createTableOverviewSheet(workbook);
+		createFieldOverviewSheet();
+		createTableOverviewSheet();
 
 		if (scanValues) {
-			createValueSheet(workbook);
+			createValueSheet();
 		}
+
+		createMetaSheet();
 
 		try (FileOutputStream out = new FileOutputStream(new File(filename))) {
 			workbook.write(out);
@@ -189,7 +194,7 @@ public class SourceDataScan {
 		}
 	}
 
-	private void createFieldOverviewSheet(SXSSFWorkbook workbook) {
+	private void createFieldOverviewSheet() {
 		Sheet overviewSheet = workbook.createSheet(ScanSheetName.FIELD_OVERVIEW);
 		CellStyle percentageStyle = workbook.createCellStyle();
 		percentageStyle.setDataFormat(workbook.createDataFormat().getFormat("0.0%"));
@@ -269,7 +274,7 @@ public class SourceDataScan {
 		}
 	}
 
-	private void createTableOverviewSheet(SXSSFWorkbook workbook) {
+	private void createTableOverviewSheet() {
 		Sheet tableOverviewSheet = workbook.createSheet(ScanSheetName.TABLE_OVERVIEW);
 
 		addRow(tableOverviewSheet,
@@ -308,7 +313,7 @@ public class SourceDataScan {
 		}
 	}
 
-	private void createValueSheet(SXSSFWorkbook workbook) {
+	private void createValueSheet() {
 		// Make a copy of the tableNames, such that we can dereference the table at the end of each loop to save memory
 		Table[] tables = tableToFieldInfos.keySet().toArray(new Table[0]);
 
@@ -353,6 +358,29 @@ public class SourceDataScan {
 		}
 	}
 
+	private void createMetaSheet() {
+		// All variables to be stored
+		Sheet metaSheet = workbook.createSheet("_");
+		addRow(metaSheet, "Key", "Value");
+		addRow(metaSheet, "Version", Version.getVersion(this.getClass()));
+		addRow(metaSheet, "Scan started at ", startTimeStamp.toString());
+		addRow(metaSheet, "Scan finished at", LocalDateTime.now().toString());
+		addRow(metaSheet, "MAX_VALUES_IN_MEMORY", SourceDataScan.MAX_VALUES_IN_MEMORY);
+		addRow(metaSheet, "MIN_CELL_COUNT_FOR_CSV", SourceDataScan.MIN_CELL_COUNT_FOR_CSV);
+		addRow(metaSheet, "N_FOR_FREE_TEXT_CHECK", SourceDataScan.N_FOR_FREE_TEXT_CHECK);
+		addRow(metaSheet, "MIN_AVERAGE_LENGTH_FOR_FREE_TEXT", SourceDataScan.MIN_AVERAGE_LENGTH_FOR_FREE_TEXT);
+		addRow(metaSheet, "sourceType", this.sourceType.toString());
+		addRow(metaSheet, "dbType", this.dbType.toString());
+//		addRow(metaSheet, "database", this.database);
+		addRow(metaSheet, "delimiter", this.delimiter);
+		addRow(metaSheet, "sampleSize", this.sampleSize);
+		addRow(metaSheet, "scanValues", this.scanValues);
+		addRow(metaSheet, "minCellCount", this.minCellCount);
+		addRow(metaSheet, "maxValues", this.maxValues);
+		addRow(metaSheet, "calculateNumericStats", this.calculateNumericStats);
+		addRow(metaSheet, "numStatsSamplerSize", this.numStatsSamplerSize);
+
+	}
 
 	private void removeEmptyTables() {
 		tableToFieldInfos.entrySet()
