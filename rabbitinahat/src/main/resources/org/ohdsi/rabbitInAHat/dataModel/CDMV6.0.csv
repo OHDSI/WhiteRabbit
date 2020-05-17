@@ -349,17 +349,6 @@ value_as_string,No,NVARCHAR,The metadata value stored as a string.,metadata,cdm
 value_as_concept_id,No,INTEGER,A foreign key to a metadata value stored as a Concept ID.,metadata,cdm
 metadata date,No,DATE,The date associated with the metadata,metadata,cdm
 metadata_datetime,No,DATETIME,The date and time associated with the metadata,metadata,cdm
-cohort_definition_id,Yes,INTEGER,A foreign key to a record in the COHORT_DEFINITION table containing relevant Cohort Definition information.,cohort,cdm
-subject_id,Yes,INTEGER,"A foreign key to the subject in the cohort. These could be referring to records in the PERSON, PROVIDER, VISIT_OCCURRENCE table.",cohort,cdm
-cohort_start_date,Yes,DATE,"The date when the Cohort Definition criteria for the Person, Provider or Visit first match.",cohort,cdm
-cohort_end_date,Yes,DATE,"The date when the Cohort Definition criteria for the Person, Provider or Visit no longer match or the Cohort membership was terminated.",cohort,cdm
-cohort_definition_id,Yes,INTEGER,A unique identifier for each Cohort.,cohort_definition,cdm
-cohort_definition_name,Yes,VARCHAR(255),A short description of the Cohort.,cohort_definition,cdm
-cohort_definition_description,No,VARCHAR(MAX),A complete description of the Cohort definition,cohort_definition,cdm
-definition_type_concept_id,Yes,INTEGER,Type defining what kind of Cohort Definition the record represents and how the syntax may be executed,cohort_definition,cdm
-cohort_definition_syntax,No,VARCHAR(MAX),Syntax or code to operationalize the Cohort definition,cohort_definition,cdm
-subject_concept_id,Yes,INTEGER,"A foreign key to the Concept to which defines the domain of subjects that are members of the cohort (e.g., Person, Provider, Visit).",cohort_definition,cdm
-cohort_initiation_date,No,DATE,A date to indicate when the Cohort was initiated in the COHORT table,cohort_definition,cdm
 domain_concept_id_1,Yes,INTEGER,"The concept representing the domain of fact one, from which the corresponding table can be inferred.",fact_relationship,cdm
 fact_id_1,Yes,INTEGER,The unique identifier in the table corresponding to the domain of fact one.,fact_relationship,cdm
 domain_concept_id_2,Yes,INTEGER,"The concept representing the domain of fact two, from which the corresponding table can be inferred.",fact_relationship,cdm
