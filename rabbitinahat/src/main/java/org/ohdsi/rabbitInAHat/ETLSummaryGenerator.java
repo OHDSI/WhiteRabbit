@@ -44,7 +44,6 @@ class ETLSummaryGenerator {
     }
 
     static void generateSourceFieldListCsv(ETL etl, String filename) {
-        System.out.println("Generating source field list " + filename);
         writeCsv(filename, createSourceFieldList(etl));
     }
 
@@ -70,7 +69,6 @@ class ETLSummaryGenerator {
     }
 
     static void generateTargetFieldListCsv(ETL etl, String filename) {
-        System.out.println("Generating target field list " + filename);
         writeCsv(filename, createTargetFieldList(etl));
     }
 
@@ -96,7 +94,6 @@ class ETLSummaryGenerator {
     }
 
     static void generateTableMappingsCsv(ETL etl, String filename) {
-        System.out.println("Generating table mapping list " + filename);
         writeCsv(filename, createTableMappingList(etl));
     }
 
@@ -120,30 +117,4 @@ class ETLSummaryGenerator {
 
         return rows;
     }
-
-//    public static void generateSourceFieldListExcel(ETL etl, String filename) {
-//        System.out.println("Generating source mappings");
-//
-//        SXSSFWorkbook workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
-//
-//        // Create overview sheet
-//        Sheet sheet = workbook.createSheet("All source fields");
-////        org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
-////        addRow(sheet,  "Source Table", "Source Field", "Description", "Mapped?", "Number of mappings", "Mappings");
-//        for (Row row : createSourceFieldList(etl)) {
-//            org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(sheet.getPhysicalNumberOfRows());
-//            row.getCells().forEach(value -> {
-//                Cell cell = excelRow.createCell(excelRow.getPhysicalNumberOfCells());
-//                cell.setCellValue(value);
-//            });
-//        }
-//
-//        try {
-//            FileOutputStream out = new FileOutputStream(new File(filename));
-//            workbook.write(out);
-//            out.close();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
 }

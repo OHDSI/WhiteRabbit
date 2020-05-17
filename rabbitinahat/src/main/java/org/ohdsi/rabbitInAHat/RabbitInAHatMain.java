@@ -299,7 +299,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		addMenuItem(helpMenu, ACTION_HELP, evt -> this.doOpenDocumentation());
 
 		return menuBar;
-	}d
+	}
 
 	public void addMenuItem(JMenu menu, String description, ActionListener actionListener) {
 		addMenuItem(menu, description, actionListener, null);
@@ -312,19 +312,6 @@ public class RabbitInAHatMain implements ResizeListener {
 			menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		}
 		menu.add(menuItem);
-	}
-
-	public void addRadioMenuItems(JMenu menu, String... actions) {
-		ButtonGroup modeGroup = new ButtonGroup();
-		// The first is the default
-		boolean isFirstAction = true;
-		for (String action : actions) {
-			JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(action, isFirstAction);
-//			menuItem.addActionListener(this);
-			menu.add(menuItem);
-			modeGroup.add(menuItem);
-			isFirstAction = false;
-		}
 	}
 
 	@Override
