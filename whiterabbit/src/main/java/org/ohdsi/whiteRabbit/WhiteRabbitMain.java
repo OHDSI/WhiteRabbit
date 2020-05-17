@@ -73,6 +73,7 @@ import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.DirectoryUtilities;
 import org.ohdsi.utilities.StringUtilities;
+import org.ohdsi.utilities.Version;
 import org.ohdsi.utilities.files.IniFile;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
@@ -152,15 +153,15 @@ public class WhiteRabbitMain implements ActionListener {
 		IniFile iniFile = new IniFile(iniFileName);
 		DbSettings dbSettings = new DbSettings();
 		if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Delimited text files")) {
-			dbSettings.dataType = DbSettings.CSVFILES;
+			dbSettings.sourceType = DbSettings.SourceType.CSV_FILES;
 			if (iniFile.get("DELIMITER").equalsIgnoreCase("tab"))
 				dbSettings.delimiter = '\t';
 			else
 				dbSettings.delimiter = iniFile.get("DELIMITER").charAt(0);
 		} else if (iniFile.get("DATA_TYPE").equalsIgnoreCase("SAS7bdat")) {
-			dbSettings.dataType = DbSettings.SASFILES;
+			dbSettings.sourceType = DbSettings.SourceType.SAS_FILES;
 		} else {
-			dbSettings.dataType = DbSettings.DATABASE;
+			dbSettings.sourceType = DbSettings.SourceType.DATABASE;
 			dbSettings.user = iniFile.get("USER_NAME");
 			dbSettings.password = iniFile.get("PASSWORD");
 			dbSettings.server = iniFile.get("SERVER_LOCATION");
@@ -216,7 +217,7 @@ public class WhiteRabbitMain implements ActionListener {
 			}
 		} else {
 			for (String table : iniFile.get("TABLES_TO_SCAN").split(",")) {
-				if (dbSettings.dataType == DbSettings.CSVFILES)
+				if (dbSettings.sourceType == DbSettings.SourceType.CSV_FILES)
 					table = iniFile.get("WORKING_FOLDER") + "/" + table;
 				dbSettings.tables.add(table);
 			}
@@ -507,7 +508,6 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	private JPanel createFakeDataPanel() {
-		// TODO: add sas7bdat as target for fake data.
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new GridBagLayout());
@@ -541,7 +541,6 @@ public class WhiteRabbitMain implements ActionListener {
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
 		targetType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
-		// targetType = new JComboBox(new String[] { "Delimited text files", "MySQL" });
 		targetType.setToolTipText("Select the type of source data available");
 		targetType.addItemListener(new ItemListener() {
 
@@ -733,14 +732,14 @@ public class WhiteRabbitMain implements ActionListener {
 	private void pickTables() {
 		DbSettings sourceDbSettings = getSourceDbSettings();
 		if (sourceDbSettings != null) {
-			if (sourceDbSettings.dataType == DbSettings.CSVFILES || sourceDbSettings.dataType == DbSettings.SASFILES) {
+			if (sourceDbSettings.sourceType == DbSettings.SourceType.CSV_FILES || sourceDbSettings.sourceType == DbSettings.SourceType.SAS_FILES) {
 				JFileChooser fileChooser = new JFileChooser(new File(folderField.getText()));
 				fileChooser.setMultiSelectionEnabled(true);
 				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-				if (sourceDbSettings.dataType == DbSettings.CSVFILES) {
+				if (sourceDbSettings.sourceType == DbSettings.SourceType.CSV_FILES) {
 					fileChooser.setFileFilter(new FileNameExtensionFilter("Delimited text files", "csv", "txt"));
-				} else if (sourceDbSettings.dataType == DbSettings.SASFILES) {
+				} else if (sourceDbSettings.sourceType == DbSettings.SourceType.SAS_FILES) {
 					fileChooser.setFileFilter(new FileNameExtensionFilter("SAS Data Files", "sas7bdat"));
 				}
 
@@ -754,7 +753,7 @@ public class WhiteRabbitMain implements ActionListener {
 					}
 
 				}
-			} else if (sourceDbSettings.dataType == DbSettings.DATABASE) {
+			} else if (sourceDbSettings.sourceType == DbSettings.SourceType.DATABASE) {
 				RichConnection connection = new RichConnection(sourceDbSettings.server, sourceDbSettings.domain, sourceDbSettings.user,
 						sourceDbSettings.password, sourceDbSettings.dbType);
 				String tableNames = StringUtilities.join(connection.getTableNames(sourceDbSettings.database), "\t");
@@ -779,7 +778,7 @@ public class WhiteRabbitMain implements ActionListener {
 	private DbSettings getSourceDbSettings() {
 		DbSettings dbSettings = new DbSettings();
 		if (sourceType.getSelectedItem().equals("Delimited text files")) {
-			dbSettings.dataType = DbSettings.CSVFILES;
+			dbSettings.sourceType = DbSettings.SourceType.CSV_FILES;
 			if (sourceDelimiterField.getText().length() == 0) {
 				JOptionPane.showMessageDialog(frame, "Delimiter field cannot be empty for source database", "Error connecting to server",
 						JOptionPane.ERROR_MESSAGE);
@@ -790,9 +789,9 @@ public class WhiteRabbitMain implements ActionListener {
 			else
 				dbSettings.delimiter = sourceDelimiterField.getText().charAt(0);
 		} else if (sourceType.getSelectedItem().equals("SAS7bdat")) {
-			dbSettings.dataType = DbSettings.SASFILES;
+			dbSettings.sourceType = DbSettings.SourceType.SAS_FILES;
 		} else {
-			dbSettings.dataType = DbSettings.DATABASE;
+			dbSettings.sourceType = DbSettings.SourceType.DATABASE;
 			dbSettings.user = sourceUserField.getText();
 			dbSettings.password = sourcePasswordField.getText();
 			dbSettings.server = sourceServerField.getText();
@@ -838,7 +837,7 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	private void testConnection(DbSettings dbSettings) {
-		if (dbSettings.dataType == DbSettings.CSVFILES || dbSettings.dataType == DbSettings.SASFILES) {
+		if (dbSettings.sourceType == DbSettings.SourceType.CSV_FILES || dbSettings.sourceType == DbSettings.SourceType.SAS_FILES) {
 			if (new File(folderField.getText()).exists()) {
 				String message = "Folder " + folderField.getText() + " found";
 				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Working folder found", JOptionPane.INFORMATION_MESSAGE);
@@ -886,7 +885,7 @@ public class WhiteRabbitMain implements ActionListener {
 	private DbSettings getTargetDbSettings() {
 		DbSettings dbSettings = new DbSettings();
 		if (targetType.getSelectedItem().equals("Delimited text files")) {
-			dbSettings.dataType = DbSettings.CSVFILES;
+			dbSettings.sourceType = DbSettings.SourceType.CSV_FILES;
 
 			switch((String) targetCSVFormat.getSelectedItem()) {
 				case "Default (comma, CRLF)":
@@ -909,7 +908,7 @@ public class WhiteRabbitMain implements ActionListener {
 			}
 
 		} else {
-			dbSettings.dataType = DbSettings.DATABASE;
+			dbSettings.sourceType = DbSettings.SourceType.DATABASE;
 			dbSettings.user = targetUserField.getText();
 			dbSettings.password = targetPasswordField.getText();
 			dbSettings.server = targetServerField.getText();
@@ -1033,7 +1032,7 @@ public class WhiteRabbitMain implements ActionListener {
 				DbSettings dbSettings = getSourceDbSettings();
 				if (dbSettings != null) {
 					for (String table : tables) {
-						if (dbSettings.dataType == DbSettings.CSVFILES || dbSettings.dataType == DbSettings.SASFILES)
+						if (dbSettings.sourceType == DbSettings.SourceType.CSV_FILES || dbSettings.sourceType == DbSettings.SourceType.SAS_FILES)
 							table = folderField.getText() + "/" + table;
 						dbSettings.tables.add(table);
 					}
@@ -1163,6 +1162,11 @@ public class WhiteRabbitMain implements ActionListener {
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu helpMenu = new JMenu("Help");
+
+		JMenuItem versionItem = new JMenuItem("White Rabbit v" +  Version.getVersion(this.getClass()));
+		versionItem.setEnabled(false);
+		helpMenu.add(versionItem);
+
 		menuBar.add(helpMenu);
 		JMenuItem helpItem = new JMenuItem(ACTION_CMD_HELP);
 		helpItem.addActionListener(this);

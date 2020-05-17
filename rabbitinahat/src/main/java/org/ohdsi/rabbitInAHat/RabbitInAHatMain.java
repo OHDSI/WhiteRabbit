@@ -50,6 +50,7 @@ import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.utilities.Version;
 import org.ohdsi.utilities.collections.Pair;
 
 /**
@@ -81,7 +82,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_SET_TARGET_V530				= "CDM v5.3.0";
 	public final static String		ACTION_SET_TARGET_V531				= "CDM v5.3.1";
 	public final static String		ACTION_SET_TARGET_V60				= "CDM v6.0";
-	public final static String 		ACTION_SET_TARGET_V60_O = "CDM v6.0 + Oncology";
+	public final static String 		ACTION_SET_TARGET_V60_O 			= "CDM v6.0 + Oncology";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
 	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
@@ -300,22 +301,26 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
+		addMenuItem(helpMenu, "Rabbit in a Hat v" + Version.getVersion(this.getClass()), null).setEnabled(false);
 		addMenuItem(helpMenu, ACTION_HELP, evt -> this.doOpenDocumentation());
 
 		return menuBar;
 	}
 
-	public void addMenuItem(JMenu menu, String description, ActionListener actionListener) {
-		addMenuItem(menu, description, actionListener, null);
+	public JMenuItem addMenuItem(JMenu menu, String description, ActionListener actionListener) {
+		return addMenuItem(menu, description, actionListener, null);
 	}
 
-	public void addMenuItem(JMenu menu, String description, ActionListener actionListener, Integer keyEvent) {
+	public JMenuItem addMenuItem(JMenu menu, String description, ActionListener actionListener, Integer keyEvent) {
 		JMenuItem menuItem = new JMenuItem(description);
-		menuItem.addActionListener(actionListener);
+		if (actionListener != null) {
+			menuItem.addActionListener(actionListener);
+		}
 		if (keyEvent != null) {
 			menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		}
 		menu.add(menuItem);
+		return menuItem;
 	}
 
 	@Override
