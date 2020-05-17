@@ -82,6 +82,8 @@ import org.ohdsi.whiteRabbit.scan.SourceDataScan;
  */
 public class WhiteRabbitMain implements ActionListener {
 
+	public static String version = "0.10.0-SNAPSHOT";
+
 	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit";
 	public final static String ACTION_CMD_HELP = "Open documentation";
 
@@ -507,7 +509,6 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	private JPanel createFakeDataPanel() {
-		// TODO: add sas7bdat as target for fake data.
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new GridBagLayout());
@@ -541,7 +542,6 @@ public class WhiteRabbitMain implements ActionListener {
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
 		targetType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
-		// targetType = new JComboBox(new String[] { "Delimited text files", "MySQL" });
 		targetType.setToolTipText("Select the type of source data available");
 		targetType.addItemListener(new ItemListener() {
 
@@ -1163,6 +1163,11 @@ public class WhiteRabbitMain implements ActionListener {
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu helpMenu = new JMenu("Help");
+
+		JMenuItem versionItem = new JMenuItem("White Rabbit v" + version);
+		versionItem.setEnabled(false);
+		helpMenu.add(versionItem);
+
 		menuBar.add(helpMenu);
 		JMenuItem helpItem = new JMenuItem(ACTION_CMD_HELP);
 		helpItem.addActionListener(this);

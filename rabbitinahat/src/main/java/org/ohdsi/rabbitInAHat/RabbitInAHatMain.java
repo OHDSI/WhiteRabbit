@@ -57,6 +57,8 @@ import org.ohdsi.utilities.collections.Pair;
  */
 public class RabbitInAHatMain implements ResizeListener {
 
+	public static String version = "0.10.0-SNAPSHOT";
+
 	public final static String		ACTION_SAVE							= "Save";
 	public final static String		ACTION_SAVE_AS						= "Save As";
 	public final static String		ACTION_OPEN_ETL_SPECS				= "Open ETL Specs";
@@ -300,22 +302,26 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
+		addMenuItem(helpMenu, "Rabbit in a Hat v" + version, null).setEnabled(false);
 		addMenuItem(helpMenu, ACTION_HELP, evt -> this.doOpenDocumentation());
 
 		return menuBar;
 	}
 
-	public void addMenuItem(JMenu menu, String description, ActionListener actionListener) {
-		addMenuItem(menu, description, actionListener, null);
+	public JMenuItem addMenuItem(JMenu menu, String description, ActionListener actionListener) {
+		return addMenuItem(menu, description, actionListener, null);
 	}
 
-	public void addMenuItem(JMenu menu, String description, ActionListener actionListener, Integer keyEvent) {
+	public JMenuItem addMenuItem(JMenu menu, String description, ActionListener actionListener, Integer keyEvent) {
 		JMenuItem menuItem = new JMenuItem(description);
-		menuItem.addActionListener(actionListener);
+		if (actionListener != null) {
+			menuItem.addActionListener(actionListener);
+		}
 		if (keyEvent != null) {
 			menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		}
 		menu.add(menuItem);
+		return menuItem;
 	}
 
 	@Override
