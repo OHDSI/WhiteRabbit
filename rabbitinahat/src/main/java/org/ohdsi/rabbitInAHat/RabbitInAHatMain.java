@@ -35,7 +35,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -246,27 +248,26 @@ public class RabbitInAHatMain implements ResizeListener {
 		JMenu targetDatabaseMenu = new JMenu("Set Target Database");
 		editMenu.add(targetDatabaseMenu);
 
-		ButtonGroup targetGroup = new ButtonGroup();
-		Pair<String, CDMVersion>[] cdmOptions = new Pair[]{
-				 new Pair<>(ACTION_SET_TARGET_V4, CDMVersion.CDMV4)
-				,new Pair<>(ACTION_SET_TARGET_V5, CDMVersion.CDMV5)
-				,new Pair<>(ACTION_SET_TARGET_V501, CDMVersion.CDMV501)
-				,new Pair<>(ACTION_SET_TARGET_V510, CDMVersion.CDMV510)
-				,new Pair<>(ACTION_SET_TARGET_V520, CDMVersion.CDMV520)
-				,new Pair<>(ACTION_SET_TARGET_V530, CDMVersion.CDMV530)
-				,new Pair<>(ACTION_SET_TARGET_V531, CDMVersion.CDMV531)
-				,new Pair<>(ACTION_SET_TARGET_V60, CDMVersion.CDMV60)
-				,new Pair<>(ACTION_SET_TARGET_V60_O, CDMVersion.CDMV60_O)
-		};
+		Map<String, CDMVersion> cdmOptions = new LinkedHashMap<>();
+	 	cdmOptions.put(ACTION_SET_TARGET_V4, CDMVersion.CDMV4);
+		cdmOptions.put(ACTION_SET_TARGET_V5, CDMVersion.CDMV5);
+		cdmOptions.put(ACTION_SET_TARGET_V501, CDMVersion.CDMV501);
+		cdmOptions.put(ACTION_SET_TARGET_V510, CDMVersion.CDMV510);
+		cdmOptions.put(ACTION_SET_TARGET_V520, CDMVersion.CDMV520);
+		cdmOptions.put(ACTION_SET_TARGET_V530, CDMVersion.CDMV530);
+		cdmOptions.put(ACTION_SET_TARGET_V531, CDMVersion.CDMV531);
+		cdmOptions.put(ACTION_SET_TARGET_V60, CDMVersion.CDMV60);
+		cdmOptions.put(ACTION_SET_TARGET_V60_O, CDMVersion.CDMV60_O);
 
 		JRadioButtonMenuItem targetCDM;
-		for (Pair<String, CDMVersion> cdmOption : cdmOptions) {
-			targetCDM = new JRadioButtonMenuItem(cdmOption.getItem1());
-			if (cdmOption.getItem1().equals(ACTION_SET_TARGET_V60)) {
+		ButtonGroup targetGroup = new ButtonGroup();
+		for (String optionName : cdmOptions.keySet()) {
+			targetCDM = new JRadioButtonMenuItem(optionName);
+			if (optionName.equals(ACTION_SET_TARGET_V60)) {
 				targetCDM.setSelected(true);
 			}
 			targetGroup.add(targetCDM);
-			targetDatabaseMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCDM(cdmOption.getItem2()));
+			targetDatabaseMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCDM(cdmOptions.get(optionName)));
 		}
 
 		targetCDM = new JRadioButtonMenuItem(ACTION_SET_TARGET_CUSTOM);
