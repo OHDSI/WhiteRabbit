@@ -53,7 +53,7 @@ WhiteRabbit
 2. Unzip the download
 3. Double-click on `bin/whiteRabbit.bat` on Windows to start White Rabbit, and `bin/whiteRabbit` on macOS and Linux.
 
-(See the [Wiki](http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#running_from_the_command_line) for details on how to run from the command prompt instead)
+(See [the documentation](http://ohdsi.github.io/WhiteRabbit/WhiteRabbit.html#running-from-the-command-line) for details on how to run from the command prompt instead)
 
 Rabbit-In-A-Hat
 
@@ -77,9 +77,9 @@ These are used for testing of the main White Rabbit and Rabbit in a Hat features
 
 Getting Involved
 =============
-* User guide and Help: <a href="http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit">WhiteRabbit Wiki</a>
-* Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
-* We use the <a href="../../issues">GitHub issue tracker</a> for all bugs/issues/enhancements
+* User guide and Help: [WhiteRabbit documentation](http://ohdsi.github.io/WhiteRabbit)
+* Developer questions/comments/feedback: [OHDSI Forum](http://forums.ohdsi.org/c/developers)
+* We use the [GitHub issue tracker](../../issues) for all bugs/issues/enhancements
 * Historically, all files have CRLF line endings. Please configure your IDE and local git to keep line endings as is. This avoids merge conflicts.
 
 License

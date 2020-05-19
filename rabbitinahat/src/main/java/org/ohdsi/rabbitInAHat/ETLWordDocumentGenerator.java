@@ -65,7 +65,7 @@ public class ETLWordDocumentGenerator {
 	public static void generate(ETL etl, String filename) {
 		generate(etl, filename, true);
 	}
-	
+
 	private static void addSourceTablesAppendix(CustomXWPFDocument document, ETL etl) {
 		XWPFParagraph paragraph = document.createParagraph();
 		XWPFRun run = paragraph.createRun();

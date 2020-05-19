@@ -187,6 +187,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private Table				table;
 		private JLabel				nameLabel			= new JLabel("");
+		private DescriptionTextArea description			= new DescriptionTextArea ("");
 		private JLabel				rowCountLabel		= new JLabel("");
 		private SimpleTableModel	fieldTable			= new SimpleTableModel("Field", "Type","Description");
 		private JTextArea			commentsArea		= new JTextArea();
@@ -197,17 +198,28 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			setLayout(new BorderLayout());
 
 			JPanel generalInfoPanel = new JPanel();
-			generalInfoPanel.setLayout(new GridLayout(0, 2));
+			generalInfoPanel.setLayout(new BorderLayout(5,5));
 			generalInfoPanel.setBorder(BorderFactory.createTitledBorder("General information"));
 
-			generalInfoPanel.add(new JLabel("Table name: "));
-			generalInfoPanel.add(nameLabel);
+			JPanel fieldInfo = new JPanel();
+			fieldInfo.setLayout(new GridLayout(0,2));
 
-			generalInfoPanel.add(new JLabel("Number of rows: "));
-			generalInfoPanel.add(rowCountLabel);
+			fieldInfo.add(new JLabel("Table name: "));
+			fieldInfo.add(nameLabel);
+
+			fieldInfo.add(new JLabel("Number of rows: "));
+			fieldInfo.add(rowCountLabel);
+
+			generalInfoPanel.add(fieldInfo, BorderLayout.NORTH);
+
+			JPanel descriptionInfo = new JPanel();
+			descriptionInfo.setLayout(new GridLayout(0,2));
+			descriptionInfo.add(new JLabel("Description: "));
+			descriptionInfo.add(description);
+			generalInfoPanel.add(descriptionInfo, BorderLayout.SOUTH);
+
 			add(generalInfoPanel, BorderLayout.NORTH);
 
-			
 			JScrollPane fieldListPanel = new JScrollPane(displayTable);
 			
 			// Updates row heights when column widths change
@@ -292,6 +304,10 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		public void showTable(Table table) {
 			this.table = table;
 			nameLabel.setText(table.getName());
+			description.setText(table.getDescription());
+
+			// Hide description if it's empty
+			description.getParent().setVisible(!description.getText().isEmpty());
 
 			if (table.getRowCount() > 0) {
 				rowCountLabel.setText(numberFormat.format(table.getRowCount()));
@@ -368,8 +384,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			JPanel descriptionInfo = new JPanel();
 			descriptionInfo.setLayout(new GridLayout(0,2));
 			descriptionInfo.add(new JLabel("Description: "));
-			descriptionInfo.add(description);			
-			
+			descriptionInfo.add(description);
 			generalInfoPanel.add(descriptionInfo,BorderLayout.SOUTH);
 			
 			add(generalInfoPanel, BorderLayout.NORTH);
@@ -381,19 +396,13 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			table.setBorder(new MatteBorder(1, 0, 1, 0, Color.BLACK));
 			table.setCellSelectionEnabled(true);
 
-			// Make first column wider if source panel or second column if this is a target field panel
-			int wideColumnIndex = isTargetFieldPanel ? 1 : 0;
-			TableColumn column;
-			for (int i = 0; i < table.getColumnCount(); i++) {
-				column = table.getColumnModel().getColumn(i);
-				if (i == wideColumnIndex) {
-					column.setPreferredWidth(500);
-				} else {
-					column.setPreferredWidth(50);
-				}
-			}
-
-			if (!isTargetFieldPanel) {
+			if (isTargetFieldPanel) {
+				// Wide columns for concept name and class id
+				table.getColumnModel().getColumn(1).setPreferredWidth(300);
+				table.getColumnModel().getColumn(2).setPreferredWidth(100);
+			} else {
+				// Wide column for value name
+				table.getColumnModel().getColumn(0).setPreferredWidth(500);
 				// Right align the frequency and percentage
 				DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
 				rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -481,7 +490,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			nameLabel			= new JLabel("");
 			rowCountLabel		= new JLabel("");
 			description			= new DescriptionTextArea ("");
-			valueTable			= new SimpleTableModel("Concept ID", "Concept Name", "Standard?");
+			valueTable			= new SimpleTableModel("Concept ID", "Concept Name", "Class", "Standard?");
 			commentsArea		= new JTextArea();
 			isTargetFieldPanel  = true;
 			super.initialise();
@@ -492,7 +501,12 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			valueTable.clear();
 			if (field.getConceptIdHints() != null) {
 				for (ConceptsMap.Concept conceptIdHint : field.getConceptIdHints()) {
-					valueTable.add(conceptIdHint.getConceptId(), conceptIdHint.getConceptName(), conceptIdHint.getStandardConcept());
+					valueTable.add(
+							conceptIdHint.getConceptId(),
+							conceptIdHint.getConceptName(),
+							conceptIdHint.getConceptClassId(),
+							conceptIdHint.getStandardConcept()
+					);
 				}
 			}
 		}
