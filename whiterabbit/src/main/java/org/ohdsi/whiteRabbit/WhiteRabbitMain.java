@@ -273,11 +273,7 @@ public class WhiteRabbitMain implements ActionListener {
 		JButton pickButton = new JButton("Pick folder");
 		pickButton.setToolTipText("Pick a different working folder");
 		folderPanel.add(pickButton);
-		pickButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				pickFolder();
-			}
-		});
+		pickButton.addActionListener(e -> pickFolder());
 		componentsToDisableWhenRunning.add(pickButton);
 		c.gridx = 0;
 		c.gridy = 0;
@@ -696,8 +692,15 @@ public class WhiteRabbitMain implements ActionListener {
 		JFileChooser fileChooser = new JFileChooser(new File(folderField.getText()));
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		int returnVal = fileChooser.showDialog(frame, "Select folder");
-		if (returnVal == JFileChooser.APPROVE_OPTION)
-			folderField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File selectedDirectory = fileChooser.getSelectedFile();
+			if (!selectedDirectory.exists()) {
+				// When no directory is selected when approving, FileChooser incorrectly appends the current directory to the path.
+				// Take the opened directory instead.
+				selectedDirectory = fileChooser.getCurrentDirectory();
+			}
+			folderField.setText(selectedDirectory.getAbsolutePath());
+		}
 	}
 
 	private void pickScanReportFile() {
