@@ -64,14 +64,14 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_SAVE_AS						= "Save As";
 	public final static String		ACTION_OPEN_ETL_SPECS				= "Open ETL Specs";
 	public final static String		ACTION_OPEN_SCAN_REPORT				= "Open Scan Report";
-	public final static String		ACTION_GENERATE_ETL_WORD_DOCUMENT	= "Generate ETL Word Document";
-	public final static String		ACTION_GENERATE_ETL_HTML_DOCUMENT	= "Generate ETL HTML Documents";
-	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Generate ETL Markdown Documents";
-	public final static String 		ACTION_GENERATE_SOURCE_FIELD_LIST   = "Generate Source Field list";
-	public final static String 		ACTION_GENERATE_TARGET_FIELD_LIST   = "Generate Target Field list";
-	public final static String 		ACTION_GENERATE_TABLE_MAPPING_LIST  = "Generate Table Mapping list";
-	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "Generate ETL Test Framework";
-	public final static String		ACTION_GENERATE_SQL                 = "Generate SQL Skeleton Files";
+	public final static String		ACTION_GENERATE_ETL_WORD_DOCUMENT	= "Word Document";
+	public final static String		ACTION_GENERATE_ETL_HTML_DOCUMENT	= "HTML Documents";
+	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Markdown Documents";
+	public final static String 		ACTION_GENERATE_SOURCE_FIELD_LIST   = "Source Field list";
+	public final static String 		ACTION_GENERATE_TARGET_FIELD_LIST   = "Target Field list";
+	public final static String 		ACTION_GENERATE_TABLE_MAPPING_LIST  = "Table Mapping list";
+	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "ETL Test Framework (R)";
+	public final static String		ACTION_GENERATE_SQL                 = "SQL Skeleton Files";
 	public final static String		ACTION_DISCARD_COUNTS				= "Discard Value Counts";
 	public final static String		ACTION_FILTER						= "Filter";
 	public final static String		ACTION_MAKE_MAPPING					= "Make Mappings";
@@ -352,7 +352,6 @@ public class RabbitInAHatMain implements ResizeListener {
 	 * @return if file selected, absolute path of selected file otherwise null
 	 */
 	private String choosePath(boolean saveMode, boolean directoryMode, String presetFileName, FileFilter... filter) {
-		String result = null;
 		FileFilter primaryFileFilter = filter[0];
 
 		// Create chooser and the last selected file
@@ -367,7 +366,6 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		if (directoryMode) {
 			chooser.setDialogTitle("Select Folder");
-			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			chooser.setAcceptAllFileFilterUsed(false);
 		} else {
 			chooser.setDialogTitle("Select File");
@@ -380,14 +378,10 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
 		if (dialogResult == JFileChooser.APPROVE_OPTION) {
-			if (directoryMode && !chooser.getSelectedFile().isDirectory()) {
-				result = chooser.getCurrentDirectory().getAbsolutePath();
-			} else {
-				result = chooser.getSelectedFile().getAbsolutePath();
-			}
+			return chooser.getSelectedFile().getAbsolutePath();
 		}
 
-		return result;
+		return null;
 	}
 
 	private String choosePath(boolean saveMode, boolean directoryMode, FileFilter... filter) {
@@ -413,12 +407,12 @@ public class RabbitInAHatMain implements ResizeListener {
 		return chooseSavePath(null, fileFilter);
 	}
 
-	private String chooseOpenPath(FileFilter... fileFilter) {
-		return choosePath(false, false, fileFilter);
-	}
-
 	private String chooseSaveDirectory() {
 		return choosePath(true, true, new FileNameExtensionFilter("Directories","."));
+	}
+
+	private String chooseOpenPath(FileFilter... fileFilter) {
+		return choosePath(false, false, fileFilter);
 	}
 
 	private void doAddStemTable() {
@@ -449,7 +443,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	}
 
 	private void doGenerateTestFramework() {
-		String filename = chooseSavePath(FILE_FILTER_R);
+		String filename = chooseSavePath("TestFramework", FILE_FILTER_R);
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLTestFrameWorkGenerator etlTestFrameWorkGenerator = new ETLTestFrameWorkGenerator();
@@ -639,27 +633,27 @@ public class RabbitInAHatMain implements ResizeListener {
 	}
 
 	private void doGenerateEtlHtmlDoc() {
-		String filename = chooseSavePath(FILE_FILTER_HTML);
-		if (filename != null) {
+		String directoryName = chooseSaveDirectory();
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
-			generator.generate(filename, DocumentType.HTML);
+			generator.generate(directoryName, DocumentType.HTML);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
 
 	private void doGenerateEtlMdDoc() {
-		String filename = chooseSavePath(FILE_FILTER_MD);
-		if (filename != null) {
+		String directoryName = chooseSaveDirectory();
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
-			generator.generate(filename, DocumentType.MARKDOWN);
+			generator.generate(directoryName, DocumentType.MARKDOWN);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
 
     private void doGenerateSourceFields() {
-		String filename = chooseSavePath(FILE_FILTER_CSV);
+		String filename = chooseSavePath("source_fields", FILE_FILTER_CSV);
         if (filename != null) {
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             ETLSummaryGenerator.generateSourceFieldListCsv(ObjectExchange.etl, filename);
@@ -668,7 +662,7 @@ public class RabbitInAHatMain implements ResizeListener {
     }
 
     private void doGenerateTargetFields() {
-		String filename = chooseSavePath(FILE_FILTER_CSV);
+		String filename = chooseSavePath("target_fields", FILE_FILTER_CSV);
         if (filename != null) {
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             ETLSummaryGenerator.generateTargetFieldListCsv(ObjectExchange.etl, filename);
@@ -677,7 +671,7 @@ public class RabbitInAHatMain implements ResizeListener {
     }
 
     private void doGenerateTableMappings() {
-		String filename = chooseSavePath(FILE_FILTER_CSV);
+		String filename = chooseSavePath("table_mappings", FILE_FILTER_CSV);
         if (filename != null) {
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             ETLSummaryGenerator.generateTableMappingsCsv(ObjectExchange.etl, filename);
