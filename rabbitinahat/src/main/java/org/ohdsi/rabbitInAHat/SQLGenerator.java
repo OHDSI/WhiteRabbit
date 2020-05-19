@@ -71,7 +71,7 @@ public class SQLGenerator {
                     target = targetTable.getFieldByName(mapping.getTargetItem().getName());
                 }
 
-                out.write('\t');
+                out.write("    ");
                 out.write(target.getName());
 
                 // Do not print comma if last is reached
@@ -113,9 +113,9 @@ public class SQLGenerator {
                     out.write(createInLineComment("[MAPPING COMMENT]", mapping.getComment(), "\n"));
                 }
 
-                out.write('\t');
+                out.write("    ");
                 out.write(sourceName);
-                out.write("\tAS\t");
+                out.write(" AS ");
                 out.write(targetName);
 
                 // Do not print comma if last is reached
