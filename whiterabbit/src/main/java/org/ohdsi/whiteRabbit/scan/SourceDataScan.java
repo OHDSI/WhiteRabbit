@@ -102,6 +102,7 @@ public class SourceDataScan {
 		database = dbSettings.database;
 
 		tableToFieldInfos = new HashMap<>();
+		StringUtilities.outputWithTime("Started new scan of " + dbSettings.tables.size() + " tables...");
 		if (sourceType == DbSettings.SourceType.CSV_FILES) {
 			if (!scanValues)
 				this.minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
@@ -153,6 +154,7 @@ public class SourceDataScan {
 				table.setName(new File(fileName).getName());
 				table.setComment(sasFileProperties.getName());
 
+				StringUtilities.outputWithTime("Scanning table " + fileName);
 				List<FieldInfo> fieldInfos = processSasFile(sasFileReader);
 				tableToFieldInfos.put(table, fieldInfos);
 
@@ -163,7 +165,7 @@ public class SourceDataScan {
 	}
 
 	private void generateReport(String filename) {
-		System.out.println("Generating scan report");
+		StringUtilities.outputWithTime("Generating scan report");
 		removeEmptyTables();
 
 		workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
@@ -658,7 +660,7 @@ public class SourceDataScan {
 
 		public Double getFractionEmpty() {
 			if (nProcessed == 0)
-				return 0d;
+				return 1d;
 			else
 				return emptyCount / (double) nProcessed;
 		}
@@ -773,7 +775,9 @@ public class SourceDataScan {
 		}
 
 		private Object formatNumericValue(double value, boolean dateAsDays) {
-			if (getTypeDescription().equals(DataType.EMPTY.name())) {
+			if (nProcessed == 0) {
+				return Double.NaN;
+			} else if (getTypeDescription().equals(DataType.EMPTY.name())) {
 				return Double.NaN;
 			} else if (isInteger || isReal) {
 				return value;
