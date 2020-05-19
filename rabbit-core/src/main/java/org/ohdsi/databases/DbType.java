@@ -45,4 +45,8 @@ public class DbType {
 		else
 			return false;
 	}
+
+	public String getTypeName() {
+		return this.type.name();
+	}
 }
