@@ -11,7 +11,7 @@
 
 
 
-<title>RabbitInAHat.utf8.md</title>
+<title>Rabbit in a Hat</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -25,7 +25,7 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+<link rel='shortcut icon' type='image/x-icon' href='images/favicon.ico' />
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -417,7 +417,7 @@ div.tocify {
 </div>
 <div id="installation-and-support" class="section level2">
 <h2>Installation and support</h2>
-<p>Rabbit-In-a-Hat comes with WhiteRabbit, refer to <a href="WhiteRabbit.md">WhiteRabbit’s installation section</a>.</p>
+<p>Rabbit-In-a-Hat comes with WhiteRabbit, refer to step 1 and 2 of <a href="WhiteRabbit.html#installation">WhiteRabbit’s installation section</a>.</p>
 </div>
 </div>
 <div id="getting-started" class="section level1">
@@ -437,7 +437,7 @@ div.tocify {
 <p>Rabbit-In-a-Hat allows you to select which CDM version (v4, v5 or v6) you’d like to built your ETL specification against.</p>
 <p>See the graphic below for how to select your desired CDM: <img src="http://i.imgur.com/LOqhp7H.gif" alt="Switching between CDMv4 and CDMv5" /></p>
 <p>The CDM version can be changed at any time, but beware that some of your existing mappings may be lost in the process. By default, Rabbit-In-a-Hat will attempt to pereserve as many mappings between the source data and the newly selected CDM as possible. When a new CDM is selected, Rabbit-In-a-Hat will drop any mappings if the mapping’s CDM table or CDM column name no longer exist</p>
-<p>For instance, switching from CDMv4 to CDMv5, a mapping from source to CDM person.person_source_value will be kept because the person table has person_source_value in both CDMv4 and CDMv5. However, person.assocaited_provider_id exists only in CDMv4 and has been renamed to <a href="http://www.ohdsi.org/web/wiki/doku.php?id=documentation:cdm:person">person.provider_id in CDMv5</a> and so that mapping will not be kept when switching between these two CDMs.</p>
+<p>For instance, switching from CDMv4 to CDMv5, a mapping from source to CDM person.person_source_value will be kept because the person table has person_source_value in both CDMv4 and CDMv5. However, person.associated_provider_id exists only in CDMv4 and has been renamed to <a href="https://github.com/OHDSI/CommonDataModel/wiki/PERSON">person.provider_id in CDMv5</a> and so that mapping will not be kept when switching between these two CDMs.</p>
 </div>
 <div id="loading-in-a-custom-cdm" class="section level2">
 <h2>Loading in a Custom CDM</h2>

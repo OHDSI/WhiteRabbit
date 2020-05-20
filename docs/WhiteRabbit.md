@@ -1,4 +1,6 @@
-
+---
+pagetitle: "White Rabbit"
+---
 ![](images/whiterabbitlogo.png )
 
 # Introduction
@@ -22,7 +24,19 @@ Once the scan report is created, this report can then be used in the Rabbit-In-a
 
 # Installation and support
 
-All source code and installation instructions available on GitHub: <https://github.com/OHDSI/WhiteRabbit>
+## Installation
+
+1. Download the latest version of WhiteRabbit from Github: <https://github.com/OHDSI/WhiteRabbit/releases/latest>.  
+   The packaged application can be found at the bottom of the page under assets, in a file called _WhiteRabbit_vX.X.X.zip_ (where `X.X.X` is the latest version).
+2. Unzip the download
+3. Double-click on bin/whiteRabbit.bat on Windows to start WhiteRabbit, and bin/whiteRabbit on macOS and Linux.  
+   See [Running from the command line](#running_from_the_command_line) for details on how to run from the command line instead.
+4. Go to [Using the Application Functions](#using_the_application_functions) for detailed instructions on how to make a scan of your data.
+
+Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.
+
+## Support
+All source code, descriptions and input/output examples are available on GitHub: <https://github.com/OHDSI/WhiteRabbit>
 
 Any bugs/issues/enhancements should be posted to the GitHub repository: <https://github.com/OHDSI/WhiteRabbit/issues>
 

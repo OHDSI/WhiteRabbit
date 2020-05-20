@@ -1,4 +1,7 @@
-# Documentation
+---
+pagetitle: "ReadMe"
+---
+# White Rabbit Documentation Readme
 This folder contains the raw and rendered documentation of WhiteRabbit.
 
 ## Contribute
