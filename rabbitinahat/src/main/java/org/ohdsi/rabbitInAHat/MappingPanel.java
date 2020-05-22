@@ -46,10 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import org.ohdsi.rabbitInAHat.Arrow.HighlightStatus;
-import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
-import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
-import org.ohdsi.rabbitInAHat.dataModel.Mapping;
-import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.utilities.collections.IntegerComparator;
 
 public class MappingPanel extends JPanel implements MouseListener, MouseMotionListener {
@@ -161,20 +158,22 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		sourceComponents.clear();
 		cdmComponents.clear();
 		arrows.clear();
-		for (MappableItem item : mapping.getSourceItems())
+		for (MappableItem item : mapping.getSourceItems()) {
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				if (item.isStem())
 					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
 				else
 					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0)));
 			}
-		for (MappableItem item : mapping.getTargetItems())
+		}
+		for (MappableItem item : mapping.getTargetItems()) {
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				if (item.isStem())
 					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
 				else
 					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255)));
 			}
+		}
 		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
 			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents),
 					map);
@@ -756,13 +755,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				detailsListener.showDetails(component.getItem(), isSourceComponent);
 				repaint();
 
-				if (event.getClickCount() == 2) {
+				if (event.getClickCount() == 2 && isSourceComponent && !component.getItem().isStem()) {
 					if (slaveMappingPanel != null) {
+						// Create dummy mapping
 						slaveMappingPanel.setMapping(
-								ObjectExchange.etl.getFieldToFieldMapping(
-										(Table) component.getItem(),
-										new Table() // Show empty table
-								)
+								new Mapping<>(((Table) component.getItem()).getFields(), new ArrayList<>(), new ArrayList<>())
 						);
 						// Zoom arrow has to be set, but will not be shown
 						zoomArrow = new Arrow(
