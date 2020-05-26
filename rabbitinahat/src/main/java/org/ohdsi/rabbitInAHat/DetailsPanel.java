@@ -456,7 +456,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 						if (valueCountPercent < 0.001) {
 							valuePercent = "<" + percentageFormat.format(0.001);
 						}
-						else if (valueCountPercent > 0.99) {
+						else if (valueCountPercent > 0.99 && valueCountPercent < 1) {
 							valuePercent = ">" + percentageFormat.format(0.99);
 						}
 						else {

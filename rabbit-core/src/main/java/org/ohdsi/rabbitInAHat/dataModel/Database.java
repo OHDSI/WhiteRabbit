@@ -186,7 +186,8 @@ public class Database implements Serializable {
 		Table table = new Table();
 		table.setName(name.toLowerCase());
 		table.setDescription(description);
-		table.setRowCount((nRows == null || nRows == -1) ? nRowsChecked : nRows);
+		table.setRowCount((nRows == null) ? -1 : nRows);
+		table.setRowsCheckedCount(nRowsChecked);
 		return table;
 	}
 
