@@ -344,6 +344,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		private static final long serialVersionUID = -4393026616049677944L;
 		JLabel nameLabel;
 		JLabel typeLabel;
+		JLabel valueDetailLabel;
 		JLabel rowCountLabel;
 		DescriptionTextArea description;
 		SimpleTableModel valueTable;
@@ -354,6 +355,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		public FieldPanel() {
 			nameLabel			= new JLabel("");
 			typeLabel           = new JLabel("");
+			valueDetailLabel    = new JLabel("");
 			rowCountLabel		= new JLabel("");
 			description			= new DescriptionTextArea ("");
 			valueTable			= new SimpleTableModel("Value", "Frequency", "Percentage");

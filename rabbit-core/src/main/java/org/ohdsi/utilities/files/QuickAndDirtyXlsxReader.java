@@ -40,10 +40,11 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 
 	private static final long	serialVersionUID	= 25124428448185386L;
 
-	private List<String>		sharedStrings		= new ArrayList<String>();
+	private List<String> sharedStrings = new ArrayList<>();
 
-	private Map<String, Sheet>	rIdToSheet			= new HashMap<String, Sheet>();
-	private Map<String, Sheet>	filenameToSheet		= new HashMap<String, Sheet>();
+	private Map<String, Sheet> rIdToSheet = new HashMap<>();
+	private Map<String, Sheet> nameToSheet = new HashMap<>();
+	private Map<String, Sheet> filenameToSheet = new HashMap<>();
 
 	public QuickAndDirtyXlsxReader(String filename) {
 		try {
@@ -56,17 +57,10 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 			readFromStream(inputStream);
 
 			// Step 3: order the sheets:
-			Collections.sort(this, new Comparator<Sheet>() {
-
-				@Override
-				public int compare(Sheet o1, Sheet o2) {
-					return IntegerComparator.compare(o1.order, o2.order);
-				}
-			});
+			Collections.sort(this, (o1, o2) -> IntegerComparator.compare(o1.order, o2.order));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void loadSharedStringsAndRels(FileInputStream inputStream) {
@@ -521,8 +515,16 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 				Sheet sheet = rIdToSheet.get(rId);
 				sheet.setName(name);
 				sheet.order = Integer.parseInt(order);
+				nameToSheet.put(name, sheet);
 			}
 		}
+	}
+
+	public Sheet getByName(String sheetName) {
+		if (nameToSheet.containsKey(sheetName)) {
+			return nameToSheet.get(sheetName);
+		}
+		return null;
 	}
 
 	public class Sheet extends ArrayList<Row> {
@@ -590,6 +592,7 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 		public Double getDoubleByHeaderName(String fieldName) {
 			String value = getStringByHeaderName(fieldName);
 			if (value != null) {
+				value = value.replace("&lt;=","").trim();
 				return Double.parseDouble(value);
 			} else {
 				return null;
