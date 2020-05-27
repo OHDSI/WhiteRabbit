@@ -185,7 +185,7 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 								result.add("");
 							if (sharedString) {
 								int index = Integer.parseInt(string.substring(stringStart, tagStart - 1));
-								result.set(column, sharedStrings.get(index));
+								result.set(column, decode(sharedStrings.get(index)));
 							} else
 								result.set(column, decode(string.substring(stringStart, tagStart - 1)));
 						}
@@ -592,7 +592,7 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 		public Double getDoubleByHeaderName(String fieldName) {
 			String value = getStringByHeaderName(fieldName);
 			if (value != null) {
-				value = value.replace("&lt;=","").trim();
+				value = value.replace("<=","").trim();
 				return Double.parseDouble(value);
 			} else {
 				return null;
