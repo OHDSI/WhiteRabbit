@@ -138,11 +138,14 @@ public class Database implements Serializable {
 		Database database = new Database();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
 
-		// Create table lookup from tables overview, if exists
+		// Create table lookup from tables overview, if it exists
 		Map<String, Table> nameToTable = createTablesFromTableOverview(workbook, database);
 
 		// Field overview is the first sheet
-		Sheet overviewSheet = workbook.get(0);
+		Sheet overviewSheet = workbook.getByName(ScanSheetName.FIELD_OVERVIEW);
+		if (overviewSheet == null) {
+			overviewSheet = workbook.get(0);
+		}
 		Iterator<QuickAndDirtyXlsxReader.Row> overviewRows = overviewSheet.iterator();
 
 		overviewRows.next();  // Skip header
@@ -193,13 +196,7 @@ public class Database implements Serializable {
 	}
 
 	public static Map<String, Table> createTablesFromTableOverview(QuickAndDirtyXlsxReader workbook, Database database) {
-		Sheet tableOverviewSheet = null;
-		for (Sheet sheet : workbook) {
-			if (sheet.getName().equals(ScanSheetName.TABLE_OVERVIEW)) {
-				tableOverviewSheet = sheet;
-				break;
-			}
-		}
+		Sheet tableOverviewSheet = workbook.getByName(ScanSheetName.TABLE_OVERVIEW);
 
 		if (tableOverviewSheet == null) { // No table overview sheet, empty nameToTable
 			return new HashMap<>();
