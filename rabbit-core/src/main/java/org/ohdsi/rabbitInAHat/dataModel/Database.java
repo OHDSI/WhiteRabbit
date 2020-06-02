@@ -72,6 +72,10 @@ public class Database implements Serializable {
 		this.tables = tables;
 	}
 
+	public void addTable(Table table) {
+		this.tables.add(table);
+	}
+
 	public String getDbName() {
 		return dbName;
 	}
