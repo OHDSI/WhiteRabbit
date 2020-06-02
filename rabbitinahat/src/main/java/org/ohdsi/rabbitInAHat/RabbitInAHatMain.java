@@ -599,9 +599,17 @@ public class RabbitInAHatMain implements ResizeListener {
 				for (Table newTable : newData.getTables()) {
 					Table oldTable = (Table) findByName(newTable.getName(), oldData.getTables());
 					if (oldTable != null) {
+						oldTable.setDescription(newTable.getDescription());
+						oldTable.setRowCount(newTable.getRowCount());
+						oldTable.setRowsCheckedCount(newTable.getRowsCheckedCount());
 						for (Field newField : newTable.getFields()) {
 							Field oldField = (Field) findByName(newField.getName(), oldTable.getFields());
 							if (oldField != null) {
+								oldField.setDescription(newField.getDescription());
+								oldField.setFractionEmpty(newField.getFractionEmpty());
+								oldField.setUniqueCount(newField.getUniqueCount());
+								oldField.setFractionUnique(newField.getFractionUnique());
+								oldField.setNullable(newField.isNullable());
 								oldField.setValueCounts(newField.getValueCounts());
 							}
 						}
