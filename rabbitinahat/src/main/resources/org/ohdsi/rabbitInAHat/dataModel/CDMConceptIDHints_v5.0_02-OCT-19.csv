@@ -159,9 +159,6 @@ cost,cost_type_concept_id,31968,Payer system (Primary payer),Type Concept,Cost T
 cost,cost_type_concept_id,31969,Payer system (Secondary payer),Type Concept,Cost Type,Cost Type,S
 cost,cost_type_concept_id,32504,Person (self) reported,Type Concept,Cost Type,Cost Type,S
 cost,cost_type_concept_id,32505,Provider System,Type Concept,Cost Type,Cost Type,S
-cost,cost_type_concept_id,5032,"Amount charged to the patient or the payer by the provider, list price",Type Concept,Cost Type,Cost Type,
-cost,cost_type_concept_id,5031,Amount paid by the patient or reimbursed by the payer,Type Concept,Cost Type,Cost Type,
-cost,cost_type_concept_id,5033,Cost incurred by the provider,Type Concept,Cost Type,Cost Type,
 death,death_type_concept_id,38003617,Death Certificate contributory cause,Type Concept,Condition Type,Death Type,S
 death,death_type_concept_id,32512,Death Certificate contributory cause,Type Concept,Death Type,Death Type,S
 death,death_type_concept_id,32496,Death Certificate contributory cause,Type Concept,Observation Type,Death Type,S
@@ -407,19 +404,6 @@ drug_exposure,route_concept_id,4233974,Urethral,Route,SNOMED,Qualifier Value,S
 drug_exposure,route_concept_id,4170435,Urostomy route,Route,SNOMED,Qualifier Value,S
 drug_exposure,route_concept_id,4057765,Vaginal,Route,SNOMED,Qualifier Value,S
 drug_exposure,route_concept_id,35616190,Wound route,Route,SNOMED,Qualifier Value,S
-drug_exposure,route_concept_id,45956883,Body cavity use,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,45956882,Epidural,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,4228125,Haemodialysis,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,4011083,Inhalation,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,45956885,Intracerebroventricular,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,4186835,Intracervical,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,45956886,Intraepidermal,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,45956884,Intraventricular cardiac,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,4302956,Iontophoresis,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,45956876,Obsolete-Intraventricular,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,45956873,Obsolete-Oromucosal other,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,4227373,Obsolete-Oromucosal other,Route,SNOMED,Qualifier Value,
-drug_exposure,route_concept_id,40549429,Ocular,Route,SNOMED,Qualifier Value,
 episode,episode_type_concept_id,32545,Episode algorithmically derived from EHR,Type Concept,Episode Type,Episode Type,S
 episode,episode_type_concept_id,32548,Episode algorithmically derived from claim,Type Concept,Episode Type,Episode Type,S
 episode,episode_type_concept_id,32544,Episode defined in EHR,Type Concept,Episode Type,Episode Type,S
@@ -441,6 +425,841 @@ measurement,operator_concept_id,4171754,<=,Meas Value Operator,SNOMED,Qualifier 
 measurement,operator_concept_id,4172703,=,Meas Value Operator,SNOMED,Qualifier Value,S
 measurement,operator_concept_id,4172704,>,Meas Value Operator,SNOMED,Qualifier Value,S
 measurement,operator_concept_id,4171755,>=,Meas Value Operator,SNOMED,Qualifier Value,S
+note,language_concept_id,4178690,Abazinian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178691,Abkhazian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180210,Achinese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181519,Acholi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183776,Adamawa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183775,Adamawa-Eastern language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767186,Adamorobe sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177301,Adangme language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178692,Adygei language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180043,Afar language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771441,African sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180185,Afrikaans language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180041,Afro-Asiatic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181702,Agni language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182496,Ainu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40482419,Akan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771446,Al-Sayyid Bedouin sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182497,Albanian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767201,Albanian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175768,Aleut language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767178,Algerian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183800,Algonkian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178567,Altai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178561,Altaic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182492,Alur language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183780,Ambo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767262,American Sign Language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182354,Amharic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182482,Andean equatorial language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183803,Apache language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181374,Arabic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40483318,Aragonese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180045,Aramaic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182477,Aranda language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180365,Arapaho language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182483,Araucanian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175751,Arawak language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767263,Argentine sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180063,Armenian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767202,Armenian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175745,Artificial language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767177,Asian and Pacific sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182517,Assamese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182825,Assiniboin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180046,Assyrian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180370,Athapascan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175747,Australian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767242,Australian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767203,Austrian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175748,Avar language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772997,Avestan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181391,Aymara language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181383,Azerbaijani language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180226,Bahnar language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182942,Baining language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177308,Balante language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771449,Bali sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180211,Balinese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178569,Balkar language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182498,Baltic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181546,Baluchi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767179,Bamako sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180359,Bambara language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40482476,Bamun language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767260,Ban Khor sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183778,Banda language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180053,Bari language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183790,Bariba language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175769,Barushaski language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182473,Bashkir language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175770,Basque language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183793,Bassa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175912,Batak language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183794,Baule language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178558,Beja language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767204,Belgian-French sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180194,Belorussian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180229,Bemba language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4052786,Bengali language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767243,Bengali sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183779,Benue-Congo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178554,Berber language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175906,Bhili language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180200,Bihari language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181550,Bikol language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4233570,Bislama language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180366,Blackfoot language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182954,Bodo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767264,Bolivian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481563,Bosnian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175765,Brahui language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40483830,Braille language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4235378,Brawa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772747,Brazilian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175773,Breton language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175755,Bribri language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767205,British sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182500,Brythonic Celtic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175929,Bubi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183664,Buginese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182512,Bulgarian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180230,Bulu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767180,Bura sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181727,Burmese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175736,Buryat language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181548,Bushman language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181395,Cabecar language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177434,Caddo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182809,Caddoan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177437,Cakchiquel language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182353,Canaanitic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177463,Cantonese Chinese dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181392,Carib language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183804,Carrier language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181535,Catalan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767206,Catalan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182478,Caucasian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,37116382,Cayuga language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182499,Celtic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4232100,Central Khmer language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175756,Central Sudanic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181390,Central and South American Indian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767181,Chadian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182348,Chadic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181566,Chagga language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183665,Cham language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180212,Chamorro language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181399,Chari-Nile language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178687,Chechen language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180373,Cherokee language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177314,Cheyenne language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767261,Chiangmai sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180377,Chickasaw language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181567,Chiga language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180371,Chilcotin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767266,Chilean sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177459,Chimbu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183936,Chin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182819,Chinantec language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182948,Chinese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767244,Chinese sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182807,Chipewyan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182486,Chiquito language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183808,Choctaw language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180231,Chokwe language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177438,Chol language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182814,Chontal language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177466,Chuang language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180392,Chukchi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771044,Church Slavic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175738,Chuvash language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180048,Circassian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181375,Classical Arabic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767267,Colombian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180385,Comanche language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767182,Congolese sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175731,Coptic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40483377,Cornish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4232095,Corsican language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767268,Costa Rican sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180367,Cree language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177439,Creek language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481973,Croatian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772738,Croatian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177445,Crow language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4193700,Créole language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767269,Cuba sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181396,Cuna language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178557,Cushitic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180197,Czech language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767207,Czech sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181386,Dagestan Caucasian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177298,Dagomba language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180183,Danish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767208,Danish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175749,Dargin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40490381,Dari language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180368,Delaware language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182493,Dinka language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175764,Djerma language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767270,Dominican sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182494,Dravidian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175930,Duala language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182503,Dutch language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767209,Dutch sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181714,Dyola language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180360,Dyula language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181388,Eastern Caucasian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175758,Eastern Nilotic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181538,Eastern Slavic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181401,Eastern Sudanic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183777,Eastern language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772748,Ecuadorian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183795,Edo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177295,Efik language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182352,Egyptian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767183,Egyptian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177476,Enets language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177460,Enga language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180186,English language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181522,Eskimo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180060,Eskimo-Aleut language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178686,Esperanto,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183943,Estonian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767210,Estonian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767184,Ethiopian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181370,Ethiopic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767175,European sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178564,Even language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178563,Evenki language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177302,Ewe language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183820,Fanakalo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181568,Fang language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181703,Fanti language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180184,Faroese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181556,Fijian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767212,Finland-Swedish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177471,Finnic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181730,Finnish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767211,Finnish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182960,Finno-Ugric language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180381,Flathead language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180187,Flemish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772739,Flemish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181704,Fon language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180369,Fox language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767185,Franco-American sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767271,French Canadian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182944,French Créole language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180190,French language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767213,French sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180188,Frisian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183933,Fukienese dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481123,Fulah language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180363,Fulani language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181523,Fur language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177304,Ga language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4206233,Gaelic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182509,Galician Portuguese dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4261080,Galician language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180232,Ganda language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182955,Garo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181565,Gbaya language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180050,Ge language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182485,Ge-Pano-Carib language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181371,Geez language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182481,Georgian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182504,German language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767216,German sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182501,Germanic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772734,Ghanian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183658,Gilaki language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180218,Gilbertese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181686,Gisu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181528,Goidelic Celtic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177309,Gola language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180056,Gondi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181706,Grebo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180189,Greek language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767218,Greek sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182484,Guarani language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767272,Guatemalan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181397,Guaymi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767187,Guinean sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4059174,Gujarati language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177297,Gur language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182355,Gurage language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183791,Gurma language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181718,Hagen language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177435,Haida language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,44802876,Haitian Creole language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181723,Hakka dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175733,Harari language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180208,Hatsa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178556,Hausa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767188,Hausa sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771450,Hawaii Pidgin sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181557,Hawaiian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180047,Hebrew language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181687,Hehe language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181532,Hellenic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183781,Herero language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4052346,Hindi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180201,Hindustani language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4076495,Hinko language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,46270898,Hmong language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183772,Ho language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181551,Hocano language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767273,Honduran sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767246,Hong Kong sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180386,Hopi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175911,Hottentot language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182950,Hsiang dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183806,Huastec language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183945,Hungarian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767219,Hungarian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4234319,Iban language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180357,Ibibio language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181707,Ibo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175776,Icelandic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772740,Icelandic sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45769393,Ido language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181708,Idoma language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180213,Igorot language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181700,Ijo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180061,Independent language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772744,Indian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182516,Indic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181527,Indo-European language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180199,Indo-Iranian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183663,Indonesian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767247,Indonesian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182480,Ingush language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175746,Interlingua,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767274,Inuit sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4231509,Inuktitut language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4233020,Inupiaq language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180205,Iranian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180182,Irish Gaelic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767220,Irish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182811,Iroquoian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767234,Israeli sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182507,Italian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767221,Italian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181533,Italic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182940,Itelmen language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767275,Jamaican Country sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181524,Japanese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767248,Japanese sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175913,Jarai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175914,Javanese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175752,Jivaro language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183937,Jonkha language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772743,Jordanian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181389,Kabardian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181701,Kabre language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180042,Kabyle language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182956,Kachin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4230717,Kalaallisut language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181518,Kalenjin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182358,Kalmyk language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180233,Kamba language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182495,Kanarese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181721,Kanuri language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178570,Kara-Kalpak language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175741,Karachai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181402,Karamojong language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183938,Karen language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182518,Kashmiri language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183091,Kashubian Polish dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183818,Kate language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182474,Kazakh language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182815,Kekchi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767189,Kenyan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182813,Keresan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183817,Ket language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178568,Khakass language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175922,Khasi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183770,Khmer language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180207,Khoisan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181688,Kikuyu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182829,Kiowa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181379,Kirgiz language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181689,Kisii language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177310,Kissi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177461,Kituba language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180380,Klamath language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181731,Komi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183782,Kongo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175907,Konkani language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175771,Korean language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767250,Korean sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175926,Korku language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182941,Koryak language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180361,Kpelle language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181720,Krio language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177305,Kru language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481997,Kuanyama language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180057,Kui language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182475,Kumyk language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175909,Kurdish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175766,Kurukh language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4233169,Kutchi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771447,Kuwaiti sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183792,Kwa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177452,Kwakiutl language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181728,Lahu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181387,Lak language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181520,Lango language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181735,Language commonly spoken in Europe,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182952,Lao language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767249,Laos sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182961,Lappish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181534,Latin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180064,Latvian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767222,Latvian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767239,Lebanese sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182520,Lehnda punjabi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181398,Lenca language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177468,Lepcha language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175750,Lezgin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767190,Libyan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180382,Lillooet language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40483319,Limburgan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181690,Lingala language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183939,Lisu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175772,Lithuanian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767223,Lithuanian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181710,Loma language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180349,Lomwe language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181517,Lotuko language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181691,Lozi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175931,Luba language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180052,Lugbara language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183783,Luhya language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180350,Lunda language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175760,Luo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183940,Lushei language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182505,Luxembourgian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183784,Lwea language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767215,Lyons sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183661,Maba language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180209,Maban language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767251,Macao sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175905,Macedonian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181394,Macro-Chibchan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175757,Madi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180214,Madurese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45766737,Makaton vocabulary,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183785,Makonde language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175932,Makua language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180215,Malagasy language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772735,Malagasy sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183666,Malay language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180058,Malayalam language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183662,Malayo-Polynesian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771451,Malaysian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180202,Maldivian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181711,Malinke language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175735,Maltese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767224,Maltese sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180375,Mam language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178565,Manchu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181724,Mandarin dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181709,Mande language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182487,Mangbetu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481069,Manx language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180223,Maori language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181552,Maranao language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182519,Marathi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181732,Mari language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183819,Marind language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772749,Maritime sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183671,Marquesan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175916,Marshallese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175759,Masai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183807,Maya language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177436,Mayan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767276,Mayan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183815,Mayo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180378,Mazahua language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175910,Mazanderani language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177441,Mazatec language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767193,Mbour sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181564,Mbum language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180351,Mbundu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182957,Meithei language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180221,Melanesian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177307,Mende language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,37116400,Menominee language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175933,Meru language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767277,Mexican sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182947,Miao language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182946,Miao-Yao language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177433,Micmac language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183670,Micronesian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767176,Middle Eastern sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183667,Minangkabau language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4209117,Mirpuri language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180051,Miskito language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177453,Mixe language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183810,Mixtec language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182936,Mohave language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183805,Mohawk language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182508,Moldavian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772741,Moldova sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175923,Mon language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181561,Mon-Khmer language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175934,Mongo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182357,Mongolian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767253,Mongolian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177472,Mordvin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767191,Moroccan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177299,Mossi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175918,Motu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767192,Mozambican sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175925,Munda language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183773,Mundari language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181525,Muong language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183941,Murmi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181385,Murngin language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182818,Muskogean language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182830,Nahuatl language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177469,Nakhi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45773543,Namibian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181377,Nanai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183801,Naskapi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177313,Native North American language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181555,Nauruan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182808,Navajo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180352,Ndebele language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40483759,Ndonga language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181733,Nenets language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767254,Nepalese sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175908,Nepali language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771452,New Zealand sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183942,Newari language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183811,Nez Perce language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181693,Ngala language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181734,Nganasan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767278,Nicaraguan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183771,Nicobarese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181563,Niger-Congo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767194,Nigerian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182488,Nilotic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182943,Nimboran language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180224,Niuean language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181717,Nivkh language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183786,Nkole language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178571,Nogai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182935,Nootka language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181373,North Arabic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40483852,North Ndebele language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175739,Northeastern Turkic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177464,Northern Fukienese dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175775,Northern Germanic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40482032,Northern Sami language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178562,Northern Tungusic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175740,Northwestern Turkic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481150,Norwegian Bokmål language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481129,Norwegian Nynorsk language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181530,Norwegian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771443,Norwegian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40482479,Nousu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175763,Nubian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175761,Nuer language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181725,Nung language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177306,Nupe language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181694,Nyamwezi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180353,Nyanja language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181695,Nyoro language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181384,Occidental,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4229842,Occitan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,37116383,Odawa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,37116367,Oji-Cree language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181716,Ojibwa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177443,Okanagan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177446,Omaha language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771448,Omani sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180374,Oneida language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181542,Oriya language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182349,Oromo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177447,Osage language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180206,Ossetian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177473,Ostyak language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183809,Oto-Manguean language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182820,Otomi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182831,Paiute language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767255,Pakistan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180203,Pakistani punjabi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175915,Palau language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175924,Palaung language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180391,Paleo-Asiatic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767236,Palestinian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45769392,Pali language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183668,Pampangan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767279,Panamanian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181553,Pangasinan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175754,Panoan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182832,Papago language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177462,Papiamento language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177458,Papuan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4052347,Pashtu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183802,Passamaquoddy language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180372,Pawnee language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181696,Pedi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767252,Penang sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180379,Penutian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183659,Persian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767237,Persian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767280,Peruvian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767245,Philippine sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183821,Pidgin English language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181719,Pidgin and Créole language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183816,Pima language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45773544,Plains Indian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182945,Police Motu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182515,Polish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767225,Polish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180222,Polynesian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175917,Ponapean language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181536,Portuguese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767226,Portuguese sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182510,Provencal language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772750,Providencia sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767281,Puerto Rican sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4059175,Punjabi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182953,Puyi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767240,Qatari sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175753,Quechua language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182816,Quiche language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181543,Rajasthani language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183769,Rarotongan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183669,Rhade language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180192,Rhaeto-Romanic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175727,Riffian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175902,Romance language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767227,Romanian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4259983,Romansh language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181544,Romany language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175935,Ruanda language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181537,Rumanian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181697,Rundi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181539,Russian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771444,Russian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183930,Saharan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178559,Saho language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181381,Salar language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182823,Salishan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767282,Salvadoran sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767256,Samoa sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181558,Samoan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177475,Samoyed language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181549,Sandawe language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180228,Sango language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183656,Sanskrit language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183774,Santali language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181400,Sara language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183928,Saramacca language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180193,Sardinian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767238,Saudi Arabian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175927,Savara language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181529,Scottish Gaelic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181562,Sedang language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772745,Selangor sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183946,Selkup language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177440,Seminole language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180044,Semitic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182812,Seneca language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177300,Senufo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40483799,Serbian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180196,Serbo-Croatian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180364,Serer language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177467,Shan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178555,Shawia language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175762,Shilluk language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175728,Shluh language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175936,Shona language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180387,Shoshone language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177444,Shuswap language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181378,Sibo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178560,Sidamo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767195,Sierra Leone sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40483152,Sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771442,Sign language of the Americas,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180204,Sikh punjabi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181545,Sindhi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771453,Singapore sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183657,Sinhalese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181722,Sinitic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183932,Sino-Tibetan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182824,Siouan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180383,Sioux language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175903,Slavic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181540,Slovak language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767228,Slovakian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182513,Slovenian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767233,Slovenian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182350,Somali language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772736,Somali sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182959,Songhai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181712,Soninke language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180198,Sorbian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183787,Sotho language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767196,South African sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175734,South Arabic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481151,South Ndebele language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175742,Southeastern Turkic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178688,Southern Caucasian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182949,Southern Fukienese dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180054,Southern Nilotic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180195,Southern Slavic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4234468,Southern Sotho language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181376,Southern Tungusic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181382,Southwestern Turkic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182511,Spanish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767229,Spanish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767257,Sri Lankan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182491,Suk language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175937,Sukuma language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181554,Sundanese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181713,Susu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181698,Swahili language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183788,Swazi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175777,Swedish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45771445,Swedish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180191,Swiss French dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177478,Swiss German dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767214,Swiss-French sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767217,Swiss-German sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181541,Sylhety,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175732,Syriac language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182479,Tabasaran language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181393,Tacana language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180216,Tagalog language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175921,Tahitian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177465,Tai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767258,Taiwanese sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181547,Tajik language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183929,Taki-Taki language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175729,Tamazight language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181521,Tamil language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182827,Tanoan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767197,Tanzanian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180388,Tarahumara language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180384,Tarasco language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178572,Tatar language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183931,Teda language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175767,Telugu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177311,Temne language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182489,Teso language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40486431,Tetum language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177448,Tewa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183934,Thai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767259,Thai sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183812,Thompson language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177470,Tibetan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772746,Tibetan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181726,Tibeto-Burman language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181372,Tigre language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182356,Tigrinya language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177296,Tiv language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182828,Tiwa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177449,Tlingit language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175919,Tolai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181559,Tongan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177291,Toro language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183814,Totonac language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183813,Towa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180219,Trukese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182822,Tsimshian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177292,Tsonga language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183789,Tswana language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180225,Tuamotu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175730,Tuareg language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180059,Tulu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177293,Tumbuka language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183935,Tung language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175737,Tungusic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767198,Tunisian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180049,Tupi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182490,Turkana language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178566,Turkic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175744,Turkish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767230,Turkish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182476,Turkmen language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,37116401,Tuscarora language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182359,Tuvinian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183796,Twi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182817,Tzeltal language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180376,Tzotzil language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183944,Udmurt language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767199,Ugandan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182962,Ugric language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178573,Uigur language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175904,Ukrainian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767231,Ukrainian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767241,United Arab Emirates sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181729,Uralic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4059788,Urdu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183797,Urhobo language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767265,Urubú-Kaapor sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767283,Uruguayan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177451,Ute language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177450,Uto-Aztecan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181560,Uvea language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175743,Uzbek language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183799,Vai language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772742,Valencian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180354,Venda language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767284,Venezuelan sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181526,Vietnamese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180217,Visayan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177474,Vogul language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45769391,Volapuk language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180227,Wa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180389,Wakashan language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481577,Walloon language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175774,Welsh language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180362,West Atlantic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178689,Western Caucasian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,40481130,Western Frisian language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182502,Western Germanic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180055,Western Nilotic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182514,Western Slavic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180358,Western Sudanic language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182826,Winnebago language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177312,Wolof language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182347,World languages,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182951,Wu dialect,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180355,Xhosa language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175920,Yabim language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177442,Yakima language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4178685,Yakut language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177294,Yao language - Bantu,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177477,Yao language - Sino-Tibet,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180220,Yapese language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180356,Yaunde language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182958,Yi language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181531,Yiddish language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767235,Yiddish sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4183798,Yoruba language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767232,Yugoslavian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177457,Yukagir language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182937,Yuma language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4180390,Yuman language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45767200,Zambian sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4175928,Zande language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182821,Zapotec language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,45772737,Zimbabwe sign language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177454,Zoque language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4182938,Zoquean language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4181699,Zulu language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177456,Zuni language,Observation,SNOMED,Qualifier Value,S
+note,language_concept_id,4177455,Zunian language,Observation,SNOMED,Qualifier Value,S
 note,note_type_concept_id,44814638,Admission note,Type Concept,Note Type,Note Type,S
 note,note_type_concept_id,44814643,Ancillary report,Type Concept,Note Type,Note Type,S
 note,note_type_concept_id,44814637,Discharge summary,Type Concept,Note Type,Note Type,S
@@ -649,7 +1468,6 @@ person,race_concept_id,4264197,Bruneians,Race,SNOMED,Social Context,
 person,race_concept_id,45479793,Bulgarian,Race,Read,Read,
 person,race_concept_id,4167621,Bulgarian,Race,SNOMED,Social Context,
 person,race_concept_id,1397910,Bulgarian Roma,Race,Read,Read,
-person,race_concept_id,37394642,Bulgarian Roma,Race,SNOMED,Social Context,
 person,race_concept_id,36717066,Bulgarian Roma,Race,SNOMED,Social Context,
 person,race_concept_id,4221071,Buriats,Race,SNOMED,Social Context,
 person,race_concept_id,4309789,Bushmen,Race,SNOMED,Social Context,
@@ -676,10 +1494,8 @@ person,race_concept_id,4012612,Coushatta,Race,SNOMED,Social Context,
 person,race_concept_id,4182121,Cuna,Race,SNOMED,Social Context,
 person,race_concept_id,45473117,Czech,Race,Read,Read,
 person,race_concept_id,4102622,Czech,Race,SNOMED,Social Context,
-person,race_concept_id,44803061,Czech,Race,SNOMED,Social Context,
 person,race_concept_id,1397642,Czech Roma,Race,Read,Read,
 person,race_concept_id,36713937,Czech Roma,Race,SNOMED,Social Context,
-person,race_concept_id,37394638,Czech Roma,Race,SNOMED,Social Context,
 person,race_concept_id,4031845,Danes,Race,SNOMED,Social Context,
 person,race_concept_id,4185580,Dieguenos,Race,SNOMED,Social Context,
 person,race_concept_id,4317261,Dutch,Race,SNOMED,Social Context,
@@ -735,14 +1551,13 @@ person,race_concept_id,4297991,Huichol,Race,SNOMED,Social Context,
 person,race_concept_id,4273384,Hungarian,Race,SNOMED,Social Context,
 person,race_concept_id,1398020,Hungarian Roma,Race,Read,Read,
 person,race_concept_id,36713940,Hungarian Roma,Race,SNOMED,Social Context,
-person,race_concept_id,37394639,Hungarian Roma,Race,SNOMED,Social Context,
 person,race_concept_id,4098866,Hututu,Race,SNOMED,Social Context,
 person,race_concept_id,45767091,Iban,Race,SNOMED,Social Context,
 person,race_concept_id,4245024,Ibo,Race,SNOMED,Social Context,
 person,race_concept_id,4248713,Icelanders,Race,SNOMED,Social Context,
 person,race_concept_id,4210186,Inca,Race,SNOMED,Social Context,
-person,race_concept_id,45483083,Indian,Race,Read,Read,
 person,race_concept_id,45446239,Indian,Race,Read,Read,
+person,race_concept_id,45483083,Indian,Race,Read,Read,
 person,race_concept_id,4091016,Indian,Race,SNOMED,Social Context,
 person,race_concept_id,4185920,Indian,Race,SNOMED,Social Context,
 person,race_concept_id,4090392,Indian sub-continent,Race,SNOMED,Social Context,
@@ -815,7 +1630,6 @@ person,race_concept_id,4337671,Nez Percé,Race,SNOMED,Social Context,
 person,race_concept_id,4229603,Nigerians,Race,SNOMED,Social Context,
 person,race_concept_id,45509567,Niuean,Race,Read,Read,
 person,race_concept_id,4085489,Niuean,Race,SNOMED,Social Context,
-person,race_concept_id,9178,Non-white,Race,Race,Race,
 person,race_concept_id,4077346,North African Arab,Race,SNOMED,Social Context,
 person,race_concept_id,45449500,North African Arab (NMO),Race,Read,Read,
 person,race_concept_id,4063377,Norwegians,Race,SNOMED,Social Context,
@@ -842,7 +1656,6 @@ person,race_concept_id,45506206,Other European in New Zealand,Race,Read,Read,
 person,race_concept_id,4085488,Other European in New Zealand,Race,SNOMED,Social Context,
 person,race_concept_id,45442864,Other New Zealand ethnic group,Race,Read,Read,
 person,race_concept_id,45502956,Other Pacific ethnic group,Race,Read,Read,
-person,race_concept_id,8522,Other Race,Race,Race,Race,
 person,race_concept_id,45462997,Other black ethnic group,Race,Read,Read,
 person,race_concept_id,4202555,Other black ethnic group,Race,SNOMED,Social Context,
 person,race_concept_id,45449501,Other ethnic NEC (NMO),Race,Read,Read,
@@ -872,7 +1685,6 @@ person,race_concept_id,4073535,Papuans,Race,SNOMED,Social Context,
 person,race_concept_id,4217467,Pehuenches,Race,SNOMED,Social Context,
 person,race_concept_id,4102599,Poles,Race,SNOMED,Social Context,
 person,race_concept_id,1397643,Polish Roma,Race,Read,Read,
-person,race_concept_id,37394640,Polish Roma,Race,SNOMED,Social Context,
 person,race_concept_id,36713941,Polish Roma,Race,SNOMED,Social Context,
 person,race_concept_id,4053167,Polynesians,Race,SNOMED,Social Context,
 person,race_concept_id,45469813,Portuguese,Race,Read,Read,
@@ -905,11 +1717,9 @@ person,race_concept_id,4051279,Race: West indian,Race,SNOMED,Clinical Finding,
 person,race_concept_id,4216292,Racial group,Race,SNOMED,Social Context,
 person,race_concept_id,36717683,Roma,Race,SNOMED,Social Context,
 person,race_concept_id,1397856,Roma ethnic group,Race,Read,Read,
-person,race_concept_id,37398747,Roma ethnic group,Race,SNOMED,Social Context,
 person,race_concept_id,45439572,Romanian,Race,Read,Read,
 person,race_concept_id,40483304,Romanian,Race,SNOMED,Social Context,
 person,race_concept_id,1397881,Romanian Roma,Race,Read,Read,
-person,race_concept_id,37394641,Romanian Roma,Race,SNOMED,Social Context,
 person,race_concept_id,36713938,Romanian Roma,Race,SNOMED,Social Context,
 person,race_concept_id,4309511,Russians,Race,SNOMED,Social Context,
 person,race_concept_id,4077735,Saipanese,Race,SNOMED,Social Context,
@@ -924,11 +1734,9 @@ person,race_concept_id,4219475,Shona,Race,SNOMED,Social Context,
 person,race_concept_id,4317523,Shoshone,Race,SNOMED,Social Context,
 person,race_concept_id,4103243,Siamese,Race,SNOMED,Social Context,
 person,race_concept_id,45483084,Slovak,Race,Read,Read,
-person,race_concept_id,44813053,Slovak,Race,SNOMED,Social Context,
 person,race_concept_id,4267217,Slovak,Race,SNOMED,Social Context,
 person,race_concept_id,1397882,Slovak Roma,Race,Read,Read,
 person,race_concept_id,36713939,Slovak Roma,Race,SNOMED,Social Context,
-person,race_concept_id,37394635,Slovak Roma,Race,SNOMED,Social Context,
 person,race_concept_id,4167520,Solomon Islanders,Race,SNOMED,Social Context,
 person,race_concept_id,4263713,Somalis,Race,SNOMED,Social Context,
 person,race_concept_id,4030302,South Asian AND/OR Australian aborigine,Race,SNOMED,Social Context,
@@ -964,7 +1772,6 @@ person,race_concept_id,4195322,Turks,Race,SNOMED,Social Context,
 person,race_concept_id,4030735,Tutsi,Race,SNOMED,Social Context,
 person,race_concept_id,4296606,Ugandans,Race,SNOMED,Social Context,
 person,race_concept_id,37116384,Ukrainian,Race,SNOMED,Social Context,
-person,race_concept_id,8552,Unknown,Race,Race,Race,
 person,race_concept_id,4218674,Unknown racial group,Race,SNOMED,Social Context,
 person,race_concept_id,4148384,Utes,Race,SNOMED,Social Context,
 person,race_concept_id,4269914,Venezuelan Indians,Race,SNOMED,Social Context,
@@ -1361,10 +2168,8 @@ visit_occurrence,visit_concept_id,32155,Ambulatory Surgery Center@Non-Payment/Ze
 visit_occurrence,visit_concept_id,32161,Ambulatory Surgery Center@Replacement of Prior Claim,Visit,UB04 Typ bill,Visit,
 visit_occurrence,visit_concept_id,32162,Ambulatory Surgery Center@Void/ Cancel of Prior claim (a),Visit,UB04 Typ bill,Visit,
 visit_occurrence,visit_concept_id,38004679,Ambulatory Surgical Center,Visit,Medicare Specialty,Visit,
-visit_occurrence,visit_concept_id,44777700,Antenatal clinic,Visit,HES Specialty,Visit,
 visit_occurrence,visit_concept_id,32592,Born inside this hospital,Visit,UB04 Point of Origin,UB04 Point of Origin,
 visit_occurrence,visit_concept_id,32593,Born outside this hospital,Visit,UB04 Point of Origin,UB04 Point of Origin,
-visit_occurrence,visit_concept_id,38004313,Christian Science Nursing Facility,Visit,NUCC,Visit,
 visit_occurrence,visit_concept_id,32194,Clinic or physicians office,Visit,UB04 Point of Origin,UB04 Point of Origin,
 visit_occurrence,visit_concept_id,32090,Clinic- Hosp Based or Indep Renal Dialysis Center@Admit through Discharge Claim,Visit,UB04 Typ bill,Visit,
 visit_occurrence,visit_concept_id,32097,Clinic- Hosp Based or Indep Renal Dialysis Center@CWF Initiated Adjustment Claim,Visit,UB04 Typ bill,Visit,
@@ -1601,7 +2406,6 @@ visit_occurrence,visit_concept_id,32346,Hospital-Swing Beds@Interim-Cont claim (
 visit_occurrence,visit_concept_id,32345,Hospital-Swing Beds@Interim-first claim,Visit,UB04 Typ bill,Visit,
 visit_occurrence,visit_concept_id,32347,Hospital-Swing Beds@Interim-last claim (b),Visit,UB04 Typ bill,Visit,
 visit_occurrence,visit_concept_id,32348,Hospital-Swing Beds@Replacement of Prior Claim,Visit,UB04 Typ bill,Visit,
-visit_occurrence,visit_concept_id,38004292,"Hospitals, Christian Science Sanitorium",Visit,NUCC,Visit,
 visit_occurrence,visit_concept_id,32199,Information not available,Visit,UB04 Point of Origin,UB04 Point of Origin,
 visit_occurrence,visit_concept_id,581382,Inpatient Intensive Care Facility,Visit,CMS Place of Service,Visit,
 visit_occurrence,visit_concept_id,8970,Inpatient Long-term Care,Visit,CMS Place of Service,Visit,
@@ -1636,13 +2440,11 @@ visit_occurrence,visit_concept_id,32078,Intermediate Care - Level 2 (Including M
 visit_occurrence,visit_concept_id,38004517,Intermediate Care Nursing Facility,Visit,Medicare Specialty,Visit,
 visit_occurrence,visit_concept_id,38004304,Intermediate Mental Care Facility,Visit,NUCC,Visit,
 visit_occurrence,visit_concept_id,32604,Internal Transfer per Legal Guidelines,Visit,UB04 Pt dis status,UB04 Pt dis status,
-visit_occurrence,visit_concept_id,44777715,Joint consultant clinic,Visit,HES Specialty,Visit,
 visit_occurrence,visit_concept_id,38004355,Land Transport Ambulance,Visit,NUCC,Visit,
 visit_occurrence,visit_concept_id,32216,Left against medical advice or discontinued care.,Visit,UB04 Pt dis status,UB04 Pt dis status,
 visit_occurrence,visit_concept_id,32270,Licensed Freestanding Emergency Medical Facility,Visit,UB04 Typ bill,Visit,
 visit_occurrence,visit_concept_id,32135,Licensed Freestanding Emergency Medical Facility@Admit through Discharge Claim,Visit,UB04 Typ bill,Visit,
 visit_occurrence,visit_concept_id,38004273,Medicare Defined Swing Bed Hospital Unit,Visit,NUCC,Visit,
-visit_occurrence,visit_concept_id,38004289,Military Community Health Hospital,Visit,NUCC,Visit,
 visit_occurrence,visit_concept_id,32595,Neonate discharged to another hospital for neonatal aftercare,Visit,UB04 Pt dis status,UB04 Pt dis status,
 visit_occurrence,visit_concept_id,32587,Normal Delivery,Visit,UB04 Point of Origin,UB04 Point of Origin,
 visit_occurrence,visit_concept_id,32591,Not Available,Visit,UB04 Point of Origin,UB04 Point of Origin,
@@ -1659,7 +2461,6 @@ visit_occurrence,visit_concept_id,8677,Outpatient NEC,Visit,CMS Place of Service
 visit_occurrence,visit_concept_id,32257,Outpatient Skilled Nursing Facility Visit,Visit,UB04 Typ bill,Visit,
 visit_occurrence,visit_concept_id,8562,Pharmacy,Visit,CMS Place of Service,Visit,
 visit_occurrence,visit_concept_id,38004520,Pharmacy,Visit,Medicare Specialty,Visit,
-visit_occurrence,visit_concept_id,44777701,Postnatal clinic,Visit,HES Specialty,Visit,
 visit_occurrence,visit_concept_id,32588,Premature Delivery,Visit,UB04 Point of Origin,UB04 Point of Origin,
 visit_occurrence,visit_concept_id,38004271,Psychiatric Hospital Unit,Visit,NUCC,Visit,
 visit_occurrence,visit_concept_id,32586,Readmission to Same Home Health Agency,Visit,UB04 Point of Origin,UB04 Point of Origin,
