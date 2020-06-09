@@ -21,4 +21,4 @@ It comes with **RabbitInAHat**, an application for interactive design of an ETL 
 - Rabbit in a Hat generates ETL specification document according to OMOP templatement according to OMOP template
 
 # Current version
-[**v0.9.0**](https://github.com/OHDSI/WhiteRabbit/releases/tag/v0.9.0)
+[**v0.10.0**](https://github.com/OHDSI/WhiteRabbit/releases/v0.10.0)

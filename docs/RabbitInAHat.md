@@ -1,4 +1,6 @@
-
+---
+pagetitle: "Rabbit in a Hat"
+---
 ![](images/rabbitinahatlogo.png)
 
 # Introduction
@@ -16,7 +18,7 @@ The typical sequence for using this software to generate documentation of an ETL
 5. Save Rabbit-In-a-Hat work and export to a MS Word document.
 
 ## Installation and support
-Rabbit-In-a-Hat comes with WhiteRabbit, refer to [WhiteRabbit's installation section](WhiteRabbit.md).
+Rabbit-In-a-Hat comes with WhiteRabbit, refer to step 1 and 2 of [WhiteRabbit's installation section](WhiteRabbit.html#installation).
 
 # Getting Started
 ## Creating a New Document
