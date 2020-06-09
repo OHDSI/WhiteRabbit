@@ -106,7 +106,6 @@ public class WhiteRabbitMain implements ActionListener {
 	private JTextField			sourceDelimiterField;
 	private JComboBox<String> 	targetCSVFormat;
 	private JCheckBox		 	doUniformSampling;
-	private JCheckBox		 	forceFirstIsPrimaryKey;
 	private JTextField			sourceServerField;
 	private JTextField			sourceUserField;
 	private JTextField			sourcePasswordField;
@@ -565,10 +564,11 @@ public class WhiteRabbitMain implements ActionListener {
 				targetDatabaseField.setToolTipText("GBQ Data Set within ProjectID");
 			} else if (!targetIsFiles) {
 				targetServerField.setToolTipText("This field contains the name or IP address of the database server");
-				if (event.getItem().toString().equals("SQL Server"))
+				if (event.getItem().toString().equals("SQL Server")) {
 					targetUserField.setToolTipText("The user used to log in to the server. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')");
-				else
+				} else {
 					targetUserField.setToolTipText("The user used to log in to the server");
+				}
 				targetPasswordField.setToolTipText("The password used to log in to the server");
 				targetDatabaseField.setToolTipText("The name of the database containing the source tables");
 			}

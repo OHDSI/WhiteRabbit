@@ -116,10 +116,11 @@ public class ETLTestFrameWorkGenerator {
 				for (Field field : table.getFields()) {
 					String rFieldName = convertToRName(field.getName());
 					String defaultValue = field.getValueCounts().getMostFrequentValue();
-					if (defaultValue != null)
+					if (defaultValue != null) {
 						writer.println("  defaults$" + rFieldName + " <- '" + defaultValue + "'");
-					else
+					} else {
 						writer.println("  defaults$" + rFieldName + " <- ''");
+					}
 				}
 				writer.println("  assign('" + rTableName + "', defaults, envir = frameworkContext$defaultValues)");
 			}
