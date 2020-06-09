@@ -200,7 +200,7 @@ public class FakeDataGenerator {
 				String value;
 				if (values != null) {
 					value = values[pk_cursor++];
-					if (pk_cursor >= values.length) {
+					if (pk_cursor > values.length) {
 						// Loop back to the first (not a primary key anymore!)
 						pk_cursor = 0;
 						if (!isNotUniqueWarningShown) {
