@@ -32,6 +32,9 @@ public class Field implements MappableItem {
 	private Integer				maxLength;
 	private boolean				isStem;
 	private List<ConceptsMap.Concept> conceptIdHints;
+	private Double				fractionEmpty;
+	private Integer				uniqueCount;
+	private Double				fractionUnique;
 
 	public Field(String name, Table table) {
 		this.table = table;
@@ -136,5 +139,30 @@ public class Field implements MappableItem {
 
 	public void setConceptIdHints(List<ConceptsMap.Concept> conceptIdHints) {
 		this.conceptIdHints = conceptIdHints;
+	}
+
+	public Double getFractionEmpty() {
+		return fractionEmpty;
+	}
+
+	public void setFractionEmpty(Double fractionEmpty) {
+		this.fractionEmpty = fractionEmpty;
+		this.setNullable(fractionEmpty == null || fractionEmpty != 0);
+	}
+
+	public Integer getUniqueCount() {
+		return uniqueCount;
+	}
+
+	public void setUniqueCount(Integer uniqueCount) {
+		this.uniqueCount = uniqueCount;
+	}
+
+	public Double getFractionUnique() {
+		return fractionUnique;
+	}
+
+	public void setFractionUnique(Double fractionUnique) {
+		this.fractionUnique = fractionUnique;
 	}
 }

@@ -571,7 +571,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	private void doOpenScanReport(String filename) {
 		boolean replace = true;
 		if (ObjectExchange.etl.getSourceDatabase().getTables().size() != 0) {
-			Object[] options = { "Replace current data", "Load data on field values only" };
+			Object[] options = { "Replace current data", "Update tables and fields"};
 			int result = JOptionPane.showOptionDialog(frame, "You already have source data loaded. Do you want to", "Replace source data?",
 					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 			if (result == -1)
@@ -597,30 +597,38 @@ public class RabbitInAHatMain implements ResizeListener {
 				Database newData = Database.generateModelFromScanReport(filename);
 				Database oldData = ObjectExchange.etl.getSourceDatabase();
 				for (Table newTable : newData.getTables()) {
-					Table oldTable = (Table) findByName(newTable.getName(), oldData.getTables());
+					Table oldTable = oldData.getTableByName(newTable.getName());
 					if (oldTable != null) {
+						oldTable.setDescription(newTable.getDescription());
+						oldTable.setRowCount(newTable.getRowCount());
+						oldTable.setRowsCheckedCount(newTable.getRowsCheckedCount());
 						for (Field newField : newTable.getFields()) {
-							Field oldField = (Field) findByName(newField.getName(), oldTable.getFields());
+							Field oldField = oldTable.getFieldByName(newField.getName());
 							if (oldField != null) {
+								oldField.setDescription(newField.getDescription());
+								oldField.setFractionEmpty(newField.getFractionEmpty());
+								oldField.setUniqueCount(newField.getUniqueCount());
+								oldField.setFractionUnique(newField.getFractionUnique());
+								oldField.setNullable(newField.isNullable());
 								oldField.setValueCounts(newField.getValueCounts());
+							} else {
+								// Add the new field
+								oldTable.addField(newField);
 							}
 						}
+					} else {
+						// Add the new table
+						newTable.setDb(oldData);
+						oldData.addTable(newTable);
 					}
 				}
+				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping()); // Needed to render the model
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
 			}
-
 		}
 		frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	}
-
-	private MappableItem findByName(String name, List<? extends MappableItem> list) {
-		for (MappableItem item : list)
-			if (item.getName().toLowerCase().equals(name.toLowerCase()))
-				return item;
-		return null;
 	}
 
 	private void doGenerateEtlWordDoc() {

@@ -72,6 +72,10 @@ public class Database implements Serializable {
 		this.tables = tables;
 	}
 
+	public void addTable(Table table) {
+		this.tables.add(table);
+	}
+
 	public String getDbName() {
 		return dbName;
 	}
@@ -138,11 +142,14 @@ public class Database implements Serializable {
 		Database database = new Database();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
 
-		// Create table lookup from tables overview, if exists
+		// Create table lookup from tables overview, if it exists
 		Map<String, Table> nameToTable = createTablesFromTableOverview(workbook, database);
 
 		// Field overview is the first sheet
-		Sheet overviewSheet = workbook.get(0);
+		Sheet overviewSheet = workbook.getByName(ScanSheetName.FIELD_OVERVIEW);
+		if (overviewSheet == null) {
+			overviewSheet = workbook.get(0);
+		}
 		Iterator<QuickAndDirtyXlsxReader.Row> overviewRows = overviewSheet.iterator();
 
 		overviewRows.next();  // Skip header
@@ -168,11 +175,12 @@ public class Database implements Serializable {
 				String fieldName = row.getStringByHeaderName(ScanFieldName.FIELD);
 				Field field = new Field(fieldName.toLowerCase(), table);
 
-				String fractionEmpty = row.getByHeaderName(ScanFieldName.FRACTION_EMPTY);
-				field.setNullable(fractionEmpty == null || !fractionEmpty.equals("0"));
 				field.setType(row.getByHeaderName(ScanFieldName.TYPE));
 				field.setMaxLength(row.getIntByHeaderName(ScanFieldName.MAX_LENGTH));
 				field.setDescription(row.getStringByHeaderName(ScanFieldName.DESCRIPTION));
+				field.setFractionEmpty(row.getDoubleByHeaderName(ScanFieldName.FRACTION_EMPTY));
+				field.setUniqueCount(row.getIntByHeaderName(ScanFieldName.UNIQUE_COUNT));
+				field.setFractionUnique(row.getDoubleByHeaderName(ScanFieldName.FRACTION_UNIQUE));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 
 				table.getFields().add(field);
@@ -192,13 +200,7 @@ public class Database implements Serializable {
 	}
 
 	public static Map<String, Table> createTablesFromTableOverview(QuickAndDirtyXlsxReader workbook, Database database) {
-		Sheet tableOverviewSheet = null;
-		for (Sheet sheet : workbook) {
-			if (sheet.getName().equals(ScanSheetName.TABLE_OVERVIEW)) {
-				tableOverviewSheet = sheet;
-				break;
-			}
-		}
+		Sheet tableOverviewSheet = workbook.getByName(ScanSheetName.TABLE_OVERVIEW);
 
 		if (tableOverviewSheet == null) { // No table overview sheet, empty nameToTable
 			return new HashMap<>();
