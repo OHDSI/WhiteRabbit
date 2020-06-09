@@ -51,7 +51,6 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
 import org.ohdsi.rabbitInAHat.dataModel.*;
-import org.ohdsi.utilities.StringUtilities;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
 
@@ -469,28 +468,24 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 		public void createValueList(Field field) {
 			valueTable.clear();
-			if (field.getValueCounts() != null) {
-				int valueCountTotal = field.getRowsCheckedCount();
 
-				for (String[] valueCount : field.getValueCounts()) {
-					String valueNumber = valueCount[1];
-					String valuePercent = "";
-					if (StringUtilities.isNumber(valueNumber)) {
-						double number = Double.parseDouble(valueNumber);
-						valueNumber = numberFormat.format(number);
-						double valueCountPercent = number / (double) valueCountTotal;
-						if (valueCountPercent < 0.001) {
-							valuePercent = "<" + percentageFormat.format(0.001);
-						}
-						else if (valueCountPercent > 0.99 && valueCountPercent < 1) {
-							valuePercent = ">" + percentageFormat.format(0.99);
-						}
-						else {
-							valuePercent = percentageFormat.format(valueCountPercent);
-						}
-					}
-					valueTable.add(valueCount[0], valueNumber, valuePercent);
+			int rowsCheckedCount = field.getRowsCheckedCount();
+			for (ValueCounts.ValueCount valueCount : field.getValueCounts().getAll()) {
+				double valueCountPercent = valueCount.getFrequency() / (double) rowsCheckedCount;
+				String valuePercent;
+				if (valueCountPercent < 0.001) {
+					valuePercent = "<" + percentageFormat.format(0.001);
+				} else if (valueCountPercent > 0.99 && valueCountPercent < 1) {
+					valuePercent = ">" + percentageFormat.format(0.99);
+				} else {
+					valuePercent = percentageFormat.format(valueCountPercent);
 				}
+				String valueNumber = numberFormat.format(valueCount.getFrequency());
+				valueTable.add(valueCount.getValue(), valueNumber, valuePercent);
+			}
+
+			if (rowsCheckedCount != field.getValueCounts().getTotalFrequency()) {
+				valueTable.add("Truncated...", "", "");
 			}
 		}
 
