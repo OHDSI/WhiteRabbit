@@ -1067,7 +1067,7 @@ public class WhiteRabbitMain implements ActionListener {
 							Integer.parseInt(generateRowCount.getValue().toString()),
 							scanReportFileField.getText(),
 							folderField.getText(),
-							doUniformSampling.isEnabled()
+							doUniformSampling.isSelected()
 					);
 				}
 			} catch (Exception e) {
