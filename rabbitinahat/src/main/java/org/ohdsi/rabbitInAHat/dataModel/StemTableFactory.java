@@ -16,6 +16,8 @@ import org.ohdsi.utilities.collections.Pair;
 
 public class StemTableFactory {
 
+	private static final String STEM_TABLE_NAME = "stem_table";
+
 	public static void addStemTable(ETL etl) {
 		Database sourceDatabase = etl.getSourceDatabase();
 		Database targetDatabase = etl.getTargetDatabase();
@@ -36,7 +38,13 @@ public class StemTableFactory {
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1")) {
 			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
 			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
+		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1_oncology")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
 		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
+		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0_oncology")) {
 			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
 			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
 		} else {
@@ -47,9 +55,8 @@ public class StemTableFactory {
 		try {
 			Table sourceStemTable = new Table();
 			sourceStemTable.setStem(true);
+			sourceStemTable.setName(STEM_TABLE_NAME);
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(tableStream))) {
-				if (sourceStemTable.getName() == null)
-					sourceStemTable.setName(row.get("TABLE_NAME").toLowerCase());
 				Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), sourceStemTable);
 				field.setNullable(row.get("IS_NULLABLE").equals("YES"));
 				field.setType(row.get("DATA_TYPE"));
@@ -57,7 +64,6 @@ public class StemTableFactory {
 				field.setStem(true);
 				sourceStemTable.getFields().add(field);
 			}
-			sourceStemTable.setDb(sourceDatabase);
 			sourceDatabase.getTables().add(sourceStemTable);
 			Table targetStemTable = new Table(sourceStemTable);
 			targetStemTable.setDb(targetDatabase);

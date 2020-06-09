@@ -46,27 +46,26 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import org.ohdsi.rabbitInAHat.Arrow.HighlightStatus;
-import org.ohdsi.rabbitInAHat.dataModel.ItemToItemMap;
-import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
-import org.ohdsi.rabbitInAHat.dataModel.Mapping;
-import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.utilities.collections.IntegerComparator;
 
 public class MappingPanel extends JPanel implements MouseListener, MouseMotionListener {
 
 	private static final long		serialVersionUID			= 4589294949568810155L;
 
-	public static int				ITEM_HEIGHT					= 50;
-	public static int				ITEM_WIDTH					= 200;
-	public static int				MARGIN						= 10;
-	public static int				HEADER_HEIGHT				= 25;
-	public static int				HEADER_TOP_MARGIN			= 0;
-	public static int				MIN_SPACE_BETWEEN_COLUMNS	= 200;
-	public static int				ARROW_START_WIDTH			= 50;
-	public static int				BORDER_HEIGHT				= 25;
+	public static final int				ITEM_HEIGHT					= 50;
+	public static final int				ITEM_WIDTH					= 200;
+	public static final int 			STEM_ITEM_WIDTH 			= 80;
+	public static final int				MARGIN						= 10;
+	public static final int				HEADER_HEIGHT				= 25;
+	public static final int				HEADER_TOP_MARGIN			= 0;
+	public static final int				MIN_SPACE_BETWEEN_COLUMNS	= 200;
+	public static final int				ARROW_START_WIDTH			= 50;
+	public static final int				BORDER_HEIGHT				= 25;
 
-	private int						sourceX						= 10;
-	private int						cdmX						= 200;
+	private int						sourceX;
+	private int						cdmX;
+	private int						stemX;
 
 	private Mapping<?>				mapping;
 	private List<LabeledRectangle>	sourceComponents			= new ArrayList<LabeledRectangle>();
@@ -159,20 +158,22 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		sourceComponents.clear();
 		cdmComponents.clear();
 		arrows.clear();
-		for (MappableItem item : mapping.getSourceItems())
+		for (MappableItem item : mapping.getSourceItems()) {
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				if (item.isStem())
 					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
 				else
 					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0)));
 			}
-		for (MappableItem item : mapping.getTargetItems())
+		}
+		for (MappableItem item : mapping.getTargetItems()) {
 			if (!showOnlyConnectedItems || isConnected(item)) {
 				if (item.isStem())
 					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
 				else
 					cdmComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(128, 128, 255)));
 			}
+		}
 		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
 			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents),
 					map);
@@ -232,17 +233,27 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		if (dragRectangle != null && dragRectangle.getX() == xpos)
 			avoidY = dragRectangle.getY();
 		int y = HEADER_HEIGHT + HEADER_TOP_MARGIN;
-		for (int i = 0; i < components.size(); i++) {
-			LabeledRectangle item = components.get(i);
+		if (ObjectExchange.etl.hasStemTable()) {
+			// Move all non-stem items
+			y = HEADER_TOP_MARGIN + ITEM_HEIGHT;
+		}
+		for (LabeledRectangle component : components) {
+			// Exception for laying out the stem table
+			if (component.getItem().isStem() && component.getItem() instanceof Table) {
+				component.setLocation(stemX, HEADER_TOP_MARGIN);
+				continue;
+			}
+
+			// All other tables and fields
 			if (y > avoidY - ITEM_HEIGHT && y <= avoidY + MARGIN)
 				y += MARGIN + ITEM_HEIGHT;
 
-			if (dragRectangle == null || item != dragRectangle) {
-				item.setLocation(xpos, y);
+			if (dragRectangle == null || component != dragRectangle) {
+				component.setLocation(xpos, y);
 				y += MARGIN + ITEM_HEIGHT;
 			}
-
 		}
+
 	}
 
 	public Dimension getMinimumSize() {
@@ -265,6 +276,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void setSize(int width, int height) {
 		sourceX = MARGIN;
 		cdmX = width - MARGIN - ITEM_WIDTH;
+		stemX = (sourceX + cdmX) / 2;
 
 		layoutItems();
 		super.setSize(width, height);
@@ -373,11 +385,18 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				component.setSelected(false);
 			}
 		}
-		if (event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH) { // Source component
+
+		boolean clickInSource = event.getX() > sourceX && event.getX() < sourceX + ITEM_WIDTH;
+		boolean clickInSourceStem = event.getX() > stemX && event.getX() < stemX + STEM_ITEM_WIDTH;
+		boolean clickInTarget = event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH;
+		boolean clickInTargetStem = event.getX() > stemX && event.getX() < stemX + STEM_ITEM_WIDTH;
+		boolean clickInArrow = event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX;
+
+		if (clickInSource || clickInSourceStem) {
 			LabeledRectangleClicked(event, getVisibleSourceComponents());
-		} else if (event.getX() > cdmX && event.getX() < cdmX + ITEM_WIDTH) { // target component
+		} else if (clickInTarget || clickInTargetStem) {
 			LabeledRectangleClicked(event, getVisibleTargetComponents());
-		} else if (event.getX() > sourceX + ITEM_WIDTH && event.getX() < cdmX) { // Arrows
+		} else if (clickInArrow) {
 			lastSelectedRectangle = null;
 			Arrow clickedArrow = null;
 			for (HighlightStatus status : HighlightStatus.values()) {
@@ -587,8 +606,9 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			dragRectangle = null;
 			layoutItems();
 		} else if (dragArrow != null) { // dragging arrow to set source and target
-			if (event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX + ITEM_WIDTH)
-
+			boolean arrowInCdm = event.getX() > cdmX - ARROW_START_WIDTH && event.getX() < cdmX + ITEM_WIDTH;
+			boolean arrowInStem = event.getX() > stemX - ARROW_START_WIDTH && event.getX() < stemX + STEM_ITEM_WIDTH;
+			if (arrowInCdm || arrowInStem) {
 				for (LabeledRectangle component : getVisibleRectangles(cdmComponents)) {
 					if (component.contains(event.getPoint(), ARROW_START_WIDTH, 0)) {
 						dragArrow.setTarget(component);
@@ -601,6 +621,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 						break;
 					}
 				}
+			}
 			if (dragArrowPreviousTarget != null && dragArrow.getTarget() != dragArrowPreviousTarget) { // Retargeted an existing arrow, remove old map from
 																										// model
 				mapping.removeSourceToTargetMap(dragArrow.getSource().getItem(), dragArrowPreviousTarget.getItem());
@@ -733,6 +754,25 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 				boolean isSourceComponent = sourceComponents.contains(component);
 				detailsListener.showDetails(component.getItem(), isSourceComponent);
 				repaint();
+
+				if (event.getClickCount() == 2 && isSourceComponent && !component.getItem().isStem()) {
+					if (slaveMappingPanel != null) {
+						// Create dummy mapping
+						slaveMappingPanel.setMapping(
+								new Mapping<>(((Table) component.getItem()).getFields(), new ArrayList<>(), new ArrayList<>())
+						);
+						// Zoom arrow has to be set, but will not be shown
+						zoomArrow = new Arrow(
+								component,
+								components.get(0) // random target for the arrow
+						);
+
+						new AnimateThread(true).start();
+
+						slaveMappingPanel.filterComponents("", false);
+						slaveMappingPanel.filterComponents("", true);
+					}
+				}
 				break;
 			}
 		}

@@ -33,11 +33,10 @@ import org.ohdsi.whiteRabbit.DbSettings;
 public class FakeDataGenerator {
 
 	private RichConnection connection;
-	private int targetType;
+	private DbSettings.SourceType targetType;
 	private int maxRowsPerTable = 1000;
 	private boolean firstFieldAsKey;
 	private boolean doUniformSampling;
-
 
 	private static int REGULAR = 0;
 	private static int RANDOM = 1;
@@ -49,7 +48,7 @@ public class FakeDataGenerator {
 
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder, boolean firstFieldAsKey, boolean doUniformSampling) {
 		this.maxRowsPerTable = maxRowsPerTable;
-		this.targetType = dbSettings.dataType;
+		this.targetType = dbSettings.sourceType;
 		this.firstFieldAsKey = firstFieldAsKey;
 		this.doUniformSampling = doUniformSampling;
 
@@ -57,7 +56,7 @@ public class FakeDataGenerator {
 		System.out.println("Loading scan report from " + filename);
 		Database database = Database.generateModelFromScanReport(filename);
 
-		if (targetType == DbSettings.DATABASE) {
+		if (targetType == DbSettings.SourceType.DATABASE) {
 			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
 			connection.use(dbSettings.database);
 			for (Table table : database.getTables()) {

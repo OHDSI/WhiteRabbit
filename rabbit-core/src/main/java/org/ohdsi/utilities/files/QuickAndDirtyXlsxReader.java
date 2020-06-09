@@ -40,10 +40,11 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 
 	private static final long	serialVersionUID	= 25124428448185386L;
 
-	private List<String>		sharedStrings		= new ArrayList<String>();
+	private List<String> sharedStrings = new ArrayList<>();
 
-	private Map<String, Sheet>	rIdToSheet			= new HashMap<String, Sheet>();
-	private Map<String, Sheet>	filenameToSheet		= new HashMap<String, Sheet>();
+	private Map<String, Sheet> rIdToSheet = new HashMap<>();
+	private Map<String, Sheet> nameToSheet = new HashMap<>();
+	private Map<String, Sheet> filenameToSheet = new HashMap<>();
 
 	public QuickAndDirtyXlsxReader(String filename) {
 		try {
@@ -56,17 +57,10 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 			readFromStream(inputStream);
 
 			// Step 3: order the sheets:
-			Collections.sort(this, new Comparator<Sheet>() {
-
-				@Override
-				public int compare(Sheet o1, Sheet o2) {
-					return IntegerComparator.compare(o1.order, o2.order);
-				}
-			});
+			Collections.sort(this, (o1, o2) -> IntegerComparator.compare(o1.order, o2.order));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void loadSharedStringsAndRels(FileInputStream inputStream) {
@@ -159,7 +153,7 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 			fullSheet.append(line);
 
 		for (String rowLine : StringUtilities.multiFindBetween(fullSheet.toString(), "<row", "</row>")) {
-			Row row = new Row();
+			Row row = new Row(sheet);
 			row.addAll(findCellValues(rowLine));
 			if (row.size() != 0)
 				sheet.add(row);
@@ -191,7 +185,7 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 								result.add("");
 							if (sharedString) {
 								int index = Integer.parseInt(string.substring(stringStart, tagStart - 1));
-								result.set(column, sharedStrings.get(index));
+								result.set(column, decode(sharedStrings.get(index)));
 							} else
 								result.set(column, decode(string.substring(stringStart, tagStart - 1)));
 						}
@@ -521,14 +515,31 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 				Sheet sheet = rIdToSheet.get(rId);
 				sheet.setName(name);
 				sheet.order = Integer.parseInt(order);
+				nameToSheet.put(name, sheet);
 			}
 		}
+	}
+
+	public Sheet getByName(String sheetName) {
+		if (nameToSheet.containsKey(sheetName)) {
+			return nameToSheet.get(sheetName);
+		}
+		return null;
 	}
 
 	public class Sheet extends ArrayList<Row> {
 		private static final long	serialVersionUID	= -8597151681911998153L;
 		private String				name;
 		private int					order;
+		private Map<String, Integer> fieldName2ColumnIndex = new HashMap<>();
+
+		public boolean add(Row row) {
+			// Assume first row is the header, preprocess it
+			if (this.size() == 0) {
+				createFieldNameIndex(row);
+			}
+			return super.add(row);
+		}
 
 		public String getName() {
 			return name;
@@ -538,10 +549,63 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 			this.name = name;
 		}
 
+		private void createFieldNameIndex(List<String> row) {
+			int i = 0;
+			for (String header : row) {
+				fieldName2ColumnIndex.put(header, i);
+				i += 1;
+			}
+		}
+
+		private Integer getFieldIndex(String fieldName) {
+			return fieldName2ColumnIndex.get(fieldName);
+		}
 	}
 
 	public class Row extends ArrayList<String> {
 		private static final long	serialVersionUID	= -6391290892840364766L;
+		private final Sheet sheet;
 
+		public Row(Sheet sheet) {
+			this.sheet = sheet;
+		}
+
+		/**
+		 * Lookup index of the fieldName in first row of the sheet that this row belongs to.
+		 * Use index to get value of this row.
+		 * @param fieldName name of the field, as it appears in the header
+		 * @return null if fieldName not in the header
+		 */
+		public String getByHeaderName(String fieldName) {
+			return getStringByHeaderName(fieldName);
+		}
+
+		public String getStringByHeaderName(String fieldName) {
+			// Someone may have manually deleted data, so can't assume fieldName
+			// is always there:
+			Integer index = sheet.getFieldIndex(fieldName);
+			if (index != null && index < this.size())
+				return this.get(index);
+			return null;
+		}
+
+		public Double getDoubleByHeaderName(String fieldName) {
+			String value = getStringByHeaderName(fieldName);
+			if (value != null) {
+				value = value.replace("<=","").trim();
+				return Double.parseDouble(value);
+			} else {
+				return null;
+			}
+		}
+
+		public Integer getIntByHeaderName(String fieldName) {
+			Double value = getDoubleByHeaderName(fieldName);
+			if (value == null) {
+				return null;
+			} else {
+				return value.intValue();
+			}
+		}
 	}
 }
