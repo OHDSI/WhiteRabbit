@@ -199,8 +199,7 @@ public class FakeDataGenerator {
 				// Pick the next value or use the pk_cursor
 				String value;
 				if (values != null) {
-					value = values[pk_cursor++];
-					if (pk_cursor > values.length) {
+					if (pk_cursor >= values.length) {
 						// Loop back to the first (not a primary key anymore!)
 						pk_cursor = 0;
 						if (!isNotUniqueWarningShown) {
@@ -208,6 +207,7 @@ public class FakeDataGenerator {
 							isNotUniqueWarningShown = true;
 						}
 					}
+					value = values[pk_cursor++];
 				} else {
 					value = String.valueOf(++pk_cursor);
 				}
