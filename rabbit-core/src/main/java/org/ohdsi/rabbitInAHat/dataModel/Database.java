@@ -260,7 +260,7 @@ public class Database implements Serializable {
 
 					// If the count is not a number, ignore this row
 					try {
-						valueCounts.add(value, Integer.parseInt(count));
+						valueCounts.add(value, (int) Double.parseDouble(count));
 					} catch (NumberFormatException e) {
 						// Skip if count could not be parsed. In most cases this is for empty count at 'List Truncated...'
 					}
