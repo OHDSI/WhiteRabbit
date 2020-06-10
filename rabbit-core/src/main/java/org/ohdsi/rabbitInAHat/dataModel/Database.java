@@ -228,14 +228,8 @@ public class Database implements Serializable {
 	}
 
 	private static ValueCounts getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
-		Sheet tableSheet = null;
 		String targetSheetName = Table.createSheetNameFromTableName(tableName);
-		for (Sheet sheet : workbook) {
-			if (sheet.getName().equals(targetSheetName)) {
-				tableSheet = sheet;
-				break;
-			}
-		}
+		Sheet tableSheet = workbook.getByName(targetSheetName);
 
 		// Sheet not found for table, return empty
 		if (tableSheet == null) {
@@ -266,9 +260,9 @@ public class Database implements Serializable {
 
 					// If the count is not a number, ignore this row
 					try {
-						valueCounts.add(value, (int) (Double.parseDouble(count)));
+						valueCounts.add(value, Integer.parseInt(count));
 					} catch (NumberFormatException e) {
-//						 System.out.println("Count could not be parsed for value: " + value);
+						valueCounts.add(value, -1);
 					}
 				}
 			}

@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright 2019 Observational Health Data Sciences and Informatics
- * 
+ *
  * This file is part of WhiteRabbit
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,10 +25,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -38,7 +38,8 @@ import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
 
 public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 
-	private static final long	serialVersionUID	= 25124428448185386L;
+	private static final long serialVersionUID = 25124428448185386L;
+	private static final Pattern DOUBLE_IGNORE_PATTERN = Pattern.compile("[<>= ]+");
 
 	private List<String> sharedStrings = new ArrayList<>();
 
@@ -521,10 +522,7 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 	}
 
 	public Sheet getByName(String sheetName) {
-		if (nameToSheet.containsKey(sheetName)) {
-			return nameToSheet.get(sheetName);
-		}
-		return null;
+		return nameToSheet.get(sheetName);
 	}
 
 	public class Sheet extends ArrayList<Row> {
@@ -592,7 +590,8 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 		public Double getDoubleByHeaderName(String fieldName) {
 			String value = getStringByHeaderName(fieldName);
 			if (value != null) {
-				value = value.replace("<=","").trim();
+				// Ignore operators and spaces from double values
+				value = DOUBLE_IGNORE_PATTERN.matcher(value).replaceAll("");
 				return Double.parseDouble(value);
 			} else {
 				return null;

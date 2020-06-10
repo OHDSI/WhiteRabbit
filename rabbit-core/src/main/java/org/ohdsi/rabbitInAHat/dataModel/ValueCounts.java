@@ -22,6 +22,8 @@ import java.util.ArrayList;
 public class ValueCounts {
     private ArrayList<ValueCounts.ValueCount> valueCounts = new ArrayList<>();
     private int totalFrequency = 0;
+    private String mostFrequentValue;
+    private int mostFrequentValueCount = -1;
 
     public class ValueCount {
         private String value;
@@ -45,9 +47,13 @@ public class ValueCounts {
         }
     }
 
-    public boolean add(String value, int frequency) {
-        totalFrequency += frequency;
-        return valueCounts.add(new ValueCount(value, frequency));
+    public boolean add(String value, int count) {
+        totalFrequency += count;
+        if (count > mostFrequentValueCount) {
+            mostFrequentValue = value;
+            mostFrequentValueCount = count;
+        }
+        return valueCounts.add(new ValueCount(value, count));
     }
 
     public ArrayList<ValueCounts.ValueCount> getAll() {
@@ -59,11 +65,7 @@ public class ValueCounts {
     }
 
     public String getMostFrequentValue() {
-        // Assumption: first added value is the most frequent one (that is how the scan report is structured)
-        if (valueCounts.size() > 0) {
-            return valueCounts.get(0).getValue();
-        }
-        return null;
+        return mostFrequentValue;
     }
 
     public int getTotalFrequency() {
