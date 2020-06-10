@@ -262,7 +262,7 @@ public class Database implements Serializable {
 					try {
 						valueCounts.add(value, Integer.parseInt(count));
 					} catch (NumberFormatException e) {
-						valueCounts.add(value, -1);
+						// Skip if count could not be parsed. In most cases this is for empty count at 'List Truncated...'
 					}
 				}
 			}
