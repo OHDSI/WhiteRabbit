@@ -6,7 +6,7 @@
     <groupId>org.ohdsi</groupId>
     <artifactId>leporidae</artifactId>
     <packaging>pom</packaging>
-    <version>0.9.0</version>
+    <version>0.10.0</version>
     <modules>
         <module>rabbitinahat</module>
         <module>whiterabbit</module>
@@ -87,6 +87,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
@@ -129,5 +130,13 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <resources>
+            <!-- Resource filtering to make version information available. From https://stackoverflow.com/a/26573884 -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>

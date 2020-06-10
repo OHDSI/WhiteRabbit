@@ -25,7 +25,7 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+<link rel='shortcut icon' type='image/x-icon' href='images/favicon.ico' />
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -436,19 +436,19 @@ div.tocify {
 <p>The test framework defines the following functions <strong>for each table in the source schema</strong>:</p>
 <ul>
 <li><code>get_defaults_&lt;table name&gt;</code> shows the default field values that will be used when creating a record in the table. At the start, these default values have been taken from the White-Rabbit scan report, using the most frequent value.</li>
-<li><code>set_defaults_&lt;table name&gt;</code> can be used to change the default values of one or more fields in the table. For example <code>set_defaults_enrollment(enrollment_date = "2000-01-01")</code>.</li>
-<li><code>add_&lt;table name&gt;</code> can be used to specify that a record should be created in the table. The arguments can be used to specify field values. For fields where the user doesn’t specify a value, the default value is used. For example <code>add_enrollment(member_id = "M00000001")</code>.</li>
+<li><code>set_defaults_&lt;table name&gt;</code> can be used to change the default values of one or more fields in the table. For example <code>set_defaults_enrollment(enrollment_date = &quot;2000-01-01&quot;)</code>.</li>
+<li><code>add_&lt;table name&gt;</code> can be used to specify that a record should be created in the table. The arguments can be used to specify field values. For fields where the user doesn’t specify a value, the default value is used. For example <code>add_enrollment(member_id = &quot;M00000001&quot;)</code>.</li>
 </ul>
 <p>The following functions are defined <strong>for each table in the CDM schema</strong>:</p>
 <ul>
-<li><code>expect_&lt;table name&gt;</code> can be used to state the expectation that at least one record with the defined properties should exist in the table. For example <code>expect_person(person_id = 1, person_source_value = "M00000001")</code>.</li>
+<li><code>expect_&lt;table name&gt;</code> can be used to state the expectation that at least one record with the defined properties should exist in the table. For example <code>expect_person(person_id = 1, person_source_value = &quot;M00000001&quot;)</code>.</li>
 <li><code>expect_no_&lt;table name&gt;</code> can be used to state the expectation that no record with the defined properties should exist in the table. For example <code>expect_no_condition_occurrence(person_id = 1)</code>.</li>
 <li><code>expect_count_&lt;table name&gt;</code> can be used to state the expectation that a specific number of records with the defined properties should exist in the table. For example <code>expect_count_condition_occurrence(person_id = 1, rowCount = 3)</code>.</li>
 <li><code>lookup_&lt;table name&gt;</code> can be used to get a specific value from another table. For example to get the <code>person_id</code> by <code>person_source_value</code>.</li>
 </ul>
 <p>One further function is available:</p>
 <ul>
-<li><code>declareTest</code> is used to group multiple statements under a single identifier. For example <code>declareTest(id = 1, description = "Test person ID")</code>.</li>
+<li><code>declareTest</code> is used to group multiple statements under a single identifier. For example <code>declareTest(id = 1, description = &quot;Test person ID&quot;)</code>.</li>
 </ul>
 </div>
 <div id="defining-unit-tests" class="section level2">

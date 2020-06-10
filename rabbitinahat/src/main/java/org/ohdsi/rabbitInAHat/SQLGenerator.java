@@ -14,21 +14,23 @@ import java.util.Set;
  */
 public class SQLGenerator {
     ETL etl;
-    String outputDirectory;
+    File outputDirectory;
 
     public SQLGenerator(ETL etl, String directory) {
         this.etl = etl;
-        this.outputDirectory = directory;
+        this.outputDirectory = new File(directory);
+        if (!outputDirectory.exists()) {
+            if (!outputDirectory.mkdir()) {
+                throw new RuntimeException("SQL output directory " + directory + " could not be created.");
+            }
+        }
     }
 
     public void generate() {
         // Generate a sql file for each source to target table mapping
-        Integer counter = 0;
         for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps()) {
             writeSqlFile(tableToTableMap);
-            counter++;
         }
-        System.out.println(counter.toString() + " sql files were generated"); // TODO report in UI
     }
 
     private void writeSqlFile(ItemToItemMap tableToTableMap){
@@ -39,7 +41,6 @@ public class SQLGenerator {
 
         // Create new sql file in the selected directory
         File outFile = new File( outputDirectory, sourceTable.getName() + "_to_" + targetTable.getName() + ".sql");
-        System.out.println( "Writing to: " + outFile.getAbsoluteFile() );
 
         int n_mappings = mappings.size();
         Set<Field> targetFieldsSeen = new HashSet<>();
@@ -70,7 +71,7 @@ public class SQLGenerator {
                     target = targetTable.getFieldByName(mapping.getTargetItem().getName());
                 }
 
-                out.write('\t');
+                out.write("    ");
                 out.write(target.getName());
 
                 // Do not print comma if last is reached
@@ -112,9 +113,9 @@ public class SQLGenerator {
                     out.write(createInLineComment("[MAPPING COMMENT]", mapping.getComment(), "\n"));
                 }
 
-                out.write('\t');
+                out.write("    ");
                 out.write(sourceName);
-                out.write("\tAS\t");
+                out.write(" AS ");
                 out.write(targetName);
 
                 // Do not print comma if last is reached

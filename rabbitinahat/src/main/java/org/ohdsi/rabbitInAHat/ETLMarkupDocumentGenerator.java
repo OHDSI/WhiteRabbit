@@ -234,7 +234,7 @@ public class ETLMarkupDocumentGenerator {
 		 */
 		MarkdownDocument(String directoryName) {
 			this.mainFolder = new File(directoryName);
-			this.filesFolder = new File(directoryName, "_files");
+			this.filesFolder = new File(directoryName, "md_files");
 		}
 
 		@Override
@@ -339,7 +339,7 @@ public class ETLMarkupDocumentGenerator {
 		 */
 		HtmlDocument(String directoryName) {
 			this.mainFolder = new File(directoryName);
-			this.filesFolder = new File(directoryName, "_files");
+			this.filesFolder = new File(directoryName, "html_files");
 		}
 
 		@Override

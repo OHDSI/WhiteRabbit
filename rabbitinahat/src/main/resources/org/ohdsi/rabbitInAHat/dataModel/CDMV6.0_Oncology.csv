@@ -220,10 +220,6 @@ admitted_from_concept_id,No,INTEGER,A foreign key to the predefined concept in t
 preceding_visit_detail_id,No,INTEGER,A foreign key to the VISIT_DETAIL table of the visit immediately preceding this visit,visit_detail,cdm
 visit_detail_parent_id,No,INTEGER,A foreign key to the VISIT_DETAIL table record to represent the immediate parent visit-detail record.,visit_detail,cdm
 visit_occurrence_id,Yes,INTEGER,"A foreign key that refers to the record in the VISIT_OCCURRENCE table. This is a required field, because for every visit_detail is a child of visit_occurrence and cannot exist without a corresponding parent record in visit_occurrence.",visit_detail,cdm
-cohort_definition_id,Yes,INTEGER,A foreign key to a record in the COHORT_DEFINITION table containing relevant Cohort Definition information.,cohort,results
-subject_id,Yes,INTEGER,"A foreign key to the subject in the cohort. These could be referring to records in the PERSON, PROVIDER, VISIT_OCCURRENCE table.",cohort,results
-cohort_start_date,Yes,DATE,"The date when the Cohort Definition criteria for the Person, Provider or Visit first match.",cohort,results
-cohort_end_date,Yes,DATE,"The date when the Cohort Definition criteria for the Person, Provider or Visit no longer match or the Cohort membership was terminated.",cohort,results
 condition_era_id,Yes,INTEGER,A unique identifier for each Condition Era.,condition_era,cdm
 person_id,Yes,INTEGER,A foreign key identifier to the Person who is experiencing the Condition during the Condition Era. The demographic details of that Person are stored in the PERSON table.,condition_era,cdm
 condition_concept_id,Yes,INTEGER,A foreign key that refers to a standard Condition Concept identifier in the Standardized Vocabularies.,condition_era,cdm
@@ -330,13 +326,6 @@ value_as_string,No,NVARCHAR,The metadata value stored as a string.,metadata,cdm
 value_as_concept_id,No,INTEGER,A foreign key to a metadata value stored as a Concept ID.,metadata,cdm
 metadata date,No,DATE,The date associated with the metadata,metadata,cdm
 metadata_datetime,No,DATETIME,The date and time associated with the metadata,metadata,cdm
-cohort_definition_id,Yes,INTEGER,A unique identifier for each Cohort.,cohort_definition,cdm
-cohort_definition_name,Yes,VARCHAR(255),A short description of the Cohort.,cohort_definition,cdm
-cohort_definition_description,No,VARCHAR(MAX),A complete description of the Cohort definition,cohort_definition,cdm
-definition_type_concept_id,Yes,INTEGER,Type defining what kind of Cohort Definition the record represents and how the syntax may be executed,cohort_definition,cdm
-cohort_definition_syntax,No,VARCHAR(MAX),Syntax or code to operationalize the Cohort definition,cohort_definition,cdm
-subject_concept_id,Yes,INTEGER,"A foreign key to the Concept to which defines the domain of subjects that are members of the cohort (e.g., Person, Provider, Visit).",cohort_definition,cdm
-cohort_initiation_date,No,DATE,A date to indicate when the Cohort was initiated in the COHORT table,cohort_definition,cdm
 survey_conduct_id,Yes,INTEGER,Unique identifier for each completed survey.,survey_conduct,cdm
 person_id,Yes,INTEGER,A foreign key identifier to the Person in the PERSON table about whom the survey was completed.,survey_conduct,cdm
 survey_concept_id,Yes,INTEGER,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the name and identity of the survey.,survey_conduct,cdm

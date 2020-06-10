@@ -1,9 +1,11 @@
-
+---
+pagetitle: "White Rabbit"
+---
 ![](images/whiterabbitlogo.png )
 
 # Introduction
 ## Scope and purpose
-WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal healthcare databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](www.github.com/OHDSI/CommonDataModel/wiki).
+WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](https://github.com/OHDSI/CommonDataModel).
 The source data can be in comma-separated text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery).
 Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Microsoft APS, Amazon RedShift, Google BigQuery, Impala).
 
@@ -22,7 +24,19 @@ Once the scan report is created, this report can then be used in the Rabbit-In-a
 
 # Installation and support
 
-All source code and installation instructions available on GitHub: <https://github.com/OHDSI/WhiteRabbit>
+## Installation
+
+1. Download the latest version of WhiteRabbit from Github: <https://github.com/OHDSI/WhiteRabbit/releases/latest>.  
+   The packaged application can be found at the bottom of the page under assets, in a file called _WhiteRabbit_vX.X.X.zip_ (where `X.X.X` is the latest version).
+2. Unzip the download
+3. Double-click on bin/whiteRabbit.bat on Windows to start WhiteRabbit, and bin/whiteRabbit on macOS and Linux.  
+   See [Running from the command line](#running_from_the_command_line) for details on how to run from the command line instead.
+4. Go to [Using the Application Functions](#using_the_application_functions) for detailed instructions on how to make a scan of your data.
+
+Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.
+
+## Support
+All source code, descriptions and input/output examples are available on GitHub: <https://github.com/OHDSI/WhiteRabbit>
 
 Any bugs/issues/enhancements should be posted to the GitHub repository: <https://github.com/OHDSI/WhiteRabbit/issues>
 
@@ -129,7 +143,8 @@ There are a few setting options as well with the scan:
     * “Min cell count” is an option when scanning field values. By default this is set to 25, meaning values in the source data that appear less than 25 will not appear in the report.
     * “Rows per table” is an option when scanning field values. By default, WhiteRabbit will random 1 million rows in the table. There are other options to review 100,000 or all rows within the table.
   * Unchecking the “Scan field values” tells WhiteRabbit to not review or report on any of the raw data items.
-
+  * Checking the "Numeric Stats" box will include numeric statistics. See the section on ['Numerical Statistics'](#numeric-statistics-(develop)).
+  
 Once all settings are completed, press the “Scan tables” button. After the scan is completed the report will be written to the working folder.
 
 ### Running from the command line
@@ -176,6 +191,22 @@ WhiteRabbit will not define 1 as male and 2 as female; the data holder will typi
 However these two values (1 & 2) are not the only values present in the data because we see this list was truncated.
 These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values.
 When generating an ETL we should not only plan to handle the high-frequency gender concepts 1 and 2 but the other low-frequency values that exist within this column.
+
+#### Numerical statistics (develop)
+If the option for numerical statistics is checked, then a set of statistics is calculated for all integer, real and date data types. 
+The following statistics are added to the Overview sheet:
+
+* Average
+* Standard Deviation (sampled)
+* Minimum
+* Maximum
+* Quartiles: q1, median, q3 (sampled)
+
+If the number of values is smaller than the set reservoir size, then the standard deviation and three quartile boundaries are the exact population statistics. 
+Otherwise, the statistics are approximated based on a representative sample.
+The average, minimum and maximum are always true population statistics.
+For dates, the numerical statistics are calculated by using epoch days. 
+The standard deviation of dates is given in days, the other statistics are converted to a date representation.
 
 ## Generating Fake Data
 This feature allows one to create a fake dataset based on a WhiteRabbit scan report.
