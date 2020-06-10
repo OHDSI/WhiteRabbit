@@ -547,30 +547,33 @@ public class WhiteRabbitMain implements ActionListener {
 			targetDatabaseField.setEnabled(!targetIsFiles);
 			targetCSVFormat.setEnabled(targetIsFiles);
 
-			if (!targetIsFiles && event.getItem().toString().equals("Oracle")) {
-				targetServerField.setToolTipText("For Oracle servers this field contains the SID, servicename, and optionally the port: '<host>/<sid>', '<host>:<port>/<sid>', '<host>/<service name>', or '<host>:<port>/<service name>'");
-				targetUserField.setToolTipText("For Oracle servers this field contains the name of the user used to log in");
-				targetPasswordField.setToolTipText("For Oracle servers this field contains the password corresponding to the user");
-				targetDatabaseField.setToolTipText("For Oracle servers this field contains the schema (i.e. 'user' in Oracle terms) containing the source tables");
-			} else if (!targetIsFiles && event.getItem().toString().equals("PostgreSQL")) {
-				targetServerField.setToolTipText("For PostgreSQL servers this field contains the host name and database name (<host>/<database>)");
-				targetUserField.setToolTipText("The user used to log in to the server");
-				targetPasswordField.setToolTipText("The password used to log in to the server");
-				targetDatabaseField.setToolTipText("For PostgreSQL servers this field contains the schema containing the source tables");
-			} else if (!targetIsFiles && event.getItem().toString().equals("BigQuery")) {
-				targetServerField.setToolTipText("GBQ ProjectID");
-				targetUserField.setToolTipText("GBQ OAuthServiceAccountEmail");
-				targetPasswordField.setToolTipText("GBQ OAuthPvtKeyPath");
-				targetDatabaseField.setToolTipText("GBQ Data Set within ProjectID");
-			} else if (!targetIsFiles) {
-				targetServerField.setToolTipText("This field contains the name or IP address of the database server");
-				if (event.getItem().toString().equals("SQL Server")) {
+			if (targetIsFiles) {
+				return;
+			}
+			// Default tooltips, to be overridden per database if necessary
+			targetServerField.setToolTipText("The name or IP address of the database server");
+			targetUserField.setToolTipText("The user used to log in to the server");
+			targetPasswordField.setToolTipText("The password used to log in to the server");
+			targetDatabaseField.setToolTipText("The name of the database containing the source tables");
+
+			switch (event.getItem().toString()) {
+				case "Oracle":
+					targetServerField.setToolTipText("For Oracle servers this field contains the SID, servicename, and optionally the port: '<host>/<sid>', '<host>:<port>/<sid>', '<host>/<service name>', or '<host>:<port>/<service name>'");
+					targetDatabaseField.setToolTipText("For Oracle servers this field contains the schema (i.e. 'user' in Oracle terms) containing the source tables");
+					break;
+				case "PostgreSQL":
+					targetServerField.setToolTipText("For PostgreSQL servers this field contains the host name and database name (<host>/<database>)");
+					targetDatabaseField.setToolTipText("For PostgreSQL servers this field contains the *schema* containing the source tables");
+					break;
+				case "BigQuery":
+					targetServerField.setToolTipText("GBQ ProjectID");
+					targetUserField.setToolTipText("GBQ OAuthServiceAccountEmail");
+					targetPasswordField.setToolTipText("GBQ OAuthPvtKeyPath");
+					targetDatabaseField.setToolTipText("GBQ Data Set within ProjectID");
+					break;
+				case "SQL Server":
 					targetUserField.setToolTipText("The user used to log in to the server. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')");
-				} else {
-					targetUserField.setToolTipText("The user used to log in to the server");
-				}
-				targetPasswordField.setToolTipText("The password used to log in to the server");
-				targetDatabaseField.setToolTipText("The name of the database containing the source tables");
+					break;
 			}
 		});
 		targetPanel.add(targetType);
