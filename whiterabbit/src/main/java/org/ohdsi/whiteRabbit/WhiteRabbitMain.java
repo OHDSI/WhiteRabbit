@@ -105,6 +105,7 @@ public class WhiteRabbitMain implements ActionListener {
 	private JTextField			targetDatabaseField;
 	private JTextField			sourceDelimiterField;
 	private JComboBox<String> 	targetCSVFormat;
+	private JCheckBox		 	doUniformSampling;
 	private JTextField			sourceServerField;
 	private JTextField			sourceUserField;
 	private JTextField			sourcePasswordField;
@@ -536,46 +537,43 @@ public class WhiteRabbitMain implements ActionListener {
 		targetPanel.setLayout(new GridLayout(0, 2));
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
-		targetType = new JComboBox<String>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
+		targetType = new JComboBox<>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
 		targetType.setToolTipText("Select the type of source data available");
-		targetType.addItemListener(new ItemListener() {
+		targetType.addItemListener(event -> {
+			targetIsFiles = event.getItem().toString().equals("Delimited text files");
+			targetServerField.setEnabled(!targetIsFiles);
+			targetUserField.setEnabled(!targetIsFiles);
+			targetPasswordField.setEnabled(!targetIsFiles);
+			targetDatabaseField.setEnabled(!targetIsFiles);
+			targetCSVFormat.setEnabled(targetIsFiles);
 
-			@Override
-			public void itemStateChanged(ItemEvent arg0) {
-				targetIsFiles = arg0.getItem().toString().equals("Delimited text files");
-				targetServerField.setEnabled(!targetIsFiles);
-				targetUserField.setEnabled(!targetIsFiles);
-				targetPasswordField.setEnabled(!targetIsFiles);
-				targetDatabaseField.setEnabled(!targetIsFiles);
-				targetCSVFormat.setEnabled(targetIsFiles);
+			if (targetIsFiles) {
+				return;
+			}
+			// Default tooltips, to be overridden per database if necessary
+			targetServerField.setToolTipText("The name or IP address of the database server");
+			targetUserField.setToolTipText("The user used to log in to the server");
+			targetPasswordField.setToolTipText("The password used to log in to the server");
+			targetDatabaseField.setToolTipText("The name of the database containing the source tables");
 
-				if (!targetIsFiles && arg0.getItem().toString().equals("Oracle")) {
-					targetServerField
-							.setToolTipText("For Oracle servers this field contains the SID, servicename, and optionally the port: '<host>/<sid>', '<host>:<port>/<sid>', '<host>/<service name>', or '<host>:<port>/<service name>'");
-					targetUserField.setToolTipText("For Oracle servers this field contains the name of the user used to log in");
-					targetPasswordField.setToolTipText("For Oracle servers this field contains the password corresponding to the user");
-					targetDatabaseField
-							.setToolTipText("For Oracle servers this field contains the schema (i.e. 'user' in Oracle terms) containing the source tables");
-				} else if (!targetIsFiles && arg0.getItem().toString().equals("PostgreSQL")) {
+			switch (event.getItem().toString()) {
+				case "Oracle":
+					targetServerField.setToolTipText("For Oracle servers this field contains the SID, servicename, and optionally the port: '<host>/<sid>', '<host>:<port>/<sid>', '<host>/<service name>', or '<host>:<port>/<service name>'");
+					targetDatabaseField.setToolTipText("For Oracle servers this field contains the schema (i.e. 'user' in Oracle terms) containing the source tables");
+					break;
+				case "PostgreSQL":
 					targetServerField.setToolTipText("For PostgreSQL servers this field contains the host name and database name (<host>/<database>)");
-					targetUserField.setToolTipText("The user used to log in to the server");
-					targetPasswordField.setToolTipText("The password used to log in to the server");
-					targetDatabaseField.setToolTipText("For PostgreSQL servers this field contains the schema containing the source tables");
-				} else if (!targetIsFiles && arg0.getItem().toString().equals("BigQuery")) {
+					targetDatabaseField.setToolTipText("For PostgreSQL servers this field contains the *schema* containing the source tables");
+					break;
+				case "BigQuery":
 					targetServerField.setToolTipText("GBQ ProjectID");
 					targetUserField.setToolTipText("GBQ OAuthServiceAccountEmail");
 					targetPasswordField.setToolTipText("GBQ OAuthPvtKeyPath");
 					targetDatabaseField.setToolTipText("GBQ Data Set within ProjectID");
-				} else if (!targetIsFiles) {
-					targetServerField.setToolTipText("This field contains the name or IP address of the database server");
-					if (arg0.getItem().toString().equals("SQL Server"))
-						targetUserField
-								.setToolTipText("The user used to log in to the server. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')");
-					else
-						targetUserField.setToolTipText("The user used to log in to the server");
-					targetPasswordField.setToolTipText("The password used to log in to the server");
-					targetDatabaseField.setToolTipText("The name of the database containing the source tables");
-				}
+					break;
+				case "SQL Server":
+					targetUserField.setToolTipText("The user used to log in to the server. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')");
+					break;
 			}
 		});
 		targetPanel.add(targetType);
@@ -603,6 +601,12 @@ public class WhiteRabbitMain implements ActionListener {
 		targetCSVFormat.setToolTipText("The format of the output");
 		targetCSVFormat.setEnabled(true);
 		targetPanel.add(targetCSVFormat);
+
+		targetPanel.add(new JLabel(""));
+		doUniformSampling = new JCheckBox("Uniform Sampling", false);
+		doUniformSampling.setToolTipText("For all fields, choose every possible value with the same probability");
+		doUniformSampling.setEnabled(true);
+		targetPanel.add(doUniformSampling);
 
 		c.gridx = 0;
 		c.gridy = 1;
@@ -1010,7 +1014,7 @@ public class WhiteRabbitMain implements ActionListener {
 			String message = "File " + filename + " not found";
 			JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "File not found", JOptionPane.ERROR_MESSAGE);
 		} else {
-			FakeDataThread thread = new FakeDataThread(Integer.parseInt(generateRowCount.getValue().toString()), filename);
+			FakeDataThread thread = new FakeDataThread();
 			thread.start();
 		}
 	}
@@ -1052,22 +1056,23 @@ public class WhiteRabbitMain implements ActionListener {
 	}
 
 	private class FakeDataThread extends Thread {
-		private int		maxRowCount;
-		private String	filename;
-
-		public FakeDataThread(int maxRowCount, String filename) {
-			this.maxRowCount = maxRowCount;
-			this.filename = filename;
-		}
 
 		public void run() {
-			for (JComponent component : componentsToDisableWhenRunning)
+			for (JComponent component : componentsToDisableWhenRunning) {
 				component.setEnabled(false);
+			}
 			try {
 				FakeDataGenerator process = new FakeDataGenerator();
 				DbSettings dbSettings = getTargetDbSettings();
-				if (dbSettings != null)
-					process.generateData(dbSettings, maxRowCount, filename, folderField.getText());
+				if (dbSettings != null) {
+					process.generateData(
+							dbSettings,
+							Integer.parseInt(generateRowCount.getValue().toString()),
+							scanReportFileField.getText(),
+							folderField.getText(),
+							doUniformSampling.isSelected()
+					);
+				}
 			} catch (Exception e) {
 				handleError(e);
 			} finally {

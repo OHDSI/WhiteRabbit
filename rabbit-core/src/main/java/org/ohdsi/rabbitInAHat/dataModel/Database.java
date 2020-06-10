@@ -72,6 +72,10 @@ public class Database implements Serializable {
 		this.tables = tables;
 	}
 
+	public void addTable(Table table) {
+		this.tables.add(table);
+	}
+
 	public String getDbName() {
 		return dbName;
 	}
@@ -138,11 +142,14 @@ public class Database implements Serializable {
 		Database database = new Database();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
 
-		// Create table lookup from tables overview, if exists
+		// Create table lookup from tables overview, if it exists
 		Map<String, Table> nameToTable = createTablesFromTableOverview(workbook, database);
 
 		// Field overview is the first sheet
-		Sheet overviewSheet = workbook.get(0);
+		Sheet overviewSheet = workbook.getByName(ScanSheetName.FIELD_OVERVIEW);
+		if (overviewSheet == null) {
+			overviewSheet = workbook.get(0);
+		}
 		Iterator<QuickAndDirtyXlsxReader.Row> overviewRows = overviewSheet.iterator();
 
 		overviewRows.next();  // Skip header
@@ -168,11 +175,12 @@ public class Database implements Serializable {
 				String fieldName = row.getStringByHeaderName(ScanFieldName.FIELD);
 				Field field = new Field(fieldName.toLowerCase(), table);
 
-				String fractionEmpty = row.getByHeaderName(ScanFieldName.FRACTION_EMPTY);
-				field.setNullable(fractionEmpty == null || !fractionEmpty.equals("0"));
 				field.setType(row.getByHeaderName(ScanFieldName.TYPE));
 				field.setMaxLength(row.getIntByHeaderName(ScanFieldName.MAX_LENGTH));
 				field.setDescription(row.getStringByHeaderName(ScanFieldName.DESCRIPTION));
+				field.setFractionEmpty(row.getDoubleByHeaderName(ScanFieldName.FRACTION_EMPTY));
+				field.setUniqueCount(row.getIntByHeaderName(ScanFieldName.UNIQUE_COUNT));
+				field.setFractionUnique(row.getDoubleByHeaderName(ScanFieldName.FRACTION_UNIQUE));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 
 				table.getFields().add(field);
@@ -186,18 +194,13 @@ public class Database implements Serializable {
 		Table table = new Table();
 		table.setName(name.toLowerCase());
 		table.setDescription(description);
-		table.setRowCount((nRows == null || nRows == -1) ? nRowsChecked : nRows);
+		table.setRowCount(nRows == null ? -1 : nRows);
+		table.setRowsCheckedCount(nRowsChecked == null ? -1 : nRowsChecked);
 		return table;
 	}
 
 	public static Map<String, Table> createTablesFromTableOverview(QuickAndDirtyXlsxReader workbook, Database database) {
-		Sheet tableOverviewSheet = null;
-		for (Sheet sheet : workbook) {
-			if (sheet.getName().equals(ScanSheetName.TABLE_OVERVIEW)) {
-				tableOverviewSheet = sheet;
-				break;
-			}
-		}
+		Sheet tableOverviewSheet = workbook.getByName(ScanSheetName.TABLE_OVERVIEW);
 
 		if (tableOverviewSheet == null) { // No table overview sheet, empty nameToTable
 			return new HashMap<>();
@@ -224,38 +227,46 @@ public class Database implements Serializable {
 		return nameToTable;
 	}
 
-	private static String[][] getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
-		Sheet tableSheet = null;
+	private static ValueCounts getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
 		String targetSheetName = Table.createSheetNameFromTableName(tableName);
-		for (Sheet sheet : workbook) {
-			if (sheet.getName().equals(targetSheetName)) {
-				tableSheet = sheet;
-				break;
-			}
+		Sheet tableSheet = workbook.getByName(targetSheetName);
+
+		// Sheet not found for table, return empty
+		if (tableSheet == null) {
+			return new ValueCounts();
 		}
-		if (tableSheet == null) // Sheet not found for table, return empty array
-			return new String[0][0];
 
 		Iterator<org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row> iterator = tableSheet.iterator();
 		org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row header = iterator.next();
 		int index = header.indexOf(fieldName);
-		List<String[]> list = new ArrayList<String[]>();
+
+		ValueCounts valueCounts = new ValueCounts();
 		if (index != -1) // Could happen when people manually delete columns
 			while (iterator.hasNext()) {
 				org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row row = iterator.next();
 				if (row.size() > index) {
 					String value = row.get(index);
 					String count;
-					if (row.size() > index + 1)
+
+					if (row.size() > index + 1) {
 						count = row.get(index + 1);
-					else
+					} else {
 						count = "";
-					if (value.equals("") && count.equals(""))
+					}
+
+					if (value.equals("") && count.equals("")) {
 						break;
-					list.add(new String[] { value, count });
+					}
+
+					// If the count is not a number, ignore this row
+					try {
+						valueCounts.add(value, (int) Double.parseDouble(count));
+					} catch (NumberFormatException e) {
+						// Skip if count could not be parsed. In most cases this is for empty count at 'List Truncated...'
+					}
 				}
 			}
-		return list.toArray(new String[list.size()][2]);
+		return valueCounts;
 	}
 
 }
