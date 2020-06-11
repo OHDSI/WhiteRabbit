@@ -96,6 +96,10 @@ public class Table implements MappableItem {
 		this.rowsCheckedCount = rowsCheckedCount;
 	}
 
+	public void addField(Field field) {
+		this.fields.add(field);
+	}
+
 	public List<Field> getFields() {
 		return fields;
 	}

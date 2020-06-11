@@ -187,10 +187,7 @@ public class ETLMarkupDocumentGenerator {
 
 		List<Row> rows = new ArrayList<>();
 		for (Field field : sourceTable.getFields()) {
-			String mostFrequentValue = "";
-			if (field.getValueCounts() != null && field.getValueCounts().length != 0) {
-				mostFrequentValue = field.getValueCounts()[0][0];
-			}
+			String mostFrequentValue = field.getValueCounts().getMostFrequentValue();
 
 			Row row = new Row();
 			row.add("Field", field.getName());
@@ -318,8 +315,14 @@ public class ETLMarkupDocumentGenerator {
 
 			for (Row row : rows) {
 				line = new StringBuilder();
-				for (String value : row.getCells())
-					line.append("| ").append(value.replaceAll("\n", "  ")).append(" ");
+				for (String value : row.getCells()) {
+					if (value != null) {
+						value = value.replaceAll("\n", "  ");
+					} else {
+						value = "";
+					}
+					line.append("| ").append(value).append(" ");
+				}
 				line.append("|");
 				lines.add(line.toString());
 			}
@@ -418,8 +421,12 @@ public class ETLMarkupDocumentGenerator {
 
 				for (Row row : rows) {
 					lines.add("\t<tr>");
-					for (String cell : row.getCells())
+					for (String cell : row.getCells()) {
+						if (cell == null) {
+							cell = "";
+						}
 						lines.add("\t\t<td>" + cell + "</td>");
+					}
 					lines.add("\t</tr>");
 				}
 				lines.add("</table>");

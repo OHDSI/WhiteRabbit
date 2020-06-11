@@ -51,7 +51,6 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
 import org.ohdsi.rabbitInAHat.dataModel.*;
-import org.ohdsi.utilities.StringUtilities;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
 
@@ -341,9 +340,10 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 	}
 
 	private class FieldPanel extends JPanel implements DocumentListener {
-
 		private static final long serialVersionUID = -4393026616049677944L;
 		JLabel nameLabel;
+		JLabel typeLabel;
+		JLabel valueDetailLabel;
 		JLabel rowCountLabel;
 		DescriptionTextArea description;
 		SimpleTableModel valueTable;
@@ -353,6 +353,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 		public FieldPanel() {
 			nameLabel			= new JLabel("");
+			typeLabel           = new JLabel("");
+			valueDetailLabel    = new JLabel("");
 			rowCountLabel		= new JLabel("");
 			description			= new DescriptionTextArea ("");
 			valueTable			= new SimpleTableModel("Value", "Frequency", "Percentage");
@@ -365,9 +367,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			setLayout(new BorderLayout());
 
 			JPanel generalInfoPanel = new JPanel();
-			
 			generalInfoPanel.setLayout(new BorderLayout(5,5));
-			
 			generalInfoPanel.setBorder(BorderFactory.createTitledBorder("General information"));
 			
 			JPanel fieldInfo = new JPanel();
@@ -377,10 +377,18 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			fieldInfo.add(nameLabel);
 
 			fieldInfo.add(new JLabel("Field type: "));
-			fieldInfo.add(rowCountLabel);
-			
-			generalInfoPanel.add(fieldInfo,BorderLayout.NORTH);
-			
+			fieldInfo.add(typeLabel);
+
+			generalInfoPanel.add(fieldInfo, BorderLayout.NORTH);
+
+			JPanel sourceDetailsPanel = new JPanel();
+			sourceDetailsPanel.setLayout(new GridLayout(0,2));
+
+			sourceDetailsPanel.add(new JLabel("Unique values: "));
+			sourceDetailsPanel.add(valueDetailLabel);
+
+			generalInfoPanel.add(sourceDetailsPanel);
+
 			JPanel descriptionInfo = new JPanel();
 			descriptionInfo.setLayout(new GridLayout(0,2));
 			descriptionInfo.add(new JLabel("Description: "));
@@ -431,10 +439,27 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			this.field = field;
 
 			nameLabel.setText(field.getName());
-			rowCountLabel.setText(field.getType());
-			description.setText(field.getDescription());
+			typeLabel.setText(field.getType());
 
-			// Hide description if it's empty
+			// Additional unique count and percentage empty. Hide when not given
+			StringBuilder valueDetailText = new StringBuilder();
+			if (field.getUniqueCount() != null) {
+				valueDetailText.append(numberFormat.format(field.getUniqueCount()));
+			}
+			if (field.getFractionEmpty() != null) {
+				String fractionEmptyFormatted;
+				if (field.getFractionEmpty() > 0 && field.getFractionEmpty() < 0.001) {
+					fractionEmptyFormatted = "<" + percentageFormat.format(0.001);
+				} else {
+					fractionEmptyFormatted = percentageFormat.format(field.getFractionEmpty());
+				}
+				valueDetailText.append(String.format(" (%s empty)", fractionEmptyFormatted));
+			}
+			valueDetailLabel.setText(valueDetailText.toString());
+			valueDetailLabel.getParent().setVisible(!valueDetailLabel.getText().isEmpty());
+
+			// Description. Hide when empty
+			description.setText(field.getDescription());
 			description.getParent().setVisible(!description.getText().isEmpty());
 
 			this.createValueList(field);
@@ -443,28 +468,24 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 		public void createValueList(Field field) {
 			valueTable.clear();
-			if (field.getValueCounts() != null) {
-				int valueCountTotal = field.getRowsCheckedCount();
 
-				for (String[] valueCount : field.getValueCounts()) {
-					String valueNumber = valueCount[1];
-					String valuePercent = "";
-					if (StringUtilities.isNumber(valueNumber)) {
-						double number = Double.parseDouble(valueNumber);
-						valueNumber = numberFormat.format(number);
-						double valueCountPercent = number / (double) valueCountTotal;
-						if (valueCountPercent < 0.001) {
-							valuePercent = "<" + percentageFormat.format(0.001);
-						}
-						else if (valueCountPercent > 0.99) {
-							valuePercent = ">" + percentageFormat.format(0.99);
-						}
-						else {
-							valuePercent = percentageFormat.format(valueCountPercent);
-						}
-					}
-					valueTable.add(valueCount[0], valueNumber, valuePercent);
+			int rowsCheckedCount = field.getRowsCheckedCount();
+			for (ValueCounts.ValueCount valueCount : field.getValueCounts().getAll()) {
+				double valueCountPercent = valueCount.getFrequency() / (double) rowsCheckedCount;
+				String valuePercent;
+				if (valueCountPercent < 0.001) {
+					valuePercent = "<" + percentageFormat.format(0.001);
+				} else if (valueCountPercent > 0.99 && valueCountPercent < 1) {
+					valuePercent = ">" + percentageFormat.format(0.99);
+				} else {
+					valuePercent = percentageFormat.format(valueCountPercent);
 				}
+				String valueNumber = numberFormat.format(valueCount.getFrequency());
+				valueTable.add(valueCount.getValue(), valueNumber, valuePercent);
+			}
+
+			if (rowsCheckedCount != field.getValueCounts().getTotalFrequency()) {
+				valueTable.add("Truncated...", "", "");
 			}
 		}
 
