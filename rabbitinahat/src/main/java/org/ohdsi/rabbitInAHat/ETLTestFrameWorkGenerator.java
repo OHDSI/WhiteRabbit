@@ -335,7 +335,7 @@ public class ETLTestFrameWorkGenerator {
 					writer.println("    } else {");
 					writer.println("      statement <- paste0(statement, \" AND\")");
 					writer.println("    }");
-					writer.println("    statement <- paste0(statement, \" " + sqlFieldName + " = \", " + createSqlValueCode(rFieldName) + ")");
+					writer.println("    statement <- paste0(statement, \" " + sqlFieldName + "\"," + createSqlValueCode(rFieldName) + ")");
 					writer.println("  }");
 					writer.println("");
 				}
@@ -454,7 +454,7 @@ public class ETLTestFrameWorkGenerator {
 		writer.println("                     \"' AS test, CASE WHEN (SELECT COUNT(*) FROM @cdm_database_schema.\",");
 		writer.println("                     expect$table,");
 		writer.println("                     \" WHERE \",");
-		writer.println("                     paste(paste(expect$fields, operators, expect$values), collapse = \" AND \"),");
+		writer.println("                     paste(paste(expect$fields, expect$values), collapse = \" AND \"),");
 		writer.println("                     \") \",");
 		writer.println("                     if (expect$type == " + DEFAULT + ") \"= 0\" else if (expect$type == " + NEGATE
 				+ ") \"!= 0\" else paste(\"!=\", expect$rowCount),");
@@ -582,10 +582,10 @@ public class ETLTestFrameWorkGenerator {
 	}
 
 	 private String createSqlValueCode(String rFieldName) {
-         return "if (is.null(" + rFieldName + ")) \"NULL\" " +
+         return "if (is.null(" + rFieldName + ")) \" IS NULL\" " +
                  "else if (is(" + rFieldName + ", \"subQuery\")) " +
-                 "paste0(\"(\", as.character(" + rFieldName + "), \")\") " +
-                 "else paste0(\"'\", as.character(" + rFieldName + "), \"'\")";
+                 "paste0(\" = (\", as.character(" + rFieldName + "), \")\") " +
+                 "else paste0(\" = '\", as.character(" + rFieldName + "), \"'\")";
 	}
 
 	 private String convertToSqlName(String name) {
