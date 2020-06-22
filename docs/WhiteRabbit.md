@@ -6,21 +6,22 @@ pagetitle: "White Rabbit"
 # Introduction
 ## Scope and purpose
 WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](https://github.com/OHDSI/CommonDataModel).
-The source data can be in comma-separated text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery).
-Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Microsoft APS, Amazon RedShift, Google BigQuery, Impala).
+The source data can be in delimited text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure SQL Database).
+Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Amazon RedShift, Google BigQuery, Impala).
 
 WhiteRabbit’s main function is to perform a scan of the source data, providing detailed information on the tables, fields, and values that appear in a field.
-This scan will generate a report that can be used as a reference when designing the ETL, for instance by using the Rabbit-In-a-Hat tool.
-White Rabbit differs from standard data profiling tools in that it attempts to prevent the display of personally identifiable information (PII) data values in the generated output data file.
+This scan will generate a report that can be used as a reference when designing the ETL, for instance by using the Rabbit-In-A-Hat tool.
+WhiteRabbit differs from standard data profiling tools in that it attempts to prevent the display of personally identifiable information (PII) data values in the generated output data file.
 
 ## Process Overview
 The typical sequence for using this software to scan source data in preparation of developing an ETL into an OMOP CDM:
+
 1. Set working folder, the location on the local desktop computer where results will be exported.
-2. Connect to the source database or CSV text file and test connection.
+2. Connect to the source database or delimited text file and test connection.
 3. Select the tables of interest for the scan and scan the tables.
 4. WhiteRabbit creates an export of information about the source data.
 
-Once the scan report is created, this report can then be used in the Rabbit-In-a-Hat tool or as a stand-alone data profiling document.
+Once the scan report is created, this report can then be used in the Rabbit-In-A-Hat tool or as a stand-alone data profiling document.
 
 # Installation and support
 
@@ -29,7 +30,7 @@ Once the scan report is created, this report can then be used in the Rabbit-In-a
 1. Download the latest version of WhiteRabbit from Github: <https://github.com/OHDSI/WhiteRabbit/releases/latest>.  
    The packaged application can be found at the bottom of the page under assets, in a file called _WhiteRabbit_vX.X.X.zip_ (where `X.X.X` is the latest version).
 2. Unzip the download
-3. Double-click on bin/whiteRabbit.bat on Windows to start WhiteRabbit, and bin/whiteRabbit on macOS and Linux.  
+3. Double-click on `dist/bin/whiteRabbit.bat` on Windows to start WhiteRabbit, and `dist/bin/whiteRabbit` on macOS and Linux.  
    See [Running from the command line](#running_from_the_command_line) for details on how to run from the command line instead.
 4. Go to [Using the Application Functions](#using_the_application_functions) for detailed instructions on how to make a scan of your data.
 
@@ -46,7 +47,7 @@ Any questions/comments/feedback/discussion can be posted on the OHDSI Developer 
 
 ## Specifying the Location of Source Data
 
-![](images/whiterabbitscreenshot.png)
+![](images/whiterabbitscreenshot_v0.10.1.PNG)
 
 ### Working Folder
 
@@ -57,12 +58,12 @@ Use the “Pick Folder” button to navigate in your local environment where you
 
 Here you can specify the location of the source data.
 The following source types are supported:
-   delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft APS, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery.
+   delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure SQL Database.
 Below are connection instructions for each data type of data source.
 Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.
 
 #### Delimited text files
-  * **_Delimiter:_** specifies the delimiter that separates columns, default is ‘,’ and your can write ‘tab’ for tab delimited.
+  * **_Delimiter:_** specifies the delimiter that separates columns, default is ‘,’ and you can write ‘tab’ for tab delimited.
 
 WhiteRabbit will look for the files to scan in the same folder you set up as a working directory.
 
@@ -80,7 +81,7 @@ Note that it is currently not possible to produce fake data for SAS files from a
   * _**Database name:**_ name of the database containing the tables
 
 #### Oracle
-  * _**Server location:**_ this field contains the SID, service name, and optionally the port:  `<host>/<sid>`, `<host>:<port>/<sid>`, `<host>/< service name >`, or `<host>:<port>/<service name>`
+  * _**Server location:**_ this field contains the SID, service name, and optionally the port:  `<host>/<sid>`, `<host>:<port>/<sid>`, `<host>/<service name>`, or `<host>:<port>/<service name>`
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ this field contains the schema (i.e. 'user' in Oracle terms) containing the tables
@@ -91,7 +92,8 @@ Note that it is currently not possible to produce fake data for SAS files from a
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ name of the database containing the tables
 
-When the SQL Server JDBC drivers are installed, you can also use Windows authentication.  In this case, user name and password should be empty.
+When the SQL Server JDBC drivers are installed, you can also use Windows authentication. In this case, user name and password should be empty.
+
   1. Download the .exe from http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx.
   2. Run it, thereby extracting its contents to a folder.
   3. In the extracted folder you will find the file `_sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll_` (64-bits) or `_sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll_` (32-bits), which needs to be moved to a location on the system path, for example to `c:/windows/system32`.
@@ -101,11 +103,11 @@ When the SQL Server JDBC drivers are installed, you can also use Windows authent
   * _**Server location:**_ this field contains the host name and database name (<host>/<database>)
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
-  * _**Database name:**_ this field contains the schema containing the source tables
+  * _**Database name:**_ this field contains the schema containing the tables
 
 #### Google BigQuery
 
-Google BigQuery (GBQ) supports two different connection/authentication methods -- application default credentials and service account authentication.
+Google BigQuery (GBQ) supports two different connection/authentication methods: application default credentials and service account authentication.
 The former method is considered more secure because it writes auditing events to stackdriver.
 The specific method used is determined by the arguments provided to the configuration panel as described below.
 
@@ -126,12 +128,17 @@ Authentication via service account credentials:
   * _**Password:**_ OAuth private key path (file location of private key JSON file). Must be a valid full file pathname
   * _**Database name:**_ data set name within ProjectID named in Server location field
 
+#### Azure SQL Database
+
+  * _**Server location:**_ 
+  * _**User name:**_ name of the user used to log into the server
+  * _**Password:**_ password for the supplied user name
 
 ## Scanning a Database
 
 ### Performing the Scan
 
-![](images/whiterabbitscreen-scan.png)
+![](images/whiterabbitscreen-scan_v0.10.1.PNG)
 
 A scan generates a report containing information on the source data that can be used to help design the ETL.
 Using the Scan tab in WhiteRabbit you can either select individual tables in the selected source database by clicking on ‘Add’ (Ctrl + mouse click),
@@ -139,13 +146,14 @@ or automatically select all tables in the database by clicking on ‘Add all in 
 
 There are a few setting options as well with the scan:
 
-  * Checking the “Scan field values” tells WhiteRabbit that you would like to investigate raw data items within tables selected for a scan (i.e. if you select Table A, WhiteRabbit will review the contents in each column in Table A).
-    * “Min cell count” is an option when scanning field values. By default this is set to 25, meaning values in the source data that appear less than 25 will not appear in the report.
-    * “Rows per table” is an option when scanning field values. By default, WhiteRabbit will random 1 million rows in the table. There are other options to review 100,000 or all rows within the table.
+  * Checking the “Scan field values” box tells WhiteRabbit that you would like to investigate raw data items within tables selected for a scan (i.e. if you select Table A, WhiteRabbit will review the contents in each column in Table A).
+    * “Min cell count” is an option when scanning field values. By default this is set to 5, meaning values in the source data that appear less than 5 times will not appear in the report.
+    * “Rows per table” is an option when scanning field values. By default, WhiteRabbit will random 100,000 rows in the table. There are other options to review 500,000, 1 million or all rows within the table.
+	* “Max distinct values” is an option when scanning field values. By default this is set to 1,000, meaning that a maximum of 1,000 distinct values per field will appear in the scan report. This option can be set to 100, 1,000 or 10,000 distinct values.
   * Unchecking the “Scan field values” tells WhiteRabbit to not review or report on any of the raw data items.
-  * Checking the "Numeric Stats" box will include numeric statistics. See the section on ['Numerical Statistics'](#numeric-statistics-(develop)).
+  * Checking the "Numeric stats" box will include numeric statistics. See the section on [Numerical Statistics](#numeric-statistics).
   
-Once all settings are completed, press the “Scan tables” button. After the scan is completed the report will be written to the working folder.
+Once all settings are completed, press the ‘Scan tables’ button. After the scan is completed the report will be written to the working folder.
 
 ### Running from the command line
 
@@ -159,42 +167,56 @@ Then, we can reference the ini file when calling WhiteRabbit from the command li
 ### Reading the Scan
 
 After the scan is completed, a “ScanReport” Excel document will be created in the working folder location selected earlier.
-The document will have multiple tabs, one as an “Overview” and then one tab for each database table or delimited text files selected for the scan.
-The “Overview” tab will tell you about each table selected, what the columns in each table are, the data type of the columns, the number of rows within the table and other statistics.
+The document will have multiple tabs. The first two tabs are a “Field Overview” tab and a “Table Overview” tab. 
+The subsequent tabs contain field and value overviews for each database table or delimited text files selected for the scan. 
+The last tab (indicated by "_")contains metadata on the WhiteRabbit settings used to create the scan report. The "Table Overview" and "_" tab are not present in releases earlier than v0.10.0.
+The “Field Overview” tab will tell you about each table selected, what the columns in each table are, the data type of the columns, the number of rows within the table and other statistics.
 
-Below is an example image of the “Overview” tab.
-- Column A will list what table the information is about
-- Column B the column name
-- Column C the data type
-- Column D the maximum length of the values (number of characters/digits)
-- Column E is the number of rows (with text files it will return - 1)
-- Column F will tell you how many rows of the N rows were scanned
-- Column G shows how many of the checked rows are empty
-- Column H shows a count of the unique values within the checked rows. This number is sometimes an upper limit of the unique values, indicated by a `<=` sign (v0.9.0)
-- Column I shows the percentage of unique values among all (0% = constant value, 100% = unique column) (v0.9.0)
+Below is an example image of the “Field Overview” tab.
 
-![](images/wr_scan_report_overview.png)
+* Column A: will list which table the information is about
+* Column B: the column name
+* Column C: a column description (only filled when SAS files are scanned. Descriptions from e.g. relational databases are not read. This column is not present in releases earlier than v0.10.0)
+* Column D: the data type
+* Column E: the maximum length of the values (number of characters/digits)
+* Column F: the number of rows (with text files it will return - 1)
+* Column G: will tell you how many rows of the N rows were scanned
+* Column H: shows how many of the checked rows are empty
+* Column I: shows a count of the unique values within the checked rows. This number is sometimes an upper limit of the unique values, indicated by a `<=` sign (This column is not present in releases earlier than v0.9.0)
+* Column J: shows the percentage of unique values among all (0% = constant value, 100% = unique column. This column is not present in releases earlier than v0.9.0)
 
-For a tab that describes a single table, the columns names from the source table (or delimited text file) will be across the columns of the Excel tab.
-Each source table column will generate two columns in the Excel.
-One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan (Section - Performing the Scan).
-If a list of unique values was truncated, the last value in the list will be “List truncated”;
-this indicates that there are one or more additional unique source values that appear less than the number entered in the “Min cell count” described in Section - Performing the Scan.
+![](images/wr_scan_report_field_overview_v0.10.1.PNG)
+
+The "table Overview" tab gives information about each of the tables in the data source. Below is an example image of the "Table Overview" tab.
+
+* Column A: will list which table the information is about
+* Column B: a table description
+* Column C: the number of rows in a table(with text files it will return - 1)
+* Column D: will tell you how many rows of the N rows were scanned
+* Column E: the number of fields in the table
+* Column F: the number of empty fields
+
+![](images/wr_scan_report_table_overview_v0.10.1.PNG)
+
+For a tab that describes a single table, the columns names from the source table will be across the columns of the Excel tab.
+Each source table column will generate two columns in the Excel. One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan (see [Performing the Scan](#performing-the-scan.
+If a list of unique values was truncated, the last value in the list will be "List truncated..."; this indicates that there are one or more additional unique source values that appear less than the number entered in the “Min cell count” described in [Performing the Scan](#performing-the-scan).
 Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data.
-These two columns (distinct values and frequency) will repeat for all the source columns in the table profiled in the workbook.
+These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.
 
-![](images/whiterabbitscreen-readingthescanex.png )
+![](images/wr_scan_report_value_freq_v0.10.1.PNG)
 
-The report is powerful in understanding your source data by highlighting what exists.
-For example, the above results were given back on the “SEX” column within one of the tables scanned, we can see that there were two common values (1 and 2) that appeared 61,491 and 35,401 times respectively.
-WhiteRabbit will not define 1 as male and 2 as female; the data holder will typically need to define source codes unique to the source system.
+The scan report is powerful in understanding your source data by highlighting what exists.
+For example, the above results were given back on the "GENDER" column within one of the tables scanned, we can see that there were two common values (1 & 2) that appeared 104 and 96 times respectively.
+WhiteRabbit will not define "1" as male and "2" as female; the data holder will typically need to define source codes unique to the source system.
 However these two values (1 & 2) are not the only values present in the data because we see this list was truncated.
 These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values.
-When generating an ETL we should not only plan to handle the high-frequency gender concepts 1 and 2 but the other low-frequency values that exist within this column.
+When generating an ETL we should not only plan to handle the high-frequency gender concepts "1" and "2" but also the other low-frequency values that exist within this column.
 
-#### Numerical statistics (develop)
+#### Numerical Statistics
+
 If the option for numerical statistics is checked, then a set of statistics is calculated for all integer, real and date data types. 
-The following statistics are added to the Overview sheet:
+The following statistics are added to the Field Overview sheet:
 
 * Average
 * Standard Deviation (sampled)
@@ -202,14 +224,27 @@ The following statistics are added to the Overview sheet:
 * Maximum
 * Quartiles: q1, median, q3 (sampled)
 
+The "Numeric stats reservoir size" defines the number of values that will be stored for calculation of the numeric statistics. These values will be randomly sampled from the field values in the scan report. 
 If the number of values is smaller than the set reservoir size, then the standard deviation and three quartile boundaries are the exact population statistics. 
-Otherwise, the statistics are approximated based on a representative sample.
-The average, minimum and maximum are always true population statistics.
-For dates, the numerical statistics are calculated by using epoch days. 
-The standard deviation of dates is given in days, the other statistics are converted to a date representation.
+Otherwise, the statistics are approximated based on a representative sample. The average, minimum and maximum are always true population statistics.
+For dates, the standard deviation of dates is given in days. The other date statistics are converted to a date representation.
 
 ## Generating Fake Data
+
 This feature allows one to create a fake dataset based on a WhiteRabbit scan report.
-Fake data can be generated outputted directly to database tables or as csv.
+The generated fake data can be outputted directly to database tables (MySQL, Oracle, SQL Server, PostgreSQL) or as delimited text file.
 The resulting dataset could be used to develop ETL code when direct access to the data is not available.
-This feature is currently still experimental.
+
+WhiteRabbit has three modes to generate fake data:
+
+1. If no values are scanned (i.e. the column in the scan report doesn't contain values, only "List truncated..."), WhiteRabbit will generate random strings or numbers for that column.
+2. If there are values scanned, WhiteRabbit will generate the data by choosing from the scan values. Data generation is either based on the frequencies of the values, or generated in a uniform way. 
+3. If the column only contains unique values (each value has a frequency of 1, e.g. for primary keys), the generated column will be kept unique.
+
+By default, WhiteRabbit will generate fake data based on the frequency of the values in the scan report.  
+The following options are available for generating fake data:
+
+* "Max rows per table" sets the number of rows of each output table. By default, it is set to 10,000.
+* By checking the "Uniform Sampling" box will generate the fake data in a uniform way. The frequency of each of the values will be set to 1, but the value sampling will be random. This increases the chance that each of the values in the scan report is at least once represented in the output data.
+
+
