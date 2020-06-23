@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.rabbitInAHat.dataModel.ETL.FileFormat;
 
+// TODO: use templating to generate the R code (e.g. Jinja/Apache FreeMarker/Mustache). At least put static R code in separate (.R) files.
 public class ETLTestFrameWorkGenerator {
 
 	private static int DEFAULT = 0;
@@ -260,7 +261,7 @@ public class ETLTestFrameWorkGenerator {
 					writer.println("    frameworkContext$sourceFieldsTested <- c(frameworkContext$sourceFieldsTested, '" + convertFieldToFullName(field) + "')");
 					writer.println("  }");
 					writer.println("  fields <- c(fields, \"" + sqlFieldName + "\")");
-					writer.println("  values <- c(values, " + createSqlValueCode(rFieldName) + ")");
+					writer.println("  values <- c(values, " + createValueCode(rFieldName) + ")");
 					writer.println("");
 				}
 				writer.println("  inserts <- list(testId = frameworkContext$testId, testDescription = frameworkContext$testDescription, table = \"" + sqlTableName
@@ -581,11 +582,18 @@ public class ETLTestFrameWorkGenerator {
 		return name;
 	}
 
-	 private String createSqlValueCode(String rFieldName) {
-         return "if (is.null(" + rFieldName + ")) \" IS NULL\" " +
+	private String createSqlValueCode(String rFieldName) {
+		return "if (is.null(" + rFieldName + ")) \" IS NULL\" " +
+				"else if (is(" + rFieldName + ", \"subQuery\")) " +
+				"paste0(\" = (\", as.character(" + rFieldName + "), \")\") " +
+				"else paste0(\" = '\", as.character(" + rFieldName + "), \"'\")";
+	}
+
+	 private String createValueCode(String rFieldName) {
+         return "if (is.null(" + rFieldName + ")) \"NULL\" " +
                  "else if (is(" + rFieldName + ", \"subQuery\")) " +
-                 "paste0(\" = (\", as.character(" + rFieldName + "), \")\") " +
-                 "else paste0(\" = '\", as.character(" + rFieldName + "), \"'\")";
+                 "paste0(\"(\", as.character(" + rFieldName + "), \")\") " +
+                 "else paste0(\"'\", as.character(" + rFieldName + "), \"'\")";
 	}
 
 	 private String convertToSqlName(String name) {
