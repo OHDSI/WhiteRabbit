@@ -6,6 +6,8 @@ dist/
 /.classpath
 *.iml
 .idea/
+target/
+*.class
 
 # Repo specific ignores
 /ScanReport.xlsx
@@ -13,3 +15,4 @@ dist/
 tmp/*
 Try*
 /examples/
+.DS_Store
