@@ -40,7 +40,7 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 	
 	public FilterDialog(Window parentWindow) throws ExceptionInInitializerError{
 		super(parentWindow,"Filter",ModalityType.MODELESS);
-		if (instance != null) {
+		if (alreadyOpened()) {
 			throw new ExceptionInInitializerError("An instance of FilterDialog already exists");
 		}
 		this.setResizable(false);
