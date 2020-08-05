@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Rabbit in a Hat testing framework</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link rel='shortcut icon' type='image/x-icon' href='images/favicon.ico' />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html"><div><img src="images/ohdsi16x16.png"></img> OHDSI White Rabbit</div></a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="glyphicon glyphicon-home"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="WhiteRabbit.html">
+    <span class="glyphicon glyphicon-list"></span>
+     
+    White Rabbit
+  </a>
+</li>
+<li>
+  <a href="RabbitInAHat.html">
+    <span class="glyphicon glyphicon-list-alt"></span>
+     
+    Rabbit In A Hat
+  </a>
+</li>
+<li>
+  <a href="riah_test_framework.html">
+    <span class="glyphicon glyphicon-dashboard"></span>
+     
+    Test Framework
+  </a>
+</li>
+<li>
+  <a href="best_practices.html">
+    <span class="glyphicon glyphicon-check"></span>
+     
+    Best Practices
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/ohdsi/whiterabbit">
+    <span class="glyphicon glyphicon-link"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Rabbit in a Hat testing framework</h1>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Rabbit in a Hat can generate a framework for creating a set of <a href="https://en.wikipedia.org/wiki/Unit_testing">unit tests</a>. The framework consists of a set of R functions tailored to the source and target schema in your ETL. These functions can then be used to define the unit tests.</p>
+<p>Unit testing assumes that you have your data in source format somewhere in a database. You should already have created an ETL process that will extract from the source database, transform it into CDM format, and load it into a CDM schema. The unit test framework can be used to make sure that your ETL process is doing what it is supposed to do. For this you will need to create a new, empty database with exactly the same structure as your source database, and a new empty database where a test CDM database will live. The testing framework can be used to insert test data into the empty source schema. Next, you can run your ETL process on the test data to populate the test CDM database. Finally, you can use the framework to verify that the output of the ETL in the test CDM database is what you’d expect given the test source data.</p>
+</div>
+<div id="process-overview" class="section level1">
+<h1>Process Overview</h1>
+<p>These are the steps to perform unit testing:</p>
+<ol style="list-style-type: decimal">
+<li>Create the testing framework for your source and target database schemas</li>
+<li>Using the framework in R, define a set of unit tests</li>
+<li>Use the framework to generate testing data in the source data schema</li>
+<li>Run your ETL on the test data to produce data in the CDM schema</li>
+<li>Use the framework to evaluate whether the CDM data meets the defined expectations</li>
+</ol>
+<p>It is advised to use <a href="https://www.rstudio.com/">R-Studio</a> for defining your unit tests. One reason is that RStudio will automatically prompt you with possible function and argument names after you’ve only typed the first few characters.</p>
+</div>
+<div id="creating-the-testing-framework" class="section level1">
+<h1>Creating the Testing Framework</h1>
+<p>In Rabbit in a Hat, have your ETL specifications open. The source data schema should be loaded from the White-Rabbit scan report, and the target data schema should be selected (usually the OMOP CDM v5). Go to <em>File → Generate ETL Test Framework</em>, and use a file name with the .R extension, for example <code>MyTestFrameWork.R</code>.</p>
+</div>
+<div id="using-the-testing-framework" class="section level1">
+<h1>Using the Testing Framework</h1>
+<p>Next, create an empty R script, and start by sourcing the R file that was just created:</p>
+<pre class="r"><code>source(&quot;MyTestFrameWork.R&quot;)</code></pre>
+<p>Be sure to run this command immediately to make the function definitions available to R-Studio.</p>
+<div id="available-functions" class="section level2">
+<h2>Available functions</h2>
+<p>The test framework defines the following functions <strong>for each table in the source schema</strong>:</p>
+<ul>
+<li><code>get_defaults_&lt;table name&gt;</code> shows the default field values that will be used when creating a record in the table. At the start, these default values have been taken from the White-Rabbit scan report, using the most frequent value.</li>
+<li><code>set_defaults_&lt;table name&gt;</code> can be used to change the default values of one or more fields in the table. For example <code>set_defaults_enrollment(enrollment_date = &quot;2000-01-01&quot;)</code>.</li>
+<li><code>add_&lt;table name&gt;</code> can be used to specify that a record should be created in the table. The arguments can be used to specify field values. For fields where the user doesn’t specify a value, the default value is used. For example <code>add_enrollment(member_id = &quot;M00000001&quot;)</code>.</li>
+</ul>
+<p>The following functions are defined <strong>for each table in the CDM schema</strong>:</p>
+<ul>
+<li><code>expect_&lt;table name&gt;</code> can be used to state the expectation that at least one record with the defined properties should exist in the table. For example <code>expect_person(person_id = 1, person_source_value = &quot;M00000001&quot;)</code>.</li>
+<li><code>expect_no_&lt;table name&gt;</code> can be used to state the expectation that no record with the defined properties should exist in the table. For example <code>expect_no_condition_occurrence(person_id = 1)</code>.</li>
+<li><code>expect_count_&lt;table name&gt;</code> can be used to state the expectation that a specific number of records with the defined properties should exist in the table. For example <code>expect_count_condition_occurrence(person_id = 1, rowCount = 3)</code>.</li>
+<li><code>lookup_&lt;table name&gt;</code> can be used to get a specific value from another table. For example to get the <code>person_id</code> by <code>person_source_value</code>.</li>
+</ul>
+<p>One further function is available:</p>
+<ul>
+<li><code>declareTest</code> is used to group multiple statements under a single identifier. For example <code>declareTest(id = 1, description = &quot;Test person ID&quot;)</code>.</li>
+</ul>
+</div>
+<div id="defining-unit-tests" class="section level2">
+<h2>Defining unit tests</h2>
+<p>Using these functions, we can define tests. Here is an example unit test:</p>
+<pre class="r"><code>declareTest(101, &quot;Person gender mappings&quot;)
+add_enrollment(member_id = &quot;M000000101&quot;, gender_of_member = &quot;male&quot;)
+add_enrollment(member_id = &quot;M000000102&quot;, gender_of_member = &quot;female&quot;)
+expect_person(person_id = 101, gender_concept_id = 8507, gender_source_value = &quot;male&quot;)
+expect_person(person_id = 102, gender_concept_id = 8532, gender_source_value = &quot;female&quot;)</code></pre>
+<p>In this example, we define a test for gender mappings. We specify that two records should be created in the <code>enrollment</code> table in the source schema, and we specify different values for the <code>member_id</code> field and <code>gender_of_member</code> field. Note that the <code>enrollment</code> table might have many other fields, for example defining the start and end of enrollment, but that we don’t have to specify these in this example because these fields will take their default values, typically taken from the White-Rabbit scan report.</p>
+<p>In this example we furthermore describe what we expect to see in the CDM data schema. In this case we formulate expectations for the <code>person</code> table.</p>
+<p>We can add many such tests to our R script. For examples of a full set of test definitions, see:</p>
+<ul>
+<li><a href="https://github.com/OHDSI/ETL-Synthea/tree/master/extras">Synthea unit tests</a>.</li>
+<li><a href="https://github.com/OHDSI/JCdmBuilder/blob/master/tests/HCUPETLToV5/HcupTests.R">HCUP unit tests</a></li>
+<li><a href="https://github.com/OHDSI/ETL-CDMBuilder/blob/master/man/JMDC/TEST_CASES/JmdcTests.R">JMDC unit tests</a></li>
+</ul>
+<div id="lookup-functions" class="section level3">
+<h3>Lookup functions</h3>
+<p>For some tests you need unknown values from other cdm tables. In this case you can use the lookup function for the required table. This creates where conditions on the other cdm table in the test sql. In the example below, we do not know which person_id got assigned to this test person, so we lookup the id by source value:</p>
+<pre class="r"><code>declareTest(101, &quot;Person gender mappings&quot;)
+add_enrollment(member_id = &quot;M000000103&quot;)
+add_diagnosis(member_id = &quot;M000000103&quot;, code=&quot;I10&quot;)
+expect_condition_occurrence(person_id=lookup_person(&quot;person_id&quot;, person_source_value=&quot;M000000103&quot;), condition_concept_id = 320128)</code></pre>
+<p>These lookups can also be nested.</p>
+</div>
+</div>
+<div id="test-coverage-v0.9.0" class="section level2">
+<h2>Test Coverage (<em>v0.9.0</em>)</h2>
+<p>The framework also contains a function to show statistics on how well your tests cover your mappings. Note that this does not show information on whether the tests passed. Only how many source and target tables are covered by your defined tests.</p>
+<p>A summary can be printed by running:</p>
+<pre class="r"><code>summaryTestFramework()</code></pre>
+<p>which displays the following statistics</p>
+<pre><code>statistic                   summary
+n_tests                        6.00
+n_cases                        3.00
+n_source_fields_tested         3.00
+n_source_fields_mapped_from    8.00
+source_coverage (%)           37.50
+n_target_fields_tested         1.00
+n_target_fields_mapped_to     45.00
+target_coverage (%)            2.22</code></pre>
+<p>Statistics:</p>
+<ul>
+<li><code>n_tests</code>: total number of expects, expect_no’s or expect_counts are defined</li>
+<li><code>n_cases</code>: total number of cases defined with <code>declareTest</code> function.</li>
+<li><code>n_source_fields_tested</code>: number of source fields for which a test data is defined</li>
+<li><code>n_source_fields_mapped_from</code>: number of source fields for which a mapping was defined in Rabbit in a Hat</li>
+<li><code>source_coverage</code>: percentage of mapped source fields for which a test has been defined</li>
+<li><code>n_target_fields_tested</code>: number of target fields for which one or more expects, expect_no’s or expect_counts have been defined</li>
+<li><code>n_target_fields_mapped_to</code>: number of target fields for which a mapping was defined in Rabbit in a Hat</li>
+<li><code>target_coverage</code>: percentage of mapped target fields for which a test has been defined</li>
+</ul>
+<p>Note that the mapping coverages depends on the mappings defined in Rabbit in a Hat. If this mapping is incomplete or adjusted in the meantime, the <code>target_coverage</code> is possibly incorrect. In this case, please update the mappings in Rabbit in a Hat and regenerate the testing framework.</p>
+<p>You can get all source and target field for which no test has been defined with the following functions:</p>
+<pre class="r"><code>getUntestedSourceFields()
+getUntestedTargetFields()</code></pre>
+</div>
+<div id="generate-test-data" class="section level2">
+<h2>Generate test data</h2>
+<div id="sql" class="section level3">
+<h3>SQL</h3>
+<p>After we have defined all our tests we need to run</p>
+<pre class="r"><code>insertSql &lt;- generateInsertSql(databaseSchema = &quot;nativeTestSchema&quot;)
+testSql &lt;- generateTestSql(databaseSchema = &quot;cdmTestSchema&quot;)</code></pre>
+<p>to generate the SQL for inserting the test data in the database (insertSql), and for running the tests on the ETL-ed data (testSql). The insertion SQL assumes that the data schema already exists in <code>nativeTestSchema</code>, and will first remove any records that might be in the tables. We can execute the SQL in any SQL client, or we can use OHDSI’s <a href="https://github.com/OHDSI/DatabaseConnector">DatabaseConnector package</a>. For example:</p>
+<pre class="r"><code>library(DatabaseConnector)
+connectionDetails &lt;- createConnectionDetails(user = &quot;joe&quot;,
+                                             password = &quot;secret&quot;,
+                                             dbms = &quot;sql server&quot;,
+                                             server = &quot;my_server.domain.org&quot;)
+connection &lt;- connect(connectionDetails)
+
+executeSql(connection, paste(insertSql, collapse = &quot;\n&quot;))</code></pre>
+</div>
+<div id="csv-v0.9.0" class="section level3">
+<h3>CSV (<em>v0.9.0</em>)</h3>
+<p>In case the source data are csv files rather than database tables, we use this function:</p>
+<pre class="r"><code>generateSourceCsv(directory = &quot;test_data&quot;, separator = &quot;,&quot;)</code></pre>
+<p>And point the ETL to the given directory with test data.</p>
+</div>
+</div>
+<div id="run-your-etl-on-the-test-data" class="section level2">
+<h2>Run your ETL on the test data</h2>
+<p>Now that the test source data is populated, you can run the ETL process you would like to test. The ETL should transform the data in <code>nativeTestSchema</code>, or in the csv directory, to CDM data in <code>cdmTestSchema</code>.</p>
+</div>
+<div id="test-the-cdm-expectations" class="section level2">
+<h2>Test the CDM expectations</h2>
+<p>The test SQL will create a table called <code>test_results</code> in <code>cdmTestSchema</code>, and populate it with the results of the tests. If the table already exists it will first be dropped. Again, we could use any SQL client to run this SQL, or we could use DatabaseConnector:</p>
+<pre class="r"><code>executeSql(connection, paste(testSql, collapse = &quot;\n&quot;))</code></pre>
+<p>Afterwards, we can query the results table to see the results for each test:</p>
+<pre class="r"><code>querySql(connection, &quot;SELECT * FROM test_results&quot;)</code></pre>
+<p>Which could return this table:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">DESCRIPTION TEST</th>
+<th align="left">STATUS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">101</td>
+<td align="left">Person gender mappings</td>
+<td align="left">PASS</td>
+</tr>
+<tr class="even">
+<td align="left">101</td>
+<td align="left">Person gender mappings</td>
+<td align="left">PASS</td>
+</tr>
+</tbody>
+</table>
+<p>In this case we see there were two expect statements under test 101 (Person gender mappings), and both expectations were met so the test passed.</p>
+<p>The testing framework also contains a convenience function to display your test results:</p>
+<pre class="r"><code>outputTestResultsSummary(connection, &#39;cdmTestSchema&#39;)</code></pre>
+<p>which either displays a success message <code>All 178 tests PASSED</code> or the failed unit tests:</p>
+<pre><code>FAILED unit tests: 1/178 (0.6%)
+  ID                   DESCRIPTION          TEST STATUS
+2  1 RMG-PD1 is assigned person_id Expect person   FAIL</code></pre>
+</div>
+<div id="export-tests-v0.9.0" class="section level2">
+<h2>Export tests (<em>v0.9.0</em>)</h2>
+<p>We can create an overview of defined tests and export it, for example if you want to list the tests separately.</p>
+<pre class="r"><code>getTestsOverview()
+exportTestsOverviewToFile(filename = &quot;all_test_cases.csv&quot;)</code></pre>
+<p>The first function produces a table like below and the second writes it to a csv file. The output contains the following columns:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">testId</th>
+<th align="left">testDescription</th>
+<th align="left">testType</th>
+<th align="left">testTable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">My Expectations</td>
+<td align="left">Expect</td>
+<td align="left">person</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="left">My Expectations</td>
+<td align="left">Expect</td>
+<td align="left">observation_period</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="left">My No Expectations</td>
+<td align="left">Expect No</td>
+<td align="left">person</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

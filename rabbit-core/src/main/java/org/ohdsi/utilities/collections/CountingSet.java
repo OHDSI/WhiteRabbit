@@ -17,16 +17,13 @@
  ******************************************************************************/
 package org.ohdsi.utilities.collections;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.AbstractSet;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Class for counting recurring objects.
@@ -34,24 +31,27 @@ import java.util.Set;
  * @author schuemie
  * @param <T>
  */
-public class CountingSet<T> implements Set<T> {
+public class CountingSet<T> extends AbstractSet<T> {
 	
 	public Map<T, Count>	key2count;
 	
 	public CountingSet() {
-		key2count = new HashMap<T, Count>();
+		key2count = new HashMap<>();
 	}
 	
 	public CountingSet(int capacity) {
-		key2count = new HashMap<T, Count>(capacity);
+		key2count = new HashMap<>(capacity);
 	}
 	
 	public CountingSet(CountingSet<T> set) {
-		key2count = new HashMap<T, Count>(set.key2count.size());
-		for (Map.Entry<T, Count> entry : set.key2count.entrySet())
-			key2count.put(entry.getKey(), new Count(entry.getValue().count));
+		key2count = set.key2count.entrySet().stream()
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						e -> new Count(e.getValue().count),
+						(v1, v2) -> v1,
+						HashMap::new));
 	}
-	
+
 	public int getCount(T key) {
 		Count count = key2count.get(key);
 		if (count == null)
@@ -66,23 +66,21 @@ public class CountingSet<T> implements Set<T> {
 	 * @return
 	 */
 	public int getSum() {
-		int sum = 0;
-		for (Count count : key2count.values())
-			sum += count.count;
-		return sum;
+		return key2count.values().parallelStream()
+				.mapToInt(c -> c.count)
+				.sum();
 	}
-	
+
 	/**
 	 * Returns the maximum count
 	 * 
 	 * @return
 	 */
 	public int getMax() {
-		int max = 0;
-		for (Count count : key2count.values())
-			if (count.count > max)
-				max = count.count;
-		return max;
+		return key2count.values().parallelStream()
+				.mapToInt(c -> c.count)
+				.max()
+				.orElse(0);
 	}
 	
 	/**
@@ -100,25 +98,21 @@ public class CountingSet<T> implements Set<T> {
 	 * @return
 	 */
 	public double getSD() {
-		double mean = getMean();
-		double sum = 0;
-		for (Count count : key2count.values())
-			sum += sqr(count.count - mean);
-		return Math.sqrt(sum / (double) key2count.size());
+		final double mean = getMean();
+		double sqSum = key2count.values().parallelStream()
+				.mapToDouble(c -> sqr(c.count - mean))
+				.sum();
+		return Math.sqrt(sqSum / key2count.size());
 	}
 	
-	private double sqr(double d) {
+	private static double sqr(double d) {
 		return d * d;
 	}
 	
 	public int size() {
 		return key2count.size();
 	}
-	
-	public boolean isEmpty() {
-		return key2count.isEmpty();
-	}
-	
+
 	public boolean contains(Object arg0) {
 		return key2count.containsKey(arg0);
 	}
@@ -126,24 +120,14 @@ public class CountingSet<T> implements Set<T> {
 	public Iterator<T> iterator() {
 		return key2count.keySet().iterator();
 	}
-	
-	public Object[] toArray() {
-		return key2count.keySet().toArray();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public Object[] toArray(Object[] arg0) {
-		return key2count.keySet().toArray(arg0);
-	}
-	
+
 	public boolean add(T arg0) {
 		Count count = key2count.get(arg0);
 		if (count == null) {
-			count = new Count();
-			key2count.put(arg0, count);
+			key2count.put(arg0, new Count(1));
 			return true;
 		} else {
-			count.count++;
+			count.increment();
 			return false;
 		}
 	}
@@ -151,40 +135,16 @@ public class CountingSet<T> implements Set<T> {
 	public boolean add(T arg0, int inc) {
 		Count count = key2count.get(arg0);
 		if (count == null) {
-			count = new Count();
-			count.count = inc;
-			key2count.put(arg0, count);
+			key2count.put(arg0, new Count(inc));
 			return true;
 		} else {
-			count.count += inc;
+			count.add(inc);
 			return false;
 		}
 	}
 	
 	public boolean remove(Object arg0) {
-		
 		return (key2count.remove(arg0) != null);
-	}
-	
-	public boolean containsAll(Collection<?> arg0) {
-		return key2count.keySet().containsAll(arg0);
-	}
-	
-	public boolean addAll(Collection<? extends T> arg0) {
-		boolean changed = false;
-		for (T object : arg0) {
-			if (add(object))
-				changed = true;
-		}
-		return changed;
-	}
-	
-	public boolean retainAll(Collection<?> arg0) {
-		return key2count.keySet().retainAll(arg0);
-	}
-	
-	public boolean removeAll(Collection<?> arg0) {
-		return key2count.keySet().removeAll(arg0);
 	}
 	
 	public void clear() {
@@ -199,42 +159,40 @@ public class CountingSet<T> implements Set<T> {
 	public void keepTopN(int n) {
 		if (size() < n)
 			return;
-		List<Map.Entry<T, Count>> list = new ArrayList<Map.Entry<T, Count>>(key2count.entrySet());
-		Collections.sort(list, new Comparator<Map.Entry<T, Count>>() {
-			
-			@Override
-			public int compare(Entry<T, Count> arg0, Entry<T, Count> arg1) {
-				return IntegerComparator.compare(arg1.getValue().count, arg0.getValue().count);
-			}
-		});
-		
-		Map<T, Count> newMap = new HashMap<T, CountingSet.Count>(n);
-		for (int i = 0; i < n; i++)
-			newMap.put(list.get(i).getKey(), list.get(i).getValue());
-		
-		key2count = newMap;
+
+		key2count = decliningCountStream()
+				.limit(n)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1, HashMap::new));
 	}
-	
-	public static class Count {
-		public int	count	= 1;
-		
-		public Count() {
-		}
+
+	public static class Count implements Comparable<Count> {
+		public int count;
 		
 		public Count(int count) {
 			this.count = count;
 		}
-		
+
+		public void increment() {
+			count++;
+		}
+
+		public void add(int count) {
+			this.count += count;
+		}
+
+		@Override
+		public int compareTo(Count o) {
+			return count - o.count;
+		}
 	}
 	
 	public void printCounts() {
-		List<Map.Entry<T, Count>> result = new ArrayList<Map.Entry<T, Count>>(key2count.entrySet());
-		Collections.sort(result, new Comparator<Map.Entry<T, Count>>() {
-			public int compare(Entry<T, Count> o1, Entry<T, Count> o2) {
-				return IntegerComparator.compare(o2.getValue().count, o1.getValue().count);
-			}
-		});
-		for (Map.Entry<T, Count> entry : result)
-			System.out.println(entry.getKey() + "\t" + entry.getValue().count);
+		decliningCountStream()
+			.forEach(entry -> System.out.println(entry.getKey() + "\t" + entry.getValue().count));
+	}
+
+	private Stream<Map.Entry<T, Count>> decliningCountStream() {
+		return key2count.entrySet().stream()
+				.sorted(Comparator.<Map.Entry<T, Count>, Count>comparing(Map.Entry::getValue).reversed());
 	}
 }

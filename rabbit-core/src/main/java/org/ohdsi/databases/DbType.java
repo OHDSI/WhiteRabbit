@@ -26,9 +26,11 @@ public class DbType {
 	public static DbType	MSACCESS	= new DbType("msaccess");
 	public static DbType	REDSHIFT	= new DbType("redshift");
 	public static DbType	TERADATA	= new DbType("teradata");
+	public static DbType	BIGQUERY	= new DbType("bigquery");
+	public static DbType	AZURE		= new DbType("azure");
 
 	private enum Type {
-		MYSQL, MSSQL, PDW, ORACLE, POSTGRESQL, MSACCESS, REDSHIFT, TERADATA
+		MYSQL, MSSQL, PDW, ORACLE, POSTGRESQL, MSACCESS, REDSHIFT, TERADATA, BIGQUERY, AZURE
 	};
 
 	private Type type;
@@ -42,5 +44,9 @@ public class DbType {
 			return true;
 		else
 			return false;
+	}
+
+	public String getTypeName() {
+		return this.type.name();
 	}
 }

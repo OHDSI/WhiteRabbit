@@ -17,18 +17,24 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat.dataModel;
 
+import java.util.List;
+
 public class Field implements MappableItem {
 
 	private static final long	serialVersionUID	= 3687778470032619497L;
 	private Table				table;
 	private String				name;
 	private String				comment				= "";
-	private String[][]			valueCounts;
+	private ValueCounts			valueCounts = new ValueCounts();
 	private boolean				isNullable;
 	private String				type;
 	private String				description			= "";
-	private int					maxLength;
+	private Integer				maxLength;
 	private boolean				isStem;
+	private List<ConceptsMap.Concept> conceptIdHints;
+	private Double				fractionEmpty;
+	private Integer				uniqueCount;
+	private Double				fractionUnique;
 
 	public Field(String name, Table table) {
 		this.table = table;
@@ -63,12 +69,16 @@ public class Field implements MappableItem {
 		this.name = name;
 	}
 
-	public String[][] getValueCounts() {
+	public ValueCounts getValueCounts() {
 		return valueCounts;
 	}
 
-	public void setValueCounts(String[][] valueCounts) {
+	public void setValueCounts(ValueCounts valueCounts) {
 		this.valueCounts = valueCounts;
+	}
+
+	public int getRowsCheckedCount() {
+		return this.table.getRowsCheckedCount();
 	}
 
 	public boolean isNullable() {
@@ -107,11 +117,11 @@ public class Field implements MappableItem {
 		return comment;
 	}
 
-	public int getMaxLength() {
+	public Integer getMaxLength() {
 		return maxLength;
 	}
 
-	public void setMaxLength(int maxLength) {
+	public void setMaxLength(Integer maxLength) {
 		this.maxLength = maxLength;
 	}
 
@@ -121,5 +131,38 @@ public class Field implements MappableItem {
 
 	public void setStem(boolean isStem) {
 		this.isStem = isStem;
+	}
+
+	public List<ConceptsMap.Concept> getConceptIdHints() {
+		return conceptIdHints;
+	}
+
+	public void setConceptIdHints(List<ConceptsMap.Concept> conceptIdHints) {
+		this.conceptIdHints = conceptIdHints;
+	}
+
+	public Double getFractionEmpty() {
+		return fractionEmpty;
+	}
+
+	public void setFractionEmpty(Double fractionEmpty) {
+		this.fractionEmpty = fractionEmpty;
+		this.setNullable(fractionEmpty == null || fractionEmpty != 0);
+	}
+
+	public Integer getUniqueCount() {
+		return uniqueCount;
+	}
+
+	public void setUniqueCount(Integer uniqueCount) {
+		this.uniqueCount = uniqueCount;
+	}
+
+	public Double getFractionUnique() {
+		return fractionUnique;
+	}
+
+	public void setFractionUnique(Double fractionUnique) {
+		this.fractionUnique = fractionUnique;
 	}
 }

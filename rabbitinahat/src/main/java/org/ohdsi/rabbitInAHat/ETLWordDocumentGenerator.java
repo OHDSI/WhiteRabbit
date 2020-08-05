@@ -65,7 +65,7 @@ public class ETLWordDocumentGenerator {
 	public static void generate(ETL etl, String filename) {
 		generate(etl, filename, true);
 	}
-	
+
 	private static void addSourceTablesAppendix(CustomXWPFDocument document, ETL etl) {
 		XWPFParagraph paragraph = document.createParagraph();
 		XWPFRun run = paragraph.createRun();
@@ -93,8 +93,7 @@ public class ETLWordDocumentGenerator {
 				XWPFTableRow row = table.getRow(rowNr++);
 				row.getCell(0).setText(sourceField.getName());
 				row.getCell(1).setText(sourceField.getType());
-				if (sourceField.getValueCounts() != null && sourceField.getValueCounts().length != 0)
-					row.getCell(2).setText(sourceField.getValueCounts()[0][0]);
+				row.getCell(2).setText(sourceField.getValueCounts().getMostFrequentValue());
 				createCellParagraph(row.getCell(3), sourceField.getComment().trim());
 			}
 			

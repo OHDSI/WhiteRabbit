@@ -24,7 +24,6 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -36,22 +35,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -62,22 +50,28 @@ import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
-import org.ohdsi.rabbitInAHat.dataModel.StemTableAdd;
+import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
+import org.ohdsi.utilities.Version;
+import org.ohdsi.utilities.collections.Pair;
 
 /**
  * This is the main class for the RabbitInAHat application
  */
-public class RabbitInAHatMain implements ResizeListener, ActionListener {
+public class RabbitInAHatMain implements ResizeListener {
 
 	public final static String		ACTION_SAVE							= "Save";
 	public final static String		ACTION_SAVE_AS						= "Save As";
 	public final static String		ACTION_OPEN_ETL_SPECS				= "Open ETL Specs";
 	public final static String		ACTION_OPEN_SCAN_REPORT				= "Open Scan Report";
-	public final static String		ACTION_GENERATE_ETL_WORD_DOCUMENT	= "Generate ETL Word Document";
-	public final static String		ACTION_GENERATE_ETL_HTML_DOCUMENT	= "Generate ETL HTML Document";
-	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Generate ETL Markdown Document";
-	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "Generate ETL Test Framework";
+	public final static String		ACTION_GENERATE_ETL_WORD_DOCUMENT	= "Word Document";
+	public final static String		ACTION_GENERATE_ETL_HTML_DOCUMENT	= "HTML Documents";
+	public final static String		ACTION_GENERATE_ETL_MD_DOCUMENT		= "Markdown Documents";
+	public final static String 		ACTION_GENERATE_SOURCE_FIELD_LIST   = "Source Field list";
+	public final static String 		ACTION_GENERATE_TARGET_FIELD_LIST   = "Target Field list";
+	public final static String 		ACTION_GENERATE_TABLE_MAPPING_LIST  = "Table Mapping list";
+	public final static String		ACTION_GENERATE_TEST_FRAMEWORK		= "ETL Test Framework (R)";
+	public final static String		ACTION_GENERATE_SQL                 = "SQL Skeleton Files";
 	public final static String		ACTION_DISCARD_COUNTS				= "Discard Value Counts";
 	public final static String		ACTION_FILTER						= "Filter";
 	public final static String		ACTION_MAKE_MAPPING					= "Make Mappings";
@@ -90,24 +84,23 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 	public final static String		ACTION_SET_TARGET_V530				= "CDM v5.3.0";
 	public final static String		ACTION_SET_TARGET_V531				= "CDM v5.3.1";
 	public final static String		ACTION_SET_TARGET_V60				= "CDM v6.0";
+	public final static String 		ACTION_SET_TARGET_V60_O 			= "CDM v6.0 + Oncology";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
+	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
 	public final static String		ACTION_MARK_COMPLETED				= "Mark Highlighted As Complete";
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
-	public final static String		ACTION_HELP							= "Open help Wiki";
+	public final static String		ACTION_HELP							= "Open documentation";
 
-	public final static String		WIKI_URL							= "http://www.ohdsi.org/web/wiki/doku.php?id=documentation:software:whiterabbit#rabbit-in-a-hat";
-	private final static FileFilter	FILE_FILTER_GZ						= new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
-	private final static FileFilter	FILE_FILTER_JSON					= new FileNameExtensionFilter("JSON Files (*.json)", "json");
-	private final static FileFilter	FILE_FILTER_DOCX					= new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
-	private final static FileFilter	FILE_FILTER_HTML					= new FileNameExtensionFilter("HTML documents (*.html)", "html");
-	private final static FileFilter	FILE_FILTER_MD						= new FileNameExtensionFilter("Markdown documents (*.md)", "md");
-	private final static FileFilter	FILE_FILTER_CSV						= new FileNameExtensionFilter("Text Files (*.csv)", "csv");
-	private final static FileFilter	FILE_FILTER_R						= new FileNameExtensionFilter("R script (*.r)", "r");
-	private final static FileFilter	FILE_FILTER_XLSX					= new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
-
-	public final static String		DBMS_SQLSERVER						= "SQL Server";
-	public final static String		DBMS_REDSHIFT						= "Redshift";
+	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit";
+	private final static FileFilter FILE_FILTER_GZ = new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
+	private final static FileFilter FILE_FILTER_JSON = new FileNameExtensionFilter("JSON Files (*.json)", "json");
+	private final static FileFilter FILE_FILTER_DOCX = new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
+	private final static FileFilter FILE_FILTER_HTML = new FileNameExtensionFilter("HTML documents (*.html)", "html");
+	private final static FileFilter FILE_FILTER_MD = new FileNameExtensionFilter("Markdown documents (*.md)", "md");
+	private final static FileFilter FILE_FILTER_CSV = new FileNameExtensionFilter("Text Files (*.csv)", "csv");
+	private final static FileFilter FILE_FILTER_R = new FileNameExtensionFilter("R script (*.r)", "r");
+	private final static FileFilter FILE_FILTER_XLSX = new FileNameExtensionFilter("XLSX files (*.xlsx)", "xlsx");
 
 	private JFrame					frame;
 	private JScrollPane				scrollPane1;
@@ -132,9 +125,20 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 
 		frame = new JFrame("Rabbit in a Hat");
+
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				System.exit(0);
+				String[] objButtons = {"Yes","No"};
+				int PromptResult = JOptionPane.showOptionDialog(
+						null,
+						"Do you want to exit?\nPlease make sure that any work is saved",
+						"Rabbit In A Hat", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+						null, objButtons, objButtons[1]
+				);
+				if (PromptResult==JOptionPane.YES_OPTION) {
+					System.exit(0);
+				}
 			}
 		});
 		frame.setPreferredSize(new Dimension(700, 600));
@@ -151,6 +155,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		scrollPane1 = new JScrollPane(tableMappingPanel);
 		scrollPane1.setBorder(new TitledBorder("Tables"));
 		scrollPane1.getVerticalScrollBar().setUnitIncrement(16);
+		scrollPane1.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 		scrollPane1.setAutoscrolls(true);
 		scrollPane1.setOpaque(true);
 		scrollPane1.setBackground(Color.WHITE);
@@ -160,6 +165,7 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		fieldMappingPanel.addResizeListener(this);
 		scrollPane2 = new JScrollPane(fieldMappingPanel);
 		scrollPane2.getVerticalScrollBar().setUnitIncrement(16);
+		scrollPane2.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 		scrollPane2.setVisible(false);
 		scrollPane2.setBorder(new TitledBorder("Fields"));
 
@@ -182,16 +188,22 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		frame.setVisible(true);
 
+		// When running from command line, allow for a few times of arguments; opening specification, open folder and open a scanreport.
 		if (args.length == 1) {
 			doOpenSpecs(args[0]);
-		}
-		if (args.length > 1 && args[0].equals("-folder")) {
-			chooser = new JFileChooser(args[1]);
+		} else if (args.length > 1) {
+		   if (args[0].equals("--folder")) {
+			   chooser = new JFileChooser(args[1]);
+		   }
+
+		   if (args[0].equals("--scanReport")) {
+			   doOpenScanReport(args[1]);
+		   }
 		}
 	}
 
 	private void loadIcons(JFrame f) {
-		List<Image> icons = new ArrayList<Image>();
+		List<Image> icons = new ArrayList<>();
 		icons.add(loadIcon("RabbitInAHat16.png", f));
 		icons.add(loadIcon("RabbitInAHat32.png", f));
 		icons.add(loadIcon("RabbitInAHat48.png", f));
@@ -221,139 +233,95 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 		menuBar.add(fileMenu);
 
-		JMenuItem openScanReportItem = new JMenuItem(ACTION_OPEN_SCAN_REPORT);
-		openScanReportItem.addActionListener(this);
-		fileMenu.add(openScanReportItem);
-
-		JMenuItem openItem = new JMenuItem(ACTION_OPEN_ETL_SPECS);
-		openItem.addActionListener(this);
-		openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, menuShortcutMask));
-		fileMenu.add(openItem);
-
-		JMenuItem saveItem = new JMenuItem(ACTION_SAVE);
-		saveItem.addActionListener(this);
-		saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, menuShortcutMask));
-		fileMenu.add(saveItem);
-
-		JMenuItem saveAsItem = new JMenuItem(ACTION_SAVE_AS);
-		saveAsItem.addActionListener(this);
-		fileMenu.add(saveAsItem);
-
-		JMenu generateEtlDocument = new JMenu("Generate ETL document");
-		fileMenu.add(generateEtlDocument);
-
-		JMenuItem generateWordDocItem = new JMenuItem(ACTION_GENERATE_ETL_WORD_DOCUMENT);
-		generateWordDocItem.addActionListener(this);
-		generateEtlDocument.add(generateWordDocItem);
-
-		JMenuItem generateHtmlDocItem = new JMenuItem(ACTION_GENERATE_ETL_HTML_DOCUMENT);
-		generateHtmlDocItem.addActionListener(this);
-		generateEtlDocument.add(generateHtmlDocItem);
-
-		JMenuItem generateMdDocItem = new JMenuItem(ACTION_GENERATE_ETL_MD_DOCUMENT);
-		generateMdDocItem.addActionListener(this);
-		generateEtlDocument.add(generateMdDocItem);
-
-		JMenuItem generateTestFrameworkItem = new JMenuItem(ACTION_GENERATE_TEST_FRAMEWORK);
-		generateTestFrameworkItem.addActionListener(this);
-		fileMenu.add(generateTestFrameworkItem);
+		addMenuItem(fileMenu, ACTION_OPEN_SCAN_REPORT, evt -> this.doOpenScanReport(), KeyEvent.VK_W);
+		addMenuItem(fileMenu, ACTION_OPEN_ETL_SPECS, evt -> this.doOpenSpecs(), KeyEvent.VK_O);
+		addMenuItem(fileMenu, ACTION_SAVE, evt -> this.doSave(), KeyEvent.VK_S);
+		addMenuItem(fileMenu, ACTION_SAVE_AS, evt -> this.doSaveAs());
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
+		addMenuItem(editMenu, ACTION_DISCARD_COUNTS, evt -> this.doDiscardCounts());
+		addMenuItem(editMenu, ACTION_FILTER, evt -> this.doOpenFilterDialog(), KeyEvent.VK_F);
+		addMenuItem(editMenu, ACTION_ADD_STEM_TABLE, evt -> this.doAddStemTable());
+		addMenuItem(editMenu, ACTION_REMOVE_STEM_TABLE, evt -> this.doRemoveStemTable());
 
-		JMenuItem discardCounts = new JMenuItem(ACTION_DISCARD_COUNTS);
-		discardCounts.addActionListener(this);
-		editMenu.add(discardCounts);
+		JMenu targetDatabaseMenu = new JMenu("Set Target Database");
+		editMenu.add(targetDatabaseMenu);
 
-		JMenuItem filter = new JMenuItem(ACTION_FILTER);
-		filter.addActionListener(this);
-		filter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, menuShortcutMask));
-		editMenu.add(filter);
+		Map<String, CDMVersion> cdmOptions = new LinkedHashMap<>();
+	 	cdmOptions.put(ACTION_SET_TARGET_V4, CDMVersion.CDMV4);
+		cdmOptions.put(ACTION_SET_TARGET_V5, CDMVersion.CDMV5);
+		cdmOptions.put(ACTION_SET_TARGET_V501, CDMVersion.CDMV501);
+		cdmOptions.put(ACTION_SET_TARGET_V510, CDMVersion.CDMV510);
+		cdmOptions.put(ACTION_SET_TARGET_V520, CDMVersion.CDMV520);
+		cdmOptions.put(ACTION_SET_TARGET_V530, CDMVersion.CDMV530);
+		cdmOptions.put(ACTION_SET_TARGET_V531, CDMVersion.CDMV531);
+		cdmOptions.put(ACTION_SET_TARGET_V60, CDMVersion.CDMV60);
+		cdmOptions.put(ACTION_SET_TARGET_V60_O, CDMVersion.CDMV60_O);
 
-		JMenu setTarget = new JMenu("Set Target Database");
-
-		JRadioButtonMenuItem targetCDMV4 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V4);
-		targetCDMV4.addActionListener(this);
-		setTarget.add(targetCDMV4);
-
-		JRadioButtonMenuItem targetCDMV5 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V5);
-		targetCDMV5.addActionListener(this);
-		setTarget.add(targetCDMV5);
-
-		JRadioButtonMenuItem targetCDMV501 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V501);
-		targetCDMV501.addActionListener(this);
-		setTarget.add(targetCDMV501);
-
-		JRadioButtonMenuItem targetCDMV510 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V510);
-		targetCDMV510.addActionListener(this);
-		setTarget.add(targetCDMV510);
-
-		JRadioButtonMenuItem targetCDMV520 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V520);
-		targetCDMV520.addActionListener(this);
-		setTarget.add(targetCDMV520);
-
-		JRadioButtonMenuItem targetCDMV530 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V530);
-		targetCDMV530.addActionListener(this);
-		setTarget.add(targetCDMV530);
-
-		JRadioButtonMenuItem targetCDMV531 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V531);
-		targetCDMV531.addActionListener(this);
-		setTarget.add(targetCDMV531);
-		
-		JRadioButtonMenuItem targetCDMV60 = new JRadioButtonMenuItem(ACTION_SET_TARGET_V60, true);
-		targetCDMV60.addActionListener(this);
-		setTarget.add(targetCDMV60);
-
-		JRadioButtonMenuItem loadTarget = new JRadioButtonMenuItem(ACTION_SET_TARGET_CUSTOM);
-		loadTarget.addActionListener(this);
-		setTarget.add(loadTarget);
-		editMenu.add(setTarget);
-
+		JRadioButtonMenuItem targetCDM;
 		ButtonGroup targetGroup = new ButtonGroup();
-		targetGroup.add(targetCDMV4);
-		targetGroup.add(targetCDMV5);
-		targetGroup.add(targetCDMV501);
-		targetGroup.add(targetCDMV510);
-		targetGroup.add(targetCDMV520);
-		targetGroup.add(targetCDMV530);
-		targetGroup.add(targetCDMV531);
-		targetGroup.add(targetCDMV60);
-		targetGroup.add(loadTarget);
+		for (String optionName : cdmOptions.keySet()) {
+			targetCDM = new JRadioButtonMenuItem(optionName);
+			if (optionName.equals(ACTION_SET_TARGET_V60)) {
+				targetCDM.setSelected(true);
+			}
+			targetGroup.add(targetCDM);
+			targetDatabaseMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCDM(cdmOptions.get(optionName)));
+		}
 
-		JMenuItem addStemTable = new JMenuItem(ACTION_ADD_STEM_TABLE);
-		addStemTable.addActionListener(this);
-		editMenu.add(addStemTable);
+		targetCDM = new JRadioButtonMenuItem(ACTION_SET_TARGET_CUSTOM);
+		targetGroup.add(targetCDM);
+		targetDatabaseMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV)));
 
 		JMenu arrowMenu = new JMenu("Arrows");
 		menuBar.add(arrowMenu);
+		addMenuItem(arrowMenu, ACTION_MAKE_MAPPING, evt -> this.doMakeMappings(), KeyEvent.VK_M);
+		addMenuItem(arrowMenu, ACTION_REMOVE_MAPPING, evt -> this.doRemoveMappings(), KeyEvent.VK_R);
+		addMenuItem(arrowMenu, ACTION_MARK_COMPLETED, evt -> this.doMarkCompleted(), KeyEvent.VK_D);
+		addMenuItem(arrowMenu, ACTION_UNMARK_COMPLETED, evt -> this.doUnmarkCompleted(), KeyEvent.VK_I);
 
-		JMenuItem makeMappings = new JMenuItem(ACTION_MAKE_MAPPING);
-		makeMappings.addActionListener(this);
-		makeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, menuShortcutMask));
-		arrowMenu.add(makeMappings);
+		JMenu exportMenu = new JMenu("Generate");
+		menuBar.add(exportMenu);
+		JMenu generateEtlDocumentMenu = new JMenu("ETL Document");
 
-		JMenuItem removeMappings = new JMenuItem(ACTION_REMOVE_MAPPING);
-		removeMappings.addActionListener(this);
-		removeMappings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, menuShortcutMask));
-		arrowMenu.add(removeMappings);
+		exportMenu.add(generateEtlDocumentMenu);
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_WORD_DOCUMENT, evt -> this.doGenerateEtlWordDoc());
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_HTML_DOCUMENT, evt -> this.doGenerateEtlHtmlDoc());
+		addMenuItem(generateEtlDocumentMenu, ACTION_GENERATE_ETL_MD_DOCUMENT, evt -> this.doGenerateEtlMdDoc());
 
-		JMenuItem markCompleted = new JMenuItem(ACTION_MARK_COMPLETED);
-		markCompleted.addActionListener(this);
-		markCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, menuShortcutMask));
-		arrowMenu.add(markCompleted);
+		JMenu generateOverviewsMenu = new JMenu("Overview Table");
+		exportMenu.add(generateOverviewsMenu);
 
-		JMenuItem unmarkCompleted = new JMenuItem(ACTION_UNMARK_COMPLETED);
-		unmarkCompleted.addActionListener(this);
-		unmarkCompleted.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, menuShortcutMask));
-		arrowMenu.add(unmarkCompleted);
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_SOURCE_FIELD_LIST, evt -> this.doGenerateSourceFields());
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_TARGET_FIELD_LIST, evt -> this.doGenerateTargetFields());
+		addMenuItem(generateOverviewsMenu, ACTION_GENERATE_TABLE_MAPPING_LIST, evt -> this.doGenerateTableMappings());
+
+		addMenuItem(exportMenu, ACTION_GENERATE_TEST_FRAMEWORK, evt -> this.doGenerateTestFramework());
+		addMenuItem(exportMenu, ACTION_GENERATE_SQL, evt -> this.doGenerateSql());
 
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
-		JMenuItem helpItem = new JMenuItem(ACTION_HELP);
-		helpItem.addActionListener(this);
-		helpMenu.add(helpItem);
+		addMenuItem(helpMenu, "Rabbit in a Hat v" + Version.getVersion(this.getClass()), null).setEnabled(false);
+		addMenuItem(helpMenu, ACTION_HELP, evt -> this.doOpenDocumentation());
 
 		return menuBar;
+	}
+
+	public JMenuItem addMenuItem(JMenu menu, String description, ActionListener actionListener) {
+		return addMenuItem(menu, description, actionListener, null);
+	}
+
+	public JMenuItem addMenuItem(JMenu menu, String description, ActionListener actionListener, Integer keyEvent) {
+		JMenuItem menuItem = new JMenuItem(description);
+		if (actionListener != null) {
+			menuItem.addActionListener(actionListener);
+		}
+		if (keyEvent != null) {
+			menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		}
+		menu.add(menuItem);
+		return menuItem;
 	}
 
 	@Override
@@ -376,150 +344,106 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 
 	/**
 	 * Display file chooser for a path to save or open to
-	 * 
-	 * @param saveMode
-	 *            true to display a save dialog, false for open
-	 * @param filter
-	 *            restrict files displayed
+	 *
+	 * @param saveMode true to display a save dialog, false for open
+	 * @param directoryMode true to select folder instead of file
+	 * @param presetFileName the filename to assign by default (in saveMode)
+	 * @param filter   restrict files displayed
 	 * @return if file selected, absolute path of selected file otherwise null
 	 */
-	private String choosePath(boolean saveMode, FileFilter... filter) {
-		String result = null;
+	private String choosePath(boolean saveMode, boolean directoryMode, String presetFileName, FileFilter... filter) {
+		FileFilter primaryFileFilter = filter[0];
 
+		// Create chooser and the last selected file
 		if (chooser == null) {
 			chooser = new JFileChooser();
-		} else if (saveMode && chooser.getSelectedFile() != null){
-			if (filter[0] == FILE_FILTER_GZ)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".json.gz")));
-			else if (filter[0] == FILE_FILTER_DOCX)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".docx")));
-			else if (filter[0] == FILE_FILTER_HTML)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".html")));
-			else if (filter[0] == FILE_FILTER_MD)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".md")));
-			else if (filter[0] == FILE_FILTER_R)
-				chooser.setSelectedFile(new File(chooser.getSelectedFile().getAbsolutePath().replaceAll("\\..*$", ".R")));
+		}
+
+		if (presetFileName != null) {
+			chooser.setSelectedFile(new File(chooser.getCurrentDirectory(), presetFileName));
 		}
 		chooser.resetChoosableFileFilters();
-		chooser.setFileFilter(filter[0]);
-		for (int i = 1; i < filter.length; i++)
-			chooser.addChoosableFileFilter(filter[i]);
+
+		if (directoryMode) {
+			chooser.setDialogTitle("Select Folder");
+			chooser.setAcceptAllFileFilterUsed(false);
+		} else {
+			chooser.setDialogTitle("Select File");
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			chooser.setFileFilter(primaryFileFilter);
+			for (int i = 1; i < filter.length; i++) {
+				chooser.addChoosableFileFilter(filter[i]);
+			}
+		}
 
 		int dialogResult = saveMode ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
-		if (dialogResult == JFileChooser.APPROVE_OPTION)
-			result = chooser.getSelectedFile().getAbsolutePath();
-		return result;
+		if (dialogResult == JFileChooser.APPROVE_OPTION) {
+			return chooser.getSelectedFile().getAbsolutePath();
+		}
+
+		return null;
 	}
 
-	private String chooseSavePath(FileFilter... fileFilter) {
-		String path = choosePath(true, fileFilter);
-		if (path != null && fileFilter[0] == FILE_FILTER_GZ && !path.toLowerCase().endsWith(".json.gz") && !path.toLowerCase().endsWith(".json"))
+	private String choosePath(boolean saveMode, boolean directoryMode, FileFilter... filter) {
+		return choosePath(saveMode, directoryMode, null, filter);
+	}
+
+	private String chooseSavePath(String presetFileName, FileFilter... fileFilters) {
+		String path = choosePath(true, false, presetFileName, fileFilters);
+		if (path != null && fileFilters[0] == FILE_FILTER_GZ && !path.toLowerCase().endsWith(".json.gz") && !path.toLowerCase().endsWith(".json"))
 			path += ".json.gz";
-		if (path != null && fileFilter[0] == FILE_FILTER_DOCX && !path.toLowerCase().endsWith(".docx"))
+		if (path != null && fileFilters[0] == FILE_FILTER_DOCX && !path.toLowerCase().endsWith(".docx"))
 			path += ".docx";
-		if (path != null && fileFilter[0] == FILE_FILTER_HTML && !path.toLowerCase().endsWith(".html"))
+		if (path != null && fileFilters[0] == FILE_FILTER_HTML && !path.toLowerCase().endsWith(".html"))
 			path += ".html";
-		if (path != null && fileFilter[0] == FILE_FILTER_MD && !path.toLowerCase().endsWith(".md"))
+		if (path != null && fileFilters[0] == FILE_FILTER_MD && !path.toLowerCase().endsWith(".md"))
 			path += ".md";
-		if (path != null && fileFilter[0] == FILE_FILTER_R && !path.toLowerCase().endsWith(".R"))
+		if (path != null && fileFilters[0] == FILE_FILTER_R && !path.toLowerCase().endsWith(".r"))
 			path += ".R";
 		return path;
 	}
 
-	private String chooseOpenPath(FileFilter... fileFilter) {
-		return choosePath(false, fileFilter);
+	private String chooseSavePath(FileFilter... fileFilter) {
+		return chooseSavePath(null, fileFilter);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent event) {
-		switch (event.getActionCommand()) {
-			case ACTION_SAVE:
-				String filename = ObjectExchange.etl.getFilename();
-				doSave((filename == null || !filename.toLowerCase().endsWith(".json.gz")) ? chooseSavePath(FILE_FILTER_GZ) : filename);
-				break;
-			case ACTION_SAVE_AS:
-				doSave(chooseSavePath(FILE_FILTER_GZ, FILE_FILTER_JSON));
-				break;
-			case ACTION_OPEN_ETL_SPECS:
-				doOpenSpecs(chooseOpenPath(FILE_FILTER_GZ, FILE_FILTER_JSON));
-				break;
-			case ACTION_OPEN_SCAN_REPORT:
-				doOpenScanReport(chooseOpenPath(FILE_FILTER_XLSX));
-				break;
-			case ACTION_GENERATE_ETL_WORD_DOCUMENT:
-				doGenerateEtlWordDoc(chooseSavePath(FILE_FILTER_DOCX));
-				break;
-			case ACTION_GENERATE_ETL_HTML_DOCUMENT:
-				doGenerateEtlHtmlDoc(chooseSavePath(FILE_FILTER_HTML));
-				break;
-			case ACTION_GENERATE_ETL_MD_DOCUMENT:
-				doGenerateEtlMdDoc(chooseSavePath(FILE_FILTER_MD));
-				break;
-			case ACTION_GENERATE_TEST_FRAMEWORK:
-				doGenerateTestFramework(chooseSavePath(FILE_FILTER_R));
-				break;
-			case ACTION_DISCARD_COUNTS:
-				doDiscardCounts();
-				break;
-			case ACTION_FILTER:
-				doOpenFilterDialog();
-				break;
-			case ACTION_MAKE_MAPPING:
-				doMakeMappings();
-				break;
-			case ACTION_REMOVE_MAPPING:
-				doRemoveMappings();
-				break;
-			case ACTION_SET_TARGET_V4:
-				doSetTargetCDM(CDMVersion.CDMV4);
-				break;
-			case ACTION_SET_TARGET_V5:
-				doSetTargetCDM(CDMVersion.CDMV5);
-				break;
-			case ACTION_SET_TARGET_V501:
-				doSetTargetCDM(CDMVersion.CDMV501);
-				break;
-			case ACTION_SET_TARGET_V510:
-				doSetTargetCDM(CDMVersion.CDMV510);
-				break;
-			case ACTION_SET_TARGET_V520:
-				doSetTargetCDM(CDMVersion.CDMV520);
-				break;
-			case ACTION_SET_TARGET_V530:
-				doSetTargetCDM(CDMVersion.CDMV530);
-				break;
-			case ACTION_SET_TARGET_V531:
-				doSetTargetCDM(CDMVersion.CDMV531);
-				break;
-			case ACTION_SET_TARGET_V60:
-				doSetTargetCDM(CDMVersion.CDMV60);
-				break;
-			case ACTION_SET_TARGET_CUSTOM:
-				doSetTargetCustom(chooseOpenPath(FILE_FILTER_CSV));
-				break;
-			case ACTION_ADD_STEM_TABLE:
-				doAddStemTable();
-				break;
-			case ACTION_MARK_COMPLETED:
-				doMarkCompleted();
-				break;
-			case ACTION_UNMARK_COMPLETED:
-				doUnmarkCompleted();
-				break;
-			case ACTION_HELP:
-				doOpenWiki();
-				break;
-		}
+	private String chooseSaveDirectory() {
+		return choosePath(true, true, new FileNameExtensionFilter("Directories","."));
+	}
+
+	private String chooseOpenPath(FileFilter... fileFilter) {
+		return choosePath(false, false, fileFilter);
 	}
 
 	private void doAddStemTable() {
-		ETL etl = ObjectExchange.etl;
-		StemTableAdd.addStemTable(etl);
-		ObjectExchange.etl = etl;
-		tableMappingPanel.setMapping(etl.getTableToTableMapping());
+		if (ObjectExchange.etl.hasStemTable()) {
+			return;
+		}
+
+		StemTableFactory.addStemTable(ObjectExchange.etl);
+		tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
 	}
 
-	private void doGenerateTestFramework(String filename) {
+	private void doRemoveStemTable() {
+		if (!ObjectExchange.etl.hasStemTable()) {
+			return;
+		}
+
+		String[] ObjButtons = {"Yes","No"};
+		int PromptResult = JOptionPane.showOptionDialog(
+				null,"Any mappings to/from the stem table will be lost. Are you sure?",
+				"Rabbit In A Hat", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+				null, ObjButtons, ObjButtons[1]
+		);
+
+		if (PromptResult==JOptionPane.YES_OPTION) {
+			StemTableFactory.removeStemTable(ObjectExchange.etl);
+			tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+		}
+	}
+
+	private void doGenerateTestFramework() {
+		String filename = chooseSavePath("TestFramework", FILE_FILTER_R);
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLTestFrameWorkGenerator etlTestFrameWorkGenerator = new ETLTestFrameWorkGenerator();
@@ -528,19 +452,19 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doOpenWiki() {
+	private void doOpenDocumentation() {
 		try {
 			Desktop desktop = Desktop.getDesktop();
-			desktop.browse(new URI(WIKI_URL));
+			desktop.browse(new URI(DOCUMENTATION_URL));
 		} catch (URISyntaxException | IOException ex) {
 
 		}
 	}
 
-	private void doSetTargetCustom(String fileName) {
+	private void doSetTargetCustom(String filename) {
 
-		if (fileName != null) {
-			File file = new File(fileName);
+		if (filename != null) {
+			File file = new File(filename);
 			InputStream stream;
 
 			try {
@@ -596,6 +520,16 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		detailsPanel.refresh();
 	}
 
+	private void doSave() {
+		String filename = ObjectExchange.etl.getFilename();
+		doSave((filename == null || !filename.toLowerCase().endsWith(".json.gz")) ? chooseSavePath(FILE_FILTER_GZ) : filename);
+	}
+
+	private void doSaveAs() {
+		String filename = chooseSavePath(FILE_FILTER_GZ, FILE_FILTER_JSON);
+		doSave(filename);
+	}
+
 	private void doSave(String filename) {
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -604,6 +538,11 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 			ObjectExchange.etl.save(filename, fileFormat);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
+	}
+
+	private void doOpenSpecs() {
+		String filename = chooseOpenPath(FILE_FILTER_GZ, FILE_FILTER_JSON);
+		doOpenSpecs(filename);
 	}
 
 	private void doOpenSpecs(String filename) {
@@ -622,63 +561,78 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doOpenScanReport(String filename) {
+	private void doOpenScanReport() {
+		String filename = chooseOpenPath(FILE_FILTER_XLSX);
 		if (filename != null) {
-			boolean replace = true;
-			if (ObjectExchange.etl.getSourceDatabase().getTables().size() != 0) {
-				Object[] options = { "Replace current data", "Load data on field values only" };
-				int result = JOptionPane.showOptionDialog(frame, "You already have source data loaded. Do you want to", "Replace source data?",
-						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-				if (result == -1)
-					return;
-				if (result == 1)
-					replace = false;
-			}
-			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			if (replace) {
-				ETL etl = new ETL();
-				try {
-					etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
-					etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());
-					tableMappingPanel.setMapping(etl.getTableToTableMapping());
-					ObjectExchange.etl = etl;
-				} catch (Exception e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-			} else {
-				try {
-					Database newData = Database.generateModelFromScanReport(filename);
-					Database oldData = ObjectExchange.etl.getSourceDatabase();
-					for (Table newTable : newData.getTables()) {
-						Table oldTable = (Table) findByName(newTable.getName(), oldData.getTables());
-						if (oldTable != null) {
-							for (Field newField : newTable.getFields()) {
-								Field oldField = (Field) findByName(newField.getName(), oldTable.getFields());
-								if (oldField != null) {
-									oldField.setValueCounts(newField.getValueCounts());
-								}
-							}
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-
-			}
-			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			doOpenScanReport(filename);
 		}
 	}
 
-	private MappableItem findByName(String name, List<? extends MappableItem> list) {
-		for (MappableItem item : list)
-			if (item.getName().toLowerCase().equals(name.toLowerCase()))
-				return item;
-		return null;
+	private void doOpenScanReport(String filename) {
+		boolean replace = true;
+		if (ObjectExchange.etl.getSourceDatabase().getTables().size() != 0) {
+			Object[] options = { "Replace current data", "Update tables and fields"};
+			int result = JOptionPane.showOptionDialog(frame, "You already have source data loaded. Do you want to", "Replace source data?",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			if (result == -1)
+				return;
+			if (result == 1)
+				replace = false;
+		}
+		frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		if (replace) {
+			ETL etl = new ETL();
+			doRemoveStemTable();
+			try {
+				etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
+				etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());
+				tableMappingPanel.setMapping(etl.getTableToTableMapping());
+				ObjectExchange.etl = etl;
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			try {
+				Database newData = Database.generateModelFromScanReport(filename);
+				Database oldData = ObjectExchange.etl.getSourceDatabase();
+				for (Table newTable : newData.getTables()) {
+					Table oldTable = oldData.getTableByName(newTable.getName());
+					if (oldTable != null) {
+						oldTable.setDescription(newTable.getDescription());
+						oldTable.setRowCount(newTable.getRowCount());
+						oldTable.setRowsCheckedCount(newTable.getRowsCheckedCount());
+						for (Field newField : newTable.getFields()) {
+							Field oldField = oldTable.getFieldByName(newField.getName());
+							if (oldField != null) {
+								oldField.setDescription(newField.getDescription());
+								oldField.setFractionEmpty(newField.getFractionEmpty());
+								oldField.setUniqueCount(newField.getUniqueCount());
+								oldField.setFractionUnique(newField.getFractionUnique());
+								oldField.setNullable(newField.isNullable());
+								oldField.setValueCounts(newField.getValueCounts());
+							} else {
+								// Add the new field
+								oldTable.addField(newField);
+							}
+						}
+					} else {
+						// Add the new table
+						newTable.setDb(oldData);
+						oldData.addTable(newTable);
+					}
+				}
+				tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping()); // Needed to render the model
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Invalid File Format", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+		frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
-	private void doGenerateEtlWordDoc(String filename) {
+	private void doGenerateEtlWordDoc() {
+		String filename = chooseSavePath(FILE_FILTER_DOCX);
 		if (filename != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLWordDocumentGenerator.generate(ObjectExchange.etl, filename);
@@ -686,20 +640,59 @@ public class RabbitInAHatMain implements ResizeListener, ActionListener {
 		}
 	}
 
-	private void doGenerateEtlHtmlDoc(String filename) {
-		if (filename != null) {
+	private void doGenerateEtlHtmlDoc() {
+		String directoryName = chooseSaveDirectory();
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
-			generator.generate(filename, DocumentType.HTML);
+			generator.generate(directoryName, DocumentType.HTML);
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
 
-	private void doGenerateEtlMdDoc(String filename) {
-		if (filename != null) {
+	private void doGenerateEtlMdDoc() {
+		String directoryName = chooseSaveDirectory();
+		if (directoryName != null) {
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			ETLMarkupDocumentGenerator generator = new ETLMarkupDocumentGenerator(ObjectExchange.etl);
-			generator.generate(filename, DocumentType.MARKDOWN);
+			generator.generate(directoryName, DocumentType.MARKDOWN);
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+
+    private void doGenerateSourceFields() {
+		String filename = chooseSavePath("source_fields", FILE_FILTER_CSV);
+        if (filename != null) {
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            ETLSummaryGenerator.generateSourceFieldListCsv(ObjectExchange.etl, filename);
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
+    private void doGenerateTargetFields() {
+		String filename = chooseSavePath("target_fields", FILE_FILTER_CSV);
+        if (filename != null) {
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            ETLSummaryGenerator.generateTargetFieldListCsv(ObjectExchange.etl, filename);
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
+    private void doGenerateTableMappings() {
+		String filename = chooseSavePath("table_mappings", FILE_FILTER_CSV);
+        if (filename != null) {
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            ETLSummaryGenerator.generateTableMappingsCsv(ObjectExchange.etl, filename);
+            frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
+	private void doGenerateSql() {
+		String directoryName = chooseSaveDirectory();
+		if (directoryName != null) {
+			frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			SQLGenerator sqlGenerator = new SQLGenerator(ObjectExchange.etl, directoryName);
+			sqlGenerator.generate();
 			frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
