@@ -218,11 +218,14 @@ When generating an ETL we should not only plan to handle the high-frequency gend
 If the option for numerical statistics is checked, then a set of statistics is calculated for all integer, real and date data types. 
 The following statistics are added to the Field Overview sheet (Columns K-Q):
 
-* Average
-* Standard Deviation (sampled)
-* Minimum
-* Maximum
-* Quartiles: q1, median, q3 (sampled)
+![](images/wr_scan_report_numeric_stats_v0.10.1.png)
+
+* _Columns E-J are not shown, see section above for a description_ 
+* Column K: Average
+* Column L: Standard Deviation (sampled)
+* Column M: Minimum
+* Columns N/O/P: Quartiles (sampled)
+* Column Q: Maximum
 
 When selecting the option for scanning numerical statistics, the parameter "Numeric stats reservoir size" can be set. This defines the number of values that will be stored for calculation of the numeric statistics. These values will be randomly sampled from the field values in the scan report. 
 If the number of values is smaller than the set reservoir size, then the standard deviation and three quartile boundaries are the exact population statistics. 
