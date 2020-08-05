@@ -31,8 +31,8 @@ Once the scan report is created, this report can then be used in the Rabbit-In-A
    The packaged application can be found at the bottom of the page under assets, in a file called _WhiteRabbit_vX.X.X.zip_ (where `X.X.X` is the latest version).
 2. Unzip the download
 3. Double-click on `dist/bin/whiteRabbit.bat` on Windows to start WhiteRabbit, and `dist/bin/whiteRabbit` on macOS and Linux.  
-   See [Running from the command line](#running_from_the_command_line) for details on how to run from the command line instead.
-4. Go to [Using the Application Functions](#using_the_application_functions) for detailed instructions on how to make a scan of your data.
+   See [Running from the command line](#running-from-the-command-line) for details on how to run from the command line instead.
+4. Go to [Using the Application Functions](#using-the-application-functions) for detailed instructions on how to make a scan of your data.
 
 Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.
 
@@ -170,13 +170,15 @@ After the scan is completed, a “ScanReport” Excel document will be created i
 The document will have multiple tabs. The first two tabs are a “Field Overview” tab and a “Table Overview” tab. 
 The subsequent tabs contain field and value overviews for each database table or delimited text files selected for the scan. 
 The last tab (indicated by `"_"`) contains metadata on the WhiteRabbit settings used to create the scan report. The "Table Overview" and `"_"` tab are not present in releases earlier than v0.10.0.
-The “Field Overview” tab will tell you about each table selected, what the columns in each table are, the data type of the columns, the number of rows within the table and other statistics.
 
-Below is an example image of the “Field Overview” tab.
+#### Field Overview
+The “Field Overview” tab will show for each table scanned, the details for each field. For example the data type, the number of empty rows and other statistics.
+
+![](images/wr_scan_report_field_overview_v0.10.1.PNG)
 
 * Column A: will list which table the information is about
 * Column B: the column name
-* Column C: a column description (only filled when SAS files are scanned. Descriptions from e.g. relational databases are not read. This column is not present in releases earlier than v0.10.0)
+* Column C: a column description
 * Column D: the data type
 * Column E: the maximum length of the values (number of characters/digits)
 * Column F: the number of rows (with text files it will return - 1)
@@ -185,9 +187,10 @@ Below is an example image of the “Field Overview” tab.
 * Column I: shows a count of the unique values within the checked rows. This number is sometimes an upper limit of the unique values, indicated by a `<=` sign (This column is not present in releases earlier than v0.9.0)
 * Column J: shows the percentage of unique values among all (0% = constant value, 100% = unique column. This column is not present in releases earlier than v0.9.0)
 
-![](images/wr_scan_report_field_overview_v0.10.1.PNG)
-
+### Table Overview
 The "Table Overview" tab gives information about each of the tables in the data source. Below is an example image of the "Table Overview" tab.
+
+![](images/wr_scan_report_table_overview_v0.10.1.PNG)
 
 * Column A: will list which table the information is about
 * Column B: a table description
@@ -196,20 +199,26 @@ The "Table Overview" tab gives information about each of the tables in the data 
 * Column E: the number of fields in the table
 * Column F: the number of empty fields
 
-![](images/wr_scan_report_table_overview_v0.10.1.PNG)
+The "Description" column for both the field and table overview was added in v0.10.0. These cells are not populated by WhiteRabbit (with the exception when scanning sas7bdat files that contain labels). Rather, this field provides a way for the data holder to add descriptions to the fields and tables. These descriptions are displayed in Rabbit-In-A-Hat when loading the scanreport. This is especially usefull when the fieldnames are not descriptives or in a foreign language.
 
-For a tab that describes a single table, the columns names from the source table will be across the columns of the Excel tab.
-Each source table column will generate two columns in the Excel. One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan (see [Performing the Scan](#performing-the-scan.
-If a list of unique values was truncated, the last value in the list will be "List truncated..."; this indicates that there are one or more additional unique source values that appear less than the number entered in the “Min cell count” described in [Performing the Scan](#performing-the-scan).
-Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data.
-These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.
+### Value scans
+
+If the values of the table have been scanned (described in [Performing the Scan](#performing-the-scan)), the scan report will contain a tab for each scanned table. An example for one field is shown below.
 
 ![](images/wr_scan_report_value_freq_v0.10.1.PNG)
 
+The field names from the source table will be across the columns of the Excel tab.
+Each source field will generate two columns in the Excel. 
+One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan.
+Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data.
+These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.
+
+If a list of unique values was truncated, the last value in the list will be `"List truncated..."`; this indicates that there are one or more additional unique source values that appear less than the number entered in the “Min cell count”.
+
 The scan report is powerful in understanding your source data by highlighting what exists.
-For example, the above results were given back on the "GENDER" column within one of the tables scanned, we can see that there were two common values (1 & 2) that appeared 104 and 96 times respectively.
+For example, the above example was retrieved for the "GENDER" column within one of the tables scanned, we can see that there were two common values (1 & 2) that appeared 104 and 96 times respectively.
 WhiteRabbit will not define "1" as male and "2" as female; the data holder will typically need to define source codes unique to the source system.
-However these two values (1 & 2) are not the only values present in the data because we see this list was truncated.
+However, these two values (1 & 2) are not the only values present in the data because we see this list was truncated.
 These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values.
 When generating an ETL we should not only plan to handle the high-frequency gender concepts "1" and "2" but also the other low-frequency values that exist within this column.
 

@@ -433,8 +433,8 @@ div.tocify {
 The packaged application can be found at the bottom of the page under assets, in a file called <em>WhiteRabbit_vX.X.X.zip</em> (where <code>X.X.X</code> is the latest version).</li>
 <li>Unzip the download</li>
 <li>Double-click on <code>dist/bin/whiteRabbit.bat</code> on Windows to start WhiteRabbit, and <code>dist/bin/whiteRabbit</code> on macOS and Linux.<br />
-See <a href="#running_from_the_command_line">Running from the command line</a> for details on how to run from the command line instead.</li>
-<li>Go to <a href="#using_the_application_functions">Using the Application Functions</a> for detailed instructions on how to make a scan of your data.</li>
+See <a href="#running-from-the-command-line">Running from the command line</a> for details on how to run from the command line instead.</li>
+<li>Go to <a href="#using-the-application-functions">Using the Application Functions</a> for detailed instructions on how to make a scan of your data.</li>
 </ol>
 <p>Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.</p>
 </div>
@@ -569,12 +569,15 @@ See <a href="#running_from_the_command_line">Running from the command line</a> f
 </div>
 <div id="reading-the-scan" class="section level3">
 <h3>Reading the Scan</h3>
-<p>After the scan is completed, a “ScanReport” Excel document will be created in the working folder location selected earlier. The document will have multiple tabs. The first two tabs are a “Field Overview” tab and a “Table Overview” tab. The subsequent tabs contain field and value overviews for each database table or delimited text files selected for the scan. The last tab (indicated by <code>&quot;_&quot;</code>)contains metadata on the WhiteRabbit settings used to create the scan report. The “Table Overview” and <code>&quot;_&quot;</code> tab are not present in releases earlier than v0.10.0. The “Field Overview” tab will tell you about each table selected, what the columns in each table are, the data type of the columns, the number of rows within the table and other statistics.</p>
-<p>Below is an example image of the “Field Overview” tab.</p>
+<p>After the scan is completed, a “ScanReport” Excel document will be created in the working folder location selected earlier. The document will have multiple tabs. The first two tabs are a “Field Overview” tab and a “Table Overview” tab. The subsequent tabs contain field and value overviews for each database table or delimited text files selected for the scan. The last tab (indicated by <code>&quot;_&quot;</code>) contains metadata on the WhiteRabbit settings used to create the scan report. The “Table Overview” and <code>&quot;_&quot;</code> tab are not present in releases earlier than v0.10.0.</p>
+<div id="field-overview" class="section level4">
+<h4>Field Overview</h4>
+<p>The “Field Overview” tab will show for each table scanned, the details for each field. For example the data type, the number of empty rows and other statistics.</p>
+<p><img src="images/wr_scan_report_field_overview_v0.10.1.PNG" /></p>
 <ul>
 <li>Column A: will list which table the information is about</li>
 <li>Column B: the column name</li>
-<li>Column C: a column description (only filled when SAS files are scanned. Descriptions from e.g. relational databases are not read. This column is not present in releases earlier than v0.10.0)</li>
+<li>Column C: a column description</li>
 <li>Column D: the data type</li>
 <li>Column E: the maximum length of the values (number of characters/digits)</li>
 <li>Column F: the number of rows (with text files it will return - 1)</li>
@@ -583,8 +586,12 @@ See <a href="#running_from_the_command_line">Running from the command line</a> f
 <li>Column I: shows a count of the unique values within the checked rows. This number is sometimes an upper limit of the unique values, indicated by a <code>&lt;=</code> sign (This column is not present in releases earlier than v0.9.0)</li>
 <li>Column J: shows the percentage of unique values among all (0% = constant value, 100% = unique column. This column is not present in releases earlier than v0.9.0)</li>
 </ul>
-<p><img src="images/wr_scan_report_field_overview_v0.10.1.PNG" /></p>
+</div>
+</div>
+<div id="table-overview" class="section level3">
+<h3>Table Overview</h3>
 <p>The “Table Overview” tab gives information about each of the tables in the data source. Below is an example image of the “Table Overview” tab.</p>
+<p><img src="images/wr_scan_report_table_overview_v0.10.1.PNG" /></p>
 <ul>
 <li>Column A: will list which table the information is about</li>
 <li>Column B: a table description</li>
@@ -593,19 +600,26 @@ See <a href="#running_from_the_command_line">Running from the command line</a> f
 <li>Column E: the number of fields in the table</li>
 <li>Column F: the number of empty fields</li>
 </ul>
-<p><img src="images/wr_scan_report_table_overview_v0.10.1.PNG" /></p>
-<p>For a tab that describes a single table, the columns names from the source table will be across the columns of the Excel tab. Each source table column will generate two columns in the Excel. One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan (see <a href="#performing-the-scan">Performing the Scan</a>(#performing-the-scan. If a list of unique values was truncated, the last value in the list will be “List truncated…”; this indicates that there are one or more additional unique source values that appear less than the number entered in the “Min cell count” described in <a href="#performing-the-scan">Performing the Scan</a>. Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data. These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.</p>
+<p>The “Description” column for both the field and table overview was added in v0.10.0. These cells are not populated by WhiteRabbit (with the exception when scanning sas7bdat files that contain labels). Rather, this field provides a way for the data holder to add descriptions to the fields and tables. These descriptions are displayed in Rabbit-In-A-Hat when loading the scanreport. This is especially usefull when the fieldnames are not descriptives or in a foreign language.</p>
+</div>
+<div id="value-scans" class="section level3">
+<h3>Value scans</h3>
+<p>If the values of the table have been scanned (described in <a href="#performing-the-scan">Performing the Scan</a>), the scan report will contain a tab for each scanned table. An example for one field is shown below.</p>
 <p><img src="images/wr_scan_report_value_freq_v0.10.1.PNG" /></p>
-<p>The scan report is powerful in understanding your source data by highlighting what exists. For example, the above results were given back on the “GENDER” column within one of the tables scanned, we can see that there were two common values (1 &amp; 2) that appeared 104 and 96 times respectively. WhiteRabbit will not define “1” as male and “2” as female; the data holder will typically need to define source codes unique to the source system. However these two values (1 &amp; 2) are not the only values present in the data because we see this list was truncated. These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values. When generating an ETL we should not only plan to handle the high-frequency gender concepts “1” and “2” but also the other low-frequency values that exist within this column.</p>
+<p>The field names from the source table will be across the columns of the Excel tab. Each source field will generate two columns in the Excel. One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan. Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data. These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.</p>
+<p>If a list of unique values was truncated, the last value in the list will be <code>&quot;List truncated...&quot;</code>; this indicates that there are one or more additional unique source values that appear less than the number entered in the “Min cell count”.</p>
+<p>The scan report is powerful in understanding your source data by highlighting what exists. For example, the above example was retrieved for the “GENDER” column within one of the tables scanned, we can see that there were two common values (1 &amp; 2) that appeared 104 and 96 times respectively. WhiteRabbit will not define “1” as male and “2” as female; the data holder will typically need to define source codes unique to the source system. However, these two values (1 &amp; 2) are not the only values present in the data because we see this list was truncated. These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values. When generating an ETL we should not only plan to handle the high-frequency gender concepts “1” and “2” but also the other low-frequency values that exist within this column.</p>
 <div id="numerical-statistics" class="section level4">
 <h4>Numerical Statistics</h4>
 <p>If the option for numerical statistics is checked, then a set of statistics is calculated for all integer, real and date data types. The following statistics are added to the Field Overview sheet (Columns K-Q):</p>
+<p><img src="images/wr_scan_report_numeric_stats_v0.10.1.png" /></p>
 <ul>
-<li>Average</li>
-<li>Standard Deviation (sampled)</li>
-<li>Minimum</li>
-<li>Maximum</li>
-<li>Quartiles: q1, median, q3 (sampled)</li>
+<li><em>Columns E-J are not shown, see section above for a description</em></li>
+<li>Column K: Average</li>
+<li>Column L: Standard Deviation (sampled)</li>
+<li>Column M: Minimum</li>
+<li>Columns N/O/P: Quartiles (sampled)</li>
+<li>Column Q: Maximum</li>
 </ul>
 <p>When selecting the option for scanning numerical statistics, the parameter “Numeric stats reservoir size” can be set. This defines the number of values that will be stored for calculation of the numeric statistics. These values will be randomly sampled from the field values in the scan report. If the number of values is smaller than the set reservoir size, then the standard deviation and three quartile boundaries are the exact population statistics. Otherwise, the statistics are approximated based on a representative sample. The average, minimum and maximum are always true population statistics. For dates, the standard deviation of dates is given in days. The other date statistics are converted to a date representation.</p>
 </div>
