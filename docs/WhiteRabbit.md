@@ -242,6 +242,7 @@ Otherwise, the statistics are approximated based on a representative sample. The
 For dates, the standard deviation of dates is given in days. The other date statistics are converted to a date representation.
 
 ## Generating Fake Data
+![](images/whiterabbitscreen-fakedata_v0.10.1.png)
 
 This feature allows one to create a fake dataset based on a WhiteRabbit scan report.
 The generated fake data can be outputted directly to database tables (MySQL, Oracle, SQL Server, PostgreSQL) or as delimited text file.
