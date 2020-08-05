@@ -130,7 +130,7 @@ Authentication via service account credentials:
 
 #### Azure SQL Database
 
-  * _**Server location:**_ 
+  * _**Server location:**_ server address string including database name (e.g. `<project>.database.windows.net:1433;database=<database_name>`)
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
 
@@ -169,7 +169,7 @@ Then, we can reference the ini file when calling WhiteRabbit from the command li
 After the scan is completed, a “ScanReport” Excel document will be created in the working folder location selected earlier.
 The document will have multiple tabs. The first two tabs are a “Field Overview” tab and a “Table Overview” tab. 
 The subsequent tabs contain field and value overviews for each database table or delimited text files selected for the scan. 
-The last tab (indicated by "_")contains metadata on the WhiteRabbit settings used to create the scan report. The "Table Overview" and "_" tab are not present in releases earlier than v0.10.0.
+The last tab (indicated by `"_"`) contains metadata on the WhiteRabbit settings used to create the scan report. The "Table Overview" and `"_"` tab are not present in releases earlier than v0.10.0.
 The “Field Overview” tab will tell you about each table selected, what the columns in each table are, the data type of the columns, the number of rows within the table and other statistics.
 
 Below is an example image of the “Field Overview” tab.
@@ -187,7 +187,7 @@ Below is an example image of the “Field Overview” tab.
 
 ![](images/wr_scan_report_field_overview_v0.10.1.PNG)
 
-The "table Overview" tab gives information about each of the tables in the data source. Below is an example image of the "Table Overview" tab.
+The "Table Overview" tab gives information about each of the tables in the data source. Below is an example image of the "Table Overview" tab.
 
 * Column A: will list which table the information is about
 * Column B: a table description
@@ -216,7 +216,7 @@ When generating an ETL we should not only plan to handle the high-frequency gend
 #### Numerical Statistics
 
 If the option for numerical statistics is checked, then a set of statistics is calculated for all integer, real and date data types. 
-The following statistics are added to the Field Overview sheet:
+The following statistics are added to the Field Overview sheet (Columns K-Q):
 
 * Average
 * Standard Deviation (sampled)
@@ -224,7 +224,7 @@ The following statistics are added to the Field Overview sheet:
 * Maximum
 * Quartiles: q1, median, q3 (sampled)
 
-The "Numeric stats reservoir size" defines the number of values that will be stored for calculation of the numeric statistics. These values will be randomly sampled from the field values in the scan report. 
+When selecting the option for scanning numerical statistics, the parameter "Numeric stats reservoir size" can be set. This defines the number of values that will be stored for calculation of the numeric statistics. These values will be randomly sampled from the field values in the scan report. 
 If the number of values is smaller than the set reservoir size, then the standard deviation and three quartile boundaries are the exact population statistics. 
 Otherwise, the statistics are approximated based on a representative sample. The average, minimum and maximum are always true population statistics.
 For dates, the standard deviation of dates is given in days. The other date statistics are converted to a date representation.
@@ -237,14 +237,13 @@ The resulting dataset could be used to develop ETL code when direct access to th
 
 WhiteRabbit has three modes to generate fake data:
 
-1. If no values are scanned (i.e. the column in the scan report doesn't contain values, only "List truncated..."), WhiteRabbit will generate random strings or numbers for that column.
-2. If there are values scanned, WhiteRabbit will generate the data by choosing from the scan values. Data generation is either based on the frequencies of the values, or generated in a uniform way. 
+1. If no values have been scanned (i.e. the column in the scan report doesn't contain values), WhiteRabbit will generate random strings or numbers for that column.
+2. If there are values scanned, WhiteRabbit will generate the data by choosing from the scan values. Values are sampled either based on the frequencies of the values, or sampled uniformly (if this option selected). 
 3. If the column only contains unique values (each value has a frequency of 1, e.g. for primary keys), the generated column will be kept unique.
 
-By default, WhiteRabbit will generate fake data based on the frequency of the values in the scan report.  
 The following options are available for generating fake data:
 
 * "Max rows per table" sets the number of rows of each output table. By default, it is set to 10,000.
-* By checking the "Uniform Sampling" box will generate the fake data in a uniform way. The frequency of each of the values will be set to 1, but the value sampling will be random. This increases the chance that each of the values in the scan report is at least once represented in the output data.
+* By checking the "Uniform Sampling" box will generate the fake data in a uniform way. The frequency of each of the values will be treated as being 1, but the value sampling will still be random. This increases the chance that each of the values in the scan report is at least once represented in the output data.
 
 
