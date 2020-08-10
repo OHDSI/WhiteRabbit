@@ -146,15 +146,22 @@ public class RichConnection implements Closeable {
 		if (dbType == DbType.MYSQL) {
 			query = "SHOW TABLES IN " + database;
 		} else if (dbType == DbType.MSSQL || dbType == DbType.PDW || dbType == DbType.AZURE) {
-			query = "SELECT CONCAT(schemas.name, '.', tables.name) FROM " + database + ".sys.tables INNER JOIN " + database + ".sys.schemas ON tables.schema_id = schemas.schema_id ORDER BY schemas.name, tables.name";
+			query = "SELECT CONCAT(schemas.name, '.', tables_views.name) FROM " +
+					"(SELECT schema_id, name FROM %1$s.sys.tables UNION ALL SELECT schema_id, name FROM %1$s.sys.views) tables_views " +
+					"INNER JOIN %1$s.sys.schemas ON tables_views.schema_id = schemas.schema_id " +
+					"ORDER BY schemas.name, tables_views.name";
+			query = String.format(query, database);
+			System.out.println(query);
 		} else if (dbType == DbType.ORACLE) {
-			query = "SELECT table_name FROM all_tables WHERE owner='" + database.toUpperCase() + "'";
+			query = "SELECT table_name FROM " +
+					"(SELECT table_name, owner FROM all_tables UNION ALL SELECT view_name, owner FROM all_views) tables_views " +
+					"WHERE owner='" + database.toUpperCase() + "'";
 		} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) {
 			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database.toLowerCase() + "' ORDER BY table_name";
 		} else if (dbType == DbType.MSACCESS) {
-			query = "SELECT Name FROM sys.MSysObjects WHERE Type=1 AND Flags=0;";
+			query = "SELECT Name FROM sys.MSysObjects WHERE (Type=1 OR Type=5) AND Flags=0;";
 		} else if (dbType == DbType.TERADATA) {
-			query = "SELECT TableName from dbc.tables WHERE tablekind = 'T' and databasename='" + database + "'";
+			query = "SELECT TableName from dbc.tables WHERE tablekind IN ('T','V') and databasename='" + database + "'";
 		} else if (dbType == DbType.BIGQUERY) {
 			query = "SELECT table_name from " + database + ".INFORMATION_SCHEMA.TABLES ORDER BY table_name;";
 		}
