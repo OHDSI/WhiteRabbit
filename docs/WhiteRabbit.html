@@ -418,8 +418,8 @@ div.tocify {
 <ol style="list-style-type: decimal">
 <li>Set working folder, the location on the local desktop computer where results will be exported.</li>
 <li>Connect to the source database or delimited text file and test connection.</li>
-<li>Select the tables of interest for the scan and scan the tables.</li>
-<li>WhiteRabbit creates an export of information about the source data.</li>
+<li>Select the tables to be scanned and execute the WhiteRabbit scan.</li>
+<li>WhiteRabbit creates a ‘ScanReport’ with information about the source data.</li>
 </ol>
 <p>Once the scan report is created, this report can then be used in the Rabbit-In-A-Hat tool or as a stand-alone data profiling document.</p>
 </div>
@@ -460,7 +460,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <div id="delimited-text-files" class="section level4">
 <h4>Delimited text files</h4>
 <ul>
-<li><strong><em>Delimiter:</em></strong> specifies the delimiter that separates columns, default is ‘,’ and you can write ‘tab’ for tab delimited.</li>
+<li><strong><em>Delimiter:</em></strong> specifies the delimiter that separates columns. Enter <code>tab</code> for a tab delimited file.</li>
 </ul>
 <p>WhiteRabbit will look for the files to scan in the same folder you set up as a working directory.</p>
 </div>
@@ -529,7 +529,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <ul>
 <li><em><strong>Server location:</strong></em> name of GBQ ProjectID</li>
 <li><em><strong>User name:</strong></em> OAuth service account email address</li>
-<li><em><strong>Password:</strong></em> OAuth private key path (file location of private key JSON file). Must be a valid full file pathname</li>
+<li><em><strong>Password:</strong></em> OAuth private key path (full path to the private key JSON file)</li>
 <li><em><strong>Database name:</strong></em> data set name within ProjectID named in Server location field</li>
 </ul>
 </div>
@@ -553,12 +553,12 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <ul>
 <li>Checking the “Scan field values” box tells WhiteRabbit that you would like to investigate raw data items within tables selected for a scan (i.e. if you select Table A, WhiteRabbit will review the contents in each column in Table A).
 <ul>
-<li>“Min cell count” is an option when scanning field values. By default this is set to 5, meaning values in the source data that appear less than 5 times will not appear in the report.</li>
+<li>“Min cell count” is an option when scanning field values. By default, this is set to 5, meaning values in the source data that appear less than 5 times will not appear in the report.</li>
 <li>“Rows per table” is an option when scanning field values. By default, WhiteRabbit will random 100,000 rows in the table. There are other options to review 500,000, 1 million or all rows within the table.</li>
-<li>“Max distinct values” is an option when scanning field values. By default this is set to 1,000, meaning that a maximum of 1,000 distinct values per field will appear in the scan report. This option can be set to 100, 1,000 or 10,000 distinct values.</li>
+<li>“Max distinct values” is an option when scanning field values. By default, this is set to 1,000, meaning a maximum of 1,000 distinct values per field will appear in the scan report. This option can be set to 100, 1,000 or 10,000 distinct values.</li>
 </ul></li>
 <li>Unchecking the “Scan field values” tells WhiteRabbit to not review or report on any of the raw data items.</li>
-<li>Checking the “Numeric stats” box will include numeric statistics. See the section on <a href="#numeric-statistics">Numerical Statistics</a>.</li>
+<li>Checking the “Numeric stats” box will include numeric statistics. See the section on <a href="#numerical-statistics">Numerical Statistics</a>.</li>
 </ul>
 <p>Once all settings are completed, press the ‘Scan tables’ button. After the scan is completed the report will be written to the working folder.</p>
 </div>
@@ -600,14 +600,14 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <li>Column E: the number of fields in the table</li>
 <li>Column F: the number of empty fields</li>
 </ul>
-<p>The “Description” column for both the field and table overview was added in v0.10.0. These cells are not populated by WhiteRabbit (with the exception when scanning sas7bdat files that contain labels). Rather, this field provides a way for the data holder to add descriptions to the fields and tables. These descriptions are displayed in Rabbit-In-A-Hat when loading the scanreport. This is especially usefull when the fieldnames are not descriptives or in a foreign language.</p>
+<p>The “Description” column for both the field and table overview was added in v0.10.0. These cells are not populated by WhiteRabbit (with the exception when scanning sas7bdat files that contain labels). Rather, this field provides a way for the data holder to add descriptions to the fields and tables. These descriptions are displayed in Rabbit-In-A-Hat when loading the scan report. This is especially useful when the fieldnames are abbreviations or in a foreign language.</p>
 </div>
 <div id="value-scans" class="section level3">
 <h3>Value scans</h3>
 <p>If the values of the table have been scanned (described in <a href="#performing-the-scan">Performing the Scan</a>), the scan report will contain a tab for each scanned table. An example for one field is shown below.</p>
 <p><img src="images/wr_scan_report_value_freq_v0.10.1.PNG" /></p>
 <p>The field names from the source table will be across the columns of the Excel tab. Each source field will generate two columns in the Excel. One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan. Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data. These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.</p>
-<p>If a list of unique values was truncated, the last value in the list will be <code>&quot;List truncated...&quot;</code>; this indicates that there are one or more additional unique source values that appear less than the number entered in the “Min cell count”.</p>
+<p>If a list of unique values was truncated, the last value in the list will be <code>&quot;List truncated...&quot;</code>; this indicates that there are one or more additional unique source values that have a frequency lower than the “Min cell count”.</p>
 <p>The scan report is powerful in understanding your source data by highlighting what exists. For example, the above example was retrieved for the “GENDER” column within one of the tables scanned, we can see that there were two common values (1 &amp; 2) that appeared 104 and 96 times respectively. WhiteRabbit will not define “1” as male and “2” as female; the data holder will typically need to define source codes unique to the source system. However, these two values (1 &amp; 2) are not the only values present in the data because we see this list was truncated. These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values. When generating an ETL we should not only plan to handle the high-frequency gender concepts “1” and “2” but also the other low-frequency values that exist within this column.</p>
 <div id="numerical-statistics" class="section level4">
 <h4>Numerical Statistics</h4>
@@ -638,7 +638,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <p>The following options are available for generating fake data:</p>
 <ul>
 <li>“Max rows per table” sets the number of rows of each output table. By default, it is set to 10,000.</li>
-<li>By checking the “Uniform Sampling” box will generate the fake data in a uniform way. The frequency of each of the values will be treated as being 1, but the value sampling will still be random. This increases the chance that each of the values in the scan report is at least once represented in the output data.</li>
+<li>By checking the “Uniform Sampling” box will generate the fake data uniformly. The frequency of each of the values will be treated as being 1, but the value sampling will still be random. This increases the chance that each of the values in the scan report is at least once represented in the output data.</li>
 </ul>
 </div>
 </div>

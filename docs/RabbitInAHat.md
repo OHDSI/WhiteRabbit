@@ -11,6 +11,7 @@ Rabbit-In-a-Hat generates documentation for the ETL process it does not generate
 
 ## Process Overview
 The typical sequence for using this software to generate documentation of an ETL:
+
 1. Scanned results from WhiteRabbit completed
 2. Open scanned results; interface displays source tables and CDM tables
 3. Connect source tables to CDM tables where the source table provides information for that corresponding CDM table
