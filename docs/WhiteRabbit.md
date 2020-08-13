@@ -18,8 +18,8 @@ The typical sequence for using this software to scan source data in preparation 
 
 1. Set working folder, the location on the local desktop computer where results will be exported.
 2. Connect to the source database or delimited text file and test connection.
-3. Select the tables of interest for the scan and scan the tables.
-4. WhiteRabbit creates an export of information about the source data.
+3. Select the tables to be scanned and execute the WhiteRabbit scan.
+4. WhiteRabbit creates a 'ScanReport' with information about the source data.
 
 Once the scan report is created, this report can then be used in the Rabbit-In-A-Hat tool or as a stand-alone data profiling document.
 
@@ -63,7 +63,7 @@ Below are connection instructions for each data type of data source.
 Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.
 
 #### Delimited text files
-  * **_Delimiter:_** specifies the delimiter that separates columns, default is ‘,’ and you can write ‘tab’ for tab delimited.
+  * **_Delimiter:_** specifies the delimiter that separates columns. Enter `tab` for a tab delimited file.
 
 WhiteRabbit will look for the files to scan in the same folder you set up as a working directory.
 
@@ -125,7 +125,7 @@ Authentication via service account credentials:
 
   * _**Server location:**_ name of GBQ ProjectID
   * _**User name:**_ OAuth service account email address
-  * _**Password:**_ OAuth private key path (file location of private key JSON file). Must be a valid full file pathname
+  * _**Password:**_ OAuth private key path (full path to the private key JSON file)
   * _**Database name:**_ data set name within ProjectID named in Server location field
 
 #### Azure SQL Database
@@ -147,11 +147,11 @@ or automatically select all tables in the database by clicking on ‘Add all in 
 There are a few setting options as well with the scan:
 
   * Checking the “Scan field values” box tells WhiteRabbit that you would like to investigate raw data items within tables selected for a scan (i.e. if you select Table A, WhiteRabbit will review the contents in each column in Table A).
-    * “Min cell count” is an option when scanning field values. By default this is set to 5, meaning values in the source data that appear less than 5 times will not appear in the report.
+    * “Min cell count” is an option when scanning field values. By default, this is set to 5, meaning values in the source data that appear less than 5 times will not appear in the report.
     * “Rows per table” is an option when scanning field values. By default, WhiteRabbit will random 100,000 rows in the table. There are other options to review 500,000, 1 million or all rows within the table.
-	* “Max distinct values” is an option when scanning field values. By default this is set to 1,000, meaning that a maximum of 1,000 distinct values per field will appear in the scan report. This option can be set to 100, 1,000 or 10,000 distinct values.
+	* “Max distinct values” is an option when scanning field values. By default, this is set to 1,000, meaning a maximum of 1,000 distinct values per field will appear in the scan report. This option can be set to 100, 1,000 or 10,000 distinct values.
   * Unchecking the “Scan field values” tells WhiteRabbit to not review or report on any of the raw data items.
-  * Checking the "Numeric stats" box will include numeric statistics. See the section on [Numerical Statistics](#numeric-statistics).
+  * Checking the "Numeric stats" box will include numeric statistics. See the section on [Numerical Statistics](#numerical-statistics).
   
 Once all settings are completed, press the ‘Scan tables’ button. After the scan is completed the report will be written to the working folder.
 
@@ -199,7 +199,7 @@ The "Table Overview" tab gives information about each of the tables in the data 
 * Column E: the number of fields in the table
 * Column F: the number of empty fields
 
-The "Description" column for both the field and table overview was added in v0.10.0. These cells are not populated by WhiteRabbit (with the exception when scanning sas7bdat files that contain labels). Rather, this field provides a way for the data holder to add descriptions to the fields and tables. These descriptions are displayed in Rabbit-In-A-Hat when loading the scanreport. This is especially usefull when the fieldnames are not descriptives or in a foreign language.
+The "Description" column for both the field and table overview was added in v0.10.0. These cells are not populated by WhiteRabbit (with the exception when scanning sas7bdat files that contain labels). Rather, this field provides a way for the data holder to add descriptions to the fields and tables. These descriptions are displayed in Rabbit-In-A-Hat when loading the scan report. This is especially useful when the fieldnames are abbreviations or in a foreign language.
 
 ### Value scans
 
@@ -213,7 +213,7 @@ One column will list all distinct values that have a “Min cell count” greate
 Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data.
 These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.
 
-If a list of unique values was truncated, the last value in the list will be `"List truncated..."`; this indicates that there are one or more additional unique source values that appear less than the number entered in the “Min cell count”.
+If a list of unique values was truncated, the last value in the list will be `"List truncated..."`; this indicates that there are one or more additional unique source values that have a frequency lower than the “Min cell count”.
 
 The scan report is powerful in understanding your source data by highlighting what exists.
 For example, the above example was retrieved for the "GENDER" column within one of the tables scanned, we can see that there were two common values (1 & 2) that appeared 104 and 96 times respectively.
@@ -257,6 +257,6 @@ WhiteRabbit has three modes to generate fake data:
 The following options are available for generating fake data:
 
 * "Max rows per table" sets the number of rows of each output table. By default, it is set to 10,000.
-* By checking the "Uniform Sampling" box will generate the fake data in a uniform way. The frequency of each of the values will be treated as being 1, but the value sampling will still be random. This increases the chance that each of the values in the scan report is at least once represented in the output data.
+* By checking the "Uniform Sampling" box will generate the fake data uniformly. The frequency of each of the values will be treated as being 1, but the value sampling will still be random. This increases the chance that each of the values in the scan report is at least once represented in the output data.
 
 
