@@ -36,6 +36,13 @@ Once the scan report is created, this report can then be used in the Rabbit-In-A
 
 Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.
 
+### Memory
+WhiteRabbit possibly does not start when the memory allocated by the JVM is too big or too small. 
+By default this is set to 1200m.
+To increase the memory (in this example to 2400m), either set the environment variable `EXTRA_JVM_ARGUMENTS=-Xmx2400m` before starting or edit in `bin/WhiteRabbit.bat` the line `%JAVACMD% %JAVA_OPTS% -Xmx2400m...`.
+To lower the memory, set one of these variables to e.g. `-Xmx600m`.
+If you have a 32-bit Java VM installed and problems persist, consider installing 64-bit Java.  
+
 ## Support
 All source code, descriptions and input/output examples are available on GitHub: <https://github.com/OHDSI/WhiteRabbit>
 

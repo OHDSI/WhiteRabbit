@@ -489,12 +489,14 @@ public class RabbitInAHatMain implements ResizeListener {
 	}
 
 	private void doOpenFilterDialog() {
-		FilterDialog filter;
-		filter = new FilterDialog(frame);
-
-		filter.setFilterPanel(tableMappingPanel);
-
-		filter.setVisible(true);
+		if (FilterDialog.alreadyOpened()){
+			FilterDialog.bringToFront();
+		}
+		else {
+			FilterDialog filter = new FilterDialog(frame);
+			filter.setFilterPanel(tableMappingPanel);
+			filter.setVisible(true);
+		}
 	}
 
 	private void doMakeMappings() {

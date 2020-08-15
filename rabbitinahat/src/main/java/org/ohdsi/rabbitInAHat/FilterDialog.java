@@ -8,6 +8,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import org.ohdsi.rabbitInAHat.ResizeListener;
 
@@ -16,6 +18,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.WindowConstants;
 
 public class FilterDialog extends JDialog implements ActionListener, ResizeListener {
 	
@@ -24,6 +27,7 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 	 * 
 	 */
 	private static final long serialVersionUID = 7009265246652874341L;
+	private static FilterDialog instance;
 	
 	
 	private JTextField		sourceSearchField; 
@@ -34,9 +38,11 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 	
 	Container contentPane = this.getContentPane();
 	
-	public FilterDialog(Window parentWindow){
-		
-		super(parentWindow,"Filter",ModalityType.MODELESS);		
+	public FilterDialog(Window parentWindow) throws ExceptionInInitializerError{
+		super(parentWindow,"Filter",ModalityType.MODELESS);
+		if (alreadyOpened()) {
+			throw new ExceptionInInitializerError("An instance of FilterDialog already exists");
+		}
 		this.setResizable(false);
 		this.setLocation(parentWindow.getX()+parentWindow.getWidth()/2, parentWindow.getY()+100);
 
@@ -96,7 +102,28 @@ public class FilterDialog extends JDialog implements ActionListener, ResizeListe
 		layout.putConstraint(SpringLayout.EAST, contentPane, 5, SpringLayout.EAST, targetClearBtn);
 		
 		this.pack();
-	};
+
+		// Make sure the instance is reset to null when the search dialog window is closed
+		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				instance = null;
+			}
+		});
+
+		instance = this;
+	}
+
+	public static boolean alreadyOpened(){
+		return (instance != null);
+	}
+
+	public static void bringToFront(){
+		if (alreadyOpened()) {
+			instance.toFront();
+		}
+	}
 	
 	public void setFilterPanel(MappingPanel aFilterPanel){
 		if (filterPanel != null) {

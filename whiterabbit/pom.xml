@@ -5,7 +5,7 @@
     <parent>
         <artifactId>leporidae</artifactId>
         <groupId>org.ohdsi</groupId>
-        <version>0.10.1</version>
+        <version>0.10.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -24,8 +24,7 @@
                 <artifactId>appassembler-maven-plugin</artifactId>
                 <configuration>
                     <assembleDirectory>${project.parent.basedir}/dist</assembleDirectory>
-		    <!--                   <extraJvmArguments>-Xmx1200m</extraJvmArguments> -->
-                    <extraJvmArguments>-Xmx2400m</extraJvmArguments>
+                    <extraJvmArguments>-Xmx1200m</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>org.ohdsi.whiteRabbit.WhiteRabbitMain</mainClass>
