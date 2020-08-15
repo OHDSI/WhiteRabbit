@@ -30,7 +30,7 @@ Once the scan report is created, this report can then be used in the Rabbit-In-A
 1. Download the latest version of WhiteRabbit from Github: <https://github.com/OHDSI/WhiteRabbit/releases/latest>.  
    The packaged application can be found at the bottom of the page under assets, in a file called _WhiteRabbit_vX.X.X.zip_ (where `X.X.X` is the latest version).
 2. Unzip the download
-3. Double-click on `dist/bin/whiteRabbit.bat` on Windows to start WhiteRabbit, and `dist/bin/whiteRabbit` on macOS and Linux.  
+3. Double-click on `bin/whiteRabbit.bat` on Windows to start WhiteRabbit, and `bin/whiteRabbit` on macOS and Linux.  
    See [Running from the command line](#running-from-the-command-line) for details on how to run from the command line instead.
 4. Go to [Using the Application Functions](#using-the-application-functions) for detailed instructions on how to make a scan of your data.
 
@@ -162,7 +162,13 @@ This is possible by specifying all the options one would normally select in the 
 An example ini file can be found in the [iniFileExamples folder](https://github.com/OHDSI/WhiteRabbit/blob/master/iniFileExamples/WhiteRabbit.ini).
 Then, we can reference the ini file when calling WhiteRabbit from the command line:
 
-```java -jar WhiteRabbit.jar -ini WhiteRabbit.ini```
+**Windows**
+
+```bin/whiteRabbit.bat -ini WhiteRabbit.ini```
+
+**Mac/Unix**
+
+```bin/whiteRabbit -ini WhiteRabbit.ini```
 
 ### Reading the Scan
 

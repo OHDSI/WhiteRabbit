@@ -432,7 +432,7 @@ div.tocify {
 <li>Download the latest version of WhiteRabbit from Github: <a href="https://github.com/OHDSI/WhiteRabbit/releases/latest" class="uri">https://github.com/OHDSI/WhiteRabbit/releases/latest</a>.<br />
 The packaged application can be found at the bottom of the page under assets, in a file called <em>WhiteRabbit_vX.X.X.zip</em> (where <code>X.X.X</code> is the latest version).</li>
 <li>Unzip the download</li>
-<li>Double-click on <code>dist/bin/whiteRabbit.bat</code> on Windows to start WhiteRabbit, and <code>dist/bin/whiteRabbit</code> on macOS and Linux.<br />
+<li>Double-click on <code>bin/whiteRabbit.bat</code> on Windows to start WhiteRabbit, and <code>bin/whiteRabbit</code> on macOS and Linux.<br />
 See <a href="#running-from-the-command-line">Running from the command line</a> for details on how to run from the command line instead.</li>
 <li>Go to <a href="#using-the-application-functions">Using the Application Functions</a> for detailed instructions on how to make a scan of your data.</li>
 </ol>
@@ -565,7 +565,10 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <div id="running-from-the-command-line" class="section level3">
 <h3>Running from the command line</h3>
 <p>For various reasons one could prefer to run WhiteRabbit from the command line. This is possible by specifying all the options one would normally select in the user interface in an .ini file. An example ini file can be found in the <a href="https://github.com/OHDSI/WhiteRabbit/blob/master/iniFileExamples/WhiteRabbit.ini">iniFileExamples folder</a>. Then, we can reference the ini file when calling WhiteRabbit from the command line:</p>
-<p><code>java -jar WhiteRabbit.jar -ini WhiteRabbit.ini</code></p>
+<p><strong>Windows</strong></p>
+<p><code>bin/whiteRabbit.bat -ini WhiteRabbit.ini</code></p>
+<p><strong>Mac/Unix</strong></p>
+<p><code>bin/whiteRabbit -ini WhiteRabbit.ini</code></p>
 </div>
 <div id="reading-the-scan" class="section level3">
 <h3>Reading the Scan</h3>
