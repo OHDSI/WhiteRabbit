@@ -454,7 +454,7 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsTopPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsTopPanel.add(new JLabel("Max distinct values "));
-		scanValuesCount = new JComboBox<>(new String[] { "100", "1,000", "10,000" });
+		scanValuesCount = new JComboBox<>(new String[] { "100", "1,000", "10,000", "100,000" });
 		scanValuesCount.setSelectedIndex(1);
 		scanValuesCount.setToolTipText("Maximum number of distinct values per field to be reported");
 		scanOptionsTopPanel.add(scanValuesCount);
@@ -478,7 +478,7 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsLowerPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsLowerPanel.add(new JLabel("Numeric stats reservoir size: "));
-		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million"});
+		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million" });
 		numericStatsSampleSize.setSelectedIndex(0);
 		numericStatsSampleSize.setToolTipText("Maximum number of rows used to calculate numeric statistics");
 		scanOptionsLowerPanel.add(numericStatsSampleSize);
@@ -971,31 +971,10 @@ public class WhiteRabbitMain implements ActionListener {
 					return;
 			}
 		}
-		int rowCount = 0;
-		if (scanRowCount.getSelectedItem().toString().equals("100,000"))
-			rowCount = 100000;
-		else if (scanRowCount.getSelectedItem().toString().equals("500,000"))
-			rowCount = 500000;
-		else if (scanRowCount.getSelectedItem().toString().equals("1 million"))
-			rowCount = 1000000;
-		if (scanRowCount.getSelectedItem().toString().equals("all"))
-			rowCount = -1;
 
-		int valuesCount = 0;
-		if (scanValuesCount.getSelectedItem().toString().equals("100"))
-			valuesCount = 100;
-		else if (scanValuesCount.getSelectedItem().toString().equals("1,000"))
-			valuesCount = 1000;
-		else if (scanValuesCount.getSelectedItem().toString().equals("10,000"))
-			valuesCount = 10000;
-
-		int numStatsSamplerSize = 0;
-		if (numericStatsSampleSize.getSelectedItem().toString().equals("100,000"))
-			numStatsSamplerSize = 100000;
-		else if (numericStatsSampleSize.getSelectedItem().toString().equals("500,000"))
-			numStatsSamplerSize = 500000;
-		else if (numericStatsSampleSize.getSelectedItem().toString().equals("1 million"))
-			numStatsSamplerSize = 1000000;
+		int rowCount = StringUtilities.numericOptionToInt(scanRowCount.getSelectedItem().toString());
+		int valuesCount = StringUtilities.numericOptionToInt(scanValuesCount.getSelectedItem().toString());
+		int numStatsSamplerSize = StringUtilities.numericOptionToInt(numericStatsSampleSize.getSelectedItem().toString());
 
 		ScanThread scanThread = new ScanThread(
 				rowCount,
