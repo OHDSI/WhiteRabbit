@@ -29,8 +29,6 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -212,9 +210,30 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.domain = dbSettings.database;
 			}
 		}
+
 		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
-			try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
-				dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+			if (dbSettings.sourceType == DbSettings.SourceType.DATABASE) {
+				try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
+					dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+				}
+			} else {
+				String extension;
+				if (dbSettings.sourceType == DbSettings.SourceType.CSV_FILES) {
+					extension = ".csv";
+				} else {
+					extension = ".sas7bdat";
+				}
+				File folder = new File(iniFile.get("WORKING_FOLDER"));
+				if (folder.isDirectory()) {
+					for (File file : folder.listFiles()) {
+						if (file.isFile()) {
+							String filename = file.getName();
+							if (filename.endsWith(extension)) {
+								dbSettings.tables.add(filename);
+							}
+						}
+					}
+				}
 			}
 		} else {
 			for (String table : iniFile.get("TABLES_TO_SCAN").split(",")) {
