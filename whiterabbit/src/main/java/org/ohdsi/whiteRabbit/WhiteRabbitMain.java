@@ -227,7 +227,7 @@ public class WhiteRabbitMain implements ActionListener {
 				if (folder.isDirectory()) {
 					for (File file : folder.listFiles()) {
 						if (file.isFile()) {
-							String filename = file.getName();
+							String filename = file.getAbsolutePath();
 							if (filename.endsWith(extension)) {
 								dbSettings.tables.add(filename);
 							}
@@ -246,10 +246,18 @@ public class WhiteRabbitMain implements ActionListener {
 		SourceDataScan sourceDataScan = new SourceDataScan();
 		int maxRows = Integer.parseInt(iniFile.get("ROWS_PER_TABLE"));
 		boolean scanValues = iniFile.get("SCAN_FIELD_VALUES").equalsIgnoreCase("yes");
-		int minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
-		int maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
-		boolean calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
-		int numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+		int minCellCount = 0;
+		int maxValues = 0;
+		boolean calculateNumericStats = false;
+		int numericStatsSamplerSize = 0;
+		if (scanValues) {
+			minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
+			maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
+			calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
+			if (calculateNumericStats) {
+				numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+			}
+		}
 
 		sourceDataScan.setSampleSize(maxRows);
 		sourceDataScan.setScanValues(scanValues);
