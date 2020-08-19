@@ -29,8 +29,6 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -212,9 +210,30 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.domain = dbSettings.database;
 			}
 		}
+
 		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
-			try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
-				dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+			if (dbSettings.sourceType == DbSettings.SourceType.DATABASE) {
+				try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
+					dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+				}
+			} else {
+				String extension;
+				if (dbSettings.sourceType == DbSettings.SourceType.CSV_FILES) {
+					extension = ".csv";
+				} else {
+					extension = ".sas7bdat";
+				}
+				File folder = new File(iniFile.get("WORKING_FOLDER"));
+				if (folder.isDirectory()) {
+					for (File file : folder.listFiles()) {
+						if (file.isFile()) {
+							String filename = file.getAbsolutePath();
+							if (filename.endsWith(extension)) {
+								dbSettings.tables.add(filename);
+							}
+						}
+					}
+				}
 			}
 		} else {
 			for (String table : iniFile.get("TABLES_TO_SCAN").split(",")) {
@@ -227,10 +246,18 @@ public class WhiteRabbitMain implements ActionListener {
 		SourceDataScan sourceDataScan = new SourceDataScan();
 		int maxRows = Integer.parseInt(iniFile.get("ROWS_PER_TABLE"));
 		boolean scanValues = iniFile.get("SCAN_FIELD_VALUES").equalsIgnoreCase("yes");
-		int minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
-		int maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
-		boolean calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
-		int numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+		int minCellCount = 0;
+		int maxValues = 0;
+		boolean calculateNumericStats = false;
+		int numericStatsSamplerSize = 0;
+		if (scanValues) {
+			minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
+			maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
+			calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
+			if (calculateNumericStats) {
+				numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+			}
+		}
 
 		sourceDataScan.setSampleSize(maxRows);
 		sourceDataScan.setScanValues(scanValues);
