@@ -11,6 +11,7 @@
         <module>rabbitinahat</module>
         <module>whiterabbit</module>
         <module>rabbit-core</module>
+        <module>whiteRabbitService</module>
     </modules>
     <name>Leporidae</name>
     <url>https://www.ohdsi.org/analytic-tools/whiterabbit-for-etl-design/</url>

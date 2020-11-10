@@ -70,6 +70,11 @@ public class SourceDataScan {
 
 	private LocalDateTime startTimeStamp;
 
+	private Logger logger = new ConsoleLogger();
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
 
 	public void setSampleSize(int sampleSize) {
 		this.sampleSize = sampleSize;
@@ -102,7 +107,7 @@ public class SourceDataScan {
 		database = dbSettings.database;
 
 		tableToFieldInfos = new HashMap<>();
-		StringUtilities.outputWithTime("Started new scan of " + dbSettings.tables.size() + " tables...");
+		logger.logWithTime("Started new scan of " + dbSettings.tables.size() + " tables...");
 		if (sourceType == DbSettings.SourceType.CSV_FILES) {
 			if (!scanValues)
 				this.minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
@@ -154,7 +159,7 @@ public class SourceDataScan {
 				table.setName(new File(fileName).getName());
 				table.setComment(sasFileProperties.getName());
 
-				StringUtilities.outputWithTime("Scanning table " + fileName);
+				logger.logWithTime("Scanning table " + fileName);
 				List<FieldInfo> fieldInfos = processSasFile(sasFileReader);
 				tableToFieldInfos.put(table, fieldInfos);
 
@@ -165,7 +170,7 @@ public class SourceDataScan {
 	}
 
 	private void generateReport(String filename) {
-		StringUtilities.outputWithTime("Generating scan report");
+		logger.logWithTime("Generating scan report");
 		removeEmptyTables();
 
 		workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
@@ -190,7 +195,7 @@ public class SourceDataScan {
 		try (FileOutputStream out = new FileOutputStream(new File(filename))) {
 			workbook.write(out);
 			out.close();
-			StringUtilities.outputWithTime("Scan report generated: " + filename);
+			logger.logWithTime("Scan report generated: " + filename);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex.getMessage());
 		}
@@ -390,7 +395,7 @@ public class SourceDataScan {
 	}
 
 	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) {
-		StringUtilities.outputWithTime("Scanning table " + table);
+		logger.logWithTime("Scanning table " + table);
 
 		long rowCount = connection.getTableSize(table);
 		List<FieldInfo> fieldInfos = fetchTableStructure(connection, table);
@@ -405,14 +410,14 @@ public class SourceDataScan {
 					}
 					actualCount++;
 					if (sampleSize != -1 && actualCount >= sampleSize) {
-						System.out.println("Stopped after " + actualCount + " rows");
+						logger.log("Stopped after " + actualCount + " rows");
 						break;
 					}
 				}
 				for (FieldInfo fieldInfo : fieldInfos)
 					fieldInfo.trim();
 			} catch (Exception e) {
-				System.out.println("Error: " + e.getMessage());
+				logger.log("Error: " + e.getMessage());
 			} finally {
 				if (queryResult != null) {
 					queryResult.close();
@@ -455,7 +460,7 @@ public class SourceDataScan {
 			else if (dbType == DbType.BIGQUERY)
 				query = "SELECT * FROM " + table + " ORDER BY RAND() LIMIT " + sampleSize;
 		}
-		// System.out.println("SQL: " + query);
+		// logger.log("SQL: " + query);
 		return connection.query(query);
 
 	}
@@ -525,7 +530,7 @@ public class SourceDataScan {
 	}
 
 	private List<FieldInfo> processCsvFile(String filename) {
-		StringUtilities.outputWithTime("Scanning table " + filename);
+		logger.logWithTime("Scanning table " + filename);
 		List<FieldInfo> fieldInfos = new ArrayList<>();
 		int lineNr = 0;
 		for (String line : new ReadTextFile(filename)) {
@@ -587,7 +592,7 @@ public class SourceDataScan {
 			Object[] row = sasFileReader.readNext();
 
 			if (row.length != fieldInfos.size()) {
-				StringUtilities.outputWithTime("WARNING: row " + lineNr + " not scanned due to field count mismatch.");
+				logger.logWithTime("WARNING: row " + lineNr + " not scanned due to field count mismatch.");
 				continue;
 			}
 
