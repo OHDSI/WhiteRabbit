@@ -1,8 +1,8 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.ohdsi.utilities.ConsoleLogger;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 import org.springframework.stereotype.Service;
@@ -14,8 +14,11 @@ import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adapt;
 import static java.nio.file.Files.delete;
 import static java.nio.file.Files.readAllBytes;
 
+@AllArgsConstructor
 @Service
 public class WhiteRabbitFacade {
+
+    private final WebSocketLogger webSocketLogger;
 
     @SneakyThrows
     public byte[] generateScanReport(DbSettingsDto dto) throws DbTypeNotSupportedException {
@@ -28,7 +31,7 @@ public class WhiteRabbitFacade {
                 .setMaxValues(dto.getMaxValues())
                 .setCalculateNumericStats(dto.isCalculateNumericStats())
                 .setNumericStatsSamplerSize(dto.getNumericStatsSamplerSize())
-                .setLogger(new ConsoleLogger())
+                .setLogger(webSocketLogger)
                 .build();
 
         sourceDataScan.process(dbSettings, scanReportFileName);
