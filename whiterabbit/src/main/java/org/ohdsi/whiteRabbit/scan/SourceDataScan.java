@@ -164,6 +164,7 @@ public class SourceDataScan {
 				tableToFieldInfos.put(table, fieldInfos);
 
 			} catch (IOException e) {
+				logger.error(e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -417,7 +418,7 @@ public class SourceDataScan {
 				for (FieldInfo fieldInfo : fieldInfos)
 					fieldInfo.trim();
 			} catch (Exception e) {
-				logger.log("Error: " + e.getMessage());
+				logger.error("Error: " + e.getMessage());
 			} finally {
 				if (queryResult != null) {
 					queryResult.close();
