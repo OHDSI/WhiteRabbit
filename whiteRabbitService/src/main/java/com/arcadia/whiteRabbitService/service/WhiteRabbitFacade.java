@@ -24,41 +24,6 @@ import static java.nio.file.Files.readAllBytes;
 @Service
 public class WhiteRabbitFacade {
 
-    public TestConnectionDto testConnection(DbSettingsDto dto) {
-        try {
-            DbSettings dbSettings = adapt(dto);
-            RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain,
-                    dbSettings.user, dbSettings.password, dbSettings.dbType);
-
-            var tableNames = connection.getTableNames(dbSettings.database);
-
-            if (tableNames.size() == 0) {
-                throw new Exception("Unable to retrieve table names for database " + dbSettings.database);
-            }
-
-            connection.close();
-
-            var successMessage = format("Successfully connected to %s on server %s", dbSettings.database, dbSettings.server);
-            return new TestConnectionDto(true, successMessage);
-
-        } catch (Exception e) {
-            var errorMessage = format("Could not connect to database: %s", e.getMessage());
-            return new TestConnectionDto(false, errorMessage);
-        }
-    }
-
-    public TablesInfoDto tablesInfo(DbSettingsDto dto) throws DbTypeNotSupportedException {
-        DbSettings dbSettings = adapt(dto);
-
-        try (RichConnection connection = new RichConnection(
-                dbSettings.server, dbSettings.domain,
-                dbSettings.user, dbSettings.password,
-                dbSettings.dbType
-        )) {
-            return new TablesInfoDto(connection.getTableNames(dbSettings.database));
-        }
-    }
-
     public byte[] generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
         try {
             DbSettings dbSettings = adapt(dto);
@@ -84,6 +49,40 @@ public class WhiteRabbitFacade {
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new FailedToScanException(e.getCause());
+        }
+    }
+
+    public TestConnectionDto testConnection(DbSettingsDto dto) {
+        try {
+            DbSettings dbSettings = adapt(dto);
+            RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain,
+                    dbSettings.user, dbSettings.password, dbSettings.dbType);
+
+            var tableNames = connection.getTableNames(dbSettings.database);
+            if (tableNames.size() == 0) {
+                throw new Exception("Unable to retrieve table names for database " + dbSettings.database);
+            }
+
+            connection.close();
+
+            var successMessage = format("Successfully connected to %s on server %s", dbSettings.database, dbSettings.server);
+            return new TestConnectionDto(true, successMessage);
+
+        } catch (Exception e) {
+            var errorMessage = format("Could not connect to database: %s", e.getMessage());
+            return new TestConnectionDto(false, errorMessage);
+        }
+    }
+
+    public TablesInfoDto tablesInfo(DbSettingsDto dto) throws DbTypeNotSupportedException {
+        DbSettings dbSettings = adapt(dto);
+
+        try (RichConnection connection = new RichConnection(
+                dbSettings.server, dbSettings.domain,
+                dbSettings.user, dbSettings.password,
+                dbSettings.dbType
+        )) {
+            return new TablesInfoDto(connection.getTableNames(dbSettings.database));
         }
     }
 }
