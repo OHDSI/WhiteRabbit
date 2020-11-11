@@ -1,7 +1,7 @@
-package com.arcadia.whiteRabbitService.service;
+package com.arcadia.whiteRabbitService.service.error;
 
 public class DbTypeNotSupportedException extends Exception {
-    DbTypeNotSupportedException() {
+    public DbTypeNotSupportedException() {
         super("Database type not supported");
     }
 }

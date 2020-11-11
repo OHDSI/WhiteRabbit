@@ -1,6 +1,7 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
+import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.whiteRabbit.DbSettings;
