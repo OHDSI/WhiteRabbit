@@ -9,7 +9,9 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import static java.lang.String.format;
 import static org.ohdsi.utilities.StringUtilities.now;
+import static org.springframework.messaging.simp.SimpMessageHeaderAccessor.create;
 
 @AllArgsConstructor
 public class WebSocketLogger implements Logger {
@@ -31,7 +33,7 @@ public class WebSocketLogger implements Logger {
     @Override
     public void logWithTime(String message) {
         consoleLogger.logWithTime(message);
-        sendMessageToUser(now() + "\t" + message);
+        sendMessageToUser(format("%s\t%s", now(), message));
     }
 
     @Override
@@ -49,7 +51,7 @@ public class WebSocketLogger implements Logger {
     }
 
     private MessageHeaders createHeaders(String sessionId) {
-        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+        SimpMessageHeaderAccessor headerAccessor = create(SimpMessageType.MESSAGE);
         headerAccessor.setSessionId(sessionId);
         headerAccessor.setLeaveMutable(true);
         return headerAccessor.getMessageHeaders();
