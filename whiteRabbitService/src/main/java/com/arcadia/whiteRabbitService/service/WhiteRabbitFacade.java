@@ -2,12 +2,13 @@ package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
+import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 
 import static com.arcadia.whiteRabbitService.service.Constants.scanReportFileName;
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adapt;
@@ -18,10 +19,7 @@ import static java.nio.file.Files.readAllBytes;
 @Service
 public class WhiteRabbitFacade {
 
-    private final WebSocketLogger webSocketLogger;
-
-    @SneakyThrows
-    public byte[] generateScanReport(DbSettingsDto dto) throws DbTypeNotSupportedException {
+    public byte[] generateScanReport(DbSettingsDto dto, Logger logger) throws DbTypeNotSupportedException, IOException {
         DbSettings dbSettings = adapt(dto);
 
         SourceDataScan sourceDataScan = new SourceDataScanBuilder()
@@ -31,9 +29,8 @@ public class WhiteRabbitFacade {
                 .setMaxValues(dto.getMaxValues())
                 .setCalculateNumericStats(dto.isCalculateNumericStats())
                 .setNumericStatsSamplerSize(dto.getNumericStatsSamplerSize())
-                .setLogger(webSocketLogger)
+                .setLogger(logger)
                 .build();
-
         sourceDataScan.process(dbSettings, scanReportFileName);
 
         var reportFile = new File(scanReportFileName);
