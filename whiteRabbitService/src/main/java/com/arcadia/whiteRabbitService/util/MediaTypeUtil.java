@@ -6,7 +6,7 @@ import org.ohdsi.whiteRabbit.DbSettings;
 
 import static java.lang.String.format;
 
-public class MediaType {
+public class MediaTypeUtil {
 
     public static String getBase64HeaderForDelimitedTextFile(DbSettings.SourceType sourceType) {
         return format("data:%s;base64,", getMediaTypeSourceType(sourceType));

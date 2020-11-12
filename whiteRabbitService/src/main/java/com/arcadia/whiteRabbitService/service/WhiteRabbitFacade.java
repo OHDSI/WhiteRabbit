@@ -18,7 +18,7 @@ import static com.arcadia.whiteRabbitService.service.Constants.scanReportFileNam
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSettings;
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDelimitedTextFileSettings;
 import static com.arcadia.whiteRabbitService.util.FileUtil.base64ToFile;
-import static com.arcadia.whiteRabbitService.util.MediaType.getBase64HeaderForDelimitedTextFile;
+import static com.arcadia.whiteRabbitService.util.MediaTypeUtil.getBase64HeaderForDelimitedTextFile;
 import static java.lang.String.format;
 import static java.nio.file.Files.delete;
 import static java.nio.file.Files.readAllBytes;
