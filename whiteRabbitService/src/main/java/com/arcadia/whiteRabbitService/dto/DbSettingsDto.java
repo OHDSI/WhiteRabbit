@@ -20,15 +20,5 @@ public class DbSettingsDto {
 
     private final String tablesToScan;
 
-    private final Integer sampleSize;
-
-    private final Boolean scanValues;
-
-    private final Integer minCellCount;
-
-    private final Integer maxValues;
-
-    private final Boolean calculateNumericStats;
-
-    private final Integer numericStatsSamplerSize;
+    private final ScanParametersDto scanParameters;
 }

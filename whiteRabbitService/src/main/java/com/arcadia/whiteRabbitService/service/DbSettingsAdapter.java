@@ -1,7 +1,9 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
+import com.arcadia.whiteRabbitService.dto.DelimitedTextFileSettingsDto;
 import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
+import com.arcadia.whiteRabbitService.service.error.DelimitedTextFileNotSupportedException;
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.whiteRabbit.DbSettings;
@@ -10,6 +12,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import static com.arcadia.whiteRabbitService.service.Constants.pathToDelimitedTextFiles;
+import static java.io.File.separator;
+import static java.util.stream.Collectors.toList;
 
 public final class DbSettingsAdapter {
 
@@ -35,7 +41,12 @@ public final class DbSettingsAdapter {
             DbType.BIGQUERY
     );
 
-    public static DbSettings adapt(DbSettingsDto dto) throws DbTypeNotSupportedException {
+    private static final Map<DbSettings.SourceType, Function<String, Boolean>> sourceTypeForDelimitedTextFileIdentifiers = Map.of(
+            DbSettings.SourceType.CSV_FILES, fileType -> fileType.equals("csv"),
+            DbSettings.SourceType.SAS_FILES, fileType -> fileType.equals("sas7bdat")
+    );
+
+    public static DbSettings adaptDbSettings(DbSettingsDto dto) throws DbTypeNotSupportedException {
         DbSettings dbSettings = new DbSettings();
 
         dbSettings.sourceType = DbSettings.SourceType.DATABASE;
@@ -48,6 +59,19 @@ public final class DbSettingsAdapter {
         checkWindowsAuthentication(dbSettings);
         setDomain(dbSettings);
         setTablesToScan(dbSettings, dto.getTablesToScan());
+
+        return dbSettings;
+    }
+
+    public static DbSettings adaptDelimitedTextFileSettings(DelimitedTextFileSettingsDto dto) throws DelimitedTextFileNotSupportedException {
+        DbSettings dbSettings = new DbSettings();
+
+        dbSettings.sourceType = getSourceTypeForDelimitedTextFiles(dto.getFileType());
+        dbSettings.delimiter = dto.getDelimiter().charAt(0);
+        dbSettings.tables = dto.getFilesToScan()
+                .stream()
+                .map(fileToScanDto -> pathToDelimitedTextFiles + separator + fileToScanDto.getFileName())
+                .collect(toList());
 
         return dbSettings;
     }
@@ -92,5 +116,15 @@ public final class DbSettingsAdapter {
         } else {
             dbSettings.tables.addAll(Arrays.asList(tablesToScan.split(",")));
         }
+    }
+
+    private static DbSettings.SourceType getSourceTypeForDelimitedTextFiles(String fileType) throws DelimitedTextFileNotSupportedException {
+        for (Map.Entry<DbSettings.SourceType, Function<String, Boolean>> entry : sourceTypeForDelimitedTextFileIdentifiers.entrySet()) {
+            if (entry.getValue().apply(fileType)) {
+                return entry.getKey();
+            }
+        }
+
+        throw new DelimitedTextFileNotSupportedException();
     }
 }

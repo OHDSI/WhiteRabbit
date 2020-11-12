@@ -1,6 +1,7 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
+import com.arcadia.whiteRabbitService.dto.ScanParametersDto;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.ohdsi.databases.DbType;
@@ -14,9 +15,9 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptFields() {
-        var dto = createTestDto("Sql Server");
+        var dto = createTestDbSettingsDto("Sql Server");
 
-        DbSettings dbSettings = DbSettingsAdapter.adapt(dto);
+        DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
 
         assertAll("Should be equals all string and primitive fields",
                 () -> assertEquals(dto.getUser(), dbSettings.user),
@@ -29,9 +30,9 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptMsSqlDbType() {
-        var dto = createTestDto("SQL SERVER");
+        var dto = createTestDbSettingsDto("SQL SERVER");
 
-        DbSettings dbSettings = DbSettingsAdapter.adapt(dto);
+        DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
 
         assertEquals(dbSettings.dbType, DbType.MSSQL);
     }
@@ -39,14 +40,14 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptPostgreDbType() {
-        var dto = createTestDto("postgresql");
+        var dto = createTestDbSettingsDto("postgresql");
 
-        DbSettings dbSettings = DbSettingsAdapter.adapt(dto);
+        DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
 
         assertEquals(dbSettings.dbType, DbType.POSTGRESQL);
     }
 
-    private DbSettingsDto createTestDto(String dbType) {
+    private DbSettingsDto createTestDbSettingsDto(String dbType) {
         String server = "822JNJ16S03V";
         String database = "CPRD";
         String user = "cdm_builder";
@@ -64,9 +65,11 @@ class DbSettingsAdapterTest {
                 user, password,
                 database, server, domain,
                 tablesToScan,
-                sampleSize, true,
-                minCellCount, maxValues,
-                false, numericStatsSamplerSize
+                new ScanParametersDto(
+                        sampleSize, true,
+                        minCellCount, maxValues,
+                        false, numericStatsSamplerSize
+                )
         );
     }
 }
