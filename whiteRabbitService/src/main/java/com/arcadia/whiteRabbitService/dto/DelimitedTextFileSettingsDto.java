@@ -14,5 +14,5 @@ public class DelimitedTextFileSettingsDto {
 
     private final List<FileToScanDto> filesToScan;
 
-    private final ScanParametersDto scanParameters;
+    private final ScanParamsDto scanParameters;
 }

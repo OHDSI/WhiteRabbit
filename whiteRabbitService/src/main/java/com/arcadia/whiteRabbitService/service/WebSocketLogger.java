@@ -38,7 +38,7 @@ public class WebSocketLogger implements Logger {
 
     @Override
     public void error(String message) {
-        consoleLogger.log(message);
+        consoleLogger.error(message);
         sendMessageToUser(message);
     }
 

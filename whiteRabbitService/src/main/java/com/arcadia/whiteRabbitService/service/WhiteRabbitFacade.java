@@ -8,21 +8,20 @@ import lombok.SneakyThrows;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
+import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import static com.arcadia.whiteRabbitService.service.Constants.scanReportFileName;
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSettings;
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDelimitedTextFileSettings;
-import static com.arcadia.whiteRabbitService.util.FileUtil.base64ToFile;
+import static com.arcadia.whiteRabbitService.util.FileUtil.*;
 import static com.arcadia.whiteRabbitService.util.MediaTypeUtil.getBase64HeaderForDelimitedTextFile;
 import static java.lang.String.format;
 import static java.nio.file.Files.delete;
 import static java.nio.file.Files.readAllBytes;
-import static java.util.stream.Collectors.toList;
 
 @AllArgsConstructor
 @Service
@@ -32,11 +31,11 @@ public class WhiteRabbitFacade {
         try {
             DbSettings dbSettings = adaptDbSettings(dto);
             SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParameters(), logger);
+            String scanReportFileName = generateRandomFileName();
 
             sourceDataScan.process(dbSettings, scanReportFileName);
 
-            return getScanReportBytes();
-
+            return getScanReportBytes(scanReportFileName);
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new FailedToScanException(e.getCause());
@@ -45,24 +44,21 @@ public class WhiteRabbitFacade {
 
     public byte[] generateScanReport(DelimitedTextFileSettingsDto dto, Logger logger) throws FailedToScanException {
         try {
-            DbSettings dbSettings = adaptDelimitedTextFileSettings(dto);
+            String directoryName = generateRandomDirectory();
+            DbSettings dbSettings = adaptDelimitedTextFileSettings(dto, directoryName);
             SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParameters(), logger);
+            String scanReportFileName = generateRandomFileName();
 
-            var delimitedFilePaths = dto.getFilesToScan()
-                    .stream()
-                    .map(fileToScanDto -> base64ToFile(
-                            fileToScanDto.getFileName(),
-                            fileToScanDto.getBase64().substring(getBase64HeaderForDelimitedTextFile(dbSettings.sourceType).length())
-                    ))
-                    .collect(toList());
+            dto.getFilesToScan().forEach(fileToScanDto -> base64ToFile(
+                    Paths.get(directoryName, fileToScanDto.getFileName()),
+                    fileToScanDto.getBase64().substring(getBase64HeaderForDelimitedTextFile(dbSettings.sourceType).length())
+            ));
 
             sourceDataScan.process(dbSettings, scanReportFileName);
 
-            for (Path path : delimitedFilePaths) {
-                delete(path);
-            }
+            deleteRecursive(Paths.get(directoryName));
 
-            return getScanReportBytes();
+            return getScanReportBytes(scanReportFileName);
 
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -104,7 +100,27 @@ public class WhiteRabbitFacade {
         }
     }
 
-    private SourceDataScan createSourceDataScan(ScanParametersDto dto, Logger logger) {
+    @SneakyThrows
+    public void generateFakeData(ParamsForFakeDataGenerationDto dto) {
+        DbSettings dbSettings = adaptDbSettings(dto.getDbSettings());
+
+        String directoryName = generateRandomDirectory();
+        String fileName = generateRandomFileName();
+
+        base64ToFile(Paths.get(directoryName, fileName), dto.getScanReportBase64());
+
+        FakeDataGenerator process = new FakeDataGenerator();
+        process.generateData(
+                dbSettings,
+                dto.getMaxRowCount(),
+                fileName, directoryName,
+                dto.isDoUniformSampling()
+        );
+
+        deleteRecursive(Paths.get(directoryName));
+    }
+
+    private SourceDataScan createSourceDataScan(ScanParamsDto dto, Logger logger) {
         return new SourceDataScanBuilder()
                 .setSampleSize(dto.getSampleSize())
                 .setScanValues(dto.getScanValues())
@@ -117,7 +133,7 @@ public class WhiteRabbitFacade {
     }
 
     @SneakyThrows
-    private byte[] getScanReportBytes() {
+    private byte[] getScanReportBytes(String scanReportFileName) {
         var reportFile = new File(scanReportFileName);
         var reportPath = reportFile.toPath();
         var reportBytes = readAllBytes(reportPath);

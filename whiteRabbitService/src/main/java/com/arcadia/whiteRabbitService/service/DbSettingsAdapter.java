@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.arcadia.whiteRabbitService.service.Constants.pathToDelimitedTextFiles;
 import static java.io.File.separator;
 import static java.util.stream.Collectors.toList;
 
@@ -63,14 +62,14 @@ public final class DbSettingsAdapter {
         return dbSettings;
     }
 
-    public static DbSettings adaptDelimitedTextFileSettings(DelimitedTextFileSettingsDto dto) throws DelimitedTextFileNotSupportedException {
+    public static DbSettings adaptDelimitedTextFileSettings(DelimitedTextFileSettingsDto dto, String dirName) throws DelimitedTextFileNotSupportedException {
         DbSettings dbSettings = new DbSettings();
 
         dbSettings.sourceType = getSourceTypeForDelimitedTextFiles(dto.getFileType());
         dbSettings.delimiter = dto.getDelimiter().charAt(0);
         dbSettings.tables = dto.getFilesToScan()
                 .stream()
-                .map(fileToScanDto -> pathToDelimitedTextFiles + separator + fileToScanDto.getFileName())
+                .map(fileToScanDto -> dirName + separator + fileToScanDto.getFileName())
                 .collect(toList());
 
         return dbSettings;

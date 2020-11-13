@@ -1,7 +1,7 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
-import com.arcadia.whiteRabbitService.dto.ScanParametersDto;
+import com.arcadia.whiteRabbitService.dto.ScanParamsDto;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.ohdsi.databases.DbType;
@@ -65,7 +65,7 @@ class DbSettingsAdapterTest {
                 user, password,
                 database, server, domain,
                 tablesToScan,
-                new ScanParametersDto(
+                new ScanParamsDto(
                         sampleSize, true,
                         minCellCount, maxValues,
                         false, numericStatsSamplerSize

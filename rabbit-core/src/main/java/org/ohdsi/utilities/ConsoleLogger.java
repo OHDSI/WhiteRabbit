@@ -13,6 +13,6 @@ public class ConsoleLogger implements Logger {
 
     @Override
     public void error(String message) {
-        System.out.println(message);
+        System.err.println(message);
     }
 }

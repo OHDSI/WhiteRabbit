@@ -9,11 +9,11 @@ import static java.lang.String.format;
 public class MediaTypeUtil {
 
     public static String getBase64HeaderForDelimitedTextFile(DbSettings.SourceType sourceType) {
-        return format("data:%s;base64,", getMediaTypeSourceType(sourceType));
+        return format("data:%s;base64,", getMediaTypeBySourceType(sourceType));
     }
 
     @SneakyThrows
-    private static String getMediaTypeSourceType(DbSettings.SourceType sourceType) {
+    private static String getMediaTypeBySourceType(DbSettings.SourceType sourceType) {
         return switch (sourceType) {
             case CSV_FILES -> "text/csv";
             case SAS_FILES -> "application/octet-stream";

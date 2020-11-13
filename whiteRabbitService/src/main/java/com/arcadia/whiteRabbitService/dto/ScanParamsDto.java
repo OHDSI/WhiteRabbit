@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class ScanParametersDto {
+public class ScanParamsDto {
     private final Integer sampleSize;
 
     private final Boolean scanValues;
