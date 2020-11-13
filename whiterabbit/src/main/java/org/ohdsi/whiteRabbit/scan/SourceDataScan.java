@@ -159,7 +159,7 @@ public class SourceDataScan {
 				table.setName(new File(fileName).getName());
 				table.setComment(sasFileProperties.getName());
 
-				logger.logWithTime("Scanning table " + fileName);
+				logger.logWithTime("Scanning table " + StringUtilities.getFileNameBYFullName(fileName));
 				List<FieldInfo> fieldInfos = processSasFile(sasFileReader);
 				tableToFieldInfos.put(table, fieldInfos);
 
@@ -196,7 +196,7 @@ public class SourceDataScan {
 		try (FileOutputStream out = new FileOutputStream(new File(filename))) {
 			workbook.write(out);
 			out.close();
-			logger.logWithTime("Scan report generated: " + filename);
+			logger.logWithTime("Scan report generated");
 		} catch (IOException ex) {
 			throw new RuntimeException(ex.getMessage());
 		}
@@ -531,7 +531,7 @@ public class SourceDataScan {
 	}
 
 	private List<FieldInfo> processCsvFile(String filename) {
-		logger.logWithTime("Scanning table " + filename);
+		logger.logWithTime("Scanning table " + StringUtilities.getFileNameBYFullName(filename));
 		List<FieldInfo> fieldInfos = new ArrayList<>();
 		int lineNr = 0;
 		for (String line : new ReadTextFile(filename)) {

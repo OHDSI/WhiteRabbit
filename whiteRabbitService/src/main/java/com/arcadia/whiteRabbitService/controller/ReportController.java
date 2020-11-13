@@ -4,9 +4,9 @@ import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
 import com.arcadia.whiteRabbitService.dto.DelimitedTextFileSettingsDto;
 import com.arcadia.whiteRabbitService.dto.ProgressNotificationDto;
 import com.arcadia.whiteRabbitService.dto.ScanReportDto;
-import com.arcadia.whiteRabbitService.service.WebSocketLogger;
 import com.arcadia.whiteRabbitService.service.WhiteRabbitFacade;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
+import com.arcadia.whiteRabbitService.service.log.WebSocketLogger;
 import lombok.AllArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.messaging.handler.annotation.Header;
@@ -16,6 +16,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
+
+import static com.arcadia.whiteRabbitService.service.log.ProgressNotificationStatus.FAILED_TO_SCAN;
 
 @AllArgsConstructor
 @Controller
@@ -46,6 +48,6 @@ public class ReportController {
     @MessageExceptionHandler
     @SendToUser("/queue/reply")
     public ProgressNotificationDto handleException(Exception exception) {
-        return new ProgressNotificationDto(exception.getMessage());
+        return new ProgressNotificationDto(exception.getMessage(), FAILED_TO_SCAN);
     }
 }
