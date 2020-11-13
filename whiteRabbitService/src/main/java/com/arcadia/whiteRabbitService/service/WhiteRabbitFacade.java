@@ -59,7 +59,6 @@ public class WhiteRabbitFacade {
             deleteRecursive(Paths.get(directoryName));
 
             return getScanReportBytes(scanReportFileName);
-
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new FailedToScanException(e.getCause());
@@ -81,7 +80,6 @@ public class WhiteRabbitFacade {
 
             var successMessage = format("Successfully connected to %s on server %s", dbSettings.database, dbSettings.server);
             return new TestConnectionDto(true, successMessage);
-
         } catch (Exception e) {
             var errorMessage = format("Could not connect to database: %s", e.getMessage());
             return new TestConnectionDto(false, errorMessage);

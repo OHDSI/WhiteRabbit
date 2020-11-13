@@ -27,10 +27,12 @@ public class ReportController {
 
     private final SimpMessagingTemplate messagingTemplate;
 
+    private final String replyDestination = "/queue/reply";
+
     @MessageMapping("/scan-report/db")
     @SendToUser("/queue/scan-report")
     public ScanReportDto scanReport(@Payload DbSettingsDto dto, @Header("simpSessionId") String sessionId) throws FailedToScanException {
-        var logger = new WebSocketLogger(messagingTemplate, sessionId, "/queue/reply");
+        var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
         var reportBytes = whiteRabbitFacade.generateScanReport(dto, logger);
 
         return new ScanReportDto(Base64.encodeBase64String(reportBytes));
@@ -39,7 +41,7 @@ public class ReportController {
     @MessageMapping("/scan-report/file")
     @SendToUser("/queue/scan-report")
     public ScanReportDto scanReport(@Payload DelimitedTextFileSettingsDto dto, @Header("simpSessionId") String sessionId) throws FailedToScanException {
-        var logger = new WebSocketLogger(messagingTemplate, sessionId, "/queue/reply");
+        var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
         var reportBytes = whiteRabbitFacade.generateScanReport(dto, logger);
 
         return new ScanReportDto(Base64.encodeBase64String(reportBytes));
