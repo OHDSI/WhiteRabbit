@@ -17,6 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.utilities;
 
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -331,6 +332,12 @@ public class StringUtilities {
 	
 	public static void outputWithTime(String message) {
 		System.out.println(now() + "\t" + message);
+	}
+
+	public static String getFileNameBYFullName(String fullName) {
+		return Paths.get(fullName)
+				.getFileName()
+				.toString();
 	}
 	
 	// Checks whether the word is an abbreviation
