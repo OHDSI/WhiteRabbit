@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/dev/white-rabbit-service/api/test-connection")
+@RequestMapping("/api/test-connection")
 public class TestConnectionController {
 
     private final WhiteRabbitFacade whiteRabbitFacade;
