@@ -20,5 +20,5 @@ public class DbSettingsDto {
 
     private final String tablesToScan;
 
-    private final ScanParamsDto scanParameters;
+    private final ScanParamsDto scanParams;
 }

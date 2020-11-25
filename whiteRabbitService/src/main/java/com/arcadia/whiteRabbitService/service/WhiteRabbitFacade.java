@@ -29,7 +29,7 @@ public class WhiteRabbitFacade {
     public byte[] generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
         try {
             DbSettings dbSettings = adaptDbSettings(dto);
-            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParameters(), logger);
+            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
             String scanReportFileName = generateRandomFileName();
 
             sourceDataScan.process(dbSettings, scanReportFileName);
