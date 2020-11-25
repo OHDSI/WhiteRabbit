@@ -29,6 +29,7 @@ public class WebSocketLogger implements Logger {
     private final Logger consoleLogger = new ConsoleLogger();
 
     private static final Map<ProgressNotificationStatus, Function<String, Boolean>> messageStatusRecognizers = Map.of(
+            STARTED_SCANNING, m -> m.contains("Started new scan of"),
             TABLE_SCANNING, m -> m.contains("Scanning table"),
             SCAN_REPORT_GENERATED, m -> m.contains("Scan report generated")
     );

@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.nio.file.Paths;
 
-import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSettings;
-import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDelimitedTextFileSettings;
+import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.*;
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
 import static com.arcadia.whiteRabbitService.util.MediaTypeUtil.getBase64HeaderForDelimitedTextFile;
 import static java.lang.String.format;
@@ -67,18 +66,17 @@ public class WhiteRabbitFacade {
 
     public TestConnectionDto testConnection(DbSettingsDto dto) {
         try {
-            DbSettings dbSettings = adaptDbSettings(dto);
-            RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain,
-                    dbSettings.user, dbSettings.password, dbSettings.dbType);
+            RichConnection connection = new RichConnection(dto.getServer(), dto.getDomain(),
+                    dto.getUser(), dto.getPassword(), adaptDbType(dto.getDbType()));
 
-            var tableNames = connection.getTableNames(dbSettings.database);
+            var tableNames = connection.getTableNames(dto.getDatabase());
             if (tableNames.size() == 0) {
-                throw new Exception("Unable to retrieve table names for database " + dbSettings.database);
+                throw new Exception("Unable to retrieve table names for database " + dto.getDatabase());
             }
 
             connection.close();
 
-            var successMessage = format("Successfully connected to %s on server %s", dbSettings.database, dbSettings.server);
+            var successMessage = format("Successfully connected to %s on server %s", dto.getDatabase(), dto.getServer());
             return new TestConnectionDto(true, successMessage);
         } catch (Exception e) {
             var errorMessage = format("Could not connect to database: %s", e.getMessage());
@@ -87,14 +85,12 @@ public class WhiteRabbitFacade {
     }
 
     public TablesInfoDto tablesInfo(DbSettingsDto dto) throws DbTypeNotSupportedException {
-        DbSettings dbSettings = adaptDbSettings(dto);
-
         try (RichConnection connection = new RichConnection(
-                dbSettings.server, dbSettings.domain,
-                dbSettings.user, dbSettings.password,
-                dbSettings.dbType
+                dto.getServer(), dto.getDomain(),
+                dto.getUser(), dto.getPassword(),
+                adaptDbType(dto.getDbType())
         )) {
-            return new TablesInfoDto(connection.getTableNames(dbSettings.database));
+            return new TablesInfoDto(connection.getTableNames(dto.getDatabase()));
         }
     }
 

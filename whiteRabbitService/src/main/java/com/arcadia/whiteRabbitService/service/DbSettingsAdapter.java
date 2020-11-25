@@ -53,7 +53,7 @@ public final class DbSettingsAdapter {
         dbSettings.password = dto.getPassword();
         dbSettings.server = dto.getServer();
         dbSettings.database = dto.getDatabase();
-        dbSettings.dbType = getDbType(dto.getDbType());
+        dbSettings.dbType = adaptDbType(dto.getDbType());
 
         checkWindowsAuthentication(dbSettings);
         setDomain(dbSettings);
@@ -75,7 +75,7 @@ public final class DbSettingsAdapter {
         return dbSettings;
     }
 
-    private static DbType getDbType(String type) throws DbTypeNotSupportedException {
+    public static DbType adaptDbType(String type) throws DbTypeNotSupportedException {
         for (Map.Entry<DbType, Function<String, Boolean>> entry : dbTypeIdentifiers.entrySet()) {
             if (entry.getValue().apply(type)) {
                 return entry.getKey();
@@ -104,7 +104,7 @@ public final class DbSettingsAdapter {
     }
 
     private static void setTablesToScan(DbSettings dbSettings, String tablesToScan) {
-        if (tablesToScan.equalsIgnoreCase("*")) {
+        if (tablesToScan.equals("*")) {
             try (RichConnection connection = new RichConnection(
                     dbSettings.server, dbSettings.domain,
                     dbSettings.user, dbSettings.password,

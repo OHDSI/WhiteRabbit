@@ -13,7 +13,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/scan-report", "/queue");
+        config.enableSimpleBroker("/queue");
         config.setApplicationDestinationPrefixes("/white-rabbit-service");
     }
 

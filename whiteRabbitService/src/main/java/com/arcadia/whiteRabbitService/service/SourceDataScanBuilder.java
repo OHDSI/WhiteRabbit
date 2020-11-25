@@ -6,22 +6,22 @@ import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 
 @NoArgsConstructor
 public class SourceDataScanBuilder {
-    private int sampleSize;
+    private Integer sampleSize;
 
     private boolean scanValues = false;
 
-    private int minCellCount;
+    private Integer minCellCount;
 
-    private int maxValues;
+    private Integer maxValues;
 
     private boolean calculateNumericStats = false;
 
-    private int numericStatsSamplerSize;
+    private Integer numericStatsSamplerSize;
 
     private Logger logger;
 
-    public SourceDataScanBuilder setSampleSize(int sampleSize) {
-        this.sampleSize = sampleSize;
+    public SourceDataScanBuilder setSampleSize(Integer sampleSize) {
+        this.sampleSize = sampleSize != null ? sampleSize : 100000;
         return this;
     }
 
@@ -30,13 +30,13 @@ public class SourceDataScanBuilder {
         return this;
     }
 
-    public SourceDataScanBuilder setMinCellCount(int minCellCount) {
-        this.minCellCount = minCellCount;
+    public SourceDataScanBuilder setMinCellCount(Integer minCellCount) {
+        this.minCellCount = minCellCount != null ? minCellCount : 5;
         return this;
     }
 
-    public SourceDataScanBuilder setMaxValues(int maxValues) {
-        this.maxValues = maxValues;
+    public SourceDataScanBuilder setMaxValues(Integer maxValues) {
+        this.maxValues = maxValues != null ? maxValues : 1000;
         return this;
     }
 
@@ -45,8 +45,8 @@ public class SourceDataScanBuilder {
         return this;
     }
 
-    public SourceDataScanBuilder setNumericStatsSamplerSize(int numericStatsSamplerSize) {
-        this.numericStatsSamplerSize = numericStatsSamplerSize;
+    public SourceDataScanBuilder setNumericStatsSamplerSize(Integer numericStatsSamplerSize) {
+        this.numericStatsSamplerSize = numericStatsSamplerSize != null ? numericStatsSamplerSize : 100000;
         return this;
     }
 
