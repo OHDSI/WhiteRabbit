@@ -3,7 +3,6 @@ package com.arcadia.whiteRabbitService.controller;
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
 import com.arcadia.whiteRabbitService.dto.DelimitedTextFileSettingsDto;
 import com.arcadia.whiteRabbitService.dto.ProgressNotificationDto;
-import com.arcadia.whiteRabbitService.dto.ScanReportDto;
 import com.arcadia.whiteRabbitService.service.WhiteRabbitFacade;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import com.arcadia.whiteRabbitService.service.log.WebSocketLogger;
@@ -30,21 +29,21 @@ public class ReportController {
     private final String replyDestination = "/queue/reply";
 
     @MessageMapping("/scan-report/db")
-    @SendToUser("/queue/reply")
-    public ScanReportDto scanReport(@Payload DbSettingsDto dto, @Header("simpSessionId") String sessionId) throws FailedToScanException {
+    @SendToUser("/queue/scan-report")
+    public String scanReport(@Payload DbSettingsDto dto, @Header("simpSessionId") String sessionId) throws FailedToScanException {
         var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
         var reportBytes = whiteRabbitFacade.generateScanReport(dto, logger);
 
-        return new ScanReportDto(Base64.encodeBase64String(reportBytes));
+        return Base64.encodeBase64String(reportBytes);
     }
 
     @MessageMapping("/scan-report/file")
-    @SendToUser("/queue/reply")
-    public ScanReportDto scanReport(@Payload DelimitedTextFileSettingsDto dto, @Header("simpSessionId") String sessionId) throws FailedToScanException {
-            var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
+    @SendToUser("/queue/scan-report")
+    public String scanReport(@Payload DelimitedTextFileSettingsDto dto, @Header("simpSessionId") String sessionId) throws FailedToScanException {
+        var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
         var reportBytes = whiteRabbitFacade.generateScanReport(dto, logger);
 
-        return new ScanReportDto(Base64.encodeBase64String(reportBytes));
+        return Base64.encodeBase64String(reportBytes);
     }
 
     @MessageExceptionHandler
