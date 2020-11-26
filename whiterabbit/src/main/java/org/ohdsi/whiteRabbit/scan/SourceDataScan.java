@@ -179,7 +179,7 @@ public class SourceDataScan {
 		int i = 0;
 		indexedTableNameLookup = new HashMap<>();
 		for (Table table : tableToFieldInfos.keySet()) {
-			String tableNameIndexed = Table.indexTableNameForSheet(table.getName(), i);
+			String tableNameIndexed = Table.indexTableNameForSheetAndRemoveSchema(table.getName(), i);
 			indexedTableNameLookup.put(table.getName(), tableNameIndexed);
 			i++;
 		}
