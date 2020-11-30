@@ -119,11 +119,11 @@ public class WhiteRabbitMain implements ActionListener {
 
 	private List<JComponent>	componentsToDisableWhenRunning	= new ArrayList<JComponent>();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		new WhiteRabbitMain(args);
 	}
 
-	public WhiteRabbitMain(String[] args) {
+	public WhiteRabbitMain(String[] args) throws InterruptedException {
 		if (args.length == 2 && args[0].equalsIgnoreCase("-ini"))
 			launchCommandLine(args[1]);
 		else {
@@ -150,7 +150,7 @@ public class WhiteRabbitMain implements ActionListener {
 		}
 	}
 
-	private void launchCommandLine(String iniFileName) {
+	private void launchCommandLine(String iniFileName) throws InterruptedException {
 		IniFile iniFile = new IniFile(iniFileName);
 		DbSettings dbSettings = new DbSettings();
 		if (iniFile.get("DATA_TYPE").equalsIgnoreCase("Delimited text files")) {

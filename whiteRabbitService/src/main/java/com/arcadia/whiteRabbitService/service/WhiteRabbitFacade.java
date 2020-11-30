@@ -10,10 +10,14 @@ import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.*;
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
@@ -26,7 +30,8 @@ import static java.nio.file.Files.readAllBytes;
 @Service
 public class WhiteRabbitFacade {
 
-    public byte[] generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
+    @Async
+    public Future<byte[]> generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
         try {
             DbSettings dbSettings = adaptDbSettings(dto);
             SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
@@ -34,33 +39,37 @@ public class WhiteRabbitFacade {
 
             sourceDataScan.process(dbSettings, scanReportFileName);
 
-            return getScanReportBytes(scanReportFileName);
+            return new AsyncResult<>(getScanReportBytes(scanReportFileName));
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new FailedToScanException(e.getCause());
         }
     }
 
-    public byte[] generateScanReport(DelimitedTextFileSettingsDto dto, Logger logger) throws FailedToScanException {
+    @Async
+    public Future<byte[]> generateScanReport(DelimitedTextFileSettingsDto dto, Logger logger) throws FailedToScanException {
+        String directoryName = generateRandomDirectory();
+
         try {
-            String directoryName = generateRandomDirectory();
             DbSettings dbSettings = adaptDelimitedTextFileSettings(dto, directoryName);
             SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParameters(), logger);
             String scanReportFileName = generateRandomFileName();
 
             dto.getFilesToScan().forEach(fileToScanDto -> base64ToFile(
                     Paths.get(directoryName, fileToScanDto.getFileName()),
-                    fileToScanDto.getBase64().substring(getBase64HeaderForDelimitedTextFile(dbSettings.sourceType).length())
+                    fileToScanDto.getBase64().substring(
+                            getBase64HeaderForDelimitedTextFile(dbSettings.sourceType).length()
+                    )
             ));
 
             sourceDataScan.process(dbSettings, scanReportFileName);
 
-            deleteRecursive(Paths.get(directoryName));
-
-            return getScanReportBytes(scanReportFileName);
+            return new AsyncResult<>(getScanReportBytes(scanReportFileName));
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new FailedToScanException(e.getCause());
+        } finally {
+            deleteRecursive(Paths.get(directoryName));
         }
     }
 

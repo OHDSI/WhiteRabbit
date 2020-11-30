@@ -100,7 +100,7 @@ public class SourceDataScan {
 		this.numStatsSamplerSize = numStatsSamplerSize;
 	}
 
-	public void process(DbSettings dbSettings, String outputFileName) {
+	public void process(DbSettings dbSettings, String outputFileName) throws InterruptedException {
 		startTimeStamp = LocalDateTime.now();
 		sourceType = dbSettings.sourceType;
 		dbType = dbSettings.dbType;
@@ -121,7 +121,7 @@ public class SourceDataScan {
 		generateReport(outputFileName);
 	}
 
-	private void processDatabase(DbSettings dbSettings) {
+	private void processDatabase(DbSettings dbSettings) throws InterruptedException {
 		// GBQ requires database. Put database value into domain var
 		if (dbSettings.dbType == DbType.BIGQUERY) {
 			dbSettings.domain = dbSettings.database;
@@ -131,15 +131,13 @@ public class SourceDataScan {
 			connection.setVerbose(false);
 			connection.use(dbSettings.database);
 
-			tableToFieldInfos = dbSettings.tables.stream()
-					.collect(Collectors.toMap(
-							Table::new,
-							table -> processDatabaseTable(table, connection)
-					));
+			for (String table : dbSettings.tables) {
+				tableToFieldInfos.put(new Table(table), processDatabaseTable(table, connection));
+			}
 		}
 	}
 
-	private void processCsvFiles(DbSettings dbSettings) {
+	private void processCsvFiles(DbSettings dbSettings) throws InterruptedException {
 		delimiter = dbSettings.delimiter;
 		for (String fileName : dbSettings.tables) {
 			Table table = new Table();
@@ -149,7 +147,7 @@ public class SourceDataScan {
 		}
 	}
 
-	private void processSasFiles(DbSettings dbSettings) {
+	private void processSasFiles(DbSettings dbSettings) throws InterruptedException {
 		for (String fileName : dbSettings.tables) {
 			try(FileInputStream inputStream = new FileInputStream(new File(fileName))) {
 				SasFileReader sasFileReader = new SasFileReaderImpl(inputStream);
@@ -395,7 +393,7 @@ public class SourceDataScan {
 				.removeIf(stringListEntry -> stringListEntry.getValue().size() == 0);
 	}
 
-	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) {
+	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) throws InterruptedException {
 		logger.logWithTime("Scanning table " + table);
 
 		long rowCount = connection.getTableSize(table);
@@ -409,6 +407,7 @@ public class SourceDataScan {
 					for (FieldInfo fieldInfo : fieldInfos) {
 						fieldInfo.processValue(row.get(fieldInfo.name));
 					}
+					checkWasInterrupted();
 					actualCount++;
 					if (sampleSize != -1 && actualCount >= sampleSize) {
 						logger.log("Stopped after " + actualCount + " rows");
@@ -417,6 +416,8 @@ public class SourceDataScan {
 				}
 				for (FieldInfo fieldInfo : fieldInfos)
 					fieldInfo.trim();
+			} catch (InterruptedException e) {
+				throw e;
 			} catch (Exception e) {
 				logger.error("Error: " + e.getMessage());
 			} finally {
@@ -530,7 +531,7 @@ public class SourceDataScan {
 		return fieldInfos;
 	}
 
-	private List<FieldInfo> processCsvFile(String filename) {
+	private List<FieldInfo> processCsvFile(String filename) throws InterruptedException {
 		logger.logWithTime("Scanning table " + StringUtilities.getFileNameBYFullName(filename));
 		List<FieldInfo> fieldInfos = new ArrayList<>();
 		int lineNr = 0;
@@ -562,6 +563,8 @@ public class SourceDataScan {
 			}
 			if (lineNr > sampleSize)
 				break;
+
+			checkWasInterrupted();
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
 			fieldInfo.trim();
@@ -569,7 +572,7 @@ public class SourceDataScan {
 		return fieldInfos;
 	}
 
-	private List<FieldInfo> processSasFile(SasFileReader sasFileReader) throws IOException {
+	private List<FieldInfo> processSasFile(SasFileReader sasFileReader) throws IOException, InterruptedException {
 		List<FieldInfo> fieldInfos = new ArrayList<>();
 
 		SasFileProperties sasFileProperties = sasFileReader.getSasFileProperties();
@@ -583,6 +586,8 @@ public class SourceDataScan {
 				fieldInfo.maxLength = column.getLength();
 			}
 			fieldInfos.add(fieldInfo);
+
+			checkWasInterrupted();
 		}
 
 		if (!scanValues) {
@@ -860,6 +865,12 @@ public class SourceDataScan {
 			if (cell != null) {
 				cell.setCellStyle(style);
 			}
+		}
+	}
+
+	private void checkWasInterrupted() throws InterruptedException {
+		if (Thread.currentThread().isInterrupted()) {
+			throw new InterruptedException("Scan process was canceled by User");
 		}
 	}
 }

@@ -65,7 +65,7 @@ public final class DbSettingsAdapter {
     public static DbSettings adaptDelimitedTextFileSettings(DelimitedTextFileSettingsDto dto, String dirName) throws DelimitedTextFileNotSupportedException {
         DbSettings dbSettings = new DbSettings();
 
-        dbSettings.sourceType = getSourceTypeForDelimitedTextFiles(dto.getFileType());
+        dbSettings.sourceType = adaptSourceType(dto.getFileType());
         dbSettings.delimiter = dto.getDelimiter().charAt(0);
         dbSettings.tables = dto.getFilesToScan()
                 .stream()
@@ -117,7 +117,7 @@ public final class DbSettingsAdapter {
         }
     }
 
-    private static DbSettings.SourceType getSourceTypeForDelimitedTextFiles(String fileType) throws DelimitedTextFileNotSupportedException {
+    private static DbSettings.SourceType adaptSourceType(String fileType) throws DelimitedTextFileNotSupportedException {
         for (Map.Entry<DbSettings.SourceType, Function<String, Boolean>> entry : sourceTypeForDelimitedTextFileIdentifiers.entrySet()) {
             if (entry.getValue().apply(fileType)) {
                 return entry.getKey();

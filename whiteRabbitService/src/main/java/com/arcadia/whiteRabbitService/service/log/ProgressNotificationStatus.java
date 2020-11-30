@@ -13,7 +13,8 @@ public enum ProgressNotificationStatus {
     SCAN_REPORT_GENERATED(2, "Scan report generated"),
     ERROR(3, "Error"),
     FAILED_TO_SCAN(4, "Failed to scan"),
-    NONE(5, "None");
+    CANCELED(5, "Scan process canceled"),
+    NONE(6, "None");
 
     private final int code;
     private final String description;
