@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.*;

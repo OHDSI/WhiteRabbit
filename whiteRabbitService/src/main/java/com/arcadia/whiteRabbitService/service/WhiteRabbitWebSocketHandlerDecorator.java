@@ -16,7 +16,8 @@ public class WhiteRabbitWebSocketHandlerDecorator extends WebSocketHandlerDecora
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, @NonNull CloseStatus closeStatus) {
+    public void afterConnectionClosed(WebSocketSession session, @NonNull CloseStatus closeStatus) throws Exception {
         scanTasksHandler.cancelTask(session.getId());
+        super.afterConnectionClosed(session, closeStatus);
     }
 }
