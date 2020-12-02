@@ -67,6 +67,7 @@ public class SourceDataScan {
 	private String database;
 	private Map<Table, List<FieldInfo>> tableToFieldInfos;
 	private Map<String, String> indexedTableNameLookup;
+	private boolean isFile = true;
 
 	private LocalDateTime startTimeStamp;
 
@@ -115,6 +116,7 @@ public class SourceDataScan {
 		} else if (sourceType == DbSettings.SourceType.SAS_FILES) {
 			processSasFiles(dbSettings);
 		} else {
+			isFile = false;
 			processDatabase(dbSettings);
 		}
 
@@ -177,7 +179,7 @@ public class SourceDataScan {
 		int i = 0;
 		indexedTableNameLookup = new HashMap<>();
 		for (Table table : tableToFieldInfos.keySet()) {
-			String tableNameIndexed = Table.indexTableNameForSheetAndRemoveSchema(table.getName(), i);
+			String tableNameIndexed = Table.indexTableNameForSheetAndRemoveSchema(table.getName(), i, isFile);
 			indexedTableNameLookup.put(table.getName(), tableNameIndexed);
 			i++;
 		}

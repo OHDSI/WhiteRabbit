@@ -19,8 +19,8 @@ import java.nio.file.Paths;
 import java.util.concurrent.Future;
 
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.*;
+import static com.arcadia.whiteRabbitService.util.Base64Util.removeBase64Header;
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
-import static com.arcadia.whiteRabbitService.util.MediaTypeUtil.getBase64HeaderForDelimitedTextFile;
 import static java.lang.String.format;
 import static java.nio.file.Files.delete;
 import static java.nio.file.Files.readAllBytes;
@@ -51,14 +51,12 @@ public class WhiteRabbitFacade {
 
         try {
             DbSettings dbSettings = adaptDelimitedTextFileSettings(dto, directoryName);
-            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParameters(), logger);
+            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
             String scanReportFileName = generateRandomFileName();
 
             dto.getFilesToScan().forEach(fileToScanDto -> base64ToFile(
                     Paths.get(directoryName, fileToScanDto.getFileName()),
-                    fileToScanDto.getBase64().substring(
-                            getBase64HeaderForDelimitedTextFile(dbSettings.sourceType).length()
-                    )
+                    removeBase64Header(fileToScanDto.getBase64())
             ));
 
             sourceDataScan.process(dbSettings, scanReportFileName);
