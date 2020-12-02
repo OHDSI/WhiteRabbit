@@ -20,4 +20,9 @@ public class WhiteRabbitWebSocketHandlerDecorator extends WebSocketHandlerDecora
         scanTasksHandler.cancelTask(session.getId());
         super.afterConnectionClosed(session, closeStatus);
     }
+
+    @Override
+    public boolean supportsPartialMessages() {
+        return true;
+    }
 }

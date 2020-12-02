@@ -8,7 +8,7 @@ import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 public class SourceDataScanBuilder {
     private Integer sampleSize;
 
-    private boolean scanValues = false;
+    private boolean scanValues = true;
 
     private Integer minCellCount;
 

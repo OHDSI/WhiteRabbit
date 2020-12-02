@@ -40,9 +40,12 @@ public final class DbSettingsAdapter {
             DbType.BIGQUERY
     );
 
+    /**
+     * Not supported SAS files
+     * After implement supporting SAS files add: DbSettings.SourceType.SAS_FILES, fileType -> fileType.equals("sas7bdat")
+     **/
     private static final Map<DbSettings.SourceType, Function<String, Boolean>> sourceTypeForDelimitedTextFileIdentifiers = Map.of(
-            DbSettings.SourceType.CSV_FILES, fileType -> fileType.equals("csv"),
-            DbSettings.SourceType.SAS_FILES, fileType -> fileType.equals("sas7bdat")
+            DbSettings.SourceType.CSV_FILES, fileType -> fileType.toLowerCase().contains("csv")
     );
 
     public static DbSettings adaptDbSettings(DbSettingsDto dto) throws DbTypeNotSupportedException {

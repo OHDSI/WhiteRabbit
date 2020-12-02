@@ -131,12 +131,12 @@ public class Table implements MappableItem {
 		this.isStem = isStem;
 	}
 
-	public static String indexTableNameForSheetAndRemoveSchema(String tableName, int index) {
+	public static String indexTableNameForSheetAndRemoveSchema(String tableName, int index, boolean isFile) {
 		// Remove schema name
 		String name = tableName;
 		int pointIndex = tableName.indexOf('.');
 		if (pointIndex != -1) {
-			name = tableName.substring(pointIndex + 1);
+			name = isFile ? tableName.substring(0, pointIndex) : tableName.substring(pointIndex + 1);
 		}
 
 		// Prepend index for long table names (to make sheet name unique later)
