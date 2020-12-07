@@ -1,10 +1,11 @@
 package com.arcadia.whiteRabbitService.controller;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
-import com.arcadia.whiteRabbitService.dto.DelimitedTextFileSettingsDto;
+import com.arcadia.whiteRabbitService.dto.FileSettingsDto;
 import com.arcadia.whiteRabbitService.dto.ProgressNotificationDto;
 import com.arcadia.whiteRabbitService.service.ScanTasksHandler;
 import com.arcadia.whiteRabbitService.service.WhiteRabbitFacade;
+import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import com.arcadia.whiteRabbitService.service.log.WebSocketLogger;
 import lombok.AllArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
@@ -16,10 +17,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-import static com.arcadia.whiteRabbitService.service.log.ProgressNotificationStatus.FAILED_TO_SCAN;
+import static com.arcadia.whiteRabbitService.service.log.ProgressNotificationStatus.FAILED;
 
 @AllArgsConstructor
 @Controller
@@ -35,7 +35,7 @@ public class ReportController {
 
     @MessageMapping("/scan-report/db")
     @SendToUser("/queue/scan-report")
-    public String scanReport(@Payload DbSettingsDto dto, @Header("simpSessionId") String sessionId) throws Exception {
+    public String scanReport(@Payload DbSettingsDto dto, @Header("simpSessionId") String sessionId) throws FailedToScanException {
         var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
 
         final Future<byte[]> future = whiteRabbitFacade.generateScanReport(dto, logger);
@@ -45,7 +45,7 @@ public class ReportController {
 
     @MessageMapping("/scan-report/file")
     @SendToUser("/queue/scan-report")
-    public String scanReport(@Payload DelimitedTextFileSettingsDto dto, @Header("simpSessionId") String sessionId) throws Exception {
+    public String scanReport(@Payload FileSettingsDto dto, @Header("simpSessionId") String sessionId) throws FailedToScanException {
         var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
 
         final Future<byte[]> future = whiteRabbitFacade.generateScanReport(dto, logger);
@@ -56,6 +56,6 @@ public class ReportController {
     @MessageExceptionHandler
     @SendToUser("/queue/reply")
     public ProgressNotificationDto handleException(Exception exception) {
-        return new ProgressNotificationDto(exception.getMessage(), FAILED_TO_SCAN);
+        return new ProgressNotificationDto(exception.getMessage(), FAILED);
     }
 }

@@ -1,7 +1,7 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
-import com.arcadia.whiteRabbitService.dto.DelimitedTextFileSettingsDto;
+import com.arcadia.whiteRabbitService.dto.FileSettingsDto;
 import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
 import com.arcadia.whiteRabbitService.service.error.DelimitedTextFileNotSupportedException;
 import org.ohdsi.databases.DbType;
@@ -65,7 +65,7 @@ public final class DbSettingsAdapter {
         return dbSettings;
     }
 
-    public static DbSettings adaptDelimitedTextFileSettings(DelimitedTextFileSettingsDto dto, String dirName) throws DelimitedTextFileNotSupportedException {
+    public static DbSettings adaptDelimitedTextFileSettings(FileSettingsDto dto, String dirName) throws DelimitedTextFileNotSupportedException {
         DbSettings dbSettings = new DbSettings();
 
         dbSettings.sourceType = adaptSourceType(dto.getFileType());

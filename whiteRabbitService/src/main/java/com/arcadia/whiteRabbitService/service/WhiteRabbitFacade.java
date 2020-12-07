@@ -2,6 +2,7 @@ package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.*;
 import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
+import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -20,6 +21,7 @@ import java.util.concurrent.Future;
 
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.*;
 import static com.arcadia.whiteRabbitService.util.Base64Util.removeBase64Header;
+import static com.arcadia.whiteRabbitService.util.FakeDataDbSettings.dbSettingsForFakeDataGeneration;
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
 import static java.lang.String.format;
 import static java.nio.file.Files.delete;
@@ -46,7 +48,7 @@ public class WhiteRabbitFacade {
     }
 
     @Async
-    public Future<byte[]> generateScanReport(DelimitedTextFileSettingsDto dto, Logger logger) throws FailedToScanException {
+    public Future<byte[]> generateScanReport(FileSettingsDto dto, Logger logger) throws FailedToScanException {
         String directoryName = generateRandomDirectory();
 
         try {
@@ -100,24 +102,33 @@ public class WhiteRabbitFacade {
         }
     }
 
-    @SneakyThrows
-    public void generateFakeData(ParamsForFakeDataGenerationDto dto) {
-        DbSettings dbSettings = adaptDbSettings(dto.getDbSettings());
-
+    @Async
+    public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
         String directoryName = generateRandomDirectory();
         String fileName = generateRandomFileName();
+        String schemaName = dto.getSchemaName() != null ? dto.getSchemaName() : "public";
 
-        base64ToFile(Paths.get(directoryName, fileName), dto.getScanReportBase64());
+        try {
+            base64ToFile(Paths.get(directoryName, fileName), dto.getScanReportBase64());
 
-        FakeDataGenerator process = new FakeDataGenerator();
-        process.generateData(
-                dbSettings,
-                dto.getMaxRowCount(),
-                fileName, directoryName,
-                dto.isDoUniformSampling()
-        );
+            FakeDataGenerator process = new FakeDataGenerator();
+            process.setLogger(logger);
 
-        deleteRecursive(Paths.get(directoryName));
+            process.generateData(
+                    dbSettingsForFakeDataGeneration,
+                    dto.getMaxRowCount(),
+                    fileName, directoryName,
+                    dto.getDoUniformSampling(),
+                    schemaName,
+                    false
+            );
+
+            return new AsyncResult<>(null);
+        } catch (Exception e) {
+            throw new FailedToGenerateFakeData(e.getCause());
+        } finally {
+            deleteRecursive(Paths.get(directoryName));
+        }
     }
 
     private SourceDataScan createSourceDataScan(ScanParamsDto dto, Logger logger) {

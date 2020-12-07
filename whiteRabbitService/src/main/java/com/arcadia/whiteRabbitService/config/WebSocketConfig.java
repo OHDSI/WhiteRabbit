@@ -1,5 +1,6 @@
 package com.arcadia.whiteRabbitService.config;
 
+import com.arcadia.whiteRabbitService.service.FakeTasksHandler;
 import com.arcadia.whiteRabbitService.service.ScanTasksHandler;
 import com.arcadia.whiteRabbitService.service.WhiteRabbitWebSocketHandlerDecorator;
 import lombok.AllArgsConstructor;
@@ -21,10 +22,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final ScanTasksHandler scanTasksHandler;
 
+    private final FakeTasksHandler fakeTasksHandler;
+
     @Bean
     @NonNull
     public WebSocketHandlerDecorator webSocketHandlerDecorator(WebSocketHandler webSocketHandler) {
-        return new WhiteRabbitWebSocketHandlerDecorator(webSocketHandler, scanTasksHandler);
+        return new WhiteRabbitWebSocketHandlerDecorator(webSocketHandler, scanTasksHandler, fakeTasksHandler);
     }
 
     @Override

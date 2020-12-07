@@ -8,12 +8,12 @@ import lombok.Getter;
 @AllArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum ProgressNotificationStatus {
-    STARTED_SCANNING(0, "Started scanning tables"),
+    STARTED(0, "Process started"),
     TABLE_SCANNING(1, "Table scanning"),
-    SCAN_REPORT_GENERATED(2, "Scan report generated"),
+    FINISHED(2, "Process finished"),
     ERROR(3, "Error"),
-    FAILED_TO_SCAN(4, "Failed to scan"),
-    CANCELED(5, "Scan process canceled"),
+    FAILED(4, "Process failed"),
+    CANCELED(5, "Process canceled"),
     NONE(6, "None");
 
     private final int code;

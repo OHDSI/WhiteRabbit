@@ -43,11 +43,12 @@ import org.ohdsi.utilities.collections.CountingSet;
 import org.ohdsi.utilities.collections.CountingSet.Count;
 import org.ohdsi.utilities.collections.Pair;
 import org.ohdsi.utilities.files.ReadTextFile;
+import org.ohdsi.whiteRabbit.CanInterrupt;
 import org.ohdsi.whiteRabbit.DbSettings;
 
 import static java.lang.Long.max;
 
-public class SourceDataScan {
+public class SourceDataScan implements CanInterrupt {
 
 	public static int	MAX_VALUES_IN_MEMORY				= 100000;
 	public static int	MIN_CELL_COUNT_FOR_CSV				= 1000000;
@@ -867,12 +868,6 @@ public class SourceDataScan {
 			if (cell != null) {
 				cell.setCellStyle(style);
 			}
-		}
-	}
-
-	private void checkWasInterrupted() throws InterruptedException {
-		if (Thread.currentThread().isInterrupted()) {
-			throw new InterruptedException("Scan process was canceled by User");
 		}
 	}
 }

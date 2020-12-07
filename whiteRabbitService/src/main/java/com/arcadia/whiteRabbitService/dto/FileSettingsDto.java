@@ -7,7 +7,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @Getter
-public class DelimitedTextFileSettingsDto {
+public class FileSettingsDto {
     private final String fileType;
 
     private final String delimiter;
