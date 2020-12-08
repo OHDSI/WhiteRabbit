@@ -10,14 +10,20 @@ public class WhiteRabbitWebSocketHandlerDecorator extends WebSocketHandlerDecora
 
     private final ScanTasksHandler scanTasksHandler;
 
-    public WhiteRabbitWebSocketHandlerDecorator(WebSocketHandler delegate, ScanTasksHandler scanTasksHandler) {
+    private final FakeTasksHandler fakeTasksHandler;
+
+    public WhiteRabbitWebSocketHandlerDecorator(WebSocketHandler delegate,
+                                                ScanTasksHandler scanTasksHandler,
+                                                FakeTasksHandler fakeTasksHandler) {
         super(delegate);
         this.scanTasksHandler = scanTasksHandler;
+        this.fakeTasksHandler = fakeTasksHandler;
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, @NonNull CloseStatus closeStatus) throws Exception {
         scanTasksHandler.cancelTask(session.getId());
+        fakeTasksHandler.cancelTask(session.getId());
         super.afterConnectionClosed(session, closeStatus);
     }
 

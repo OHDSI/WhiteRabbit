@@ -1,5 +1,6 @@
 package com.arcadia.whiteRabbitService.config;
 
+import com.arcadia.whiteRabbitService.service.FakeTasksHandler;
 import com.arcadia.whiteRabbitService.service.ScanTasksHandler;
 import com.arcadia.whiteRabbitService.service.WhiteRabbitWebSocketHandlerDecorator;
 import lombok.AllArgsConstructor;
@@ -21,10 +22,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final ScanTasksHandler scanTasksHandler;
 
+    private final FakeTasksHandler fakeTasksHandler;
+
     @Bean
     @NonNull
     public WebSocketHandlerDecorator webSocketHandlerDecorator(WebSocketHandler webSocketHandler) {
-        return new WhiteRabbitWebSocketHandlerDecorator(webSocketHandler, scanTasksHandler);
+        return new WhiteRabbitWebSocketHandlerDecorator(webSocketHandler, scanTasksHandler, fakeTasksHandler);
     }
 
     @Override
@@ -36,7 +39,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
-                .addEndpoint("/scan-report/db", "/scan-report/file")
+                .addEndpoint("/scan-report/db", "/scan-report/file", "/fake-data")
                 .setAllowedOrigins("*")
                 .withSockJS();
     }
@@ -45,6 +48,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
         registry
                 .addDecoratorFactory(this::webSocketHandlerDecorator)
-                .setMessageSizeLimit(1024 * 1024); // 1Mb
+                .setMessageSizeLimit(1024 * 1024 * 10); // 10Mb
     }
 }

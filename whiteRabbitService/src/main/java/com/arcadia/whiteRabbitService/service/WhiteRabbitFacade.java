@@ -2,13 +2,13 @@ package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.*;
 import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
+import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
-import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -29,6 +29,8 @@ import static java.nio.file.Files.readAllBytes;
 @Service
 public class WhiteRabbitFacade {
 
+    private final FakeDataService fakeDataService;
+
     @Async
     public Future<byte[]> generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
         try {
@@ -46,7 +48,7 @@ public class WhiteRabbitFacade {
     }
 
     @Async
-    public Future<byte[]> generateScanReport(DelimitedTextFileSettingsDto dto, Logger logger) throws FailedToScanException {
+    public Future<byte[]> generateScanReport(FileSettingsDto dto, Logger logger) throws FailedToScanException {
         String directoryName = generateRandomDirectory();
 
         try {
@@ -100,24 +102,9 @@ public class WhiteRabbitFacade {
         }
     }
 
-    @SneakyThrows
-    public void generateFakeData(ParamsForFakeDataGenerationDto dto) {
-        DbSettings dbSettings = adaptDbSettings(dto.getDbSettings());
-
-        String directoryName = generateRandomDirectory();
-        String fileName = generateRandomFileName();
-
-        base64ToFile(Paths.get(directoryName, fileName), dto.getScanReportBase64());
-
-        FakeDataGenerator process = new FakeDataGenerator();
-        process.generateData(
-                dbSettings,
-                dto.getMaxRowCount(),
-                fileName, directoryName,
-                dto.isDoUniformSampling()
-        );
-
-        deleteRecursive(Paths.get(directoryName));
+    @Async
+    public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
+        return fakeDataService.generateFakeData(dto, logger);
     }
 
     private SourceDataScan createSourceDataScan(ScanParamsDto dto, Logger logger) {
