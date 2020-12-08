@@ -9,7 +9,6 @@ import lombok.SneakyThrows;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
-import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -21,7 +20,6 @@ import java.util.concurrent.Future;
 
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.*;
 import static com.arcadia.whiteRabbitService.util.Base64Util.removeBase64Header;
-import static com.arcadia.whiteRabbitService.util.FakeDataDbSettings.dbSettingsForFakeDataGeneration;
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
 import static java.lang.String.format;
 import static java.nio.file.Files.delete;
@@ -30,6 +28,8 @@ import static java.nio.file.Files.readAllBytes;
 @AllArgsConstructor
 @Service
 public class WhiteRabbitFacade {
+
+    private final FakeDataService fakeDataService;
 
     @Async
     public Future<byte[]> generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
@@ -104,31 +104,7 @@ public class WhiteRabbitFacade {
 
     @Async
     public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
-        String directoryName = generateRandomDirectory();
-        String fileName = generateRandomFileName();
-        String schemaName = dto.getSchemaName() != null ? dto.getSchemaName() : "public";
-
-        try {
-            base64ToFile(Paths.get(directoryName, fileName), dto.getScanReportBase64());
-
-            FakeDataGenerator process = new FakeDataGenerator();
-            process.setLogger(logger);
-
-            process.generateData(
-                    dbSettingsForFakeDataGeneration,
-                    dto.getMaxRowCount(),
-                    fileName, directoryName,
-                    dto.getDoUniformSampling(),
-                    schemaName,
-                    false
-            );
-
-            return new AsyncResult<>(null);
-        } catch (Exception e) {
-            throw new FailedToGenerateFakeData(e.getCause());
-        } finally {
-            deleteRecursive(Paths.get(directoryName));
-        }
+        return fakeDataService.generateFakeData(dto, logger);
     }
 
     private SourceDataScan createSourceDataScan(ScanParamsDto dto, Logger logger) {

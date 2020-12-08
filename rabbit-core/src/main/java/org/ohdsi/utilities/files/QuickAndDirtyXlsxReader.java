@@ -59,7 +59,8 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 
 			// Step 3: order the sheets:
 			Collections.sort(this, (o1, o2) -> IntegerComparator.compare(o1.order, o2.order));
-		} catch (FileNotFoundException e) {
+			inputStream.close();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

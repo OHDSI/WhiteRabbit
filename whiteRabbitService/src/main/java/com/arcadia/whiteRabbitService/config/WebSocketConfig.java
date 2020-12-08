@@ -39,7 +39,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
-                .addEndpoint("/scan-report/db", "/scan-report/file")
+                .addEndpoint("/scan-report/db", "/scan-report/file", "/fake-data")
                 .setAllowedOrigins("*")
                 .withSockJS();
     }
@@ -48,6 +48,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
         registry
                 .addDecoratorFactory(this::webSocketHandlerDecorator)
-                .setMessageSizeLimit(1024 * 1024); // 1Mb
+                .setMessageSizeLimit(1024 * 1024 * 10); // 10Mb
     }
 }

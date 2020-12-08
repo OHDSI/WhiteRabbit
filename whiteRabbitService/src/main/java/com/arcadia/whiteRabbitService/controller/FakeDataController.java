@@ -30,13 +30,16 @@ public class FakeDataController {
     private final FakeTasksHandler fakeTasksHandler;
 
     @MessageMapping("/fake-data")
-    public void generate(@Payload FakeDataParamsDto dto, @Header("simpSessionId") String sessionId) throws FailedToGenerateFakeData {
+    @SendToUser("/queue/fake-data")
+    public String generate(@Payload FakeDataParamsDto dto, @Header("simpSessionId") String sessionId) throws FailedToGenerateFakeData {
         var replyDestination = "/queue/reply";
         var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
 
         final Future<Void> future = whiteRabbitFacade.generateFakeData(dto, logger);
 
         fakeTasksHandler.handleTask(sessionId, future);
+
+        return "Succeeded";
     }
 
     @MessageExceptionHandler
