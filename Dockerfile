@@ -3,7 +3,6 @@ WORKDIR /workspace/app
 
 COPY rabbit-core rabbit-core
 COPY whiterabbit whiterabbit
-COPY rabbitinahat rabbitinahat
 COPY whiteRabbitService whiteRabbitService
 COPY lib lib
 

@@ -16,7 +16,6 @@
     <packaging>pom</packaging>
     <version>0.10.2</version>
     <modules>
-        <module>rabbitinahat</module>
         <module>whiterabbit</module>
         <module>rabbit-core</module>
         <module>whiteRabbitService</module>
