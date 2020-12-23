@@ -11,7 +11,7 @@ public class FakeDataParamsDto {
 
     private final Boolean doUniformSampling;
 
-    private final String schemaName;
+    private final String schema;
 
     private final String scanReportBase64;
 }

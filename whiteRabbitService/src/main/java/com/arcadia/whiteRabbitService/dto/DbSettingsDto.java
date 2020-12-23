@@ -16,6 +16,8 @@ public class DbSettingsDto {
 
     private final String server;
 
+    private final String schema;
+
     private final String domain;
 
     private final String tablesToScan;

@@ -40,6 +40,11 @@ public final class DbSettingsAdapter {
             DbType.BIGQUERY
     );
 
+    private static final List<DbType> dbRequireSchema = List.of(
+            DbType.POSTGRESQL,
+            DbType.ORACLE
+    );
+
     /**
      * Not supported SAS files
      * After implement supporting SAS files add: DbSettings.SourceType.SAS_FILES, fileType -> fileType.equals("sas7bdat")
@@ -60,6 +65,7 @@ public final class DbSettingsAdapter {
 
         checkWindowsAuthentication(dbSettings);
         setDomain(dbSettings);
+        adaptSchemaName(dbSettings, dto.getSchema());
         setTablesToScan(dbSettings, dto.getTablesToScan());
 
         return dbSettings;
@@ -68,7 +74,7 @@ public final class DbSettingsAdapter {
     public static DbSettings adaptDelimitedTextFileSettings(FileSettingsDto dto, String dirName) throws DelimitedTextFileNotSupportedException {
         DbSettings dbSettings = new DbSettings();
 
-        dbSettings.sourceType = adaptSourceType(dto.getFileType());
+        dbSettings.sourceType = adaptDelimitedFileTypeToSourceType(dto.getFileType());
         dbSettings.delimiter = dto.getDelimiter().charAt(0);
         dbSettings.tables = dto.getFilesToScan()
                 .stream()
@@ -107,20 +113,29 @@ public final class DbSettingsAdapter {
     }
 
     private static void setTablesToScan(DbSettings dbSettings, String tablesToScan) {
-        if (tablesToScan.equals("*")) {
-            try (RichConnection connection = new RichConnection(
-                    dbSettings.server, dbSettings.domain,
-                    dbSettings.user, dbSettings.password,
-                    dbSettings.dbType
-            )) {
-                dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+        if (tablesToScan != null) {
+            if (tablesToScan.equals("*")) {
+                try (RichConnection connection = new RichConnection(
+                        dbSettings.server, dbSettings.domain,
+                        dbSettings.user, dbSettings.password,
+                        dbSettings.dbType
+                )) {
+                    dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+                }
+            } else {
+                dbSettings.tables.addAll(Arrays.asList(tablesToScan.split(",")));
             }
-        } else {
-            dbSettings.tables.addAll(Arrays.asList(tablesToScan.split(",")));
         }
     }
 
-    private static DbSettings.SourceType adaptSourceType(String fileType) throws DelimitedTextFileNotSupportedException {
+    private static void adaptSchemaName(DbSettings dbSettings, String schemaName) {
+        if (dbRequireSchema.contains(dbSettings.dbType)) {
+            dbSettings.server = String.format("%s/%s", dbSettings.server, dbSettings.database);
+            dbSettings.database = schemaName;
+        }
+    }
+
+    private static DbSettings.SourceType adaptDelimitedFileTypeToSourceType(String fileType) throws DelimitedTextFileNotSupportedException {
         for (Map.Entry<DbSettings.SourceType, Function<String, Boolean>> entry : sourceTypeForDelimitedTextFileIdentifiers.entrySet()) {
             if (entry.getValue().apply(fileType)) {
                 return entry.getKey();

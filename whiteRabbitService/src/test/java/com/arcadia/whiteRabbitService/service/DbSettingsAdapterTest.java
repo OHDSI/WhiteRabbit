@@ -54,6 +54,7 @@ class DbSettingsAdapterTest {
         String password = "builder1!";
         String tablesToScan = "dbo.lookup,dbo.medical";
         String domain = "";
+        String schema = "";
 
         int sampleSize = (int) 100e3;
         int minCellCount = 5;
@@ -63,7 +64,7 @@ class DbSettingsAdapterTest {
         return new DbSettingsDto(
                 dbType,
                 user, password,
-                database, server, domain,
+                database, server, domain, schema,
                 tablesToScan,
                 new ScanParamsDto(
                         sampleSize, true,

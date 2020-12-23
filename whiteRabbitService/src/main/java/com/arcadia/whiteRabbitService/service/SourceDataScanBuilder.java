@@ -21,7 +21,7 @@ public class SourceDataScanBuilder {
     private Logger logger;
 
     public SourceDataScanBuilder setSampleSize(Integer sampleSize) {
-        this.sampleSize = sampleSize != null ? sampleSize : 100000;
+        this.sampleSize = sampleSize != null ? sampleSize : 100000; // Default value
         return this;
     }
 

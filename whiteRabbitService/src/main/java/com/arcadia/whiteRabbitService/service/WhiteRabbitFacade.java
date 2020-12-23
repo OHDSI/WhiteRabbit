@@ -56,10 +56,11 @@ public class WhiteRabbitFacade {
             SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
             String scanReportFileName = generateRandomFileName();
 
-            dto.getFilesToScan().forEach(fileToScanDto -> base64ToFile(
-                    Paths.get(directoryName, fileToScanDto.getFileName()),
-                    removeBase64Header(fileToScanDto.getBase64())
-            ));
+            dto.getFilesToScan()
+                    .forEach(fileToScanDto -> base64ToFile(
+                            Paths.get(directoryName, fileToScanDto.getFileName()),
+                            removeBase64Header(fileToScanDto.getBase64())
+                    ));
 
             sourceDataScan.process(dbSettings, scanReportFileName);
 
@@ -74,17 +75,19 @@ public class WhiteRabbitFacade {
 
     public TestConnectionDto testConnection(DbSettingsDto dto) {
         try {
-            RichConnection connection = new RichConnection(dto.getServer(), dto.getDomain(),
-                    dto.getUser(), dto.getPassword(), adaptDbType(dto.getDbType()));
+            DbSettings dbSettings = adaptDbSettings(dto);
 
-            var tableNames = connection.getTableNames(dto.getDatabase());
+            RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain,
+                    dbSettings.user, dbSettings.password, dbSettings.dbType);
+
+            var tableNames = connection.getTableNames(dbSettings.database);
             if (tableNames.size() == 0) {
-                throw new Exception("Unable to retrieve table names for database " + dto.getDatabase());
+                throw new Exception("Unable to retrieve table names for database " + dbSettings.database);
             }
 
             connection.close();
 
-            var successMessage = format("Successfully connected to %s on server %s", dto.getDatabase(), dto.getServer());
+            var successMessage = format("Successfully connected to %s on server %s", dbSettings.database, dbSettings.server);
             return new TestConnectionDto(true, successMessage);
         } catch (Exception e) {
             var errorMessage = format("Could not connect to database: %s", e.getMessage());
@@ -93,12 +96,14 @@ public class WhiteRabbitFacade {
     }
 
     public TablesInfoDto tablesInfo(DbSettingsDto dto) throws DbTypeNotSupportedException {
+        DbSettings dbSettings = adaptDbSettings(dto);
+
         try (RichConnection connection = new RichConnection(
-                dto.getServer(), dto.getDomain(),
-                dto.getUser(), dto.getPassword(),
-                adaptDbType(dto.getDbType())
+                dbSettings.server, dbSettings.domain,
+                dbSettings.user, dbSettings.password,
+                dbSettings.dbType
         )) {
-            return new TablesInfoDto(connection.getTableNames(dto.getDatabase()));
+            return new TablesInfoDto(connection.getTableNames(dbSettings.database));
         }
     }
 
