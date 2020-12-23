@@ -22,6 +22,7 @@ public class FakeDataService {
 
     private final DbSettings dbSettings = new DbSettings();
 
+    /** Init fake data connection string **/
     public FakeDataService() {
         dbSettings.sourceType = DbSettings.SourceType.DATABASE;
         dbSettings.dbType = DbType.POSTGRESQL;
@@ -35,7 +36,7 @@ public class FakeDataService {
     public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
         String directoryName = generateRandomDirectory();
         String fileName = generateRandomFileName();
-        String schemaName = dto.getSchemaName() != null ? dto.getSchemaName() : "public"; // default schema name
+        String schemaName = dto.getSchema() != null ? dto.getSchema() : "public"; // Default schema name
         Path filePath = Paths.get(directoryName, fileName);
 
         try {
@@ -51,10 +52,10 @@ public class FakeDataService {
                     dbSettings,
                     dto.getMaxRowCount(),
                     filePath.toString(),
-                    null, // not needed, it need if generate fake data in delimited text file
+                    null, // Not needed, it need if generate fake data to delimited text file
                     dto.getDoUniformSampling(),
                     schemaName,
-                    false
+                    false // Tables are created when the report is uploaded to python service
             );
 
             return new AsyncResult<>(null);
