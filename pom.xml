@@ -25,15 +25,6 @@
 
     <repositories>
         <repository>
-            <id>mulesoft</id>
-            <name>Mulesoft Repository</name>
-            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
             <id>central</id>
             <name>Central Repository</name>
             <url>https://repo.maven.apache.org/maven2</url>
@@ -55,6 +46,24 @@
             <id>icm</id>
             <name>ICM Repository</name>
             <url>https://maven.ceon.pl/artifactory/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>mulesoft</id>
+            <name>Mulesoft Repository</name>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>redshift</id>
+            <name>Redshift Repository</name>
+            <url>http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>false</enabled>
