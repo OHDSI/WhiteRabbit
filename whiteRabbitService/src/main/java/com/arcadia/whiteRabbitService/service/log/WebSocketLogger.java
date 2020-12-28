@@ -30,9 +30,9 @@ public class WebSocketLogger implements Logger {
 
     private static final Map<ProgressNotificationStatus, Function<String, Boolean>> messageStatusRecognizers = Map.of(
             STARTED, m -> m.toLowerCase().contains("start"),
-            TABLE_SCANNING, m -> m.contains("Scanning table"),
-            FINISHED, m -> m.contains("generated"),
-            CANCELED, m -> m.contains("was canceled")
+            TABLE_SCANNING, m -> m.contains("Scanning table") || m.contains("Generating table"),
+            FINISHED, m -> m.toLowerCase().contains("generated"),
+            CANCELED, m -> m.toLowerCase().contains("was canceled")
     );
 
     @Override
