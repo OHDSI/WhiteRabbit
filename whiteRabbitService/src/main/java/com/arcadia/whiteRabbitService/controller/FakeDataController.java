@@ -35,11 +35,9 @@ public class FakeDataController {
         var replyDestination = "/queue/reply";
         var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
 
-        final Future<Void> future = whiteRabbitFacade.generateFakeData(dto, logger);
+        final Future<String> future = whiteRabbitFacade.generateFakeData(dto, logger);
 
-        fakeTasksHandler.handleTask(sessionId, future);
-
-        return "Succeeded";
+        return fakeTasksHandler.handleTask(sessionId, future);
     }
 
     @MessageExceptionHandler

@@ -108,8 +108,9 @@ public class WhiteRabbitFacade {
     }
 
     @Async
-    public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
-        return fakeDataService.generateFakeData(dto, logger);
+    public Future<String> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
+        String resultMessage = fakeDataService.generateFakeData(dto, logger);
+        return new AsyncResult<>(resultMessage);
     }
 
     private SourceDataScan createSourceDataScan(ScanParamsDto dto, Logger logger) {

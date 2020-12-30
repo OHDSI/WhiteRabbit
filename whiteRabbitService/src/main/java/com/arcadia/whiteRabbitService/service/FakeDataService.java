@@ -32,8 +32,7 @@ public class FakeDataService {
         dbSettings.password = "postgres";
     }
 
-    @Async
-    public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
+    public String generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
         String directoryName = generateRandomDirectory();
         String fileName = generateRandomFileName();
         String schemaName = dto.getSchema() != null ? dto.getSchema() : "public"; // Default schema name
@@ -58,7 +57,7 @@ public class FakeDataService {
                     false // Tables are created when the report is uploaded to python service
             );
 
-            return new AsyncResult<>(null);
+            return "Fake data successfully generated";
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new FailedToGenerateFakeData(e.getCause());
