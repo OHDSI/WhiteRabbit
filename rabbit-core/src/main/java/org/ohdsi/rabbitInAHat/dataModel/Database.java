@@ -236,7 +236,10 @@ public class Database implements Serializable {
 	}
 
 	private static ValueCounts getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
-		String targetSheetName = Table.createSheetNameFromTableName(tableName);
+		String targetSheetNameWithSchema = Table.createSheetNameFromTableName(tableName);
+		String targetSheetName = targetSheetNameWithSchema.substring(
+				targetSheetNameWithSchema.indexOf('.') + 1
+		);
 		Sheet tableSheet = workbook.getByName(targetSheetName);
 
 		// Sheet not found for table, return empty
