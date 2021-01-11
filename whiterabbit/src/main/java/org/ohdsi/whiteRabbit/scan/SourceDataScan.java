@@ -61,8 +61,8 @@ public class SourceDataScan implements CanInterrupt {
 	private boolean scanValues = false;
 	private boolean calculateNumericStats = false;
 	private int numStatsSamplerSize;
-	private int minCellCount;
-	private int maxValues;
+	private int minCellCount; // minimum frequency required to add a value to the report
+	private int maxValues; // maximum number of values in the report
 	private DbSettings.SourceType sourceType;
 	private DbType dbType;
 	private String database;
@@ -748,6 +748,11 @@ public class SourceDataScan implements CanInterrupt {
 
 		}
 
+		/**
+		 * Return list contains all values with frequency greater than minCellCount variable
+		 * If there are values with frequency less than or equal to minCellCount added 'List truncated...' in result list
+		 * Result list size equal maxValues variable, all other values are deleted
+		 */
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {
 			List<Pair<String, Integer>> result = valueCounts.key2count.entrySet().stream()
 					.filter(e -> e.getValue().count >= minCellCount)

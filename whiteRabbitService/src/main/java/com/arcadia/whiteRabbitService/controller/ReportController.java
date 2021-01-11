@@ -8,7 +8,6 @@ import com.arcadia.whiteRabbitService.service.WhiteRabbitFacade;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import com.arcadia.whiteRabbitService.service.log.WebSocketLogger;
 import lombok.AllArgsConstructor;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import java.util.concurrent.Future;
 
 import static com.arcadia.whiteRabbitService.service.log.ProgressNotificationStatus.FAILED;
+import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 
 @AllArgsConstructor
 @Controller
@@ -40,7 +40,7 @@ public class ReportController {
 
         final Future<byte[]> future = whiteRabbitFacade.generateScanReport(dto, logger);
 
-        return Base64.encodeBase64String(scanTasksHandler.handleTask(sessionId, future));
+        return encodeBase64String(scanTasksHandler.handleTask(sessionId, future));
     }
 
     @MessageMapping("/scan-report/file")
@@ -50,7 +50,7 @@ public class ReportController {
 
         final Future<byte[]> future = whiteRabbitFacade.generateScanReport(dto, logger);
 
-        return Base64.encodeBase64String(scanTasksHandler.handleTask(sessionId, future));
+        return encodeBase64String(scanTasksHandler.handleTask(sessionId, future));
     }
 
     @MessageExceptionHandler
