@@ -2,13 +2,13 @@ package com.arcadia.whiteRabbitService.service;
 
 import lombok.SneakyThrows;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 public abstract class AbstractTaskHandler<T> implements TaskHandler<T> {
 
-    protected Map<String, Future<T>> tasks = new HashMap<>();
+    protected Map<String, Future<T>> tasks = new ConcurrentHashMap<>();
 
     @SneakyThrows
     @Override

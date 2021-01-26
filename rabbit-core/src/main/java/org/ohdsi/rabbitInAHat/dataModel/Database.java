@@ -138,6 +138,10 @@ public class Database implements Serializable {
 		return database;
 	}
 
+	public static Database generateModelFromScanReport(String filename) {
+		return generateModelFromScanReport(filename, null);
+	}
+
 	public static Database generateModelFromScanReport(String filename, String schemaName) {
 		Database database = new Database();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
