@@ -1,5 +1,27 @@
 # v5.0 21-DEC-20
 omop_cdm_table,omop_cdm_field,concept_id,concept_name,domain_id,vocabulary_id,concept_class_id,standard_concept
+condition_occurrence,condition_status_concept_id,32890,Admission diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32891,Cause of death,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32892,Condition to be diagnosed by procedure,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32893,Confirmed diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32894,Contributory cause of death,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32895,Death diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32896,Discharge diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32897,Immediate cause of death,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32898,Postoperative diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32899,Preliminary diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32900,Preoperative diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32901,Primary admission diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32902,Primary diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32903,Primary discharge diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32904,Primary referral diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32905,Referral diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32906,Resolved condition,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32907,Secondary admission diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32908,Secondary diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32909,Secondary discharge diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32910,Secondary referral diagnosis,Condition Status,Condition Status,Condition Status,S
+condition_occurrence,condition_status_concept_id,32911,Underlying cause of death,Condition Status,Condition Status,Condition Status,S
 condition_occurrence,condition_type_concept_id,32809,Case Report Form,Type Concept,Type Concept,Type Concept,S
 condition_occurrence,condition_type_concept_id,32810,Claim,Type Concept,Type Concept,Type Concept,S
 condition_occurrence,condition_type_concept_id,32811,Claim authorization,Type Concept,Type Concept,Type Concept,S

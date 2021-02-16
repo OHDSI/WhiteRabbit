@@ -264,6 +264,18 @@ WITH concept_hints AS (
         JOIN vocab.concept ON concept_id = descendant_concept_id
     WHERE ancestor_concept_id = 4182347  -- World languages
       AND invalid_reason IS NULL
+    UNION ALL
+    SELECT 'condition_occurrence'        AS omop_cdm_table,
+           'condition_status_concept_id' AS omop_cdm_field,
+           concept_id,
+           concept_name,
+           domain_id,
+           vocabulary_id,
+           concept_class_id,
+           standard_concept
+    FROM @vocab.concept
+    WHERE domain_id = 'Condition Status'
+      AND invalid_reason IS NULL
 )
 SELECT *
 FROM concept_hints
