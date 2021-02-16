@@ -29,7 +29,7 @@ import java.util.*;
 public class ConceptsMap {
 
     private Map<String, Map<String, List<Concept>>> conceptMap;
-    private String vocabularyVersion;
+    public String vocabularyVersion;
 
     private ConceptsMap() {
         this.conceptMap = new HashMap<>();
