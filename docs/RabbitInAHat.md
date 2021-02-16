@@ -11,6 +11,7 @@ Rabbit-In-a-Hat generates documentation for the ETL process it does not generate
 
 ## Process Overview
 The typical sequence for using this software to generate documentation of an ETL:
+
 1. Scanned results from WhiteRabbit completed
 2. Open scanned results; interface displays source tables and CDM tables
 3. Connect source tables to CDM tables where the source table provides information for that corresponding CDM table
@@ -39,16 +40,16 @@ Rabbit-In-a-Hat allows you to select which CDM version (v4, v5 or v6) you'd like
 See the graphic below for how to select your desired CDM:
 ![Switching between CDMv4 and CDMv5](http://i.imgur.com/LOqhp7H.gif)
 
-The CDM version can be changed at any time, but beware that some of your existing mappings may be lost in the process.
-By default, Rabbit-In-a-Hat will attempt to pereserve as many mappings between the source data and the newly selected CDM as possible.
-When a new CDM is selected, Rabbit-In-a-Hat will drop any mappings if the mapping's CDM table or CDM column name no longer exist
+The CDM version can be changed at any time, but beware that you may lose some of your existing mappings in the process.
+By default, Rabbit-In-a-Hat will attempt to preserve as many mappings between the source data and the newly selected CDM as possible.
+When a new CDM is selected, Rabbit-In-a-Hat will drop any mappings **without warning** if the mapping's CDM table or CDM column name no longer exists.
 
-For instance, switching from CDMv4 to CDMv5, a mapping from source to CDM person.person_source_value will be kept because the person table has person_source_value in both CDMv4 and CDMv5.
-However, person.associated_provider_id exists only in CDMv4 and has been renamed to [person.provider_id in CDMv5](https://github.com/OHDSI/CommonDataModel/wiki/PERSON) and so that mapping will not be kept when switching between these two CDMs.
+For instance, switching from CDMv4 to CDMv5, a mapping to `person.person_source_value` will be kept because the person table has `person_source_value` in both CDMv4 and CDMv5.
+However, `person.associated_provider_id` exists only in CDMv4 (it was renamed to _provider_id_ in CDMv5) and will **not** be kept when switching between these two CDMs.
 
 ## Loading in a Custom CDM
 There are times when users might need to load in a customized version of the CDM, for instance if they are sandboxing new features.
-To load in a custom CDM schema, first you must create a CSV file that uses the same format as [the existing CDMv5 schema file](https://github.com/OHDSI/WhiteRabbit/blob/master/src/org/ohdsi/rabbitInAHat/dataModel/CDMV5.csv).
+To load in a custom CDM schema, first you must create a CSV file that uses the same format as [the existing CDMv5 schema file](https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel/CDMV5.csv).
 
 Once you have created the CSV file, load it into RiaH as shown below:
 
@@ -82,7 +83,7 @@ This will add the stem table to the source and target tables and mappings from s
 ## Concept id hints (_v0.9.0_)
 A number of CDM fields have a limited number of standard concept_id(s) that can be used. 
 Examples are: `gender_concept_id`, `_type_concept_id`'s, `route_concept_id` and `visit_concept_id`.
-To help choosing the right concept_id during ETL design, Rabbit-In-a-Hat shows the list of possible concept ids of a CDM field
+To help choose the right concept_id during ETL design, Rabbit-In-a-Hat shows the list of possible concept ids of a CDM field
 when clicking on a target field. Note that all standard and non-standard target concepts with the right domain
  are shown, but the OMOP conventions only allow for standard concepts (flagged with an 'S' in the panel).
 
@@ -122,7 +123,7 @@ Hovering over a source table will generate an arrow head that can then be select
 
 If you select the source table orange box, Rabbit-In-a-Hat will expose values the source data has for that table.
 This is meant to help in the process in understanding the source data and what logic may be required to handle the data in the ETL.
-In the example below _ndcnum_ is selected and raw NDC codes are displayed starting with most frequent (note that in the WhiteRabbit scan a “Min cell count” could have been selected and values below that frequency will not show).
+In the example below _ndcnum_ is selected and raw NDC codes are displayed starting with most frequent (note that in the WhiteRabbit scan a “Min cell count” could have been selected and values smaller than that count will not show).
 
 ![](images/rabbitinahat-fieldex.png)
 
@@ -138,20 +139,20 @@ Regardless of the format, the generated document will contain all mappings and n
 
 Once the information is in the document, if an update is needed you must either update the information in Rabbit-In-a-Hat and regenerate the document or update the document.
 If you make changes in the document, Rabbit-In-a-Hat will not read those changes and update the information in the tool.
-However it is common to generate the document with the core mapping information and fill in more detail within the document.
+However, it is common to generate the document with the core mapping information and fill in more detail within the document.
 
 Once the document is completed, this should be shared with the individuals who plan to implement the code to execute the ETL.
 The markdown and html format enable easy publishing as a web page on e.g. Github.
 A good example is the [Synthea ETL documentation](https://ohdsi.github.io/ETL-Synthea/).
 
 # Generating a Testing Framework
-To make sure the ETL process is working as specified, it is highly recommended to create [unit tests](https://en.wikipedia.org/wiki/Unit_testing) that evaluate the behavior of the ETL process.
+To make sure the ETL process is working as specified, it is highly recommended creating [unit tests](https://en.wikipedia.org/wiki/Unit_testing) that evaluate the behavior of the ETL process.
 To efficiently create a set of unit tests Rabbit-in-a-Hat can [generate a testing framework](riah_test_framework.html).
 
 # Generating a SQL Skeleton (_v0.9.0_)
 The step after documenting your ETL process is to implement it in an ETL framework of your choice.
 As many implementations involve SQL, Rabbit-In-a-Hat provides a convenience function to export your design to 
-a SQL skeleton. This contains all field to field mappings, with logic/descriptions as comments, as non-functional pseudo-code.
+an SQL skeleton. This contains all field to field mappings, with logic/descriptions as comments, as non-functional pseudo-code.
 This saves you copying names into your SQL code, but still requires you to implement the actual logic.
 The general format of the skeleton is:
 
