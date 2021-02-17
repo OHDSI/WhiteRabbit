@@ -7,6 +7,7 @@ COPY whiteRabbitService whiteRabbitService
 COPY lib lib
 
 COPY mvnw .
+RUN chmod 770 mvnw
 COPY .mvn .mvn
 COPY pom.xml .
 

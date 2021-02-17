@@ -13,12 +13,11 @@ import java.util.concurrent.Executor;
 public class AsyncConfig {
 
     @Bean
-    public Executor asyncExecutor()
-    {
+    public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new TaskExecutorBuilder()
                 .corePoolSize(16)
                 .maxPoolSize(16)
-                .queueCapacity(500)
+                .queueCapacity(16)
                 .threadNamePrefix("WhiteRabbit-")
                 .build();
 
