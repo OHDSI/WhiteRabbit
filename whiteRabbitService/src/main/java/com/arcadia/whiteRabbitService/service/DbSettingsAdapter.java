@@ -65,7 +65,7 @@ public final class DbSettingsAdapter {
 
         checkWindowsAuthentication(dbSettings);
         setDomain(dbSettings);
-        adaptSchemaName(dbSettings, dto.getSchema());
+        adaptSchemaName(dbSettings, dto.getSchema(), dto.getPort());
         setTablesToScan(dbSettings, dto.getTablesToScan());
 
         return dbSettings;
@@ -128,9 +128,9 @@ public final class DbSettingsAdapter {
         }
     }
 
-    private static void adaptSchemaName(DbSettings dbSettings, String schemaName) {
+    private static void adaptSchemaName(DbSettings dbSettings, String schemaName, int port) {
         if (dbRequireSchema.contains(dbSettings.dbType)) {
-            dbSettings.server = String.format("%s/%s", dbSettings.server, dbSettings.database);
+            dbSettings.server = String.format("%s:%d/%s", dbSettings.server, port, dbSettings.database);
             dbSettings.database = schemaName;
         }
     }

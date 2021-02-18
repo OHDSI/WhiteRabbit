@@ -15,7 +15,7 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptFields() {
-        var dto = createTestDbSettingsDto("Sql Server");
+        var dto = createTestDbSettingsDto("Sql Server", 1433);
 
         DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
 
@@ -30,7 +30,7 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptMsSqlDbType() {
-        var dto = createTestDbSettingsDto("SQL SERVER");
+        var dto = createTestDbSettingsDto("SQL SERVER", 1433);
 
         DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
 
@@ -40,14 +40,14 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptPostgreDbType() {
-        var dto = createTestDbSettingsDto("postgresql");
+        var dto = createTestDbSettingsDto("postgresql", 5432);
 
         DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
 
         assertEquals(dbSettings.dbType, DbType.POSTGRESQL);
     }
 
-    private DbSettingsDto createTestDbSettingsDto(String dbType) {
+    private DbSettingsDto createTestDbSettingsDto(String dbType, int port) {
         String server = "822JNJ16S03V";
         String database = "CPRD";
         String user = "cdm_builder";
@@ -64,7 +64,7 @@ class DbSettingsAdapterTest {
         return new DbSettingsDto(
                 dbType,
                 user, password,
-                database, server, domain, schema,
+                database, server, port, domain, schema,
                 tablesToScan,
                 new ScanParamsDto(
                         sampleSize, true,
