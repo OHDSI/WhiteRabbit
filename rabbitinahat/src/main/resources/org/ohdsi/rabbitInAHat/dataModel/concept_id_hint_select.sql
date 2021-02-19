@@ -45,8 +45,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Condition Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'cost'                 AS omop_cdm_table,
@@ -58,8 +57,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Cost Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'death'                 AS omop_cdm_table,
@@ -71,8 +69,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Death Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'device_exposure'        AS omop_cdm_table,
@@ -84,8 +81,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Device Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'drug_exposure'        AS omop_cdm_table,
@@ -97,8 +93,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Drug Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'episode'                 AS omop_cdm_table,
@@ -110,8 +105,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Episode Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'measurement'                 AS omop_cdm_table,
@@ -123,8 +117,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Meas Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'note'                 AS omop_cdm_table,
@@ -136,8 +129,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Note Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'observation_period'     AS omop_cdm_table,
@@ -149,8 +141,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Obs Period Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'observation'                 AS omop_cdm_table,
@@ -162,8 +153,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Observation Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'procedure_occurrence'      AS omop_cdm_table,
@@ -175,8 +165,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Procedure Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'specimen'                 AS omop_cdm_table,
@@ -188,8 +177,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Specimen Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'visit_occurrence'      AS omop_cdm_table,
@@ -201,8 +189,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept
-    WHERE domain_id = 'Type Concept'
-      AND concept_class_id = 'Visit Type'
+    WHERE vocabulary_id = 'Type Concept'
       AND invalid_reason IS NULL
     UNION ALL
     SELECT 'visit_occurrence' AS omop_cdm_table,
@@ -276,6 +263,18 @@ WITH concept_hints AS (
     FROM @vocab.concept_ancestor
         JOIN vocab.concept ON concept_id = descendant_concept_id
     WHERE ancestor_concept_id = 4182347  -- World languages
+      AND invalid_reason IS NULL
+    UNION ALL
+    SELECT 'condition_occurrence'        AS omop_cdm_table,
+           'condition_status_concept_id' AS omop_cdm_field,
+           concept_id,
+           concept_name,
+           domain_id,
+           vocabulary_id,
+           concept_class_id,
+           standard_concept
+    FROM @vocab.concept
+    WHERE domain_id = 'Condition Status'
       AND invalid_reason IS NULL
 )
 SELECT *

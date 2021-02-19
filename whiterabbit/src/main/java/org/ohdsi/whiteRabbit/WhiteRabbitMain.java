@@ -29,8 +29,6 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -212,9 +210,30 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.domain = dbSettings.database;
 			}
 		}
+
 		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
-			try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
-				dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+			if (dbSettings.sourceType == DbSettings.SourceType.DATABASE) {
+				try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
+					dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+				}
+			} else {
+				String extension;
+				if (dbSettings.sourceType == DbSettings.SourceType.CSV_FILES) {
+					extension = ".csv";
+				} else {
+					extension = ".sas7bdat";
+				}
+				File folder = new File(iniFile.get("WORKING_FOLDER"));
+				if (folder.isDirectory()) {
+					for (File file : folder.listFiles()) {
+						if (file.isFile()) {
+							String filename = file.getAbsolutePath();
+							if (filename.endsWith(extension)) {
+								dbSettings.tables.add(filename);
+							}
+						}
+					}
+				}
 			}
 		} else {
 			for (String table : iniFile.get("TABLES_TO_SCAN").split(",")) {
@@ -227,10 +246,18 @@ public class WhiteRabbitMain implements ActionListener {
 		SourceDataScan sourceDataScan = new SourceDataScan();
 		int maxRows = Integer.parseInt(iniFile.get("ROWS_PER_TABLE"));
 		boolean scanValues = iniFile.get("SCAN_FIELD_VALUES").equalsIgnoreCase("yes");
-		int minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
-		int maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
-		boolean calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
-		int numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+		int minCellCount = 0;
+		int maxValues = 0;
+		boolean calculateNumericStats = false;
+		int numericStatsSamplerSize = 0;
+		if (scanValues) {
+			minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
+			maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
+			calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
+			if (calculateNumericStats) {
+				numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+			}
+		}
 
 		sourceDataScan.setSampleSize(maxRows);
 		sourceDataScan.setScanValues(scanValues);
@@ -454,7 +481,7 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsTopPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsTopPanel.add(new JLabel("Max distinct values "));
-		scanValuesCount = new JComboBox<>(new String[] { "100", "1,000", "10,000" });
+		scanValuesCount = new JComboBox<>(new String[] { "100", "1,000", "10,000", "100,000" });
 		scanValuesCount.setSelectedIndex(1);
 		scanValuesCount.setToolTipText("Maximum number of distinct values per field to be reported");
 		scanOptionsTopPanel.add(scanValuesCount);
@@ -478,7 +505,7 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsLowerPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsLowerPanel.add(new JLabel("Numeric stats reservoir size: "));
-		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million"});
+		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million" });
 		numericStatsSampleSize.setSelectedIndex(0);
 		numericStatsSampleSize.setToolTipText("Maximum number of rows used to calculate numeric statistics");
 		scanOptionsLowerPanel.add(numericStatsSampleSize);
@@ -971,31 +998,10 @@ public class WhiteRabbitMain implements ActionListener {
 					return;
 			}
 		}
-		int rowCount = 0;
-		if (scanRowCount.getSelectedItem().toString().equals("100,000"))
-			rowCount = 100000;
-		else if (scanRowCount.getSelectedItem().toString().equals("500,000"))
-			rowCount = 500000;
-		else if (scanRowCount.getSelectedItem().toString().equals("1 million"))
-			rowCount = 1000000;
-		if (scanRowCount.getSelectedItem().toString().equals("all"))
-			rowCount = -1;
 
-		int valuesCount = 0;
-		if (scanValuesCount.getSelectedItem().toString().equals("100"))
-			valuesCount = 100;
-		else if (scanValuesCount.getSelectedItem().toString().equals("1,000"))
-			valuesCount = 1000;
-		else if (scanValuesCount.getSelectedItem().toString().equals("10,000"))
-			valuesCount = 10000;
-
-		int numStatsSamplerSize = 0;
-		if (numericStatsSampleSize.getSelectedItem().toString().equals("100,000"))
-			numStatsSamplerSize = 100000;
-		else if (numericStatsSampleSize.getSelectedItem().toString().equals("500,000"))
-			numStatsSamplerSize = 500000;
-		else if (numericStatsSampleSize.getSelectedItem().toString().equals("1 million"))
-			numStatsSamplerSize = 1000000;
+		int rowCount = StringUtilities.numericOptionToInt(scanRowCount.getSelectedItem().toString());
+		int valuesCount = StringUtilities.numericOptionToInt(scanValuesCount.getSelectedItem().toString());
+		int numStatsSamplerSize = StringUtilities.numericOptionToInt(numericStatsSampleSize.getSelectedItem().toString());
 
 		ScanThread scanThread = new ScanThread(
 				rowCount,

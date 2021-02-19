@@ -55,7 +55,8 @@ public class Database implements Serializable {
 	private List<Table>			tables				= new ArrayList<Table>();
 	private static final long	serialVersionUID	= -3912166654601191039L;
 	private String				dbName				= "";
-	private static String		CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints_v5.0_02-OCT-19.csv";
+	private static final String	CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints.csv";
+	public String 				conceptIdHintsVocabularyVersion;
 
 	public List<Table> getTables() {
 		return tables;
@@ -63,7 +64,7 @@ public class Database implements Serializable {
 
 	public Table getTableByName(String name) {
 		for (Table table : tables)
-			if (table.getName().toLowerCase().equals(name.toLowerCase()))
+			if (table.getName().equalsIgnoreCase(name))
 				return table;
 		return null;
 	}
@@ -91,7 +92,8 @@ public class Database implements Serializable {
 
 		Map<String, Table> nameToTable = new HashMap<>();
 		try {
-			ConceptsMap conceptsMap = new ConceptsMap(CONCEPT_ID_HINTS_FILE_NAME);
+			ConceptsMap conceptIdHintsMap = new ConceptsMap(CONCEPT_ID_HINTS_FILE_NAME);
+			database.conceptIdHintsVocabularyVersion = conceptIdHintsMap.vocabularyVersion;
 
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
 				String tableNameColumn;
@@ -128,7 +130,7 @@ public class Database implements Serializable {
 				field.setNullable(row.get(isNullableColumn).equals(nullableValue));
 				field.setType(row.get(dataTypeColumn));
 				field.setDescription(row.get(descriptionColumn));
-				field.setConceptIdHints(conceptsMap.get(table.getName(), field.getName()));
+				field.setConceptIdHints(conceptIdHintsMap.get(table.getName(), field.getName()));
 
 				table.getFields().add(field);
 			}

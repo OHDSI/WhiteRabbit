@@ -49,11 +49,9 @@ import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
-import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.Version;
-import org.ohdsi.utilities.collections.Pair;
 
 /**
  * This is the main class for the RabbitInAHat application

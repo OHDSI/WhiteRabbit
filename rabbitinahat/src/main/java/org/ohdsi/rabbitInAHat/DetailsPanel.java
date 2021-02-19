@@ -418,7 +418,9 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 				table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
 			}
 
-			String title = isTargetFieldPanel ? "Concept ID Hints" : "Value Counts";
+			String title = isTargetFieldPanel ?
+					"Concept ID Hints " + ObjectExchange.etl.getTargetDatabase().conceptIdHintsVocabularyVersion
+					: "Value Counts";
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder(title));
 			add(fieldListPanel, BorderLayout.CENTER);
 
