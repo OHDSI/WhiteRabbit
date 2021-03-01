@@ -16,3 +16,4 @@ tmp/*
 Try*
 /examples/
 .DS_Store
+data/
