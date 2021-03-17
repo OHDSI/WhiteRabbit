@@ -24,12 +24,15 @@ import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.rabbitInAHat.dataModel.ValueCounts;
+import org.ohdsi.utilities.ConsoleLogger;
+import org.ohdsi.utilities.Logger;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
+import org.ohdsi.whiteRabbit.CanInterrupt;
 import org.ohdsi.whiteRabbit.DbSettings;
 
-public class FakeDataGenerator {
+public class FakeDataGenerator implements CanInterrupt {
 
 	private RichConnection connection;
 	private int maxRowsPerTable = 1000;
@@ -39,18 +42,28 @@ public class FakeDataGenerator {
 	private static int RANDOM = 1;
 	private static int PRIMARY_KEY = 2;
 
-	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder) {
-		generateData(dbSettings, maxRowsPerTable, filename, folder, false);
+	private Logger logger = new ConsoleLogger();
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
 	}
 
-	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder, boolean doUniformSampling) {
+	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder,
+							 boolean doUniformSampling) throws InterruptedException {
+		generateData(dbSettings, maxRowsPerTable, filename, folder, doUniformSampling,
+				null, true);
+	}
+
+	/* Schema name can be null */
+	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder,
+							 boolean doUniformSampling, String schemaName, boolean createTables) throws InterruptedException {
 		this.maxRowsPerTable = maxRowsPerTable;
 		DbSettings.SourceType targetType = dbSettings.sourceType;
 		this.doUniformSampling = doUniformSampling;
 
-		StringUtilities.outputWithTime("Starting creation of fake data");
-		System.out.println("Loading scan report from " + filename);
-		Database database = Database.generateModelFromScanReport(filename);
+		logger.logWithTime("Starting creation of fake data");
+
+		Database database = Database.generateModelFromScanReport(filename, schemaName);
 
 		if (targetType == DbSettings.SourceType.DATABASE) {
 			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
@@ -58,8 +71,11 @@ public class FakeDataGenerator {
 			for (Table table : database.getTables()) {
 				if (table.getName().toLowerCase().endsWith(".csv"))
 					table.setName(table.getName().substring(0, table.getName().length() - 4));
-				System.out.println("Generating table " + table.getName());
-				createTable(table);
+				logger.logWithTime("Generating table " + table.getName());
+				checkWasInterrupted();
+				if (createTables) {
+					createTable(table);
+				}
 				connection.insertIntoTable(generateRows(table).iterator(), table.getName(), false);
 			}
 			connection.close();
@@ -68,14 +84,14 @@ public class FakeDataGenerator {
 				String name = folder + "/" + table.getName();
 				if (!name.toLowerCase().endsWith(".csv"))
 					name = name + ".csv";
-				System.out.println("Generating table " + name);
+				logger.logWithTime("Generating table " + name);
 				WriteCSVFileWithHeader out = new WriteCSVFileWithHeader(name, dbSettings.csvFormat);
 				for (Row row : generateRows(table))
 					out.write(row);
 				out.close();
 			}
 		}
-		StringUtilities.outputWithTime("Done");
+		logger.logWithTime("Fake data successfully generated");
 	}
 
 	private List<Row> generateRows(Table table) {
@@ -223,5 +239,4 @@ public class FakeDataGenerator {
 			}
 		}
 	}
-
 }

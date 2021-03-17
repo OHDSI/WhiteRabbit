@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.amazon.redshift</groupId>
             <artifactId>redshift-jdbc41</artifactId>
-            <version>1.1.10.1010</version>
+            <version>1.2.36.1060</version>
         </dependency>
         <dependency>
             <groupId>com.teradata.jdbc</groupId>

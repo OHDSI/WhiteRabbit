@@ -3,14 +3,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.5.RELEASE</version>
+        <relativePath/>
+    </parent>
+
     <groupId>org.ohdsi</groupId>
     <artifactId>leporidae</artifactId>
     <packaging>pom</packaging>
     <version>0.10.2</version>
     <modules>
-        <module>rabbitinahat</module>
         <module>whiterabbit</module>
         <module>rabbit-core</module>
+        <module>whiteRabbitService</module>
     </modules>
     <name>Leporidae</name>
     <url>https://www.ohdsi.org/analytic-tools/whiterabbit-for-etl-design/</url>
@@ -47,6 +55,15 @@
             <id>mulesoft</id>
             <name>Mulesoft Repository</name>
             <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>redshift</id>
+            <name>Redshift Repository</name>
+            <url>http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>false</enabled>

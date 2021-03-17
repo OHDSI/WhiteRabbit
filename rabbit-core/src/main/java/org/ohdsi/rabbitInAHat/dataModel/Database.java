@@ -139,11 +139,15 @@ public class Database implements Serializable {
 	}
 
 	public static Database generateModelFromScanReport(String filename) {
+		return generateModelFromScanReport(filename, null);
+	}
+
+	public static Database generateModelFromScanReport(String filename, String schemaName) {
 		Database database = new Database();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
 
 		// Create table lookup from tables overview, if it exists
-		Map<String, Table> nameToTable = createTablesFromTableOverview(workbook, database);
+		Map<String, Table> nameToTable = createTablesFromTableOverview(workbook, database, schemaName);
 
 		// Field overview is the first sheet
 		Sheet overviewSheet = workbook.getByName(ScanSheetName.FIELD_OVERVIEW);
@@ -157,6 +161,9 @@ public class Database implements Serializable {
 			QuickAndDirtyXlsxReader.Row row = overviewRows.next();
 			String tableName = row.getStringByHeaderName(ScanFieldName.TABLE);
 			if (tableName.length() != 0) {
+				if (schemaName != null) {
+					tableName = String.format("%s.%s", schemaName, tableName);
+				}
 				// Get table created from table overview or created before
 				Table table = nameToTable.get(tableName);
 
@@ -199,7 +206,9 @@ public class Database implements Serializable {
 		return table;
 	}
 
-	public static Map<String, Table> createTablesFromTableOverview(QuickAndDirtyXlsxReader workbook, Database database) {
+	/* Return map: key - table name; value - table object */
+	public static Map<String, Table> createTablesFromTableOverview(QuickAndDirtyXlsxReader workbook,
+																   Database database, String schemaName) {
 		Sheet tableOverviewSheet = workbook.getByName(ScanSheetName.TABLE_OVERVIEW);
 
 		if (tableOverviewSheet == null) { // No table overview sheet, empty nameToTable
@@ -213,6 +222,9 @@ public class Database implements Serializable {
 		while (tableRows.hasNext()) {
 			org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Row row = tableRows.next();
 			String tableName = row.getByHeaderName(ScanFieldName.TABLE);
+			if (schemaName != null) {
+				tableName = String.format("%s.%s", schemaName, tableName);
+			}
 			Table table = createTable(
 					tableName,
 					row.getByHeaderName(ScanFieldName.DESCRIPTION),
@@ -229,6 +241,10 @@ public class Database implements Serializable {
 
 	private static ValueCounts getValueCounts(QuickAndDirtyXlsxReader workbook, String tableName, String fieldName) {
 		String targetSheetName = Table.createSheetNameFromTableName(tableName);
+		int pointIndex = targetSheetName.indexOf('.'); // has schema name
+		if (pointIndex != -1) {
+			targetSheetName = targetSheetName.substring(pointIndex + 1);
+		}
 		Sheet tableSheet = workbook.getByName(targetSheetName);
 
 		// Sheet not found for table, return empty

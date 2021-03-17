@@ -43,11 +43,12 @@ import org.ohdsi.utilities.collections.CountingSet;
 import org.ohdsi.utilities.collections.CountingSet.Count;
 import org.ohdsi.utilities.collections.Pair;
 import org.ohdsi.utilities.files.ReadTextFile;
+import org.ohdsi.whiteRabbit.CanInterrupt;
 import org.ohdsi.whiteRabbit.DbSettings;
 
 import static java.lang.Long.max;
 
-public class SourceDataScan {
+public class SourceDataScan implements CanInterrupt {
 
 	public static int	MAX_VALUES_IN_MEMORY				= 100000;
 	public static int	MIN_CELL_COUNT_FOR_CSV				= 1000000;
@@ -60,16 +61,22 @@ public class SourceDataScan {
 	private boolean scanValues = false;
 	private boolean calculateNumericStats = false;
 	private int numStatsSamplerSize;
-	private int minCellCount;
-	private int maxValues;
+	private int minCellCount; // minimum frequency required to add a value to the report
+	private int maxValues; // maximum number of values in the report
 	private DbSettings.SourceType sourceType;
 	private DbType dbType;
 	private String database;
 	private Map<Table, List<FieldInfo>> tableToFieldInfos;
 	private Map<String, String> indexedTableNameLookup;
+	private boolean isFile = true;
 
 	private LocalDateTime startTimeStamp;
 
+	private Logger logger = new ConsoleLogger();
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
 
 	public void setSampleSize(int sampleSize) {
 		this.sampleSize = sampleSize;
@@ -95,14 +102,14 @@ public class SourceDataScan {
 		this.numStatsSamplerSize = numStatsSamplerSize;
 	}
 
-	public void process(DbSettings dbSettings, String outputFileName) {
+	public void process(DbSettings dbSettings, String outputFileName) throws InterruptedException {
 		startTimeStamp = LocalDateTime.now();
 		sourceType = dbSettings.sourceType;
 		dbType = dbSettings.dbType;
 		database = dbSettings.database;
 
 		tableToFieldInfos = new HashMap<>();
-		StringUtilities.outputWithTime("Started new scan of " + dbSettings.tables.size() + " tables...");
+		logger.logWithTime("Started new scan of " + dbSettings.tables.size() + " tables...");
 		if (sourceType == DbSettings.SourceType.CSV_FILES) {
 			if (!scanValues)
 				this.minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
@@ -110,13 +117,14 @@ public class SourceDataScan {
 		} else if (sourceType == DbSettings.SourceType.SAS_FILES) {
 			processSasFiles(dbSettings);
 		} else {
+			isFile = false;
 			processDatabase(dbSettings);
 		}
 
 		generateReport(outputFileName);
 	}
 
-	private void processDatabase(DbSettings dbSettings) {
+	private void processDatabase(DbSettings dbSettings) throws InterruptedException {
 		// GBQ requires database. Put database value into domain var
 		if (dbSettings.dbType == DbType.BIGQUERY) {
 			dbSettings.domain = dbSettings.database;
@@ -126,15 +134,13 @@ public class SourceDataScan {
 			connection.setVerbose(false);
 			connection.use(dbSettings.database);
 
-			tableToFieldInfos = dbSettings.tables.stream()
-					.collect(Collectors.toMap(
-							Table::new,
-							table -> processDatabaseTable(table, connection)
-					));
+			for (String table : dbSettings.tables) {
+				tableToFieldInfos.put(new Table(table), processDatabaseTable(table, connection));
+			}
 		}
 	}
 
-	private void processCsvFiles(DbSettings dbSettings) {
+	private void processCsvFiles(DbSettings dbSettings) throws InterruptedException {
 		delimiter = dbSettings.delimiter;
 		for (String fileName : dbSettings.tables) {
 			Table table = new Table();
@@ -144,7 +150,7 @@ public class SourceDataScan {
 		}
 	}
 
-	private void processSasFiles(DbSettings dbSettings) {
+	private void processSasFiles(DbSettings dbSettings) throws InterruptedException {
 		for (String fileName : dbSettings.tables) {
 			try(FileInputStream inputStream = new FileInputStream(new File(fileName))) {
 				SasFileReader sasFileReader = new SasFileReaderImpl(inputStream);
@@ -154,18 +160,19 @@ public class SourceDataScan {
 				table.setName(new File(fileName).getName());
 				table.setComment(sasFileProperties.getName());
 
-				StringUtilities.outputWithTime("Scanning table " + fileName);
+				logger.logWithTime("Scanning table " + StringUtilities.getFileNameBYFullName(fileName));
 				List<FieldInfo> fieldInfos = processSasFile(sasFileReader);
 				tableToFieldInfos.put(table, fieldInfos);
 
 			} catch (IOException e) {
+				logger.error(e.getMessage());
 				e.printStackTrace();
 			}
 		}
 	}
 
 	private void generateReport(String filename) {
-		StringUtilities.outputWithTime("Generating scan report");
+		logger.logWithTime("Generating scan report");
 		removeEmptyTables();
 
 		workbook = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
@@ -173,7 +180,7 @@ public class SourceDataScan {
 		int i = 0;
 		indexedTableNameLookup = new HashMap<>();
 		for (Table table : tableToFieldInfos.keySet()) {
-			String tableNameIndexed = Table.indexTableNameForSheet(table.getName(), i);
+			String tableNameIndexed = Table.indexTableNameForSheetAndRemoveSchema(table.getName(), i, isFile);
 			indexedTableNameLookup.put(table.getName(), tableNameIndexed);
 			i++;
 		}
@@ -190,7 +197,7 @@ public class SourceDataScan {
 		try (FileOutputStream out = new FileOutputStream(new File(filename))) {
 			workbook.write(out);
 			out.close();
-			StringUtilities.outputWithTime("Scan report generated: " + filename);
+			logger.logWithTime("Scan report generated");
 		} catch (IOException ex) {
 			throw new RuntimeException(ex.getMessage());
 		}
@@ -389,8 +396,8 @@ public class SourceDataScan {
 				.removeIf(stringListEntry -> stringListEntry.getValue().size() == 0);
 	}
 
-	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) {
-		StringUtilities.outputWithTime("Scanning table " + table);
+	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) throws InterruptedException {
+		logger.logWithTime("Scanning table " + table);
 
 		long rowCount = connection.getTableSize(table);
 		List<FieldInfo> fieldInfos = fetchTableStructure(connection, table);
@@ -403,16 +410,19 @@ public class SourceDataScan {
 					for (FieldInfo fieldInfo : fieldInfos) {
 						fieldInfo.processValue(row.get(fieldInfo.name));
 					}
+					checkWasInterrupted();
 					actualCount++;
 					if (sampleSize != -1 && actualCount >= sampleSize) {
-						System.out.println("Stopped after " + actualCount + " rows");
+						logger.log("Stopped after " + actualCount + " rows");
 						break;
 					}
 				}
 				for (FieldInfo fieldInfo : fieldInfos)
 					fieldInfo.trim();
+			} catch (InterruptedException e) {
+				throw e;
 			} catch (Exception e) {
-				System.out.println("Error: " + e.getMessage());
+				logger.error("Error: " + e.getMessage());
 			} finally {
 				if (queryResult != null) {
 					queryResult.close();
@@ -455,7 +465,7 @@ public class SourceDataScan {
 			else if (dbType == DbType.BIGQUERY)
 				query = "SELECT * FROM " + table + " ORDER BY RAND() LIMIT " + sampleSize;
 		}
-		// System.out.println("SQL: " + query);
+		// logger.log("SQL: " + query);
 		return connection.query(query);
 
 	}
@@ -524,8 +534,8 @@ public class SourceDataScan {
 		return fieldInfos;
 	}
 
-	private List<FieldInfo> processCsvFile(String filename) {
-		StringUtilities.outputWithTime("Scanning table " + filename);
+	private List<FieldInfo> processCsvFile(String filename) throws InterruptedException {
+		logger.logWithTime("Scanning table " + StringUtilities.getFileNameBYFullName(filename));
 		List<FieldInfo> fieldInfos = new ArrayList<>();
 		int lineNr = 0;
 		for (String line : new ReadTextFile(filename)) {
@@ -556,6 +566,8 @@ public class SourceDataScan {
 			}
 			if (lineNr > sampleSize)
 				break;
+
+			checkWasInterrupted();
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
 			fieldInfo.trim();
@@ -563,7 +575,7 @@ public class SourceDataScan {
 		return fieldInfos;
 	}
 
-	private List<FieldInfo> processSasFile(SasFileReader sasFileReader) throws IOException {
+	private List<FieldInfo> processSasFile(SasFileReader sasFileReader) throws IOException, InterruptedException {
 		List<FieldInfo> fieldInfos = new ArrayList<>();
 
 		SasFileProperties sasFileProperties = sasFileReader.getSasFileProperties();
@@ -577,6 +589,8 @@ public class SourceDataScan {
 				fieldInfo.maxLength = column.getLength();
 			}
 			fieldInfos.add(fieldInfo);
+
+			checkWasInterrupted();
 		}
 
 		if (!scanValues) {
@@ -587,7 +601,7 @@ public class SourceDataScan {
 			Object[] row = sasFileReader.readNext();
 
 			if (row.length != fieldInfos.size()) {
-				StringUtilities.outputWithTime("WARNING: row " + lineNr + " not scanned due to field count mismatch.");
+				logger.logWithTime("WARNING: row " + lineNr + " not scanned due to field count mismatch.");
 				continue;
 			}
 
@@ -734,6 +748,11 @@ public class SourceDataScan {
 
 		}
 
+		/**
+		 * Return list contains all values with frequency greater than minCellCount variable
+		 * If there are values with frequency less than or equal to minCellCount added 'List truncated...' in result list
+		 * Result list size equal maxValues variable, all other values are deleted
+		 */
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {
 			List<Pair<String, Integer>> result = valueCounts.key2count.entrySet().stream()
 					.filter(e -> e.getValue().count >= minCellCount)
