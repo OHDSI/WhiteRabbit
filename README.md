@@ -1,6 +1,10 @@
 Introduction
 ========
-This repository forked from https://github.com/OHDSI/WhiteRabbit. **WhiteRabbit** is a small application that can be used to analyse the structure and contents of a database as preparation for designing an ETL. This service wraps WhiteRabbit functional in Web-service, that used by **Perseus** https://github.com/SoftwareCountry/Perseus. 
+This repository forked from https://github.com/OHDSI/WhiteRabbit. 
+
+**WhiteRabbit** is a small application that can be used to analyse the structure and contents of a database as preparation for designing an ETL. 
+
+This service wraps WhiteRabbit functional in Web-service, that used by **Perseus** https://github.com/SoftwareCountry/Perseus. 
 
 Features
 ========
