@@ -4,6 +4,7 @@ import com.arcadia.whiteRabbitService.dto.FakeDataParamsDto;
 import com.arcadia.whiteRabbitService.dto.ProgressNotificationDto;
 import com.arcadia.whiteRabbitService.service.FakeTasksHandler;
 import com.arcadia.whiteRabbitService.service.WhiteRabbitFacade;
+import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
 import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
 import com.arcadia.whiteRabbitService.service.log.WebSocketLogger;
 import lombok.AllArgsConstructor;
@@ -31,7 +32,7 @@ public class FakeDataController {
 
     @MessageMapping("/fake-data")
     @SendToUser("/queue/fake-data")
-    public String generate(@Payload FakeDataParamsDto dto, @Header("simpSessionId") String sessionId) throws FailedToGenerateFakeData {
+    public String generate(@Payload FakeDataParamsDto dto, @Header("simpSessionId") String sessionId) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
         var replyDestination = "/queue/reply";
         var logger = new WebSocketLogger(messagingTemplate, sessionId, replyDestination);
 
