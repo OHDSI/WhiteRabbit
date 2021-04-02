@@ -108,7 +108,7 @@ public class WhiteRabbitFacade {
     }
 
     @Async
-    public Future<String> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
+    public Future<String> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
         String resultMessage = fakeDataService.generateFakeData(dto, logger);
         return new AsyncResult<>(resultMessage);
     }
