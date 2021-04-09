@@ -13,6 +13,7 @@
 
 <title>White Rabbit</title>
 
+<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -25,7 +26,18 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
 <link rel='shortcut icon' type='image/x-icon' href='images/favicon.ico' />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -437,6 +449,10 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <li>Go to <a href="#using-the-application-functions">Using the Application Functions</a> for detailed instructions on how to make a scan of your data.</li>
 </ol>
 <p>Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.</p>
+<div id="memory" class="section level3">
+<h3>Memory</h3>
+<p>WhiteRabbit possibly does not start when the memory allocated by the JVM is too big or too small. By default this is set to 1200m. To increase the memory (in this example to 2400m), either set the environment variable <code>EXTRA_JVM_ARGUMENTS=-Xmx2400m</code> before starting or edit in <code>bin/WhiteRabbit.bat</code> the line <code>%JAVACMD% %JAVA_OPTS% -Xmx2400m...</code>. To lower the memory, set one of these variables to e.g. <code>-Xmx600m</code>. If you have a 32-bit Java VM installed and problems persist, consider installing 64-bit Java.</p>
+</div>
 </div>
 <div id="support" class="section level2">
 <h2>Support</h2>
@@ -446,7 +462,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 </div>
 </div>
 <div id="using-the-application-functions" class="section level1">
-<h1>Using the Application Functions</h1>
+<h1>Using the application functions</h1>
 <div id="specifying-the-location-of-source-data" class="section level2">
 <h2>Specifying the Location of Source Data</h2>
 <p><img src="images/whiterabbitscreenshot_v0.10.1.PNG" /></p>
@@ -487,14 +503,14 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <li><em><strong>Server location:</strong></em> this field contains the SID, service name, and optionally the port: <code>&lt;host&gt;/&lt;sid&gt;</code>, <code>&lt;host&gt;:&lt;port&gt;/&lt;sid&gt;</code>, <code>&lt;host&gt;/&lt;service name&gt;</code>, or <code>&lt;host&gt;:&lt;port&gt;/&lt;service name&gt;</code></li>
 <li><em><strong>User name:</strong></em> name of the user used to log into the server</li>
 <li><em><strong>Password:</strong></em> password for the supplied user name</li>
-<li><em><strong>Database name:</strong></em> this field contains the schema (i.e. ‘user’ in Oracle terms) containing the tables</li>
+<li><em><strong>Database name:</strong></em> this field contains the schema (i.e. ‘user’ in Oracle terms) containing the tables</li>
 </ul>
 </div>
 <div id="sql-server" class="section level4">
 <h4>SQL Server</h4>
 <ul>
 <li><em><strong>Server location:</strong></em> the name or IP address of the server running SQL Server. You can also specify the port (ex: <code>&lt;host&gt;:&lt;port&gt;</code>), which defaults to 1433.</li>
-<li><em><strong>User name:</strong></em> name of the user used to log into the server. Optionally, the domain can be specified as <code>&lt;domain&gt;/&lt;user&gt;</code> (e.g. ‘MyDomain/Joe’)</li>
+<li><em><strong>User name:</strong></em> name of the user used to log into the server. Optionally, the domain can be specified as <code>&lt;domain&gt;/&lt;user&gt;</code> (e.g. ‘MyDomain/Joe’)</li>
 <li><em><strong>Password:</strong></em> password for the supplied user name</li>
 <li><em><strong>Database name:</strong></em> name of the database containing the tables</li>
 </ul>
@@ -536,7 +552,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <div id="azure-sql-database" class="section level4">
 <h4>Azure SQL Database</h4>
 <ul>
-<li><em><strong>Server location:</strong></em> server address string including database name (e.g. <code>&lt;project&gt;.database.windows.net:1433;database=&lt;database_name&gt;</code>)</li>
+<li><em><strong>Server location:</strong></em> server address string including database name (e.g. <code>&lt;project&gt;.database.windows.net:1433;database=&lt;database_name&gt;</code>)</li>
 <li><em><strong>User name:</strong></em> name of the user used to log into the server</li>
 <li><em><strong>Password:</strong></em> password for the supplied user name</li>
 </ul>
@@ -572,7 +588,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 </div>
 <div id="reading-the-scan" class="section level3">
 <h3>Reading the Scan</h3>
-<p>After the scan is completed, a “ScanReport” Excel document will be created in the working folder location selected earlier. The document will have multiple tabs. The first two tabs are a “Field Overview” tab and a “Table Overview” tab. The subsequent tabs contain field and value overviews for each database table or delimited text files selected for the scan. The last tab (indicated by <code>&quot;_&quot;</code>) contains metadata on the WhiteRabbit settings used to create the scan report. The “Table Overview” and <code>&quot;_&quot;</code> tab are not present in releases earlier than v0.10.0.</p>
+<p>After the scan is completed, a “ScanReport” Excel document will be created in the working folder location selected earlier. The document will have multiple tabs. The first two tabs are a “Field Overview” tab and a “Table Overview” tab. The subsequent tabs contain field and value overviews for each database table or delimited text files selected for the scan. The last tab (indicated by <code>"_"</code>) contains metadata on the WhiteRabbit settings used to create the scan report. The “Table Overview” and <code>"_"</code> tab are not present in releases earlier than v0.10.0.</p>
 <div id="field-overview" class="section level4">
 <h4>Field Overview</h4>
 <p>The “Field Overview” tab will show for each table scanned, the details for each field. For example the data type, the number of empty rows and other statistics.</p>
@@ -610,7 +626,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <p>If the values of the table have been scanned (described in <a href="#performing-the-scan">Performing the Scan</a>), the scan report will contain a tab for each scanned table. An example for one field is shown below.</p>
 <p><img src="images/wr_scan_report_value_freq_v0.10.1.PNG" /></p>
 <p>The field names from the source table will be across the columns of the Excel tab. Each source field will generate two columns in the Excel. One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan. Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data. These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.</p>
-<p>If a list of unique values was truncated, the last value in the list will be <code>&quot;List truncated...&quot;</code>; this indicates that there are one or more additional unique source values that have a frequency lower than the “Min cell count”.</p>
+<p>If a list of unique values was truncated, the last value in the list will be <code>"List truncated..."</code>; this indicates that there are one or more additional unique source values that have a frequency lower than the “Min cell count”.</p>
 <p>The scan report is powerful in understanding your source data by highlighting what exists. For example, the above example was retrieved for the “GENDER” column within one of the tables scanned, we can see that there were two common values (1 &amp; 2) that appeared 104 and 96 times respectively. WhiteRabbit will not define “1” as male and “2” as female; the data holder will typically need to define source codes unique to the source system. However, these two values (1 &amp; 2) are not the only values present in the data because we see this list was truncated. These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values. When generating an ETL we should not only plan to handle the high-frequency gender concepts “1” and “2” but also the other low-frequency values that exist within this column.</p>
 <div id="numerical-statistics" class="section level4">
 <h4>Numerical Statistics</h4>
@@ -657,7 +673,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -696,7 +712,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0

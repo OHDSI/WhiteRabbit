@@ -4,6 +4,7 @@ pagetitle: "White Rabbit"
 ![](images/whiterabbitlogo.png )
 
 # Introduction
+
 ## Scope and purpose
 WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](https://github.com/OHDSI/CommonDataModel).
 The source data can be in delimited text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure SQL Database).
@@ -50,7 +51,7 @@ Any bugs/issues/enhancements should be posted to the GitHub repository: <https:/
 
 Any questions/comments/feedback/discussion can be posted on the OHDSI Developer Forum: <http://forums.ohdsi.org/c/developers>
 
-# Using the Application Functions
+# Using the application functions
 
 ## Specifying the Location of Source Data
 
