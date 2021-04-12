@@ -108,7 +108,7 @@ When the SQL Server JDBC drivers are installed, you can also use Windows authent
 
 #### PostgreSQL
 
-  * _**Server location:**_ this field contains the host name and database name (<host>/<database>). You can also specify the port (ex: `<host>:<port>/<database>`), which defaults to 5432.
+  * _**Server location:**_ this field contains the host name and database name (`<host>/<database>`). You can also specify the port (ex: `<host>:<port>/<database>`), which defaults to 5432.
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ this field contains the schema containing the tables
