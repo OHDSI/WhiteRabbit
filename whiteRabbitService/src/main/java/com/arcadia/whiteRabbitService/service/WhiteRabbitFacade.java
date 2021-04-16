@@ -5,25 +5,28 @@ import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
 import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
-import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.*;
-import static com.arcadia.whiteRabbitService.util.Base64Util.removeBase64Header;
+import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSettings;
+import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDelimitedTextFileSettings;
+import static com.arcadia.whiteRabbitService.util.CompareDate.getDateDiffInHours;
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
 import static java.lang.String.format;
-import static java.nio.file.Files.delete;
-import static java.nio.file.Files.readAllBytes;
 
 @AllArgsConstructor
 @Service
@@ -31,45 +34,53 @@ public class WhiteRabbitFacade {
 
     private final FakeDataService fakeDataService;
 
+    /*
+    * Scan report files creation dates
+    * */
+    private final Map<String, Date> scanReportCreationDates = new ConcurrentHashMap<>();
+
+    @PostConstruct
+    public void init() {
+        // Create directory for scan-reports storage
+        createDirectory(scanReportLocation);
+    }
+
     @Async
-    public Future<byte[]> generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
+    public Future<String> generateScanReport(SettingsDto dto, Logger logger) throws FailedToScanException {
+        return dto instanceof DbSettingsDto ?
+                generateScanReport((DbSettingsDto) dto, logger) :
+                generateScanReport((FileSettingsDto) dto, logger);
+    }
+
+    private Future<String> generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
         try {
             DbSettings dbSettings = adaptDbSettings(dto);
             SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
             String scanReportFileName = generateRandomFileName();
 
-            sourceDataScan.process(dbSettings, scanReportFileName);
+            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
 
-            return new AsyncResult<>(getScanReportBytes(scanReportFileName));
+            return new AsyncResult<>(saveFileLocation(scanReportFileName));
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new FailedToScanException(e.getCause());
         }
     }
 
-    @Async
-    public Future<byte[]> generateScanReport(FileSettingsDto dto, Logger logger) throws FailedToScanException {
-        String directoryName = generateRandomDirectory();
-
+    private Future<String> generateScanReport(FileSettingsDto dto, Logger logger) throws FailedToScanException {
         try {
-            DbSettings dbSettings = adaptDelimitedTextFileSettings(dto, directoryName);
+            DbSettings dbSettings = adaptDelimitedTextFileSettings(dto);
             SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
             String scanReportFileName = generateRandomFileName();
 
-            dto.getFilesToScan()
-                    .forEach(fileToScanDto -> base64ToFile(
-                            Paths.get(directoryName, fileToScanDto.getFileName()),
-                            removeBase64Header(fileToScanDto.getBase64())
-                    ));
+            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
 
-            sourceDataScan.process(dbSettings, scanReportFileName);
-
-            return new AsyncResult<>(getScanReportBytes(scanReportFileName));
+            return new AsyncResult<>(saveFileLocation(scanReportFileName));
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new FailedToScanException(e.getCause());
         } finally {
-            deleteRecursive(Paths.get(directoryName));
+            deleteRecursive(Path.of(dto.getFileDirectory()));
         }
     }
 
@@ -108,9 +119,9 @@ public class WhiteRabbitFacade {
     }
 
     @Async
-    public Future<String> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
-        String resultMessage = fakeDataService.generateFakeData(dto, logger);
-        return new AsyncResult<>(resultMessage);
+    public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
+        fakeDataService.generateFakeData(dto, logger);
+        return new AsyncResult<>(null);
     }
 
     private SourceDataScan createSourceDataScan(ScanParamsDto dto, Logger logger) {
@@ -125,14 +136,23 @@ public class WhiteRabbitFacade {
                 .build();
     }
 
-    @SneakyThrows
-    private byte[] getScanReportBytes(String scanReportFileName) {
-        var reportFile = new File(scanReportFileName);
-        var reportPath = reportFile.toPath();
-        var reportBytes = readAllBytes(reportPath);
+    private String saveFileLocation(String fileLocation) {
+        scanReportCreationDates.put(fileLocation, new Date());
+        return fileLocation;
+    }
 
-        delete(reportPath);
+    /* 8 hours */
+    @Scheduled(fixedRate = 1000 * 60 * 60 * 8)
+    private void clearFileStorage() {
+        Date currentDate = new Date();
 
-        return reportBytes;
+        for (Map.Entry<String, Date> entry : scanReportCreationDates.entrySet()) {
+            long diffInHours = getDateDiffInHours(currentDate, entry.getValue());
+
+            if (diffInHours > 4) {
+                File file = new File(entry.getKey());
+                file.delete();
+            }
+        }
     }
 }

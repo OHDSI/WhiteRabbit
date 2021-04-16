@@ -1,14 +1,17 @@
 package com.arcadia.whiteRabbitService.service;
 
+import java.util.Optional;
 import java.util.concurrent.Future;
 
-public interface TaskHandler<T> {
+/*
+* P - task parameter
+* R - task result
+* */
+public interface TaskHandler<P, R> {
 
-    T handleTask(String id, Future<T> task);
+    boolean createTask(P param, String id);
 
-    void addTask(String id, Future<T> task);
-
-    void finishTask(String id);
+    Optional<R> getTaskResult(String id);
 
     void cancelTask(String id);
 }

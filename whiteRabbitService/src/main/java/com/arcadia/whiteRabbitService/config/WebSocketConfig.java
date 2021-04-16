@@ -20,16 +20,6 @@ import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final ScanTasksHandler scanTasksHandler;
-
-    private final FakeTasksHandler fakeTasksHandler;
-
-    @Bean
-    @NonNull
-    public WebSocketHandlerDecorator webSocketHandlerDecorator(WebSocketHandler webSocketHandler) {
-        return new WhiteRabbitWebSocketHandlerDecorator(webSocketHandler, scanTasksHandler, fakeTasksHandler);
-    }
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/queue");
@@ -39,15 +29,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
-                .addEndpoint("/scan-report/db", "/scan-report/file", "/fake-data")
+                .addEndpoint("/scan-data", "/fake-data")
                 .setAllowedOrigins("*")
                 .withSockJS();
-    }
-
-    @Override
-    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        registry
-                .addDecoratorFactory(this::webSocketHandlerDecorator)
-                .setMessageSizeLimit(1024 * 1024 * 10); // 10Mb
     }
 }
