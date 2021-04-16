@@ -9,13 +9,14 @@ import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
+
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSettings;
+import static com.arcadia.whiteRabbitService.util.FileUtil.deleteRecursive;
 
 @Service
 @AllArgsConstructor
 public class FakeDataService {
-
-    private final StorageService storageService;
 
     public void generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
         DbSettings dbSettings = adaptDbSettings(dto.getDbSettings());
@@ -37,8 +38,7 @@ public class FakeDataService {
             logger.error(e.getMessage());
             throw new FailedToGenerateFakeData(e.getCause());
         } finally {
-
-            storageService.delete(dto.getScanReportFileName());
+            deleteRecursive(Path.of(dto.getDirectory()));
         }
     }
 }

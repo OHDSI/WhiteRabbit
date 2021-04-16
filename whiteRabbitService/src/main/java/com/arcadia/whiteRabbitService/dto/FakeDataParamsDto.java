@@ -15,5 +15,8 @@ public class FakeDataParamsDto {
     @Setter
     private String scanReportFileName;
 
+    @Setter
+    private String directory;
+
     private final DbSettingsDto dbSettings;
 }

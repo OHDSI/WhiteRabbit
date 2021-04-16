@@ -26,6 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.concurrent.Future;
 
 import static com.arcadia.whiteRabbitService.service.log.ProgressNotificationStatus.FAILED;
+import static com.arcadia.whiteRabbitService.util.FileUtil.createDirectory;
 import static java.lang.String.format;
 
 @RestController
@@ -41,17 +42,24 @@ public class FakeDataController {
     public void generate(@PathVariable String userId,
                          @RequestParam MultipartFile file,
                          @RequestParam String settings) throws JsonProcessingException {
-        String scanReportFileName = format("%s/%s", userId, file.getName());
+        createDirectory(userId);
+        String scanReportFileName = format("%s/%s", userId, file.getOriginalFilename());
         storageService.store(file, scanReportFileName);
 
         ObjectMapper mapper = new ObjectMapper();
         FakeDataParamsDto dto = mapper.readValue(settings, FakeDataParamsDto.class);
         dto.setScanReportFileName(scanReportFileName);
+        dto.setDirectory(userId);
 
         boolean created = this.fakeTasksHandler.createTask(dto, userId);
         if (!created) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Fake Data Generation Process already run");
         }
+    }
+
+    @GetMapping("/{userId}")
+    public void abort(@PathVariable String userId) {
+        fakeTasksHandler.cancelTask(userId);
     }
 
     @MessageExceptionHandler
