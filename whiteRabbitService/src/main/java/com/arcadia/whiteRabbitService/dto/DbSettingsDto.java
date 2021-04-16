@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class DbSettingsDto {
+public class DbSettingsDto implements SettingsDto {
     private final String dbType;
 
     private final String user;

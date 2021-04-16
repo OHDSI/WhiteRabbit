@@ -71,16 +71,12 @@ public final class DbSettingsAdapter {
         return dbSettings;
     }
 
-    public static DbSettings adaptDelimitedTextFileSettings(FileSettingsDto dto, String dirName) throws DelimitedTextFileNotSupportedException {
+    public static DbSettings adaptDelimitedTextFileSettings(FileSettingsDto dto) throws DelimitedTextFileNotSupportedException {
         DbSettings dbSettings = new DbSettings();
 
         dbSettings.sourceType = adaptDelimitedFileTypeToSourceType(dto.getFileType());
         dbSettings.delimiter = dto.getDelimiter().charAt(0);
-        dbSettings.tables = dto.getFilesToScan()
-                .stream()
-                .map(fileToScanDto -> dirName + separator + fileToScanDto.getFileName())
-                .collect(toList());
-
+        dbSettings.tables = dto.getFileNames();
         return dbSettings;
     }
 
