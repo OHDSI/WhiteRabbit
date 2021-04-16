@@ -157,7 +157,7 @@ public class RichConnection implements Closeable {
 					"(SELECT table_name, owner FROM all_tables UNION ALL SELECT view_name, owner FROM all_views) tables_views " +
 					"WHERE owner='" + database.toUpperCase() + "'";
 		} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) {
-			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database.toLowerCase() + "' ORDER BY table_name";
+			query = "SELECT table_name FROM information_schema.tables WHERE LOWER(table_schema) = '" + database.toLowerCase() + "' ORDER BY table_name";
 		} else if (dbType == DbType.MSACCESS) {
 			query = "SELECT Name FROM sys.MSysObjects WHERE (Type=1 OR Type=5) AND Flags=0;";
 		} else if (dbType == DbType.TERADATA) {
