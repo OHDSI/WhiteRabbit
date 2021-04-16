@@ -1,6 +1,5 @@
 package com.arcadia.whiteRabbitService.service;
 
-import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
 import com.arcadia.whiteRabbitService.dto.SettingsDto;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import com.arcadia.whiteRabbitService.service.log.WebSocketLogger;

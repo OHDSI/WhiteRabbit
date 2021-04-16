@@ -1,6 +1,5 @@
 package com.arcadia.whiteRabbitService.service;
 
-import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import lombok.SneakyThrows;
 
 import java.util.Map;

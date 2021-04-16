@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static java.io.File.separator;
-import static java.util.stream.Collectors.toList;
-
 public final class DbSettingsAdapter {
 
+    /**
+     * Tested only Postgres and MS Sql
+     * */
     private static final Map<DbType, Function<String, Boolean>> dbTypeIdentifiers = Map.of(
             DbType.MYSQL, dbType -> dbType.equalsIgnoreCase("MySQL"),
             DbType.ORACLE, dbType -> dbType.equalsIgnoreCase("Oracle"),

@@ -17,14 +17,13 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
-import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.*;
-import static com.arcadia.whiteRabbitService.util.Base64Util.removeBase64Header;
+import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSettings;
+import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDelimitedTextFileSettings;
 import static com.arcadia.whiteRabbitService.util.CompareDate.getDateDiffInHours;
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
 import static java.lang.String.format;
