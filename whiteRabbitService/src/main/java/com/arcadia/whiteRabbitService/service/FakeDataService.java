@@ -32,7 +32,7 @@ public class FakeDataService {
                     null, // Not needed, it need if generate fake data to delimited text file
                     dto.getDoUniformSampling(),
                     dto.getDbSettings().getSchema(),
-                    false // Tables are created when the report is uploaded to python service
+                    false // False - Tables are created when the report is uploaded to python service
             );
         } catch (Exception e) {
             logger.error(e.getMessage());

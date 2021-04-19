@@ -17,14 +17,6 @@
  ******************************************************************************/
 package org.ohdsi.whiteRabbit.scan;
 
-import java.io.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.epam.parso.Column;
 import com.epam.parso.SasFileProperties;
 import com.epam.parso.SasFileReader;
@@ -46,7 +38,19 @@ import org.ohdsi.utilities.files.ReadTextFile;
 import org.ohdsi.whiteRabbit.CanInterrupt;
 import org.ohdsi.whiteRabbit.DbSettings;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static java.lang.Long.max;
+import static org.ohdsi.whiteRabbit.scan.SchemaUtil.adaptSchemaNameForPostgres;
 
 public class SourceDataScan implements CanInterrupt {
 
@@ -132,7 +136,7 @@ public class SourceDataScan implements CanInterrupt {
 
 		try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
 			connection.setVerbose(false);
-			connection.use(dbSettings.database);
+			connection.use(adaptSchemaNameForPostgres(dbSettings, dbSettings.database));
 
 			for (String table : dbSettings.tables) {
 				tableToFieldInfos.put(new Table(table), processDatabaseTable(table, connection));
