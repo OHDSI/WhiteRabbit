@@ -17,18 +17,18 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat.dataModel;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.util.*;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.ohdsi.utilities.ScanFieldName;
 import org.ohdsi.utilities.ScanSheetName;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.util.*;
 
 public class Database implements Serializable {
 
@@ -197,9 +197,13 @@ public class Database implements Serializable {
 		return database;
 	}
 
+	/**
+	 * *  Deleted transform to lower case
+	 */
 	public static Table createTable(String name, String description, Integer nRows, Integer nRowsChecked) {
 		Table table = new Table();
-		table.setName(name.toLowerCase());
+		// table.setName(name.toLowerCase());
+		table.setName(name); // Original case
 		table.setDescription(description);
 		table.setRowCount(nRows == null ? -1 : nRows);
 		table.setRowsCheckedCount(nRowsChecked == null ? -1 : nRowsChecked);

@@ -45,45 +45,6 @@ public class WhiteRabbitFacade {
         createDirectory(scanReportLocation);
     }
 
-    @Async
-    public Future<String> generateScanReport(SettingsDto dto, Logger logger) throws FailedToScanException {
-        return dto instanceof DbSettingsDto ?
-                generateScanReport((DbSettingsDto) dto, logger) :
-                generateScanReport((FileSettingsDto) dto, logger);
-    }
-
-    private Future<String> generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
-        try {
-            DbSettings dbSettings = adaptDbSettings(dto);
-            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
-            String scanReportFileName = generateRandomFileName();
-
-            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
-
-            return new AsyncResult<>(saveFileLocation(scanReportFileName));
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new FailedToScanException(e.getCause());
-        }
-    }
-
-    private Future<String> generateScanReport(FileSettingsDto dto, Logger logger) throws FailedToScanException {
-        try {
-            DbSettings dbSettings = adaptDelimitedTextFileSettings(dto);
-            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
-            String scanReportFileName = generateRandomFileName();
-
-            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
-
-            return new AsyncResult<>(saveFileLocation(scanReportFileName));
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new FailedToScanException(e.getCause());
-        } finally {
-            deleteRecursive(Path.of(dto.getFileDirectory()));
-        }
-    }
-
     public TestConnectionDto testConnection(DbSettingsDto dto) {
         try {
             DbSettings dbSettings = adaptDbSettings(dto);
@@ -119,9 +80,48 @@ public class WhiteRabbitFacade {
     }
 
     @Async
+    public Future<String> generateScanReport(SettingsDto dto, Logger logger) throws FailedToScanException {
+        return dto instanceof DbSettingsDto ?
+                generateScanReport((DbSettingsDto) dto, logger) :
+                generateScanReport((FileSettingsDto) dto, logger);
+    }
+
+    @Async
     public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
         fakeDataService.generateFakeData(dto, logger);
         return new AsyncResult<>(null);
+    }
+
+    private Future<String> generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
+        try {
+            DbSettings dbSettings = adaptDbSettings(dto);
+            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
+            String scanReportFileName = generateRandomFileName();
+
+            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
+
+            return new AsyncResult<>(saveFileLocation(scanReportFileName));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new FailedToScanException(e.getCause());
+        }
+    }
+
+    private Future<String> generateScanReport(FileSettingsDto dto, Logger logger) throws FailedToScanException {
+        try {
+            DbSettings dbSettings = adaptDelimitedTextFileSettings(dto);
+            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
+            String scanReportFileName = generateRandomFileName();
+
+            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
+
+            return new AsyncResult<>(saveFileLocation(scanReportFileName));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new FailedToScanException(e.getCause());
+        } finally {
+            deleteRecursive(Path.of(dto.getFileDirectory()));
+        }
     }
 
     private SourceDataScan createSourceDataScan(ScanParamsDto dto, Logger logger) {
