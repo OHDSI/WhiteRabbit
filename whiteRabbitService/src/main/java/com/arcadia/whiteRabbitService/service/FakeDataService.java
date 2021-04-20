@@ -1,9 +1,7 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.FakeDataParamsDto;
-import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
 import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
-import lombok.AllArgsConstructor;
 import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
@@ -15,13 +13,11 @@ import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSe
 import static com.arcadia.whiteRabbitService.util.FileUtil.deleteRecursive;
 
 @Service
-@AllArgsConstructor
 public class FakeDataService {
 
-    public void generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
-        DbSettings dbSettings = adaptDbSettings(dto.getDbSettings());
-
+    public void generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
         try {
+            DbSettings dbSettings = adaptDbSettings(dto.getDbSettings());
             FakeDataGenerator process = new FakeDataGenerator();
             process.setLogger(logger);
 
@@ -35,8 +31,14 @@ public class FakeDataService {
                     false // False - Tables are created when the report is uploaded to python service
             );
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new FailedToGenerateFakeData(e.getCause());
+            if (e instanceof InterruptedException) {
+                logger.cancel(e.getMessage());
+            } else {
+                logger.error(e.getMessage());
+            }
+            FailedToGenerateFakeData exception = new FailedToGenerateFakeData(e);
+            logger.failed(exception.getMessage());
+            throw exception;
         } finally {
             deleteRecursive(Path.of(dto.getDirectory()));
         }

@@ -16,15 +16,14 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSettings;
-import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDelimitedTextFileSettings;
 import static com.arcadia.whiteRabbitService.util.CompareDate.getDateDiffInHours;
+import static com.arcadia.whiteRabbitService.util.DbSettingsUtil.dtoToDbSettings;
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
 import static java.lang.String.format;
 
@@ -81,47 +80,32 @@ public class WhiteRabbitFacade {
 
     @Async
     public Future<String> generateScanReport(SettingsDto dto, Logger logger) throws FailedToScanException {
-        return dto instanceof DbSettingsDto ?
-                generateScanReport((DbSettingsDto) dto, logger) :
-                generateScanReport((FileSettingsDto) dto, logger);
+        try {
+            DbSettings dbSettings = dtoToDbSettings(dto);
+            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
+            String scanReportFileName = generateRandomFileName();
+
+            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
+
+            return new AsyncResult<>(saveFileLocation(scanReportFileName));
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                logger.cancel(e.getMessage());
+            } else {
+                logger.error(e.getMessage());
+            }
+            FailedToScanException exception = new FailedToScanException(e);
+            logger.failed(exception.getMessage());
+            throw exception;
+        } finally {
+            dto.destroy();
+        }
     }
 
     @Async
-    public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
+    public Future<Void> generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
         fakeDataService.generateFakeData(dto, logger);
         return new AsyncResult<>(null);
-    }
-
-    private Future<String> generateScanReport(DbSettingsDto dto, Logger logger) throws FailedToScanException {
-        try {
-            DbSettings dbSettings = adaptDbSettings(dto);
-            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
-            String scanReportFileName = generateRandomFileName();
-
-            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
-
-            return new AsyncResult<>(saveFileLocation(scanReportFileName));
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new FailedToScanException(e.getCause());
-        }
-    }
-
-    private Future<String> generateScanReport(FileSettingsDto dto, Logger logger) throws FailedToScanException {
-        try {
-            DbSettings dbSettings = adaptDelimitedTextFileSettings(dto);
-            SourceDataScan sourceDataScan = createSourceDataScan(dto.getScanParams(), logger);
-            String scanReportFileName = generateRandomFileName();
-
-            sourceDataScan.process(dbSettings, toScanReportFileFullName(scanReportFileName));
-
-            return new AsyncResult<>(saveFileLocation(scanReportFileName));
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new FailedToScanException(e.getCause());
-        } finally {
-            deleteRecursive(Path.of(dto.getFileDirectory()));
-        }
     }
 
     private SourceDataScan createSourceDataScan(ScanParamsDto dto, Logger logger) {

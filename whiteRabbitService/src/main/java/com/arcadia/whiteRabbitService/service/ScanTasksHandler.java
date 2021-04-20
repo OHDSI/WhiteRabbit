@@ -4,6 +4,7 @@ import com.arcadia.whiteRabbitService.dto.SettingsDto;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import com.arcadia.whiteRabbitService.service.log.WebSocketLogger;
 import lombok.AllArgsConstructor;
+import org.ohdsi.utilities.Logger;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class ScanTasksHandler extends AbstractTaskHandler<SettingsDto, String> {
 
     @Override
     protected Future<String> task(SettingsDto dto, String id) throws FailedToScanException {
-        WebSocketLogger logger = new WebSocketLogger(messagingTemplate, id, "/queue/reply");
+        Logger logger = new WebSocketLogger(messagingTemplate, id, "/queue/reply");
 
         return whiteRabbitFacade.generateScanReport(dto, logger);
     }
