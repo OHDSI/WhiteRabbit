@@ -15,4 +15,14 @@ public class ConsoleLogger implements Logger {
     public void error(String message) {
         System.err.println(message);
     }
+
+    @Override
+    public void cancel(String message) {
+        System.err.println(message);
+    }
+
+    @Override
+    public void failed(String message) {
+        System.err.println(message);
+    }
 }

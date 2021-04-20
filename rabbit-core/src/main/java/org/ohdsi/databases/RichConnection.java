@@ -247,7 +247,7 @@ public class RichConnection implements Closeable {
 	 * @param create
 	 *            If true, the data format is determined based on the first batch of rows and used to create the table structure.
 	 */
-	public void insertIntoTable(Iterator<Row> iterator, String table, boolean create) {
+	public void insertIntoTable(Iterator<Row> iterator, String table, boolean create) throws SQLException {
 		List<Row> batch = new ArrayList<>(INSERT_BATCH_SIZE);
 
 		boolean first = true;
@@ -270,7 +270,7 @@ public class RichConnection implements Closeable {
 		}
 	}
 
-	private void insert(String tableName, List<Row> rows) {
+	private void insert(String tableName, List<Row> rows) throws SQLException {
 		List<String> columns;
 		columns = rows.get(0).getFieldNames();
 		for (int i = 0; i < columns.size(); i++)
@@ -317,6 +317,7 @@ public class RichConnection implements Closeable {
 			if (e instanceof BatchUpdateException) {
 				System.err.println(e.getNextException().getMessage());
 			}
+			throw e;
 		}
 	}
 

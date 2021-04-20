@@ -17,8 +17,6 @@
  ******************************************************************************/
 package org.ohdsi.whiteRabbit.fakeDataGenerator;
 
-import java.util.*;
-
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
@@ -31,6 +29,11 @@ import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 import org.ohdsi.whiteRabbit.CanInterrupt;
 import org.ohdsi.whiteRabbit.DbSettings;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class FakeDataGenerator implements CanInterrupt {
 
@@ -49,14 +52,14 @@ public class FakeDataGenerator implements CanInterrupt {
 	}
 
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder,
-							 boolean doUniformSampling) throws InterruptedException {
+							 boolean doUniformSampling) throws InterruptedException, SQLException {
 		generateData(dbSettings, maxRowsPerTable, filename, folder, doUniformSampling,
 				null, true);
 	}
 
 	/* Schema name can be null */
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder,
-							 boolean doUniformSampling, String schemaName, boolean createTables) throws InterruptedException {
+							 boolean doUniformSampling, String schemaName, boolean createTables) throws InterruptedException, SQLException {
 		this.maxRowsPerTable = maxRowsPerTable;
 		DbSettings.SourceType targetType = dbSettings.sourceType;
 		this.doUniformSampling = doUniformSampling;

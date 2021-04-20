@@ -142,6 +142,9 @@ public class Database implements Serializable {
 		return generateModelFromScanReport(filename, null);
 	}
 
+	/*
+	** FieldName to lowerCase
+	 */
 	public static Database generateModelFromScanReport(String filename, String schemaName) {
 		Database database = new Database();
 		QuickAndDirtyXlsxReader workbook = new QuickAndDirtyXlsxReader(filename);
@@ -181,6 +184,7 @@ public class Database implements Serializable {
 
 				String fieldName = row.getStringByHeaderName(ScanFieldName.FIELD);
 				Field field = new Field(fieldName.toLowerCase(), table);
+				// Field field = new Field(fieldName, table);
 
 				field.setType(row.getByHeaderName(ScanFieldName.TYPE));
 				field.setMaxLength(row.getIntByHeaderName(ScanFieldName.MAX_LENGTH));
