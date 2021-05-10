@@ -36,6 +36,7 @@ Once the scan report is created, this report can then be used in the Rabbit-In-A
 4. Go to [Using the Application Functions](#using-the-application-functions) for detailed instructions on how to make a scan of your data.
 
 Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.
+Note: WhiteRabbit and RabbitInaHat only work from a path with only ascii characters.
 
 ### Memory
 WhiteRabbit possibly does not start when the memory allocated by the JVM is too big or too small. 
