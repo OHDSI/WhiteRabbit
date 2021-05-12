@@ -17,14 +17,13 @@
  ******************************************************************************/
 package org.ohdsi.databases;
 
+import oracle.jdbc.pool.OracleDataSource;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import oracle.jdbc.pool.OracleDataSource;
-import org.apache.tools.ant.types.selectors.SelectSelector;
 
 public class DBConnector {
 
@@ -122,7 +121,7 @@ public class DBConnector {
 			throw new RuntimeException("Cannot find JDBC driver. Make sure the file mysql-connector-java-x.x.xx-bin.jar is in the path");
 		}
 
-		String url = "jdbc:mysql://" + server + ":3306/?useCursorFetch=true&zeroDateTimeBehavior=convertToNull";
+		String url = "jdbc:mysql://" + server + "/?useCursorFetch=true&zeroDateTimeBehavior=convertToNull";
 
 		try {
 			return DriverManager.getConnection(url, user, password);
