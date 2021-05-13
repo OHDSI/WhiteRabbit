@@ -23,7 +23,7 @@ class DbSettingsAdapterTest {
                 () -> assertEquals(dto.getUser(), dbSettings.user),
                 () -> assertEquals(dto.getPassword(), dbSettings.password),
                 () -> assertEquals(dto.getDatabase(), dbSettings.database),
-                () -> assertEquals(dto.getServer(), dbSettings.server)
+                () -> assertEquals(String.format("%s:%s", dto.getServer(), dto.getPort()), dbSettings.server)
         );
     }
 
