@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static java.io.File.separator;
-import static java.util.stream.Collectors.toList;
-
 public final class DbSettingsAdapter {
 
+    /**
+     * Tested only Postgres and MS Sql
+     * */
     private static final Map<DbType, Function<String, Boolean>> dbTypeIdentifiers = Map.of(
             DbType.MYSQL, dbType -> dbType.equalsIgnoreCase("MySQL"),
             DbType.ORACLE, dbType -> dbType.equalsIgnoreCase("Oracle"),
@@ -59,28 +59,24 @@ public final class DbSettingsAdapter {
         dbSettings.sourceType = DbSettings.SourceType.DATABASE;
         dbSettings.user = dto.getUser();
         dbSettings.password = dto.getPassword();
-        dbSettings.server = dto.getServer();
+        dbSettings.server = adaptServer(dto.getServer(), dto.getPort());
         dbSettings.database = dto.getDatabase();
         dbSettings.dbType = adaptDbType(dto.getDbType());
 
         checkWindowsAuthentication(dbSettings);
         setDomain(dbSettings);
-        adaptSchemaName(dbSettings, dto.getSchema(), dto.getPort());
+        adaptSchemaName(dbSettings, dto.getSchema());
         setTablesToScan(dbSettings, dto.getTablesToScan());
 
         return dbSettings;
     }
 
-    public static DbSettings adaptDelimitedTextFileSettings(FileSettingsDto dto, String dirName) throws DelimitedTextFileNotSupportedException {
+    public static DbSettings adaptDelimitedTextFileSettings(FileSettingsDto dto) throws DelimitedTextFileNotSupportedException {
         DbSettings dbSettings = new DbSettings();
 
         dbSettings.sourceType = adaptDelimitedFileTypeToSourceType(dto.getFileType());
         dbSettings.delimiter = dto.getDelimiter().charAt(0);
-        dbSettings.tables = dto.getFilesToScan()
-                .stream()
-                .map(fileToScanDto -> dirName + separator + fileToScanDto.getFileName())
-                .collect(toList());
-
+        dbSettings.tables = dto.getFileNames();
         return dbSettings;
     }
 
@@ -128,9 +124,13 @@ public final class DbSettingsAdapter {
         }
     }
 
-    private static void adaptSchemaName(DbSettings dbSettings, String schemaName, int port) {
+    private static String adaptServer(String server, int port) {
+        return String.format("%s:%d", server, port);
+    }
+
+    private static void adaptSchemaName(DbSettings dbSettings, String schemaName) {
         if (dbRequireSchema.contains(dbSettings.dbType)) {
-            dbSettings.server = String.format("%s:%d/%s", dbSettings.server, port, dbSettings.database);
+            dbSettings.server = String.format("%s/%s", dbSettings.server, dbSettings.database);
             dbSettings.database = schemaName;
         }
     }

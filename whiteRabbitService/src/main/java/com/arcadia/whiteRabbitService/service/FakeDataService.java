@@ -1,7 +1,6 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.FakeDataParamsDto;
-import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
 import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
 import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
@@ -9,47 +8,39 @@ import org.ohdsi.whiteRabbit.fakeDataGenerator.FakeDataGenerator;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapter.adaptDbSettings;
-import static com.arcadia.whiteRabbitService.util.Base64Util.removeBase64Header;
-import static com.arcadia.whiteRabbitService.util.FileUtil.*;
+import static com.arcadia.whiteRabbitService.util.FileUtil.deleteRecursive;
 
 @Service
 public class FakeDataService {
 
-    public String generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData, DbTypeNotSupportedException {
-        String directoryName = generateRandomDirectory();
-        String fileName = generateRandomFileName();
-        String schemaName = dto.getDbSettings().getSchema();
-        DbSettings dbSettings = adaptDbSettings(dto.getDbSettings());
-        Path filePath = Paths.get(directoryName, fileName);
-
+    public void generateFakeData(FakeDataParamsDto dto, Logger logger) throws FailedToGenerateFakeData {
         try {
-            base64ToFile(
-                    filePath,
-                    removeBase64Header(dto.getScanReportBase64())
-            );
-
+            DbSettings dbSettings = adaptDbSettings(dto.getDbSettings());
             FakeDataGenerator process = new FakeDataGenerator();
             process.setLogger(logger);
 
             process.generateData(
                     dbSettings,
                     dto.getMaxRowCount(),
-                    filePath.toString(),
+                    dto.getScanReportFileName(),
                     null, // Not needed, it need if generate fake data to delimited text file
                     dto.getDoUniformSampling(),
-                    schemaName,
-                    false // Tables are created when the report is uploaded to python service
+                    dto.getDbSettings().getSchema(),
+                    false // False - Tables are created when the report is uploaded to python service
             );
-
-            return "Fake data successfully generated";
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new FailedToGenerateFakeData(e.getCause());
+            if (e instanceof InterruptedException) {
+                logger.cancel(e.getMessage());
+            } else {
+                logger.error(e.getMessage());
+            }
+            FailedToGenerateFakeData exception = new FailedToGenerateFakeData(e);
+            logger.failed(exception.getMessage());
+            throw exception;
         } finally {
-            deleteRecursive(Paths.get(directoryName));
+            deleteRecursive(Path.of(dto.getDirectory()));
         }
     }
 }

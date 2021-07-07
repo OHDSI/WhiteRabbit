@@ -2,6 +2,7 @@ package com.arcadia.whiteRabbitService.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Getter
@@ -11,7 +12,11 @@ public class FakeDataParamsDto {
 
     private final Boolean doUniformSampling;
 
-    private final String scanReportBase64;
-
     private final DbSettingsDto dbSettings;
+
+    @Setter
+    private String scanReportFileName;
+
+    @Setter
+    private String directory;
 }

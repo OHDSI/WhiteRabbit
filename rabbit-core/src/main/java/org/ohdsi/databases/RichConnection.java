@@ -17,26 +17,14 @@
  ******************************************************************************/
 package org.ohdsi.databases;
 
-import java.io.Closeable;
-import java.sql.BatchUpdateException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.ohdsi.utilities.SimpleCounter;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
+
+import java.io.Closeable;
+import java.sql.*;
+import java.text.DecimalFormat;
+import java.util.*;
 
 public class RichConnection implements Closeable {
 	public static int				INSERT_BATCH_SIZE	= 100000;
@@ -140,6 +128,9 @@ public class RichConnection implements Closeable {
 		}
 	}
 
+	/**
+	** Postgres Sql - Case insensitive
+	**/
 	public List<String> getTableNames(String database) {
 		List<String> names = new ArrayList<>();
 		String query = null;
@@ -256,7 +247,7 @@ public class RichConnection implements Closeable {
 	 * @param create
 	 *            If true, the data format is determined based on the first batch of rows and used to create the table structure.
 	 */
-	public void insertIntoTable(Iterator<Row> iterator, String table, boolean create) {
+	public void insertIntoTable(Iterator<Row> iterator, String table, boolean create) throws SQLException {
 		List<Row> batch = new ArrayList<>(INSERT_BATCH_SIZE);
 
 		boolean first = true;
@@ -279,7 +270,7 @@ public class RichConnection implements Closeable {
 		}
 	}
 
-	private void insert(String tableName, List<Row> rows) {
+	private void insert(String tableName, List<Row> rows) throws SQLException {
 		List<String> columns;
 		columns = rows.get(0).getFieldNames();
 		for (int i = 0; i < columns.size(); i++)
@@ -326,6 +317,7 @@ public class RichConnection implements Closeable {
 			if (e instanceof BatchUpdateException) {
 				System.err.println(e.getNextException().getMessage());
 			}
+			throw e;
 		}
 	}
 

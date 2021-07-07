@@ -31,8 +31,7 @@ public class WebSocketLogger implements Logger {
     private static final Map<ProgressNotificationStatus, Function<String, Boolean>> messageStatusRecognizers = Map.of(
             STARTED, m -> m.toLowerCase().contains("start"),
             TABLE_SCANNING, m -> m.contains("Scanning table") || m.contains("Generating table"),
-            FINISHED, m -> m.toLowerCase().contains("generated"),
-            CANCELED, m -> m.toLowerCase().contains("was canceled")
+            FINISHED, m -> m.toLowerCase().contains("generated")
     );
 
     @Override
@@ -50,7 +49,19 @@ public class WebSocketLogger implements Logger {
     @Override
     public void error(String message) {
         consoleLogger.error(message);
-        sendMessageToUser(message, getErrorStatusByMessage(message));
+        sendMessageToUser(message, ERROR);
+    }
+
+    @Override
+    public void cancel(String message) {
+        consoleLogger.cancel(message);
+        sendMessageToUser(message, CANCELED);
+    }
+
+    @Override
+    public void failed(String message) {
+        consoleLogger.failed(message);
+        sendMessageToUser(message, FAILED);
     }
 
     private void sendMessageToUser(String message, ProgressNotificationStatus status) {
@@ -76,9 +87,5 @@ public class WebSocketLogger implements Logger {
         }
 
         return NONE;
-    }
-
-    protected ProgressNotificationStatus getErrorStatusByMessage(String message) {
-        return message.contains("was canceled") ? CANCELED : ERROR;
     }
 }

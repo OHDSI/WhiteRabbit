@@ -8,12 +8,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static java.lang.String.format;
 import static java.util.Base64.getDecoder;
 import static org.apache.commons.lang.RandomStringUtils.random;
 
 public class FileUtil {
 
-    private static final int generatedNameLength = 15;
+    private static final int generatedNameLength = 20;
+
+    public static final String scanReportLocation = "scan-reports";
 
     @SneakyThrows
     public static Path base64ToFile(Path path, String base64) {
@@ -32,6 +35,17 @@ public class FileUtil {
         directory.mkdirs();
 
         return directoryName;
+    }
+
+    public static void createDirectory(String name) {
+        File directory = new File(name);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+    }
+
+    public static String toScanReportFileFullName(String name) {
+        return format("%s/%s.xlsx", scanReportLocation, name);
     }
 
     @SneakyThrows

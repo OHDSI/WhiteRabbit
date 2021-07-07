@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class DbSettingsDto {
+public class DbSettingsDto implements SettingsDto {
     private final String dbType;
 
     private final String user;
@@ -25,4 +25,8 @@ public class DbSettingsDto {
     private final String tablesToScan;
 
     private final ScanParamsDto scanParams;
+
+    @Override
+    public void destroy() {
+    }
 }
