@@ -142,8 +142,8 @@ public class Database implements Serializable {
 		return generateModelFromScanReport(filename, null);
 	}
 
-	/*
-	** FieldName to lowerCase
+	/**
+	 ** FieldName to lowerCase
 	 */
 	public static Database generateModelFromScanReport(String filename, String schemaName) {
 		Database database = new Database();
@@ -202,7 +202,7 @@ public class Database implements Serializable {
 	}
 
 	/**
-	 * *  Deleted transform to lower case
+	 **  Deleted transform to lower case
 	 */
 	public static Table createTable(String name, String description, Integer nRows, Integer nRowsChecked) {
 		Table table = new Table();
