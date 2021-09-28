@@ -44,3 +44,4 @@ STEM_TABLE,CONDITION_STATUS_CONCEPT_ID,YES,CHARACTER VARYING,"A foreign key to t
 STEM_TABLE,CONDITION_STATUS_SOURCE_VALUE,YES,INTEGER,"The source code as it appears in the source data"
 STEM_TABLE,QUALIFIER_CONCEPT_ID,YES,INTEGER,"A foreign key to a Standard Concept ID for a qualifier (e.g., severity of drug-drug interaction alert)"
 STEM_TABLE,QUALIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,"The source value associated with a qualifier to characterize the observation"
+STEM_TABLE,MEASUREMENT_TIME,YES,CHARACTER VARYING,"The time of the Measurement."
