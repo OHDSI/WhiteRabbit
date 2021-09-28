@@ -23,28 +23,25 @@ public class StemTableFactory {
 		Database targetDatabase = etl.getTargetDatabase();
 		InputStream tableStream;
 		InputStream mappingStream;
-		if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.0.1")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.0.1.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.0.1.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.1.0")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.1.0.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.1.0.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.2.0")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.2.0.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.2.0.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.0")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.0.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.0.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1_oncology")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0")) {
+		if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.0")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.0.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.0.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.1")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.1.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.1.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.2")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.2.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.2.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.3")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.4")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.4.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.4.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv6.0")) {
 			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
 			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0_oncology")) {
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv6.0_oncology")) {
 			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
 			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
 		} else {
