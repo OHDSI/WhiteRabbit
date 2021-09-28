@@ -74,7 +74,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_FILTER						= "Filter";
 	public final static String		ACTION_MAKE_MAPPING					= "Make Mappings";
 	public final static String		ACTION_REMOVE_MAPPING				= "Remove Mappings";
-	public final static String		ACTION_SET_TARGET_V4				= "CDM v4";
+	public final static String		ACTION_SET_TARGET_V4  = "CDM v4";
 	public final static String 		ACTION_SET_TARGET_V50 = "CDM v5.0";
 	public final static String 		ACTION_SET_TARGET_V51 = "CDM v5.1";
 	public final static String 		ACTION_SET_TARGET_V52 = "CDM v5.2";
@@ -468,8 +468,13 @@ public class RabbitInAHatMain implements ResizeListener {
 				etl.copyETLMappings(ObjectExchange.etl);
 				tableMappingPanel.setMapping(etl.getTableToTableMapping());
 				ObjectExchange.etl = etl;
-			} catch (IOException e) {
-				// Do nothing if error
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(
+						null, e.getMessage(),
+						"Error loading custom target database",
+						JOptionPane.ERROR_MESSAGE
+				);
 			}
 		}
 
