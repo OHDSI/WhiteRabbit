@@ -50,7 +50,8 @@ public class StemTableFactory {
 			Table sourceStemTable = new Table();
 			sourceStemTable.setStem(true);
 			sourceStemTable.setName(STEM_TABLE_NAME);
-			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(tableStream))) {
+			CSVFormat csvFormat = CSVFormat.Builder.create(CSVFormat.RFC4180).setHeader().build();
+			for (CSVRecord row : csvFormat.parse(new InputStreamReader(tableStream))) {
 				Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), sourceStemTable);
 				field.setNullable(row.get("IS_NULLABLE").equals("YES"));
 				field.setType(row.get("DATA_TYPE"));
@@ -64,8 +65,8 @@ public class StemTableFactory {
 			targetDatabase.getTables().add(targetStemTable);
 
 			Mapping<Table> mapping = etl.getTableToTableMapping();
-			Map<String, Table> nameToTable = new HashMap<String, Table>();
-			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(mappingStream))) {
+			Map<String, Table> nameToTable = new HashMap<>();
+			for (CSVRecord row : csvFormat.parse(new InputStreamReader(mappingStream))) {
 				String targetTableName = row.get("TARGET_TABLE");
 				Table targetTable = nameToTable.get(targetTableName);
 				if (targetTable == null) {

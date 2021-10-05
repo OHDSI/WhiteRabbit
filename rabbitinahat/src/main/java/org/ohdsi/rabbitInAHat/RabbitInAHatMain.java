@@ -225,7 +225,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
-		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
 
 		menuBar.add(fileMenu);
 
@@ -312,7 +312,7 @@ public class RabbitInAHatMain implements ResizeListener {
 			menuItem.addActionListener(actionListener);
 		}
 		if (keyEvent != null) {
-			menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			menuItem.setAccelerator(KeyStroke.getKeyStroke(keyEvent, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
 		}
 		menu.add(menuItem);
 		return menuItem;
