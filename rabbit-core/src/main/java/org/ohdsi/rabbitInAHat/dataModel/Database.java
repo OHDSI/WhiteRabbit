@@ -92,7 +92,8 @@ public class Database implements Serializable {
 			ConceptsMap conceptIdHintsMap = new ConceptsMap(CONCEPT_ID_HINTS_FILE_NAME);
 			database.conceptIdHintsVocabularyVersion = conceptIdHintsMap.vocabularyVersion;
 
-			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
+			CSVFormat csvFormat = CSVFormat.Builder.create(CSVFormat.RFC4180).setHeader().build();
+			for (CSVRecord row : csvFormat.parse(new InputStreamReader(stream))) {
 				String tableNameColumn;
 				String fieldNameColumn;
 				String isNullableColumn;
