@@ -44,8 +44,8 @@ public class ConceptsMap {
         try (InputStream conceptStream = Database.class.getResourceAsStream(filename)) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conceptStream));
             vocabularyVersion = bufferedReader.readLine();
-            CSVFormat csvFormat = CSVFormat.Builder.create(CSVFormat.RFC4180).setHeader().build();
-            for (CSVRecord conceptRow : csvFormat.parse(bufferedReader)) {
+
+            for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(bufferedReader)) {
                 String omopTableName = conceptRow.get("omop_cdm_table");
                 String omopFieldName = conceptRow.get("omop_cdm_field");
 

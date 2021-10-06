@@ -83,7 +83,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	private MappingPanel			slaveMappingPanel;
 	private boolean					showOnlyConnectedItems		= false;
 
-	private int						shortcutMask				= Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+	private int						shortcutMask				= Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
 	private String					lastSourceFilter			= "";
 	private String					lastTargetFilter			= "";

@@ -135,8 +135,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		InputMap im = jta.getInputMap(JComponent.WHEN_FOCUSED);
 		ActionMap am = jta.getActionMap();
 
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()), "Undo");
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()), "Redo");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo");
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo");
 
 		am.put("Undo", new AbstractAction() {
 			private static final long serialVersionUID = -3363877112423623107L;
