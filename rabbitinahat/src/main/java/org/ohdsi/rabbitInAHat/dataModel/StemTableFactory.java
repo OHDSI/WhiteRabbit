@@ -23,28 +23,22 @@ public class StemTableFactory {
 		Database targetDatabase = etl.getTargetDatabase();
 		InputStream tableStream;
 		InputStream mappingStream;
-		if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.0.1")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.0.1.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.0.1.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.1.0")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.1.0.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.1.0.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.2.0")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.2.0.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.2.0.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.0")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.0.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.0.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv5.3.1_oncology")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.1.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.1.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0")) {
-			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
-			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
-		} else if (targetDatabase.getDbName().toLowerCase().equals("cdmv6.0_oncology")) {
+		if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.0")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.0.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.0.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.1")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.1.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.1.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.2")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.2.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.2.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.3")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.3.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.3.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv5.4")) {
+			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV5.4.csv");
+			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV5.4.csv");
+		} else if (targetDatabase.getDbName().equalsIgnoreCase("cdmv6.0")) {
 			tableStream = StemTableFactory.class.getResourceAsStream("StemTableV6.0.csv");
 			mappingStream = StemTableFactory.class.getResourceAsStream("StemTableDefaultMappingV6.0.csv");
 		} else {
@@ -56,7 +50,8 @@ public class StemTableFactory {
 			Table sourceStemTable = new Table();
 			sourceStemTable.setStem(true);
 			sourceStemTable.setName(STEM_TABLE_NAME);
-			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(tableStream))) {
+			CSVFormat csvFormat = CSVFormat.Builder.create(CSVFormat.RFC4180).setHeader().build();
+			for (CSVRecord row : csvFormat.parse(new InputStreamReader(tableStream))) {
 				Field field = new Field(row.get("COLUMN_NAME").toLowerCase(), sourceStemTable);
 				field.setNullable(row.get("IS_NULLABLE").equals("YES"));
 				field.setType(row.get("DATA_TYPE"));
@@ -70,8 +65,8 @@ public class StemTableFactory {
 			targetDatabase.getTables().add(targetStemTable);
 
 			Mapping<Table> mapping = etl.getTableToTableMapping();
-			Map<String, Table> nameToTable = new HashMap<String, Table>();
-			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(mappingStream))) {
+			Map<String, Table> nameToTable = new HashMap<>();
+			for (CSVRecord row : csvFormat.parse(new InputStreamReader(mappingStream))) {
 				String targetTableName = row.get("TARGET_TABLE");
 				Table targetTable = nameToTable.get(targetTableName);
 				if (targetTable == null) {

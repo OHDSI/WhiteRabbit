@@ -1,4 +1,5 @@
-/*******************************************************************************
+/*
+ ******************************************************************************
  * Copyright 2019 Observational Health Data Sciences and Informatics
  *
  * This file is part of WhiteRabbit
@@ -14,7 +15,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ *****************************************************************************
+ */
 package org.ohdsi.rabbitInAHat.dataModel;
 
 import java.io.FileInputStream;
@@ -22,7 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
+import com.cedarsoftware.util.io.JsonIoException;
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 
@@ -41,8 +43,8 @@ public class ETL implements Serializable {
 
 	private Database								sourceDb					= new Database();
 	private Database								cdmDb						= new Database();
-	private List<ItemToItemMap>						tableToTableMaps			= new ArrayList<ItemToItemMap>();
-	private Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<ItemToItemMap, List<ItemToItemMap>>();
+	private final List<ItemToItemMap>						tableToTableMaps			= new ArrayList<>();
+	private final Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<>();
 	private transient String						filename					= null;
 	private static final long						serialVersionUID			= 8987388381751618498L;
 
@@ -102,16 +104,13 @@ public class ETL implements Serializable {
 	}
 
 	public Mapping<Table> getTableToTableMapping() {
-		return new Mapping<Table>(sourceDb.getTables(), cdmDb.getTables(), tableToTableMaps);
+		return new Mapping<>(sourceDb.getTables(), cdmDb.getTables(), tableToTableMaps);
 	}
 
 	public Mapping<Field> getFieldToFieldMapping(Table sourceTable, Table targetTable) {
-		List<ItemToItemMap> fieldToFieldMaps = tableMapToFieldToFieldMaps.get(new ItemToItemMap(sourceTable, targetTable));
-		if (fieldToFieldMaps == null) {
-			fieldToFieldMaps = new ArrayList<ItemToItemMap>();
-			tableMapToFieldToFieldMaps.put(new ItemToItemMap(sourceTable, targetTable), fieldToFieldMaps);
-		}
-		return new Mapping<Field>(sourceTable.getFields(), targetTable.getFields(), fieldToFieldMaps);
+		ItemToItemMap key = new ItemToItemMap(sourceTable, targetTable);
+		List<ItemToItemMap> fieldToFieldMaps = tableMapToFieldToFieldMaps.computeIfAbsent(key, k -> new ArrayList<>());
+		return new Mapping<>(sourceTable.getFields(), targetTable.getFields(), fieldToFieldMaps);
 	}
 
 	public String getFilename() {
@@ -134,34 +133,32 @@ public class ETL implements Serializable {
 		return sourceDb;
 	}
 
-	public String toJson() {
-		return JsonWriter.formatJson(JsonWriter.objectToJson(this));
+	public void writeJson(OutputStream stream) throws IOException {
+		Map<String, Object> args = new HashMap<>();
+		args.put("PRETTY_PRINT", true);
+		try (JsonWriter writer = new JsonWriter(stream, args)) {
+			writer.write(this);
+		} catch (JsonIoException ex) {
+			throw (IOException)ex.getCause();
+		}
 	}
 
 	public void save(String filename, FileFormat format) {
-		try {
+		try (FileOutputStream fileOutputStream = new FileOutputStream(filename)) {
 			switch (format) {
 				case Binary:
-					try (FileOutputStream fileOutputStream = new FileOutputStream(filename);
-							GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream);
+					try (GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream);
 							ObjectOutputStream out = new ObjectOutputStream(gzipOutputStream)) {
 						out.writeObject(this);
 					}
 					break;
 				case GzipJson:
-					String json = toJson();
-					try (FileOutputStream fileOutputStream = new FileOutputStream(filename);
-							GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutputStream);
-							OutputStreamWriter out = new OutputStreamWriter(gzipOutputStream, "UTF-8")) {
-						out.write(json);
+					try (GZIPOutputStream out = new GZIPOutputStream(fileOutputStream)) {
+						writeJson(out);
 					}
 					break;
 				case Json:
-					String json2 = toJson();
-					try (FileOutputStream fileOutputStream = new FileOutputStream(filename);
-							OutputStreamWriter out = new OutputStreamWriter(fileOutputStream, "UTF-8")) {
-						out.write(json2);
-					}
+					writeJson(fileOutputStream);
 					break;
 			}
 			this.filename = filename;
@@ -172,7 +169,7 @@ public class ETL implements Serializable {
 
 	/**
 	 * Create an ETL instance by reading a saved file
-	 * 
+	 *
 	 * @param filename
 	 *            path of the file
 	 * @param format
