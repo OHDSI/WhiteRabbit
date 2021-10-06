@@ -406,7 +406,7 @@ The packaged application can be found at the bottom of the page under assets, in
 See <a href="#running-from-the-command-line">Running from the command line</a> for details on how to run from the command line instead.</li>
 <li>Go to <a href="#using-the-application-functions">Using the Application Functions</a> for detailed instructions on how to make a scan of your data.</li>
 </ol>
-<p>Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.</p>
+<p>Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead. Note: WhiteRabbit and RabbitInaHat only work from a path with only ascii characters.</p>
 <div id="memory" class="section level3">
 <h3>Memory</h3>
 <p>WhiteRabbit possibly does not start when the memory allocated by the JVM is too big or too small. By default this is set to 1200m. To increase the memory (in this example to 2400m), either set the environment variable <code>EXTRA_JVM_ARGUMENTS=-Xmx2400m</code> before starting or edit in <code>bin/WhiteRabbit.bat</code> the line <code>%JAVACMD% %JAVA_OPTS% -Xmx2400m...</code>. To lower the memory, set one of these variables to e.g. <code>-Xmx600m</code>. If you have a 32-bit Java VM installed and problems persist, consider installing 64-bit Java.</p>
@@ -420,7 +420,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 </div>
 </div>
 <div id="using-the-application-functions" class="section level1">
-<h1>Using the Application Functions</h1>
+<h1>Using the application functions</h1>
 <div id="specifying-the-location-of-source-data" class="section level2">
 <h2>Specifying the Location of Source Data</h2>
 <p><img src="images/whiterabbitscreenshot_v0.10.1.PNG" /></p>
@@ -482,7 +482,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <div id="postgresql" class="section level4">
 <h4>PostgreSQL</h4>
 <ul>
-<li><em><strong>Server location:</strong></em> this field contains the host name and database name (<host>/<database>)</li>
+<li><em><strong>Server location:</strong></em> this field contains the host name and database name (<code>&lt;host&gt;/&lt;database&gt;</code>). You can also specify the port (ex: <code>&lt;host&gt;:&lt;port&gt;/&lt;database&gt;</code>), which defaults to 5432.</li>
 <li><em><strong>User name:</strong></em> name of the user used to log into the server</li>
 <li><em><strong>Password:</strong></em> password for the supplied user name</li>
 <li><em><strong>Database name:</strong></em> this field contains the schema containing the tables</li>
