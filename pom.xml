@@ -100,6 +100,8 @@
                     <configuration>
                         <programs>
                         </programs>
+                        <repositoryLayout>flat</repositoryLayout>
+                        <useWildcardClassPath>true</useWildcardClassPath>
                     </configuration>
                     <executions>
                         <execution>
