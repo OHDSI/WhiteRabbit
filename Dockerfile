@@ -7,9 +7,10 @@ COPY whiteRabbitService whiteRabbitService
 COPY lib lib
 
 COPY mvnw .
-RUN chmod 770 mvnw
 COPY .mvn .mvn
 COPY pom.xml .
+
+RUN tr -d '\015' <./mvnw >./mvnw.sh && mv ./mvnw.sh ./mvnw && chmod 770 mvnw
 
 RUN ./mvnw install
 
