@@ -88,7 +88,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
 	public final static String		ACTION_HELP							= "Open documentation";
 
-	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit";
+	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit/RabbitInAHat.html";
 	private final static FileFilter FILE_FILTER_GZ = new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter FILE_FILTER_JSON = new FileNameExtensionFilter("JSON Files (*.json)", "json");
 	private final static FileFilter FILE_FILTER_DOCX = new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
