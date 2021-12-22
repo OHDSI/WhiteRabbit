@@ -41,6 +41,7 @@
             <groupId>org.ohdsi</groupId>
             <artifactId>rabbit-core</artifactId>
             <version>${project.version}</version>
+	    <type>pom</type>
         </dependency>
     </dependencies>
 </project>
