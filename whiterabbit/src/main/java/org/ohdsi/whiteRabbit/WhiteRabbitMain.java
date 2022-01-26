@@ -947,21 +947,21 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.dbType = DbType.MYSQL;
 			else if (targetType.getSelectedItem().toString().equals("Oracle"))
 				dbSettings.dbType = DbType.ORACLE;
-			else if (sourceType.getSelectedItem().toString().equals("PostgreSQL"))
+			else if (targetType.getSelectedItem().toString().equals("PostgreSQL"))
 				dbSettings.dbType = DbType.POSTGRESQL;
-			else if (sourceType.getSelectedItem().toString().equals("SQL Server")) {
+			else if (targetType.getSelectedItem().toString().equals("SQL Server")) {
 				dbSettings.dbType = DbType.MSSQL;
-				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
-					String[] parts = sourceUserField.getText().split("/");
+				if (targetUserField.getText().length() != 0) { // Not using windows authentication
+					String[] parts = targetUserField.getText().split("/");
 					if (parts.length == 2) {
 						dbSettings.user = parts[1];
 						dbSettings.domain = parts[0];
 					}
 				}
-			} else if (sourceType.getSelectedItem().toString().equals("PDW")) {
+			} else if (targetType.getSelectedItem().toString().equals("PDW")) {
 				dbSettings.dbType = DbType.PDW;
-				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
-					String[] parts = sourceUserField.getText().split("/");
+				if (targetUserField.getText().length() != 0) { // Not using windows authentication
+					String[] parts = targetUserField.getText().split("/");
 					if (parts.length == 2) {
 						dbSettings.user = parts[1];
 						dbSettings.domain = parts[0];
