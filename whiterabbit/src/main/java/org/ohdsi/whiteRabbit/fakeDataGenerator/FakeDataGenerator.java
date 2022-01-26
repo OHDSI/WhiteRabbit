@@ -110,7 +110,11 @@ public class FakeDataGenerator {
 		sql.append("CREATE TABLE " + table.getName() + " (\n");
 		for (int i = 0; i < table.getFields().size(); i++) {
 			Field field = table.getFields().get(i);
-			sql.append("  " + field.getName() + " " + field.getType().toUpperCase());
+			String fieldType = field.getType().toUpperCase();
+			if (fieldType.equals("CHARACTER")) {
+				fieldType = "CHARACTER VARYING";
+			}
+			sql.append("  " + field.getName() + " " + fieldType);
 			if (i < table.getFields().size() - 1)
 				sql.append(",\n");
 		}
@@ -157,6 +161,9 @@ public class FakeDataGenerator {
 				cumulativeFrequency = new int[length];
 				for (int i = 0; i < length; i++) {
 					values[i] = valueCounts.get(i).getValue();
+					if (type.toUpperCase().contains("TIMESTAMP")) {
+						values[i] = values[i].replace(".000000", "");
+					}
 					int frequency;
 					if (doUniformSampling) {
 						frequency = 1;
@@ -219,6 +226,9 @@ public class FakeDataGenerator {
 					i++;
 				if (!type.equals("VarChar") && values[i].trim().length() == 0)
 					return "";
+				if (type.equals("Date")) {
+
+				}
 				return values[i];
 			}
 		}
