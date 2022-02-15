@@ -564,7 +564,7 @@ public class WhiteRabbitMain implements ActionListener {
 		targetPanel.setLayout(new GridLayout(0, 2));
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
-		targetType = new JComboBox<>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
+		targetType = new JComboBox<>(new String[] {"Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "PDW"});
 		targetType.setToolTipText("Select the type of source data available");
 		targetType.addItemListener(event -> {
 			targetIsFiles = event.getItem().toString().equals("Delimited text files");
@@ -943,30 +943,36 @@ public class WhiteRabbitMain implements ActionListener {
 			dbSettings.password = targetPasswordField.getText();
 			dbSettings.server = targetServerField.getText();
 			dbSettings.database = targetDatabaseField.getText();
-			if (targetType.getSelectedItem().toString().equals("MySQL"))
-				dbSettings.dbType = DbType.MYSQL;
-			else if (targetType.getSelectedItem().toString().equals("Oracle"))
-				dbSettings.dbType = DbType.ORACLE;
-			else if (sourceType.getSelectedItem().toString().equals("PostgreSQL"))
-				dbSettings.dbType = DbType.POSTGRESQL;
-			else if (sourceType.getSelectedItem().toString().equals("SQL Server")) {
-				dbSettings.dbType = DbType.MSSQL;
-				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
-					String[] parts = sourceUserField.getText().split("/");
-					if (parts.length == 2) {
-						dbSettings.user = parts[1];
-						dbSettings.domain = parts[0];
+			switch(targetType.getSelectedItem().toString()) {
+				case "MySQL":
+					dbSettings.dbType = DbType.MYSQL;
+					break;
+				case "Oracle":
+					dbSettings.dbType = DbType.ORACLE;
+					break;
+				case "PostgreSQL":
+					dbSettings.dbType = DbType.POSTGRESQL;
+					break;
+				case "SQL Server":
+					dbSettings.dbType = DbType.MSSQL;
+					if (targetUserField.getText().length() != 0) { // Not using windows authentication
+						String[] parts = targetUserField.getText().split("/");
+						if (parts.length == 2) {
+							dbSettings.user = parts[1];
+							dbSettings.domain = parts[0];
+						}
 					}
-				}
-			} else if (sourceType.getSelectedItem().toString().equals("PDW")) {
-				dbSettings.dbType = DbType.PDW;
-				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
-					String[] parts = sourceUserField.getText().split("/");
-					if (parts.length == 2) {
-						dbSettings.user = parts[1];
-						dbSettings.domain = parts[0];
+					break;
+				case "PDW":
+					dbSettings.dbType = DbType.PDW;
+					if (targetUserField.getText().length() != 0) { // Not using windows authentication
+						String[] parts = targetUserField.getText().split("/");
+						if (parts.length == 2) {
+							dbSettings.user = parts[1];
+							dbSettings.domain = parts[0];
+						}
 					}
-				}
+					break;
 			}
 
 			if (dbSettings.database.trim().length() == 0) {
