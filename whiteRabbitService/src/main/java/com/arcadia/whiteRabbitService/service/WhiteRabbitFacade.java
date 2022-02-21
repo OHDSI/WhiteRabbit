@@ -4,7 +4,7 @@ import com.arcadia.whiteRabbitService.dto.*;
 import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
 import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
@@ -27,8 +27,8 @@ import static com.arcadia.whiteRabbitService.util.DbSettingsUtil.dtoToDbSettings
 import static com.arcadia.whiteRabbitService.util.FileUtil.*;
 import static java.lang.String.format;
 
-@AllArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class WhiteRabbitFacade {
 
     private final FakeDataService fakeDataService;

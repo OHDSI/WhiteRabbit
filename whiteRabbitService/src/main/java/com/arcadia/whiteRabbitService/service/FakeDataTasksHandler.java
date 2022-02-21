@@ -2,25 +2,23 @@ package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.dto.FakeDataParamsDto;
 import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
-import com.arcadia.whiteRabbitService.service.log.WebSocketLogger;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.ohdsi.utilities.ConsoleLogger;
 import org.ohdsi.utilities.Logger;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Future;
 
 @Service
-@AllArgsConstructor
-public class FakeTasksHandler extends AbstractTaskHandler<FakeDataParamsDto, Void> {
+@RequiredArgsConstructor
+public class FakeDataTasksHandler extends AbstractTaskHandler<FakeDataParamsDto, Void> {
 
     private final WhiteRabbitFacade whiteRabbitFacade;
 
-    private final SimpMessagingTemplate messagingTemplate;
-
     @Override
     protected Future<Void> task(FakeDataParamsDto dto, String id) throws FailedToGenerateFakeData {
-        Logger logger = new WebSocketLogger(messagingTemplate, id, "/queue/reply");
+        Logger logger = new ConsoleLogger();
 
         return whiteRabbitFacade.generateFakeData(dto, logger);
     }

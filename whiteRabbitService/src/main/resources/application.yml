@@ -1,0 +1,28 @@
+server:
+  port: 8000
+  error:
+    include-message: always
+  servlet:
+    context-path: /white-rabbit
+
+files-manager-url: http://localhost:10500/files-manager
+
+spring:
+  application:
+    name: White Rabbit
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shared
+    username: white_rabbit
+    password: password
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true

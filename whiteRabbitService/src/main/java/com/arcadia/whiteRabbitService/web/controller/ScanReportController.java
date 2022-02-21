@@ -1,21 +1,18 @@
-package com.arcadia.whiteRabbitService.controller;
+package com.arcadia.whiteRabbitService.web.controller;
 
 import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
 import com.arcadia.whiteRabbitService.dto.FileSettingsDto;
-import com.arcadia.whiteRabbitService.dto.ProgressNotificationDto;
 import com.arcadia.whiteRabbitService.dto.ResultDto;
-import com.arcadia.whiteRabbitService.service.ScanTasksHandler;
+import com.arcadia.whiteRabbitService.service.ScanDbTasksHandler;
 import com.arcadia.whiteRabbitService.service.StorageService;
-import com.arcadia.whiteRabbitService.service.WhiteRabbitFacade;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,18 +22,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.arcadia.whiteRabbitService.service.log.ProgressNotificationStatus.FAILED;
 import static com.arcadia.whiteRabbitService.util.FileUtil.createDirectory;
 import static com.arcadia.whiteRabbitService.util.FileUtil.toScanReportFileFullName;
 import static java.lang.String.format;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 
-@AllArgsConstructor
 @RestController
 @RequestMapping("/api/scan-report")
+@RequiredArgsConstructor
 public class ScanReportController {
 
-    private final ScanTasksHandler scanTasksHandler;
+    private final ScanDbTasksHandler scanTasksHandler;
 
     private final StorageService storageService;
 
@@ -100,11 +96,5 @@ public class ScanReportController {
         } catch (FileNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Scan Report storage period has expired");
         }
-    }
-
-    @MessageExceptionHandler
-    @SendToUser("/queue/reply")
-    public ProgressNotificationDto handleException(Exception exception) {
-        return new ProgressNotificationDto(exception.getMessage(), FAILED);
     }
 }

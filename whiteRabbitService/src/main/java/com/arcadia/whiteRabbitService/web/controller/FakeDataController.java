@@ -1,29 +1,25 @@
-package com.arcadia.whiteRabbitService.controller;
+package com.arcadia.whiteRabbitService.web.controller;
 
 import com.arcadia.whiteRabbitService.dto.FakeDataParamsDto;
-import com.arcadia.whiteRabbitService.dto.ProgressNotificationDto;
-import com.arcadia.whiteRabbitService.service.FakeTasksHandler;
+import com.arcadia.whiteRabbitService.service.FakeDataTasksHandler;
 import com.arcadia.whiteRabbitService.service.StorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import static com.arcadia.whiteRabbitService.service.log.ProgressNotificationStatus.FAILED;
 import static com.arcadia.whiteRabbitService.util.FileUtil.createDirectory;
 import static java.lang.String.format;
 
 @RestController
 @RequestMapping("/api/fake-data")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FakeDataController {
 
-    private final FakeTasksHandler fakeTasksHandler;
+    private final FakeDataTasksHandler fakeTasksHandler;
 
     private final StorageService storageService;
 
@@ -49,11 +45,5 @@ public class FakeDataController {
     @GetMapping("/{userId}")
     public void abort(@PathVariable String userId) {
         fakeTasksHandler.cancelTask(userId);
-    }
-
-    @MessageExceptionHandler
-    @SendToUser("/queue/reply")
-    public ProgressNotificationDto handleException(Exception exception) {
-        return new ProgressNotificationDto(exception.getMessage(), FAILED);
     }
 }
