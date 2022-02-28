@@ -1,6 +1,6 @@
 package com.arcadia.whiteRabbitService.service;
 
-import com.arcadia.whiteRabbitService.dto.FileSaveRequest;
+import com.arcadia.whiteRabbitService.service.request.FileSaveRequest;
 import com.arcadia.whiteRabbitService.service.response.FileSaveResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,11 +24,11 @@ public class FilesManagerServiceImpl implements FilesManagerService {
     private final RestTemplate restTemplate;
 
     @Override
-    public ByteArrayResource getFile(String hash) {
+    public ByteArrayResource getFile(String key) {
         return restTemplate.getForObject(
-                filesManagerUrl + "/api/${hash}",
+                filesManagerUrl + "/api/${key}",
                 ByteArrayResource.class,
-                hash
+                key
         );
     }
 
@@ -40,7 +40,7 @@ public class FilesManagerServiceImpl implements FilesManagerService {
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("username", model.getUsername());
         map.add("dataKey", model.getUsername());
-        map.add("file", model.getFile());
+        map.add("file", model.getScanReport());
 
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
 
@@ -51,5 +51,13 @@ public class FilesManagerServiceImpl implements FilesManagerService {
         );
 
         return responseEntity.getBody();
+    }
+
+    @Override
+    public void deleteFile(String key) {
+        restTemplate.delete(
+                filesManagerUrl + "/api/${key}",
+                key
+        );
     }
 }

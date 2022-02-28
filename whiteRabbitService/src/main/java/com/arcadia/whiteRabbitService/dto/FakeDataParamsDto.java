@@ -12,8 +12,6 @@ public class FakeDataParamsDto {
 
     private final Boolean doUniformSampling;
 
-    private final DbSettingsDto dbSettings;
-
     @Setter
     private String scanReportFileName;
 

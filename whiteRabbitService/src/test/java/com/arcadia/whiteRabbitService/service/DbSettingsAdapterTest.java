@@ -1,7 +1,8 @@
 package com.arcadia.whiteRabbitService.service;
 
-import com.arcadia.whiteRabbitService.dto.DbSettingsDto;
-import com.arcadia.whiteRabbitService.dto.ScanParamsDto;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDataParams;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDbSetting;
+import com.arcadia.whiteRabbitService.util.DbSettingsAdapter;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.ohdsi.databases.DbType;
@@ -15,45 +16,42 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptFields() {
-        var dto = createTestDbSettingsDto("Sql Server", 1433);
+        ScanDbSetting settings = createTestDbSettings("Sql Server", 1433);
 
-        DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
+        DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(settings);
 
         assertAll("Should be equals all string and primitive fields",
-                () -> assertEquals(dto.getUser(), dbSettings.user),
-                () -> assertEquals(dto.getPassword(), dbSettings.password),
-                () -> assertEquals(dto.getDatabase(), dbSettings.database),
-                () -> assertEquals(String.format("%s:%s", dto.getServer(), dto.getPort()), dbSettings.server)
+                () -> assertEquals(settings.getUser(), dbSettings.user),
+                () -> assertEquals(settings.getPassword(), dbSettings.password),
+                () -> assertEquals(settings.getDatabase(), dbSettings.database),
+                () -> assertEquals(String.format("%s:%s", settings.getServer(), settings.getPort()), dbSettings.server)
         );
     }
 
     @SneakyThrows
     @Test
     void testAdaptMsSqlDbType() {
-        var dto = createTestDbSettingsDto("SQL SERVER", 1433);
+        ScanDbSetting settings = createTestDbSettings("SQL SERVER", 1433);
+        DbSettings wrSettings = DbSettingsAdapter.adaptDbSettings(settings);
 
-        DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
-
-        assertEquals(dbSettings.dbType, DbType.MSSQL);
+        assertEquals(wrSettings.dbType, DbType.MSSQL);
     }
 
     @SneakyThrows
     @Test
     void testAdaptPostgreDbType() {
-        var dto = createTestDbSettingsDto("postgresql", 5432);
+        ScanDbSetting settings = createTestDbSettings("postgresql", 5432);
+        DbSettings wrSettings = DbSettingsAdapter.adaptDbSettings(settings);
 
-        DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(dto);
-
-        assertEquals(dbSettings.dbType, DbType.POSTGRESQL);
+        assertEquals(wrSettings.dbType, DbType.POSTGRESQL);
     }
 
-    private DbSettingsDto createTestDbSettingsDto(String dbType, int port) {
+    public static ScanDbSetting createTestDbSettings(String dbType, int port) {
         String server = "822JNJ16S03V";
         String database = "CPRD";
         String user = "cdm_builder";
         String password = "builder1!";
         String tablesToScan = "dbo.lookup,dbo.medical";
-        String domain = "";
         String schema = "";
 
         int sampleSize = (int) 100e3;
@@ -61,16 +59,26 @@ class DbSettingsAdapterTest {
         int maxValues = 1000;
         int numericStatsSamplerSize = 500;
 
-        return new DbSettingsDto(
-                dbType,
-                user, password,
-                database, server, port, domain, schema,
-                tablesToScan,
-                new ScanParamsDto(
-                        sampleSize, true,
-                        minCellCount, maxValues,
-                        false, numericStatsSamplerSize
-                )
-        );
+        ScanDataParams params = ScanDataParams.builder()
+                .scanValues(true)
+                .sampleSize(sampleSize)
+                .minCellCount(minCellCount)
+                .maxValues(maxValues)
+                .calculateNumericStats(false)
+                .numericStatsSamplerSize(numericStatsSamplerSize)
+                .build();
+
+        return ScanDbSetting
+                .builder()
+                .dbType(dbType)
+                .user(user)
+                .password(password)
+                .database(database)
+                .server(server)
+                .port(port)
+                .schema(schema)
+                .tablesToScan(tablesToScan)
+                .scanDataParams(params)
+                .build();
     }
 }

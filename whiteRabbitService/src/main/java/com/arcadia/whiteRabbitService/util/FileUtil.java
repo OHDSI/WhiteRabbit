@@ -14,7 +14,7 @@ import static org.apache.commons.lang.RandomStringUtils.random;
 
 public class FileUtil {
 
-    private static final int generatedNameLength = 20;
+    private static final int generatedNameLength = 30;
 
     public static final String scanReportLocation = "scan-reports";
 

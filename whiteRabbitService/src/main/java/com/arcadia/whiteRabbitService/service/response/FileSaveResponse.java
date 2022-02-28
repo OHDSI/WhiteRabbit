@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FileSaveResponse {
     private final String hash;
-
     private final String username;
-
     private final String dataKey;
 }

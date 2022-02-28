@@ -27,15 +27,16 @@ import org.ohdsi.utilities.Logger;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
-import org.ohdsi.whiteRabbit.CanInterrupt;
+import org.ohdsi.whiteRabbit.Interrupter;
 import org.ohdsi.whiteRabbit.DbSettings;
+import org.ohdsi.whiteRabbit.ThreadInterrupter;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class FakeDataGenerator implements CanInterrupt {
+public class FakeDataGenerator {
 
 	private RichConnection connection;
 	private int maxRowsPerTable = 1000;
@@ -46,9 +47,14 @@ public class FakeDataGenerator implements CanInterrupt {
 	private static int PRIMARY_KEY = 2;
 
 	private Logger logger = new ConsoleLogger();
+	private Interrupter interrupter = new ThreadInterrupter();
 
 	public void setLogger(Logger logger) {
 		this.logger = logger;
+	}
+
+	public void setInterrupter(Interrupter interrupter) {
+		this.interrupter = interrupter;
 	}
 
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder,
@@ -64,7 +70,7 @@ public class FakeDataGenerator implements CanInterrupt {
 		DbSettings.SourceType targetType = dbSettings.sourceType;
 		this.doUniformSampling = doUniformSampling;
 
-		logger.logWithTime("Starting creation of fake data");
+		logger.info("Starting creation of fake data");
 
 		Database database = Database.generateModelFromScanReport(filename, schemaName);
 
@@ -74,8 +80,8 @@ public class FakeDataGenerator implements CanInterrupt {
 			for (Table table : database.getTables()) {
 				if (table.getName().toLowerCase().endsWith(".csv"))
 					table.setName(table.getName().substring(0, table.getName().length() - 4));
-				logger.logWithTime("Generating table " + table.getName());
-				checkWasInterrupted();
+				logger.info("Generating table " + table.getName());
+				interrupter.checkWasInterrupted();
 				if (createTables) {
 					createTable(table);
 				}
@@ -87,14 +93,14 @@ public class FakeDataGenerator implements CanInterrupt {
 				String name = folder + "/" + table.getName();
 				if (!name.toLowerCase().endsWith(".csv"))
 					name = name + ".csv";
-				logger.logWithTime("Generating table " + name);
+				logger.info("Generating table " + name);
 				WriteCSVFileWithHeader out = new WriteCSVFileWithHeader(name, dbSettings.csvFormat);
 				for (Row row : generateRows(table))
 					out.write(row);
 				out.close();
 			}
 		}
-		logger.logWithTime("Fake data successfully generated");
+		logger.info("Fake data successfully generated");
 	}
 
 	private List<Row> generateRows(Table table) {
