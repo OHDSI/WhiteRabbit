@@ -1,12 +1,13 @@
 package com.arcadia.whiteRabbitService.service.response;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
-@Getter
-@RequiredArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FileSaveResponse {
-    private final String hash;
-    private final String username;
-    private final String dataKey;
+    private String hash;
+    private String username;
+    private String dataKey;
 }

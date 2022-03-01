@@ -1,7 +1,7 @@
 package com.arcadia.whiteRabbitService.util;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataParams;
-import org.ohdsi.utilities.Logger;
+import org.ohdsi.whiteRabbit.Logger;
 import org.ohdsi.whiteRabbit.Interrupter;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 
@@ -64,6 +64,7 @@ public class SourceDataScanBuilder {
         sourceDataScan.setCalculateNumericStats(calculateNumericStats);
         sourceDataScan.setNumStatsSamplerSize(numericStatsSamplerSize);
         sourceDataScan.setLogger(logger);
+        sourceDataScan.setInterrupter(interrupter);
 
         return sourceDataScan;
     }

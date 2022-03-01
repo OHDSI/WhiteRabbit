@@ -1,6 +1,7 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDbSetting;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-class ScanDataConversionServiceTest {
+public class ScanDataConversionServiceTest {
     @MockBean
     ScanDataLogRepository logRepository;
 
@@ -76,17 +77,20 @@ class ScanDataConversionServiceTest {
         when(whiteRabbitFacade.generateScanReport(eq(conversion.getSettings()), any(), any()))
                 .thenThrow(new RuntimeException());
         assertThrows(FailedToScanException.class, () -> conversionService.runConversion(conversion));
-        Mockito.verify(resultService).saveFailedResult(eq(conversion), any(), any());
+        Mockito.verify(resultService).saveFailedResult(eq(conversion), any());
     }
 
     public static ScanDataConversion createConversion() {
-        return ScanDataConversion.builder()
-                .id(1L)
+        ScanDbSetting settings = createTestDbSettings("postgresql", 5433);
+        ScanDataConversion conversion = ScanDataConversion.builder()
                 .username("Perseus")
                 .project("Test")
                 .statusCode(IN_PROGRESS.getCode())
                 .statusName(IN_PROGRESS.getName())
-                .dbSettings(createTestDbSettings("postgresql", 5433))
+                .dbSettings(settings)
                 .build();
+        settings.setScanDataConversion(conversion);
+
+        return conversion;
     }
 }

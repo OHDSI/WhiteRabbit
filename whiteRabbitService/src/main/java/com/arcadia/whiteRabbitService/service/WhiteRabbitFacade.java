@@ -8,7 +8,7 @@ import com.arcadia.whiteRabbitService.model.scandata.ScanDbSetting;
 import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
 import com.arcadia.whiteRabbitService.service.response.TestConnectionResultResponse;
 import org.ohdsi.databases.RichConnection;
-import org.ohdsi.utilities.Logger;
+import org.ohdsi.whiteRabbit.Logger;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.Interrupter;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
@@ -78,6 +78,8 @@ public class WhiteRabbitFacade {
 
     public File generateScanReport(ScanDataSettings scanDataSettings, Logger logger, Interrupter interrupter) throws InterruptedException {
         DbSettings dbSettings = scanDataSettings.toWhiteRabbitSettings();
+        int tablesCount = dbSettings.tables.size();
+        logger.setItemsCount(tablesCount);
         ScanDataParams scanDataParams = scanDataSettings.getScanDataParams();
         SourceDataScan sourceDataScan = createSourceDataScan(scanDataParams, logger, interrupter);
         String scanReportFilePath = toScanReportFileFullName(generateRandomFileName());

@@ -3,10 +3,9 @@ package com.arcadia.whiteRabbitService.service.task;
 import com.arcadia.whiteRabbitService.dto.FakeDataParamsDto;
 import com.arcadia.whiteRabbitService.service.WhiteRabbitFacade;
 import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
-import com.arcadia.whiteRabbitService.service.task.AbstractTaskHandler;
 import lombok.RequiredArgsConstructor;
-import org.ohdsi.utilities.ConsoleLogger;
-import org.ohdsi.utilities.Logger;
+import org.ohdsi.whiteRabbit.ConsoleLogger;
+import org.ohdsi.whiteRabbit.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.Future;

@@ -1,4 +1,6 @@
-package org.ohdsi.utilities;
+package org.ohdsi.whiteRabbit;
+
+import org.ohdsi.utilities.StringUtilities;
 
 public class ConsoleLogger implements Logger {
     @Override
@@ -19,5 +21,13 @@ public class ConsoleLogger implements Logger {
     @Override
     public void error(String message) {
         System.err.println(message);
+    }
+
+    @Override
+    public void setItemsCount(int itemsCount) {
+    }
+
+    @Override
+    public void incrementScannedItems() {
     }
 }

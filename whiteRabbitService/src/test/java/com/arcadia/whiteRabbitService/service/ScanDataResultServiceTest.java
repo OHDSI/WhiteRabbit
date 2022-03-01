@@ -1,13 +1,13 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
+import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataResultRepository;
 import com.arcadia.whiteRabbitService.service.response.FileSaveResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.ohdsi.utilities.Logger;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -17,7 +17,6 @@ import static com.arcadia.whiteRabbitService.model.ConversionStatus.*;
 import static com.arcadia.whiteRabbitService.service.FilesManagerServiceTest.readFileFromResources;
 import static com.arcadia.whiteRabbitService.service.ScanDataConversionServiceTest.createConversion;
 import static com.arcadia.whiteRabbitService.service.ScanDataResultServiceImpl.DATA_KEY;
-import static com.arcadia.whiteRabbitService.service.ScanDataResultServiceImpl.FAILED_TO_SCAN_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -27,16 +26,20 @@ class ScanDataResultServiceTest {
     ScanDataResultRepository resultRepository;
 
     @MockBean
-    FilesManagerService filesManagerService;
+    ScanDataConversionRepository conversionRepository;
 
     @MockBean
-    Logger logger;
+    FilesManagerService filesManagerService;
 
     ScanDataResultService resultService;
 
     @BeforeEach
     void setUp() {
-        resultService = new ScanDataResultServiceImpl(resultRepository, filesManagerService);
+        resultService = new ScanDataResultServiceImpl(
+                resultRepository,
+                conversionRepository,
+                filesManagerService
+        );
     }
 
     @Test
@@ -62,10 +65,7 @@ class ScanDataResultServiceTest {
         ScanDataConversion conversion = createConversion();
         String errorMessage = "Test error";
 
-        resultService.saveFailedResult(conversion, logger, errorMessage);
-
-        Mockito.verify(logger).error(errorMessage);
-        Mockito.verify(logger).error(FAILED_TO_SCAN_MESSAGE);
+        resultService.saveFailedResult(conversion, errorMessage);
 
         assertEquals(conversion.getStatusCode(), FAILED.getCode());
         assertEquals(conversion.getStatusName(), FAILED.getName());

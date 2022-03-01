@@ -24,7 +24,7 @@ public class ScanDataLog {
     @GeneratedValue(strategy = SEQUENCE, generator = "scan_data_log_id_sequence")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String message;
 
     @Column(nullable = false)
@@ -33,8 +33,11 @@ public class ScanDataLog {
     @Column(name = "status_code", nullable = false)
     private Integer statusCode;
 
-    @Column(name = "status_name", nullable = false)
+    @Column(name = "status_name", nullable = false, length = 25)
     private String statusName;
+
+    @Column(name = "percent", nullable = false)
+    private Integer percent;
 
     @JsonIgnore
     @ManyToOne(optional = false)

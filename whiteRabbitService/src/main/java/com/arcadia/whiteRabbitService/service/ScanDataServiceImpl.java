@@ -4,12 +4,15 @@ import com.arcadia.whiteRabbitService.model.scandata.*;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataResultRepository;
+import com.arcadia.whiteRabbitService.service.error.ServerErrorException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ScanDataServiceImpl implements ScanDataService {
     private final ScanDataConversionRepository conversionRepository;
     private final ScanDataConversionService conversionService;
@@ -43,14 +47,15 @@ public class ScanDataServiceImpl implements ScanDataService {
     @Transactional
     public ScanDataConversion scanDatabaseData(ScanDbSetting settings,
                                                String username) {
-        String project = settings.getProject();
+        String project = settings.getDatabase();
         ScanDataConversion conversion = ScanDataConversion.builder()
                 .username(username)
-                .dbSettings(settings)
                 .project(project)
                 .statusCode(IN_PROGRESS.getCode())
                 .statusName(IN_PROGRESS.getName())
+                .dbSettings(settings)
                 .build();
+        settings.setScanDataConversion(conversion);
         conversionRepository.saveAndFlush(conversion);
         conversionService.runConversion(conversion);
 
@@ -62,30 +67,43 @@ public class ScanDataServiceImpl implements ScanDataService {
     public ScanDataConversion scanFilesData(ScanFilesSettings settings,
                                             List<MultipartFile> files,
                                             String username) {
-        String project = settings.getProject();
-        String directory = format("%s/%s", username, project);
-        createDirectory(directory);
-        List<String> fileNames = files.stream()
-                .map(file -> storageService.store(file, directory, file.getOriginalFilename()))
-                .collect(Collectors.toList());
-        settings.setDirectory(directory);
-        settings.setFileNames(fileNames);
+        String project = "csv";
+        String directoryName = format("%s/%s", username, project);
+        createDirectory(directoryName);
+        settings.setDirectory(directoryName);
+        try {
+            List<String> fileNames = files.stream()
+                    .map(file -> storageService.store(file, directoryName, file.getOriginalFilename()))
+                    .collect(Collectors.toList());
+            settings.setFileNames(fileNames);
 
-        ScanDataConversion conversion = ScanDataConversion.builder()
-                .username(username)
-                .filesSettings(settings)
-                .project(project)
-                .build();
-        conversionRepository.saveAndFlush(conversion);
-        conversionService.runConversion(conversion);
+            ScanDataConversion conversion = ScanDataConversion.builder()
+                    .username(username)
+                    .project(project)
+                    .statusCode(IN_PROGRESS.getCode())
+                    .statusName(IN_PROGRESS.getName())
+                    .filesSettings(settings)
+                    .build();
+            settings.setScanDataConversion(conversion);
+            conversionRepository.saveAndFlush(conversion);
+            conversionService.runConversion(conversion);
 
-        return conversion;
+            return conversion;
+        } catch (Exception e) {
+            log.error("Can not scan files data {}", e.getMessage());
+            settings.destroy();
+            throw new ServerErrorException(e.getMessage(), e);
+        }
     }
 
     @Override
     public List<ScanDataLog> logs(Long conversionId, String username) {
         ScanDataConversion conversion = findConversionById(conversionId, username);
-        return logRepository.findAllByScanDataConversionId(conversion.getId());
+        return logRepository
+                .findAllByScanDataConversionId(conversion.getId())
+                .stream()
+                .sorted(Comparator.comparing(ScanDataLog::getId))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -93,6 +111,7 @@ public class ScanDataServiceImpl implements ScanDataService {
     public void abort(Long conversionId, String username) {
         ScanDataConversion conversion = findConversionById(conversionId, username);
         conversion.setStatus(ABORTED);
+        conversionRepository.save(conversion);
     }
 
     @Override

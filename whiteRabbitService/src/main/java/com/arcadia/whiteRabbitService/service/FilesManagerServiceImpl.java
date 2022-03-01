@@ -3,6 +3,7 @@ package com.arcadia.whiteRabbitService.service;
 import com.arcadia.whiteRabbitService.service.request.FileSaveRequest;
 import com.arcadia.whiteRabbitService.service.response.FileSaveResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
@@ -17,6 +18,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FilesManagerServiceImpl implements FilesManagerService {
     @Value("${files-manager-url}")
     private String filesManagerUrl;
@@ -26,7 +28,7 @@ public class FilesManagerServiceImpl implements FilesManagerService {
     @Override
     public ByteArrayResource getFile(String key) {
         return restTemplate.getForObject(
-                filesManagerUrl + "/api/${key}",
+                filesManagerUrl + "/api/{key}",
                 ByteArrayResource.class,
                 key
         );
@@ -34,12 +36,13 @@ public class FilesManagerServiceImpl implements FilesManagerService {
 
     @Override
     public FileSaveResponse saveFile(FileSaveRequest model) {
+        log.info("Sending Rest request to save Scan Report file");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MULTIPART_FORM_DATA);
 
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("username", model.getUsername());
-        map.add("dataKey", model.getUsername());
+        map.add("dataKey", model.getDataKey());
         map.add("file", model.getScanReport());
 
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);

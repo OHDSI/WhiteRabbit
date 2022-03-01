@@ -2,11 +2,11 @@ package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataResult;
+import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataResultRepository;
 import com.arcadia.whiteRabbitService.service.request.FileSaveRequest;
 import com.arcadia.whiteRabbitService.service.response.FileSaveResponse;
 import lombok.RequiredArgsConstructor;
-import org.ohdsi.utilities.Logger;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,18 +17,18 @@ import java.sql.Timestamp;
 import static com.arcadia.whiteRabbitService.model.ConversionStatus.*;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ScanDataResultServiceImpl implements ScanDataResultService {
     public static final String DATA_KEY = "white-rabbit";
     public static final String FAILED_TO_SCAN_MESSAGE = "Failed to scan";
 
     private final ScanDataResultRepository resultRepository;
+    private final ScanDataConversionRepository conversionRepository;
     private final FilesManagerService filesManagerService;
 
+    @Transactional
     @Override
     public void saveCompletedResult(File scanReportFile, ScanDataConversion conversion) {
-        conversion.setStatus(COMPLETED);
         FileSystemResource scanReportResource = new FileSystemResource(scanReportFile);
         FileSaveRequest fileSaveRequest = new FileSaveRequest(
                 conversion.getUsername(),
@@ -42,19 +42,22 @@ public class ScanDataResultServiceImpl implements ScanDataResultService {
                 .scanDataConversion(conversion)
                 .time(new Timestamp(System.currentTimeMillis()))
                 .build();
-        resultRepository.save(result);
+        conversion.setStatus(COMPLETED);
         conversion.setResult(result);
+        conversionRepository.save(conversion);
     }
 
+    @Transactional
     @Override
-    public void saveFailedResult(ScanDataConversion conversion, Logger logger, String errorMessage) {
-        logger.error(errorMessage);
-        logger.error(FAILED_TO_SCAN_MESSAGE);
+    public void saveFailedResult(ScanDataConversion conversion, String errorMessage) {
         conversion.setStatus(FAILED);
+        conversionRepository.save(conversion);
     }
 
+    @Transactional
     @Override
     public void saveAbortedResult(ScanDataConversion conversion) {
         conversion.setStatus(ABORTED);
+        conversionRepository.save(conversion);
     }
 }

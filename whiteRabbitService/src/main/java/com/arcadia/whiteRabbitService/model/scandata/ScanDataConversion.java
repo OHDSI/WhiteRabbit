@@ -35,7 +35,7 @@ public class ScanDataConversion {
     @Column(name = "status_code", nullable = false)
     private Integer statusCode;
 
-    @Column(name = "status_name", nullable = false)
+    @Column(name = "status_name", nullable = false, length = 25)
     private String statusName;
 
     @JsonIgnore

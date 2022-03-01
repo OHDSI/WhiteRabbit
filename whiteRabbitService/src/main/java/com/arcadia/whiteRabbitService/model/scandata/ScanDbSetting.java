@@ -54,11 +54,8 @@ public class ScanDbSetting implements ScanDataSettings {
     private String schema;
 
     @NonNull
-    @Column(name = "tables_to_scan", nullable = false)
-    private String tablesToScan;
-
     @Transient
-    private String project;
+    private String tablesToScan;
 
     @JsonIgnore
     @OneToOne(fetch = LAZY, optional = false)

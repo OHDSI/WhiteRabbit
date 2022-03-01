@@ -1,15 +1,10 @@
 package com.arcadia.whiteRabbitService.model.scandata;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
-
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -43,9 +38,6 @@ public class ScanFilesSettings implements ScanDataSettings {
     @Transient
     private String directory;
 
-    @Transient
-    private String project;
-
     @OneToOne(cascade = ALL, fetch = LAZY, optional = false)
     @JoinColumn(name = "scan_data_conversion_id", referencedColumnName = "id")
     private ScanDataConversion scanDataConversion;
@@ -59,6 +51,7 @@ public class ScanFilesSettings implements ScanDataSettings {
         return adaptDelimitedTextFileSettings(this);
     }
 
+    @SneakyThrows
     @Override
     public void destroy() {
         deleteRecursive(Path.of(directory));

@@ -18,30 +18,16 @@ public class FileUtil {
 
     public static final String scanReportLocation = "scan-reports";
 
-    @SneakyThrows
-    public static Path base64ToFile(Path path, String base64) {
-        byte[] decodedFileContent = getDecoder()
-                .decode(base64.getBytes(StandardCharsets.UTF_8));
-        return Files.write(path, decodedFileContent);
-    }
-
     public static String generateRandomFileName() {
         return random(generatedNameLength, true, false);
     }
 
-    public static String generateRandomDirectory() {
-        String directoryName = random(generatedNameLength, true, false);
-        File directory = new File(directoryName);
-        directory.mkdirs();
-
-        return directoryName;
-    }
-
-    public static void createDirectory(String name) {
+    public static File createDirectory(String name) {
         File directory = new File(name);
         if (!directory.exists()) {
             directory.mkdirs();
         }
+        return directory;
     }
 
     public static String toScanReportFileFullName(String name) {

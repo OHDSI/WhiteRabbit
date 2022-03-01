@@ -11,7 +11,6 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 public class AsyncConfig {
-
     @Bean
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new TaskExecutorBuilder()
@@ -20,7 +19,6 @@ public class AsyncConfig {
                 .queueCapacity(16)
                 .threadNamePrefix("WhiteRabbit-")
                 .build();
-
         executor.initialize();
 
         return executor;

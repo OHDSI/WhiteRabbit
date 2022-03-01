@@ -1,4 +1,4 @@
-package com.arcadia.whiteRabbitService.util;
+package com.arcadia.whiteRabbitService.service.util;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;

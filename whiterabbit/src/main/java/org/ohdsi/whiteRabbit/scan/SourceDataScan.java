@@ -35,9 +35,7 @@ import org.ohdsi.utilities.collections.CountingSet;
 import org.ohdsi.utilities.collections.CountingSet.Count;
 import org.ohdsi.utilities.collections.Pair;
 import org.ohdsi.utilities.files.ReadTextFile;
-import org.ohdsi.whiteRabbit.Interrupter;
-import org.ohdsi.whiteRabbit.DbSettings;
-import org.ohdsi.whiteRabbit.ThreadInterrupter;
+import org.ohdsi.whiteRabbit.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -125,7 +123,9 @@ public class SourceDataScan {
 				this.minCellCount = Math.max(minCellCount, MIN_CELL_COUNT_FOR_CSV);
 			processCsvFiles(dbSettings);
 		} else if (sourceType == DbSettings.SourceType.SAS_FILES) {
-			processSasFiles(dbSettings);
+			throw new UnsupportedOperationException("SAS files does not support");
+			// after implementing support must configure logging
+			// processSasFiles(dbSettings);
 		} else {
 			isFile = false;
 			processDatabase(dbSettings);
@@ -145,7 +145,10 @@ public class SourceDataScan {
 			connection.use(adaptSchemaNameForPostgres(dbSettings, dbSettings.database));
 
 			for (String table : dbSettings.tables) {
+				interrupter.checkWasInterrupted();
 				tableToFieldInfos.put(new Table(table), processDatabaseTable(table, connection));
+				logger.incrementScannedItems();
+				logger.info("Scanned table " + table);
 			}
 		}
 	}
@@ -153,13 +156,17 @@ public class SourceDataScan {
 	private void processCsvFiles(DbSettings dbSettings) throws InterruptedException {
 		delimiter = dbSettings.delimiter;
 		for (String fileName : dbSettings.tables) {
+			interrupter.checkWasInterrupted();
 			Table table = new Table();
 			table.setName(new File(fileName).getName());
 			List<FieldInfo> fieldInfos = processCsvFile(fileName);
 			tableToFieldInfos.put(table, fieldInfos);
+			logger.incrementScannedItems();
+			logger.info("Scanned file " + StringUtilities.getFileNameBYFullName(fileName));
 		}
 	}
 
+	@Deprecated
 	private void processSasFiles(DbSettings dbSettings) throws InterruptedException {
 		for (String fileName : dbSettings.tables) {
 			try(FileInputStream inputStream = new FileInputStream(new File(fileName))) {
@@ -407,7 +414,7 @@ public class SourceDataScan {
 				.removeIf(stringListEntry -> stringListEntry.getValue().size() == 0);
 	}
 
-	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) throws InterruptedException {
+	private List<FieldInfo> processDatabaseTable(String table, RichConnection connection) {
 		logger.info("Scanning table " + table);
 
 		long rowCount = connection.getTableSize(table);
@@ -421,7 +428,6 @@ public class SourceDataScan {
 					for (FieldInfo fieldInfo : fieldInfos) {
 						fieldInfo.processValue(row.get(fieldInfo.name));
 					}
-					interrupter.checkWasInterrupted();
 					actualCount++;
 					if (sampleSize != -1 && actualCount >= sampleSize) {
 						logger.warning("Stopped after " + actualCount + " rows");
@@ -430,8 +436,6 @@ public class SourceDataScan {
 				}
 				for (FieldInfo fieldInfo : fieldInfos)
 					fieldInfo.trim();
-			} catch (InterruptedException e) {
-				throw e;
 			} catch (Exception e) {
 				logger.error("Error: " + e.getMessage());
 			} finally {
@@ -545,8 +549,8 @@ public class SourceDataScan {
 		return fieldInfos;
 	}
 
-	private List<FieldInfo> processCsvFile(String filename) throws InterruptedException {
-		logger.info("Scanning table " + StringUtilities.getFileNameBYFullName(filename));
+	private List<FieldInfo> processCsvFile(String filename) {
+		logger.info("Scanning file " + StringUtilities.getFileNameBYFullName(filename));
 		List<FieldInfo> fieldInfos = new ArrayList<>();
 		int lineNr = 0;
 		for (String line : new ReadTextFile(filename)) {
@@ -577,8 +581,6 @@ public class SourceDataScan {
 			}
 			if (lineNr > sampleSize)
 				break;
-
-			interrupter.checkWasInterrupted();
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
 			fieldInfo.trim();
@@ -600,7 +602,6 @@ public class SourceDataScan {
 				fieldInfo.maxLength = column.getLength();
 			}
 			fieldInfos.add(fieldInfo);
-
 			interrupter.checkWasInterrupted();
 		}
 

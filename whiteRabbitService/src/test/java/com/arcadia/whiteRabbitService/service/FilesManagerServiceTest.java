@@ -29,9 +29,6 @@ class FilesManagerServiceTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    WRTestRestTemplate testRestTemplate;
-
     FilesManagerService filesManagerService;
 
     @Autowired
@@ -40,10 +37,10 @@ class FilesManagerServiceTest {
     @Autowired
     MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
-    @BeforeEach
-    void setUp() {
-        filesManagerService = new FilesManagerServiceImpl(testRestTemplate);
-    }
+//    @BeforeEach
+//    void setUp() {
+//        filesManagerService = new FilesManagerServiceImpl(testRestTemplate);
+//    }
 
 //    @Test
 //    void saveAndGetFile() {
