@@ -4,7 +4,6 @@ import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
 import com.arcadia.whiteRabbitService.model.scandata.ScanDbSettings;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
-import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +15,6 @@ import java.io.File;
 
 import static com.arcadia.whiteRabbitService.model.ConversionStatus.IN_PROGRESS;
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapterTest.createTestDbSettings;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -65,7 +63,7 @@ public class ScanDataConversionServiceTest {
         ScanDataConversion conversion = createScanDataConversion();
         when(whiteRabbitFacade.generateScanReport(eq(conversion.getSettings()), any(), any()))
                 .thenThrow(new InterruptedException());
-        assertThrows(FailedToScanException.class, () -> conversionService.runConversion(conversion));
+        conversionService.runConversion(conversion);
         Mockito.verify(resultService).saveAbortedResult(conversion.getId());
     }
 
@@ -74,7 +72,7 @@ public class ScanDataConversionServiceTest {
         ScanDataConversion conversion = createScanDataConversion();
         when(whiteRabbitFacade.generateScanReport(eq(conversion.getSettings()), any(), any()))
                 .thenThrow(new RuntimeException());
-        assertThrows(FailedToScanException.class, () -> conversionService.runConversion(conversion));
+        conversionService.runConversion(conversion);
         Mockito.verify(resultService).saveFailedResult(eq(conversion.getId()));
     }
 

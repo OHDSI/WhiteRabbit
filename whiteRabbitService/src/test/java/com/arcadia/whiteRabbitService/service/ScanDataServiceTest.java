@@ -1,27 +1,39 @@
 package com.arcadia.whiteRabbitService.service;
 
+import com.arcadia.whiteRabbitService.model.ConversionStatus;
 import com.arcadia.whiteRabbitService.model.LogStatus;
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataLog;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDataResult;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDbSettings;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataResultRepository;
 import com.arcadia.whiteRabbitService.service.response.ConversionWithLogsResponse;
+import com.arcadia.whiteRabbitService.service.response.FileSaveResponse;
 import com.arcadia.whiteRabbitService.util.LogUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.List;
 
+import static com.arcadia.whiteRabbitService.model.ConversionStatus.*;
 import static com.arcadia.whiteRabbitService.model.LogStatus.INFO;
+import static com.arcadia.whiteRabbitService.service.DbSettingsAdapterTest.createTestDbSettings;
 import static com.arcadia.whiteRabbitService.service.ScanDataConversionServiceTest.createScanDataConversion;
+import static com.arcadia.whiteRabbitService.service.ScanDataResultServiceImpl.DATA_KEY;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -29,22 +41,41 @@ public class ScanDataServiceTest {
     @Autowired
     ScanDataConversionRepository conversionRepository;
 
-    @MockBean
-    ScanDataConversionService conversionService;
-
-    @MockBean
+    @Autowired
     StorageService storageService;
 
     @Autowired
     ScanDataLogRepository logRepository;
 
-    @MockBean
+    @Autowired
     ScanDataResultRepository resultRepository;
 
+    @MockBean
+    WhiteRabbitFacade whiteRabbitFacade;
+
+    @MockBean
+    FilesManagerService filesManagerService;
+
+    @MockBean
+    File scanReportFile;
+
+    ScanDataResultService resultService;
+    ScanDataConversionService conversionService;
     ScanDataService scanDataService;
 
     @BeforeEach
     void setUp() {
+        resultService = new ScanDataResultServiceImpl(
+                conversionRepository,
+                resultRepository,
+                filesManagerService
+        );
+        conversionService = new ScanDataConversionServiceImpl(
+                logRepository,
+                conversionRepository,
+                whiteRabbitFacade,
+                resultService
+        );
         scanDataService = new ScanDataServiceImpl(
                 conversionRepository,
                 conversionService,
@@ -52,6 +83,67 @@ public class ScanDataServiceTest {
                 logRepository,
                 resultRepository
         );
+    }
+
+    @Transactional
+    @Test
+    void scanDatabaseDataAndComplete() throws InterruptedException {
+        ScanDbSettings dbSettings = createTestDbSettings("postgresql", 5433);
+        String username = "Perseus";
+        Mockito.when(whiteRabbitFacade.generateScanReport(eq(dbSettings), any(), any()))
+                .thenReturn(scanReportFile);
+        String hash = "hash";
+        FileSaveResponse fileSaveResponse = new FileSaveResponse(hash, username, DATA_KEY);
+        Mockito.when(filesManagerService.saveFile(any()))
+                .thenReturn(fileSaveResponse);
+
+        ScanDataConversion conversion = scanDataService.scanDatabaseData(dbSettings, username);
+
+        assertEquals(COMPLETED.getCode(), conversion.getStatusCode());
+        assertEquals(COMPLETED.getName(), conversion.getStatusName());
+        assertEquals(username, conversion.getUsername());
+
+        ScanDataResult conversionResult = conversion.getResult();
+        assertEquals(hash, conversionResult.getFileKey());
+        assertEquals(dbSettings.getDatabase() + ".xlsx", conversionResult.getFileName());
+    }
+
+    @Transactional
+    @Test
+    void scanDatabaseDataAndAbort() throws InterruptedException {
+        ScanDbSettings dbSettings = createTestDbSettings("postgresql", 5433);
+        String username = "Perseus";
+        Mockito.when(whiteRabbitFacade.generateScanReport(eq(dbSettings), any(), any()))
+                .thenThrow(new InterruptedException("Test interruption"));
+        String hash = "hash";
+        FileSaveResponse fileSaveResponse = new FileSaveResponse(hash, username, DATA_KEY);
+        Mockito.when(filesManagerService.saveFile(any()))
+                .thenReturn(fileSaveResponse);
+
+        ScanDataConversion conversion = scanDataService.scanDatabaseData(dbSettings, username);
+
+        assertEquals(ABORTED.getCode(), conversion.getStatusCode());
+        assertEquals(ABORTED.getName(), conversion.getStatusName());
+        assertEquals(username, conversion.getUsername());
+    }
+
+    @Transactional
+    @Test
+    void scanDatabaseDataWithFailedResult() throws InterruptedException {
+        ScanDbSettings dbSettings = createTestDbSettings("postgresql", 5433);
+        String username = "Perseus";
+        Mockito.when(whiteRabbitFacade.generateScanReport(eq(dbSettings), any(), any()))
+                .thenThrow(new RuntimeException("Test error"));
+        String hash = "hash";
+        FileSaveResponse fileSaveResponse = new FileSaveResponse(hash, username, DATA_KEY);
+        Mockito.when(filesManagerService.saveFile(any()))
+                .thenReturn(fileSaveResponse);
+
+        ScanDataConversion conversion = scanDataService.scanDatabaseData(dbSettings, username);
+
+        assertEquals(FAILED.getCode(), conversion.getStatusCode());
+        assertEquals(FAILED.getName(), conversion.getStatusName());
+        assertEquals(username, conversion.getUsername());
     }
 
     @Test

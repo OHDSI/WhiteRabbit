@@ -5,7 +5,6 @@ import com.arcadia.whiteRabbitService.model.fakedata.FakeDataLog;
 import com.arcadia.whiteRabbitService.model.fakedata.FakeDataSettings;
 import com.arcadia.whiteRabbitService.repository.FakeDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.FakeDataLogRepository;
-import com.arcadia.whiteRabbitService.service.error.FailedToGenerateFakeData;
 import com.arcadia.whiteRabbitService.service.util.DatabaseLogger;
 import com.arcadia.whiteRabbitService.service.util.FakeDataLogCreator;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +37,8 @@ public class FakeDataConversionServiceImpl implements FakeDataConversionService 
             whiteRabbitFacade.generateFakeData(settings, logger, interrupter);
             resultService.saveCompletedResult(conversion.getId());
         } catch (InterruptedException e) {
+            log.warn(e.getMessage());
             resultService.saveAbortedResult(conversion.getId());
-            throw new FailedToGenerateFakeData(e.getMessage(), e);
         } catch (Exception e) {
             try {
                 logger.error(e.getMessage());
@@ -47,8 +46,8 @@ public class FakeDataConversionServiceImpl implements FakeDataConversionService 
             } catch (Exception logException) {
                 log.error("Can not log message. " + logException.getMessage());
             }
+            log.error(e.getMessage());
             resultService.saveFailedResult(conversion.getId());
-            throw new FailedToGenerateFakeData(e.getMessage(), e);
         } finally {
             settings.destroy();
         }

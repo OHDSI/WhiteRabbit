@@ -5,9 +5,8 @@ import com.arcadia.whiteRabbitService.model.scandata.ScanDataLog;
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataSettings;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
-import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
-import com.arcadia.whiteRabbitService.service.util.ScanDataInterrupter;
 import com.arcadia.whiteRabbitService.service.util.DatabaseLogger;
+import com.arcadia.whiteRabbitService.service.util.ScanDataInterrupter;
 import com.arcadia.whiteRabbitService.service.util.ScanDataLogCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +40,8 @@ public class ScanDataConversionServiceImpl implements ScanDataConversionService 
             resultService.saveCompletedResult(scanReportFile, conversion.getId());
             scanReportFile.delete();
         } catch (InterruptedException e) {
+            log.warn(e.getMessage());
             resultService.saveAbortedResult(conversion.getId());
-            throw new FailedToScanException(e.getMessage(), e);
         } catch (Exception e) {
             try {
                 logger.error(e.getMessage());
@@ -50,8 +49,8 @@ public class ScanDataConversionServiceImpl implements ScanDataConversionService 
             } catch (Exception logException) {
                 log.error("Can not log message. " + logException.getMessage());
             }
+            log.error(e.getMessage());
             resultService.saveFailedResult(conversion.getId());
-            throw new FailedToScanException(e.getMessage(), e);
         } finally {
             settings.destroy();
         }
