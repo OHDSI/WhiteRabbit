@@ -6,7 +6,7 @@
     <parent>
         <artifactId>leporidae</artifactId>
         <groupId>org.ohdsi</groupId>
-        <version>0.10.2</version>
+        <version>0.10.7</version>
     </parent>
 
     <groupId>com.arcadia</groupId>
@@ -22,13 +22,14 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.13.1</jackson.version>
+        <whiterabbit.version>0.10.7</whiterabbit.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.ohdsi</groupId>
             <artifactId>whiterabbit</artifactId>
-            <version>0.10.2</version>
+            <version>${whiterabbit.version}</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -57,7 +58,8 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.22</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>

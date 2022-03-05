@@ -12,14 +12,14 @@ STEM_TABLE,START_DATE,NO,DATE,The start date of the event.
 STEM_TABLE,START_DATETIME,YES,DATETIME,The start datetime of the event.
 STEM_TABLE,END_DATE,YES,DATE,The end date of the event.
 STEM_TABLE,END_DATETIME,YES,DATETIME,The end datetime of the event.
-,VERBATIM_END_DATE,YES,DATE,The verbatim end date (not derived) of the event.
+STEM_TABLE,VERBATIM_END_DATE,YES,DATE,The verbatim end date (not derived) of the event.
 STEM_TABLE,DAYS_SUPPLY,YES,INTEGER,The number of days of supply of the medication as recorded in the original prescription or dispensing record.
 STEM_TABLE,DOSE_UNIT_SOURCE_VALUE,YES,CHARACTER VARYING,The information about the dose unit as detailed in the source.
 STEM_TABLE,LOT_NUMBER,YES,CHARACTER VARYING,An identifier assigned to a particular quantity or lot of Drug product from the manufacturer.
-STEM_TABLE,MODIFIER_CONCEPT_ID,YES,INTEGER,A foreign key to a Standard Concept identifier for a modifier (e.g. bilateral)
-STEM_TABLE,MODIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,The source code for the modifier as it appears in the source data.
+STEM_TABLE,MODIFIER_CONCEPT_ID,YES,INTEGER,A foreign key to a Standard Concept identifier for a modifier to the Procedure (e.g. bilateral)
 STEM_TABLE,OPERATOR_CONCEPT_ID,YES,INTEGER,"A foreign key identifier to the predefined Concept in the Standardized Vocabularies reflecting the mathematical operator that is applied to the value_as_number. Operators are <, ?, =, ?, >."
-STEM_TABLE,MODIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,The source code for the modifier as it appears in the source data.
+STEM_TABLE,QUALIFIER_CONCEPT_ID,YES,INTEGER,"A foreign key to a Standard Concept ID for a qualifier (e.g., severity of drug-drug interaction alert)"
+STEM_TABLE,QUALIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,The source code for the qualifier as it appears in the source data.
 STEM_TABLE,QUANTITY,YES,INTEGER,The number of individual Devices/Procedures/Drugs used for the exposure.
 STEM_TABLE,RANGE_HIGH,YES,FLOAT,The upper limit of the normal range of the Measurement. The upper range is assumed to be of the same unit of measure as the Measurement value.
 STEM_TABLE,RANGE_LOW,YES,FLOAT,The lower limit of the normal range of the Measurement result. The lower range is assumed to be of the same unit of measure as the Measurement value.
@@ -40,5 +40,5 @@ STEM_TABLE,DISEASE_STATUS_CONCEPT_ID,YES,INTEGER,A foreign key to a Standard Con
 STEM_TABLE,SPECIMEN_SOURCE_ID,YES,INTEGER,The Specimen identifier as it appears in the source data.
 STEM_TABLE,ANATOMIC_SITE_SOURCE_VALUE,YES,CHARACTER VARYING,The information about the anatomic site as detailed in the source.
 STEM_TABLE,DISEASE_STATUS_SOURCE_VALUE,YES,CHARACTER VARYING,The information about the disease status as detailed in the source.
-STEM_TABLE,CONDITION_STATUS_CONCEPT_ID,YES,CHARACTER VARYING,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the condition_status.
-STEM_TABLE,CONDITION_STATUS_SOURCE_VALUE,YES,INTEGER,The source code as it appears in the source data
+,CONDITION_STATUS_CONCEPT_ID,YES,CHARACTER VARYING,A foreign key to the predefined Concept identifier in the Standardized Vocabularies reflecting the condition_status.
+,CONDITION_STATUS_SOURCE_VALUE,YES,INTEGER,The source code as it appears in the source data

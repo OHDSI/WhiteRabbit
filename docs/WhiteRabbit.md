@@ -4,6 +4,7 @@ pagetitle: "White Rabbit"
 ![](images/whiterabbitlogo.png )
 
 # Introduction
+
 ## Scope and purpose
 WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](https://github.com/OHDSI/CommonDataModel).
 The source data can be in delimited text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure SQL Database).
@@ -35,6 +36,7 @@ Once the scan report is created, this report can then be used in the Rabbit-In-A
 4. Go to [Using the Application Functions](#using-the-application-functions) for detailed instructions on how to make a scan of your data.
 
 Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead.
+Note: WhiteRabbit and RabbitInaHat only work from a path with only ascii characters.
 
 ### Memory
 WhiteRabbit possibly does not start when the memory allocated by the JVM is too big or too small. 
@@ -50,7 +52,7 @@ Any bugs/issues/enhancements should be posted to the GitHub repository: <https:/
 
 Any questions/comments/feedback/discussion can be posted on the OHDSI Developer Forum: <http://forums.ohdsi.org/c/developers>
 
-# Using the Application Functions
+# Using the application functions
 
 ## Specifying the Location of Source Data
 
@@ -107,7 +109,7 @@ When the SQL Server JDBC drivers are installed, you can also use Windows authent
 
 #### PostgreSQL
 
-  * _**Server location:**_ this field contains the host name and database name (<host>/<database>)
+  * _**Server location:**_ this field contains the host name and database name (`<host>/<database>`). You can also specify the port (ex: `<host>:<port>/<database>`), which defaults to 5432.
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
   * _**Database name:**_ this field contains the schema containing the tables

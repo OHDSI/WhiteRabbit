@@ -29,8 +29,6 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -212,9 +210,30 @@ public class WhiteRabbitMain implements ActionListener {
 				dbSettings.domain = dbSettings.database;
 			}
 		}
+
 		if (iniFile.get("TABLES_TO_SCAN").equalsIgnoreCase("*")) {
-			try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
-				dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+			if (dbSettings.sourceType == DbSettings.SourceType.DATABASE) {
+				try (RichConnection connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
+					dbSettings.tables.addAll(connection.getTableNames(dbSettings.database));
+				}
+			} else {
+				String extension;
+				if (dbSettings.sourceType == DbSettings.SourceType.CSV_FILES) {
+					extension = ".csv";
+				} else {
+					extension = ".sas7bdat";
+				}
+				File folder = new File(iniFile.get("WORKING_FOLDER"));
+				if (folder.isDirectory()) {
+					for (File file : folder.listFiles()) {
+						if (file.isFile()) {
+							String filename = file.getAbsolutePath();
+							if (filename.endsWith(extension)) {
+								dbSettings.tables.add(filename);
+							}
+						}
+					}
+				}
 			}
 		} else {
 			for (String table : iniFile.get("TABLES_TO_SCAN").split(",")) {
@@ -227,10 +246,18 @@ public class WhiteRabbitMain implements ActionListener {
 		SourceDataScan sourceDataScan = new SourceDataScan();
 		int maxRows = Integer.parseInt(iniFile.get("ROWS_PER_TABLE"));
 		boolean scanValues = iniFile.get("SCAN_FIELD_VALUES").equalsIgnoreCase("yes");
-		int minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
-		int maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
-		boolean calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
-		int numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+		int minCellCount = 0;
+		int maxValues = 0;
+		boolean calculateNumericStats = false;
+		int numericStatsSamplerSize = 0;
+		if (scanValues) {
+			minCellCount = Integer.parseInt(iniFile.get("MIN_CELL_COUNT"));
+			maxValues = Integer.parseInt(iniFile.get("MAX_DISTINCT_VALUES"));
+			calculateNumericStats = iniFile.get("CALCULATE_NUMERIC_STATS").equalsIgnoreCase("yes");
+			if (calculateNumericStats) {
+				numericStatsSamplerSize = Integer.parseInt(iniFile.get("NUMERIC_STATS_SAMPLER_SIZE"));
+			}
+		}
 
 		sourceDataScan.setSampleSize(maxRows);
 		sourceDataScan.setScanValues(scanValues);
@@ -454,7 +481,7 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsTopPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsTopPanel.add(new JLabel("Max distinct values "));
-		scanValuesCount = new JComboBox<>(new String[] { "100", "1,000", "10,000" });
+		scanValuesCount = new JComboBox<>(new String[] { "100", "1,000", "10,000", "100,000" });
 		scanValuesCount.setSelectedIndex(1);
 		scanValuesCount.setToolTipText("Maximum number of distinct values per field to be reported");
 		scanOptionsTopPanel.add(scanValuesCount);
@@ -478,7 +505,7 @@ public class WhiteRabbitMain implements ActionListener {
 		scanOptionsLowerPanel.add(Box.createHorizontalGlue());
 
 		scanOptionsLowerPanel.add(new JLabel("Numeric stats reservoir size: "));
-		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million"});
+		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million" });
 		numericStatsSampleSize.setSelectedIndex(0);
 		numericStatsSampleSize.setToolTipText("Maximum number of rows used to calculate numeric statistics");
 		scanOptionsLowerPanel.add(numericStatsSampleSize);
@@ -537,7 +564,7 @@ public class WhiteRabbitMain implements ActionListener {
 		targetPanel.setLayout(new GridLayout(0, 2));
 		targetPanel.setBorder(BorderFactory.createTitledBorder("Target data location"));
 		targetPanel.add(new JLabel("Data type"));
-		targetType = new JComboBox<>(new String[] { "Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL" });
+		targetType = new JComboBox<>(new String[] {"Delimited text files", "MySQL", "Oracle", "SQL Server", "PostgreSQL", "PDW"});
 		targetType.setToolTipText("Select the type of source data available");
 		targetType.addItemListener(event -> {
 			targetIsFiles = event.getItem().toString().equals("Delimited text files");
@@ -791,7 +818,7 @@ public class WhiteRabbitMain implements ActionListener {
 						JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
-			if (sourceDelimiterField.getText().toLowerCase().equals("tab"))
+			if (sourceDelimiterField.getText().equalsIgnoreCase("tab"))
 				dbSettings.delimiter = '\t';
 			else
 				dbSettings.delimiter = sourceDelimiterField.getText().charAt(0);
@@ -822,7 +849,7 @@ public class WhiteRabbitMain implements ActionListener {
 						dbSettings.domain = parts[0];
 					}
 				}
-			} if (sourceType.getSelectedItem().toString().equals("PDW")) {
+			} else if (sourceType.getSelectedItem().toString().equals("PDW")) {
 				dbSettings.dbType = DbType.PDW;
 				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
 					String[] parts = sourceUserField.getText().split("/");
@@ -894,12 +921,9 @@ public class WhiteRabbitMain implements ActionListener {
 		if (targetType.getSelectedItem().equals("Delimited text files")) {
 			dbSettings.sourceType = DbSettings.SourceType.CSV_FILES;
 
-			switch((String) targetCSVFormat.getSelectedItem()) {
+			switch(targetCSVFormat.getSelectedItem().toString()) {
 				case "Default (comma, CRLF)":
 					dbSettings.csvFormat = CSVFormat.DEFAULT;
-					break;
-				case "RFC4180":
-					dbSettings.csvFormat = CSVFormat.RFC4180;
 					break;
 				case "Excel CSV":
 					dbSettings.csvFormat = CSVFormat.EXCEL;
@@ -913,37 +937,42 @@ public class WhiteRabbitMain implements ActionListener {
 				default:
 					dbSettings.csvFormat = CSVFormat.RFC4180;
 			}
-
 		} else {
 			dbSettings.sourceType = DbSettings.SourceType.DATABASE;
 			dbSettings.user = targetUserField.getText();
 			dbSettings.password = targetPasswordField.getText();
 			dbSettings.server = targetServerField.getText();
 			dbSettings.database = targetDatabaseField.getText();
-			if (targetType.getSelectedItem().toString().equals("MySQL"))
-				dbSettings.dbType = DbType.MYSQL;
-			else if (targetType.getSelectedItem().toString().equals("Oracle"))
-				dbSettings.dbType = DbType.ORACLE;
-			else if (sourceType.getSelectedItem().toString().equals("PostgreSQL"))
-				dbSettings.dbType = DbType.POSTGRESQL;
-			else if (sourceType.getSelectedItem().toString().equals("SQL Server")) {
-				dbSettings.dbType = DbType.MSSQL;
-				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
-					String[] parts = sourceUserField.getText().split("/");
-					if (parts.length == 2) {
-						dbSettings.user = parts[1];
-						dbSettings.domain = parts[0];
+			switch(targetType.getSelectedItem().toString()) {
+				case "MySQL":
+					dbSettings.dbType = DbType.MYSQL;
+					break;
+				case "Oracle":
+					dbSettings.dbType = DbType.ORACLE;
+					break;
+				case "PostgreSQL":
+					dbSettings.dbType = DbType.POSTGRESQL;
+					break;
+				case "SQL Server":
+					dbSettings.dbType = DbType.MSSQL;
+					if (targetUserField.getText().length() != 0) { // Not using windows authentication
+						String[] parts = targetUserField.getText().split("/");
+						if (parts.length == 2) {
+							dbSettings.user = parts[1];
+							dbSettings.domain = parts[0];
+						}
 					}
-				}
-			} else if (sourceType.getSelectedItem().toString().equals("PDW")) {
-				dbSettings.dbType = DbType.PDW;
-				if (sourceUserField.getText().length() != 0) { // Not using windows authentication
-					String[] parts = sourceUserField.getText().split("/");
-					if (parts.length == 2) {
-						dbSettings.user = parts[1];
-						dbSettings.domain = parts[0];
+					break;
+				case "PDW":
+					dbSettings.dbType = DbType.PDW;
+					if (targetUserField.getText().length() != 0) { // Not using windows authentication
+						String[] parts = targetUserField.getText().split("/");
+						if (parts.length == 2) {
+							dbSettings.user = parts[1];
+							dbSettings.domain = parts[0];
+						}
 					}
-				}
+					break;
 			}
 
 			if (dbSettings.database.trim().length() == 0) {
@@ -971,31 +1000,10 @@ public class WhiteRabbitMain implements ActionListener {
 					return;
 			}
 		}
-		int rowCount = 0;
-		if (scanRowCount.getSelectedItem().toString().equals("100,000"))
-			rowCount = 100000;
-		else if (scanRowCount.getSelectedItem().toString().equals("500,000"))
-			rowCount = 500000;
-		else if (scanRowCount.getSelectedItem().toString().equals("1 million"))
-			rowCount = 1000000;
-		if (scanRowCount.getSelectedItem().toString().equals("all"))
-			rowCount = -1;
 
-		int valuesCount = 0;
-		if (scanValuesCount.getSelectedItem().toString().equals("100"))
-			valuesCount = 100;
-		else if (scanValuesCount.getSelectedItem().toString().equals("1,000"))
-			valuesCount = 1000;
-		else if (scanValuesCount.getSelectedItem().toString().equals("10,000"))
-			valuesCount = 10000;
-
-		int numStatsSamplerSize = 0;
-		if (numericStatsSampleSize.getSelectedItem().toString().equals("100,000"))
-			numStatsSamplerSize = 100000;
-		else if (numericStatsSampleSize.getSelectedItem().toString().equals("500,000"))
-			numStatsSamplerSize = 500000;
-		else if (numericStatsSampleSize.getSelectedItem().toString().equals("1 million"))
-			numStatsSamplerSize = 1000000;
+		int rowCount = StringUtilities.numericOptionToInt(scanRowCount.getSelectedItem().toString());
+		int valuesCount = StringUtilities.numericOptionToInt(scanValuesCount.getSelectedItem().toString());
+		int numStatsSamplerSize = StringUtilities.numericOptionToInt(numericStatsSampleSize.getSelectedItem().toString());
 
 		ScanThread scanThread = new ScanThread(
 				rowCount,
@@ -1083,12 +1091,12 @@ public class WhiteRabbitMain implements ActionListener {
 		}
 	}
 
-	private class DBTableSelectionDialog extends JDialog implements ActionListener {
+	private static class DBTableSelectionDialog extends JDialog implements ActionListener {
 		private static final long	serialVersionUID	= 4527207331482143091L;
-		private JButton				yesButton			= null;
-		private JButton				noButton			= null;
+		private final JButton				yesButton;
+		private final JButton				noButton;
 		private boolean				answer				= false;
-		private JList<String>		list;
+		private final JList<String>		list;
 
 		public boolean getAnswer() {
 			return answer;
@@ -1106,7 +1114,7 @@ public class WhiteRabbitMain implements ActionListener {
 			JLabel message = new JLabel("Select tables");
 			panel.add(message, BorderLayout.NORTH);
 
-			list = new JList<String>(tableNames.split("\t"));
+			list = new JList<>(tableNames.split("\t"));
 			JScrollPane scrollPane = new JScrollPane(list);
 			panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -1141,11 +1149,8 @@ public class WhiteRabbitMain implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		switch (event.getActionCommand()) {
-			case ACTION_CMD_HELP:
-				doOpenDocumentation();
-				break;
-
+		if (ACTION_CMD_HELP.equals(event.getActionCommand())) {
+			doOpenDocumentation();
 		}
 	}
 

@@ -2,6 +2,7 @@ TABLE_NAME,COLUMN_NAME,IS_NULLABLE,DATA_TYPE,DESCRIPTION
 STEM_TABLE,DOMAIN_ID,NO,CHARACTER VARYING,"A foreign key idenfifying the domain this event belongs to. The domain drives the target CDM table this event will be recorded in.  If one is not set specify a default domain."
 STEM_TABLE,PERSON_ID,NO,INTEGER,"A foreign key identifier to the Person. The demographic details of that Person are stored in the PERSON table."
 STEM_TABLE,VISIT_OCCURRENCE_ID,YES,INTEGER,"A foreign key to the visit in the VISIT table."
+STEM_TABLE,VISIT_DETAIL_ID,YES,INTEGER,"A foreign key to the visit detail in the VISIT_DETAIL table."
 STEM_TABLE,PROVIDER_ID,YES,INTEGER,"A foreign key to the Provider in the PROVIDER table who was responsible for capturing this event."
 STEM_TABLE,ID,NO,INTEGER,"A unique identifier for identifying the event."
 STEM_TABLE,CONCEPT_ID,NO,INTEGER,"A foreign key that refers to a Standard Condition Concept identifier in the Standardized Vocabularies."
@@ -19,7 +20,6 @@ STEM_TABLE,LOT_NUMBER,YES,CHARACTER VARYING,"An identifier assigned to a particu
 STEM_TABLE,MODIFIER_CONCEPT_ID,YES,INTEGER,A foreign key to a Standard Concept identifier for a modifier (e.g. bilateral)
 STEM_TABLE,MODIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,The source code for the modifier as it appears in the source data.
 STEM_TABLE,OPERATOR_CONCEPT_ID,YES,INTEGER,"A foreign key identifier to the predefined Concept in the Standardized Vocabularies reflecting the mathematical operator that is applied to the value_as_number. Operators are <, ?, =, ?, >."
-STEM_TABLE,MODIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,"The source code for the modifier as it appears in the source data."
 STEM_TABLE,QUANTITY,YES,INTEGER,"The number of individual Devices/Procedures/Drugs used for the exposure."
 STEM_TABLE,RANGE_HIGH,YES,FLOAT,"The upper limit of the normal range of the Measurement. The upper range is assumed to be of the same unit of measure as the Measurement value."
 STEM_TABLE,RANGE_LOW,YES,FLOAT,"The lower limit of the normal range of the Measurement result. The lower range is assumed to be of the same unit of measure as the Measurement value."
@@ -44,3 +44,4 @@ STEM_TABLE,CONDITION_STATUS_CONCEPT_ID,YES,CHARACTER VARYING,"A foreign key to t
 STEM_TABLE,CONDITION_STATUS_SOURCE_VALUE,YES,INTEGER,"The source code as it appears in the source data"
 STEM_TABLE,QUALIFIER_CONCEPT_ID,YES,INTEGER,"A foreign key to a Standard Concept ID for a qualifier (e.g., severity of drug-drug interaction alert)"
 STEM_TABLE,QUALIFIER_SOURCE_VALUE,YES,CHARACTER VARYING,"The source value associated with a qualifier to characterize the observation"
+STEM_TABLE,MEASUREMENT_TIME,YES,CHARACTER VARYING,"The time of the Measurement."

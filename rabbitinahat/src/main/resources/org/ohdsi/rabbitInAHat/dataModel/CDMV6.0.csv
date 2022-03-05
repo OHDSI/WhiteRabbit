@@ -35,8 +35,8 @@ provider_id,No,INTEGER,A foreign key to the provider in the provider table who w
 care_site_id,No,INTEGER,A foreign key to the care site in the care site table that was visited.,visit_occurrence,cdm
 visit_source_value,No,VARCHAR(50),The source code for the visit as it appears in the source data.,visit_occurrence,cdm
 visit_source_concept_id,Yes,INTEGER,A foreign key to a Concept that refers to the code used in the source.,visit_occurrence,cdm
-admitting_source_concept_id,Yes,INTEGER,A foreign key to the predefined concept in the Place of Service Vocabulary reflecting the admitting source for a visit.,visit_occurrence,cdm
-admitting_source_value,No,VARCHAR(50),The source code for the admitting source as it appears in the source data.,visit_occurrence,cdm
+admitted_from_concept_id,Yes,INTEGER,Use this field to determine where the patient was admitted from. This concept is part of the visit domain and can indicate if a patient was admitted to the hospital from a long-term care facility, for example. ,visit_occurrence,cdm
+admitted_from_source_value,No,VARCHAR(50),The source code for the admitting source as it appears in the source data.,visit_occurrence,cdm
 discharge_to_concept_id,Yes,INTEGER,A foreign key to the predefined concept in the Place of Service Vocabulary reflecting the discharge disposition for a visit.,visit_occurrence,cdm
 discharge_to_source_value,No,VARCHAR(50),The source code for the discharge disposition as it appears in the source data.,visit_occurrence,cdm
 preceding_visit_occurrence_id,No,INTEGER,A foreign key to the VISIT_OCCURRENCE table of the visit immediately preceding this visit,visit_occurrence,cdm

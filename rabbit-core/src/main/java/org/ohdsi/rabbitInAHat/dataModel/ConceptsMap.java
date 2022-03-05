@@ -20,6 +20,7 @@ package org.ohdsi.rabbitInAHat.dataModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,6 +29,7 @@ import java.util.*;
 public class ConceptsMap {
 
     private Map<String, Map<String, List<Concept>>> conceptMap;
+    public String vocabularyVersion;
 
     private ConceptsMap() {
         this.conceptMap = new HashMap<>();
@@ -40,7 +42,10 @@ public class ConceptsMap {
 
     private void load(String filename) throws IOException{
         try (InputStream conceptStream = Database.class.getResourceAsStream(filename)) {
-            for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(conceptStream))) {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conceptStream));
+            vocabularyVersion = bufferedReader.readLine();
+
+            for (CSVRecord conceptRow : CSVFormat.RFC4180.withHeader().parse(bufferedReader)) {
                 String omopTableName = conceptRow.get("omop_cdm_table");
                 String omopFieldName = conceptRow.get("omop_cdm_field");
 
