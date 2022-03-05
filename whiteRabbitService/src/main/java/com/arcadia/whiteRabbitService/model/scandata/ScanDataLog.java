@@ -1,5 +1,6 @@
 package com.arcadia.whiteRabbitService.model.scandata;
 
+import com.arcadia.whiteRabbitService.model.Log;
 import com.arcadia.whiteRabbitService.model.LogStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Data
@@ -18,7 +21,7 @@ import static javax.persistence.GenerationType.SEQUENCE;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "scan_data_logs")
-public class ScanDataLog {
+public class ScanDataLog implements Log {
     @Id
     @SequenceGenerator(name = "scan_data_log_id_sequence", sequenceName = "scan_data_log_id_sequence")
     @GeneratedValue(strategy = SEQUENCE, generator = "scan_data_log_id_sequence")
@@ -40,7 +43,20 @@ public class ScanDataLog {
     private Integer percent;
 
     @JsonIgnore
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = LAZY)
     @JoinColumn(name = "conversion_id")
     private ScanDataConversion scanDataConversion;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScanDataLog that = (ScanDataLog) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

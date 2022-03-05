@@ -6,12 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ohdsi.whiteRabbit.DbSettings;
-import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
+import java.util.Objects;
 
 import static com.arcadia.whiteRabbitService.util.DbSettingsAdapter.adaptDbSettings;
 import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.SEQUENCE;
 
@@ -20,40 +23,39 @@ import static javax.persistence.GenerationType.SEQUENCE;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "scan_db_settings")
-public class ScanDbSetting implements ScanDataSettings {
+public class ScanDbSettings implements ScanDataSettings {
     @Id
     @SequenceGenerator(name = "scan_db_setting_id_sequence", sequenceName = "scan_db_setting_id_sequence")
     @GeneratedValue(strategy = SEQUENCE, generator = "scan_db_setting_id_sequence")
     private Long id;
 
-    @NonNull
+    @NotNull
     @Column(nullable = false)
     private String dbType;
 
-    @NonNull
+    @NotNull
     @Column(nullable = false)
     private String server;
 
-    @NonNull
+    @NotNull
     @Column(nullable = false)
     private Integer port;
 
-    @NonNull
+    @NotNull
     @Column(name = "username", nullable = false)
     private String user;
 
-    @NonNull
+    @NotNull
     @Transient
     private String password;
 
-    @NonNull
+    @NotNull
     @Column(name = "database_name", nullable = false)
     private String database;
 
     @Column(name = "schema_name")
     private String schema;
 
-    @NonNull
     @Transient
     private String tablesToScan;
 
@@ -62,7 +64,7 @@ public class ScanDbSetting implements ScanDataSettings {
     @JoinColumn(name = "scan_data_conversion_id", referencedColumnName = "id")
     private ScanDataConversion scanDataConversion;
 
-    @OneToOne(cascade = ALL, fetch = LAZY, optional = false, orphanRemoval = true)
+    @OneToOne(cascade = PERSIST, fetch = LAZY, optional = false, orphanRemoval = true)
     @JoinColumn(name = "scan_params_id", referencedColumnName = "id")
     private ScanDataParams scanDataParams;
 
@@ -74,5 +76,18 @@ public class ScanDbSetting implements ScanDataSettings {
     @Override
     public String scanReportFileName() {
         return database + ".xlsx";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScanDbSettings that = (ScanDbSettings) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

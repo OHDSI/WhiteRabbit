@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 
 import static com.arcadia.whiteRabbitService.model.LogStatus.*;
-import static com.arcadia.whiteRabbitService.service.ScanDataConversionServiceTest.createConversion;
+import static com.arcadia.whiteRabbitService.service.ScanDataConversionServiceTest.createScanDataConversion;
 import static com.arcadia.whiteRabbitService.util.LoggerUtil.LOG_MESSAGE_MAX_LENGTH;
 import static com.arcadia.whiteRabbitService.util.LoggerUtilTest.generateRandomString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,12 +25,13 @@ class DatabaseLoggerTest {
     @Autowired
     ScanDataConversionRepository conversionRepository;
 
-    DatabaseLogger databaseLogger;
+    DatabaseLogger<ScanDataLog> databaseLogger;
 
     @BeforeEach
     void setUp() {
-        ScanDataConversion conversion = conversionRepository.save(createConversion());
-        databaseLogger = new DatabaseLogger(logRepository, conversion);
+        ScanDataConversion conversion = conversionRepository.save(createScanDataConversion());
+        ScanDataLogCreator logCreator = new ScanDataLogCreator(conversion);
+        databaseLogger = new DatabaseLogger<>(logRepository, logCreator);
     }
 
     @Test

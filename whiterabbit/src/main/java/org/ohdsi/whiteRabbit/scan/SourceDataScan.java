@@ -117,6 +117,8 @@ public class SourceDataScan {
 		database = dbSettings.database;
 
 		tableToFieldInfos = new HashMap<>();
+		int tablesCount = dbSettings.tables.size();
+		logger.setItemsCount(tablesCount);
 		logger.info("Started new scan of " + dbSettings.tables.size() + " tables...");
 		if (sourceType == DbSettings.SourceType.CSV_FILES) {
 			if (!scanValues)

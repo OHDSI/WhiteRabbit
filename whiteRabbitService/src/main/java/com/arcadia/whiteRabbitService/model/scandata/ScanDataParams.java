@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
+import java.util.Objects;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
@@ -22,7 +24,7 @@ public class ScanDataParams {
     @GeneratedValue(strategy = SEQUENCE, generator = "scan_data_param_id_sequence")
     private Long id;
 
-    @NonNull
+    @NotNull
     @Column(name = "scan_values", nullable = false)
     private Boolean scanValues;
 
@@ -35,7 +37,7 @@ public class ScanDataParams {
     @Column(name = "sample_size")
     private Integer sampleSize;
 
-    @NonNull
+    @NotNull
     @Column(name = "calculate_numeric_stats", nullable = false)
     private Boolean calculateNumericStats;
 
@@ -44,9 +46,22 @@ public class ScanDataParams {
 
     @JsonIgnore
     @OneToOne(mappedBy = "scanDataParams", fetch = FetchType.LAZY)
-    private ScanDbSetting scanDbSettings;
+    private ScanDbSettings scanDbSettings;
 
     @JsonIgnore
     @OneToOne(mappedBy = "scanDataParams", fetch = FetchType.LAZY)
     private ScanFilesSettings scanFilesSettings;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScanDataParams that = (ScanDataParams) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

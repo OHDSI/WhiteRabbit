@@ -1,7 +1,7 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
-import com.arcadia.whiteRabbitService.model.scandata.ScanDbSetting;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDbSettings;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
@@ -16,11 +16,9 @@ import java.io.File;
 
 import static com.arcadia.whiteRabbitService.model.ConversionStatus.IN_PROGRESS;
 import static com.arcadia.whiteRabbitService.service.DbSettingsAdapterTest.createTestDbSettings;
-import static com.arcadia.whiteRabbitService.service.FilesManagerServiceTest.readFileFromResources;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -54,34 +52,34 @@ public class ScanDataConversionServiceTest {
 
     @Test
     void successfullyRunConversion() throws InterruptedException {
-        ScanDataConversion conversion = createConversion();
+        ScanDataConversion conversion = createScanDataConversion();
         when(whiteRabbitFacade.generateScanReport(eq(conversion.getSettings()), any(), any()))
                 .thenReturn(scanReportFile);
         conversionService.runConversion(conversion);
 
-        Mockito.verify(resultService).saveCompletedResult(scanReportFile, conversion);
+        Mockito.verify(resultService).saveCompletedResult(scanReportFile, conversion.getId());
     }
 
     @Test
     void saveAbortedResult() throws InterruptedException {
-        ScanDataConversion conversion = createConversion();
+        ScanDataConversion conversion = createScanDataConversion();
         when(whiteRabbitFacade.generateScanReport(eq(conversion.getSettings()), any(), any()))
                 .thenThrow(new InterruptedException());
         assertThrows(FailedToScanException.class, () -> conversionService.runConversion(conversion));
-        Mockito.verify(resultService).saveAbortedResult(conversion);
+        Mockito.verify(resultService).saveAbortedResult(conversion.getId());
     }
 
     @Test
     void saveFailedResult() throws InterruptedException {
-        ScanDataConversion conversion = createConversion();
+        ScanDataConversion conversion = createScanDataConversion();
         when(whiteRabbitFacade.generateScanReport(eq(conversion.getSettings()), any(), any()))
                 .thenThrow(new RuntimeException());
         assertThrows(FailedToScanException.class, () -> conversionService.runConversion(conversion));
-        Mockito.verify(resultService).saveFailedResult(eq(conversion), any());
+        Mockito.verify(resultService).saveFailedResult(eq(conversion.getId()));
     }
 
-    public static ScanDataConversion createConversion() {
-        ScanDbSetting settings = createTestDbSettings("postgresql", 5433);
+    public static ScanDataConversion createScanDataConversion() {
+        ScanDbSettings settings = createTestDbSettings("postgresql", 5433);
         ScanDataConversion conversion = ScanDataConversion.builder()
                 .username("Perseus")
                 .project("Test")

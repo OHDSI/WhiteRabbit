@@ -5,9 +5,9 @@ import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
 import java.io.File;
 
 public interface ScanDataResultService {
-    void saveCompletedResult(File scanReportFile, ScanDataConversion conversion);
+    void saveCompletedResult(File scanReportFile, Long conversionId);
 
-    void saveFailedResult(ScanDataConversion conversion, String errorMessage);
+    void saveFailedResult(Long conversionId);
 
-    void saveAbortedResult(ScanDataConversion conversion);
+    void saveAbortedResult(Long conversionId);
 }

@@ -1,13 +1,11 @@
 package com.arcadia.whiteRabbitService.service.error;
 
-public class FailedToGenerateFakeData extends Exception {
-    private final static String message = "Failed to generate fake data";
-
-    public FailedToGenerateFakeData() {
+public class FailedToGenerateFakeData extends RuntimeException {
+    public FailedToGenerateFakeData(String message) {
         super(message);
     }
 
-    public FailedToGenerateFakeData(Throwable cause) {
+    public FailedToGenerateFakeData(String message, Throwable cause) {
         super(message, cause);
     }
 }

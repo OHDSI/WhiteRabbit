@@ -58,14 +58,14 @@ public class FakeDataGenerator {
 	}
 
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder,
-							 boolean doUniformSampling) throws InterruptedException, SQLException {
+							 boolean doUniformSampling) throws InterruptedException {
 		generateData(dbSettings, maxRowsPerTable, filename, folder, doUniformSampling,
 				null, true);
 	}
 
 	/* Schema name can be null */
 	public void generateData(DbSettings dbSettings, int maxRowsPerTable, String filename, String folder,
-							 boolean doUniformSampling, String schemaName, boolean createTables) throws InterruptedException, SQLException {
+							 boolean doUniformSampling, String schemaName, boolean createTables) throws InterruptedException {
 		this.maxRowsPerTable = maxRowsPerTable;
 		DbSettings.SourceType targetType = dbSettings.sourceType;
 		this.doUniformSampling = doUniformSampling;
@@ -73,19 +73,27 @@ public class FakeDataGenerator {
 		logger.info("Starting creation of fake data");
 
 		Database database = Database.generateModelFromScanReport(filename, schemaName);
+		logger.setItemsCount(database.getTables().size());
 
 		if (targetType == DbSettings.SourceType.DATABASE) {
 			connection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType);
 			connection.use(dbSettings.database);
 			for (Table table : database.getTables()) {
+				interrupter.checkWasInterrupted();
 				if (table.getName().toLowerCase().endsWith(".csv"))
 					table.setName(table.getName().substring(0, table.getName().length() - 4));
 				logger.info("Generating table " + table.getName());
-				interrupter.checkWasInterrupted();
 				if (createTables) {
 					createTable(table);
 				}
-				connection.insertIntoTable(generateRows(table).iterator(), table.getName(), false);
+				try {
+					connection.insertIntoTable(generateRows(table).iterator(), table.getName(), false);
+					logger.incrementScannedItems();
+					logger.info("Generated table " + table.getName());
+				} catch (SQLException e) {
+					connection.close();
+					throw new RuntimeException(e);
+				}
 			}
 			connection.close();
 		} else {

@@ -5,8 +5,6 @@ server:
   servlet:
     context-path: /white-rabbit
 
-files-manager-url: http://localhost:10500/files-manager
-
 spring:
   application:
     name: White Rabbit
@@ -26,3 +24,13 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+
+files-manager-url: http://localhost:10500/files-manager
+
+fake-data-db:
+  db-type: PostgreSQL
+  server: jnjcicdu1
+  port: 5431
+  database: cdm_souffleur
+  user: postgres
+  password: 5eC_DkMr^3

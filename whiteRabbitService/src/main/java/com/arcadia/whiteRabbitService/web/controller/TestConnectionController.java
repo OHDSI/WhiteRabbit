@@ -1,6 +1,6 @@
 package com.arcadia.whiteRabbitService.web.controller;
 
-import com.arcadia.whiteRabbitService.model.scandata.ScanDbSetting;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDbSettings;
 import com.arcadia.whiteRabbitService.service.WhiteRabbitFacade;
 import com.arcadia.whiteRabbitService.service.response.TestConnectionResultResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +16,13 @@ import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/api/test-connection")
-@Validated
 @RequiredArgsConstructor
 @Slf4j
 public class TestConnectionController {
     private final WhiteRabbitFacade whiteRabbitFacade;
 
     @PostMapping
-    public ResponseEntity<TestConnectionResultResponse> testConnection(@RequestBody ScanDbSetting dbSetting) {
+    public ResponseEntity<TestConnectionResultResponse> testConnection(@Validated @RequestBody ScanDbSettings dbSetting) {
         log.info("Rest request to test connection with settings {}", dbSetting);
         return ok(whiteRabbitFacade.testConnection(dbSetting));
     }

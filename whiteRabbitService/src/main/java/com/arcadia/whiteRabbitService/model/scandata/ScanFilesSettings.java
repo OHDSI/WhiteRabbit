@@ -2,15 +2,17 @@ package com.arcadia.whiteRabbitService.model.scandata;
 
 import lombok.*;
 import org.ohdsi.whiteRabbit.DbSettings;
-import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import static com.arcadia.whiteRabbitService.util.DbSettingsAdapter.adaptDelimitedTextFileSettings;
 import static com.arcadia.whiteRabbitService.util.FileUtil.deleteRecursive;
 import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.SEQUENCE;
 
@@ -25,10 +27,11 @@ public class ScanFilesSettings implements ScanDataSettings {
     @GeneratedValue(strategy = SEQUENCE, generator = "scan_files_setting_id_sequence")
     private Long id;
 
-    @NonNull
+    @NotNull
     @Column(name = "file_type", nullable = false)
     private String fileType;
 
+    @NotNull
     @Column(nullable = false)
     private String delimiter;
 
@@ -38,11 +41,12 @@ public class ScanFilesSettings implements ScanDataSettings {
     @Transient
     private String directory;
 
-    @OneToOne(cascade = ALL, fetch = LAZY, optional = false)
+    @OneToOne(fetch = LAZY, optional = false)
     @JoinColumn(name = "scan_data_conversion_id", referencedColumnName = "id")
     private ScanDataConversion scanDataConversion;
 
-    @OneToOne(cascade = ALL, fetch = LAZY, optional = false)
+    @NotNull
+    @OneToOne(cascade = PERSIST, fetch = LAZY, optional = false)
     @JoinColumn(name = "scan_params_id", referencedColumnName = "id")
     private ScanDataParams scanDataParams;
 
@@ -60,5 +64,18 @@ public class ScanFilesSettings implements ScanDataSettings {
     @Override
     public String scanReportFileName() {
         return "scan-report.xlsx";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScanFilesSettings that = (ScanFilesSettings) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -15,18 +17,19 @@ import java.io.File;
 
 import static com.arcadia.whiteRabbitService.model.ConversionStatus.*;
 import static com.arcadia.whiteRabbitService.service.FilesManagerServiceTest.readFileFromResources;
-import static com.arcadia.whiteRabbitService.service.ScanDataConversionServiceTest.createConversion;
+import static com.arcadia.whiteRabbitService.service.ScanDataConversionServiceTest.createScanDataConversion;
 import static com.arcadia.whiteRabbitService.service.ScanDataResultServiceImpl.DATA_KEY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@SpringBootTest
 @ExtendWith(SpringExtension.class)
 class ScanDataResultServiceTest {
-    @MockBean
-    ScanDataResultRepository resultRepository;
-
-    @MockBean
+    @Autowired
     ScanDataConversionRepository conversionRepository;
+
+    @Autowired
+    ScanDataResultRepository resultRepository;
 
     @MockBean
     FilesManagerService filesManagerService;
@@ -36,8 +39,8 @@ class ScanDataResultServiceTest {
     @BeforeEach
     void setUp() {
         resultService = new ScanDataResultServiceImpl(
-                resultRepository,
                 conversionRepository,
+                resultRepository,
                 filesManagerService
         );
     }
@@ -46,38 +49,39 @@ class ScanDataResultServiceTest {
     void saveCompletedResult() {
         String fileName = "mdcd_native_test.xlsx";
         File scanReportFile = readFileFromResources(getClass(), fileName);
-        ScanDataConversion conversion = createConversion();
         String fileHash = "test-hash";
-
+        ScanDataConversion conversion = createScanDataConversion();
+        conversionRepository.save(conversion);
         Mockito.when(filesManagerService.saveFile(Mockito.any()))
                 .thenReturn(new FileSaveResponse(fileHash, conversion.getUsername(), DATA_KEY));
-
-        resultService.saveCompletedResult(scanReportFile, conversion);
+        resultService.saveCompletedResult(scanReportFile, conversion.getId());
+        conversion = conversionRepository.findById(conversion.getId()).get();
 
         assertNotNull(conversion.getResult());
-        assertEquals(conversion.getStatusCode(), COMPLETED.getCode());
-        assertEquals(conversion.getStatusName(), COMPLETED.getName());
+        assertEquals(COMPLETED.getCode(), conversion.getStatusCode());
+        assertEquals(COMPLETED.getName(), conversion.getStatusName());
         assertEquals(fileHash, conversion.getResult().getFileKey());
     }
 
     @Test
     void saveFailedResult() {
-        ScanDataConversion conversion = createConversion();
-        String errorMessage = "Test error";
+        ScanDataConversion conversion = createScanDataConversion();
+        conversionRepository.save(conversion);
+        resultService.saveFailedResult(conversion.getId());
+        conversion = conversionRepository.findById(conversion.getId()).get();
 
-        resultService.saveFailedResult(conversion, errorMessage);
-
-        assertEquals(conversion.getStatusCode(), FAILED.getCode());
-        assertEquals(conversion.getStatusName(), FAILED.getName());
+        assertEquals(FAILED.getCode(), conversion.getStatusCode());
+        assertEquals(FAILED.getName(), conversion.getStatusName());
     }
 
     @Test
     void saveAbortedResult() {
-        ScanDataConversion conversion = createConversion();
+        ScanDataConversion conversion = createScanDataConversion();
+        conversionRepository.save(conversion);
+        resultService.saveAbortedResult(conversion.getId());
+        conversion = conversionRepository.findById(conversion.getId()).get();
 
-        resultService.saveAbortedResult(conversion);
-
-        assertEquals(conversion.getStatusCode(), ABORTED.getCode());
-        assertEquals(conversion.getStatusName(), ABORTED.getName());
+        assertEquals(ABORTED.getCode(), conversion.getStatusCode());
+        assertEquals(ABORTED.getName(), conversion.getStatusName());
     }
 }

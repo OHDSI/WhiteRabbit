@@ -1,5 +1,6 @@
 package com.arcadia.whiteRabbitService.model.scandata;
 
+import com.arcadia.whiteRabbitService.model.Conversion;
 import com.arcadia.whiteRabbitService.model.ConversionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -8,10 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-
 import java.util.List;
+import java.util.Objects;
 
-import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.*;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.SEQUENCE;
 
@@ -20,7 +21,7 @@ import static javax.persistence.GenerationType.SEQUENCE;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "scan_data_conversions")
-public class ScanDataConversion {
+public class ScanDataConversion implements Conversion<ScanDataLog> {
     @Id
     @SequenceGenerator(name = "scan_data_conversion_id_sequence", sequenceName = "scan_data_conversion_id_sequence")
     @GeneratedValue(strategy = SEQUENCE, generator = "scan_data_conversion_id_sequence")
@@ -39,19 +40,19 @@ public class ScanDataConversion {
     private String statusName;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "scanDataConversion", fetch = LAZY)
+    @OneToMany(mappedBy = "scanDataConversion", fetch = LAZY, orphanRemoval = true)
     private List<ScanDataLog> logs;
 
     @JsonIgnore
-    @OneToOne(cascade = ALL, mappedBy = "scanDataConversion", fetch = LAZY, orphanRemoval = true)
+    @OneToOne(mappedBy = "scanDataConversion", fetch = LAZY, orphanRemoval = true)
     private ScanDataResult result;
 
     @JsonIgnore
-    @OneToOne(cascade = ALL, mappedBy = "scanDataConversion", fetch = LAZY, orphanRemoval = true)
-    private ScanDbSetting dbSettings;
+    @OneToOne(cascade = PERSIST, mappedBy = "scanDataConversion", fetch = LAZY, orphanRemoval = true)
+    private ScanDbSettings dbSettings;
 
     @JsonIgnore
-    @OneToOne(cascade = ALL, mappedBy = "scanDataConversion", fetch = LAZY, orphanRemoval = true)
+    @OneToOne(cascade = PERSIST, mappedBy = "scanDataConversion", fetch = LAZY, orphanRemoval = true)
     private ScanFilesSettings filesSettings;
 
     @JsonIgnore
@@ -69,5 +70,18 @@ public class ScanDataConversion {
     public void setStatus(ConversionStatus status) {
         statusCode = status.getCode();
         statusName = status.getName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScanDataConversion that = (ScanDataConversion) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

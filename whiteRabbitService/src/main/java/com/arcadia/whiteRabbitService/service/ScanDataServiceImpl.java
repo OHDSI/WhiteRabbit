@@ -5,6 +5,8 @@ import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataResultRepository;
 import com.arcadia.whiteRabbitService.service.error.ServerErrorException;
+import com.arcadia.whiteRabbitService.service.response.ConversionWithLogsResponse;
+import com.arcadia.whiteRabbitService.util.ConversionUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static com.arcadia.whiteRabbitService.model.ConversionStatus.ABORTED;
 import static com.arcadia.whiteRabbitService.model.ConversionStatus.IN_PROGRESS;
+import static com.arcadia.whiteRabbitService.util.ConversionUtil.toResponseWithLogs;
 import static com.arcadia.whiteRabbitService.util.FileUtil.createDirectory;
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -37,15 +40,15 @@ public class ScanDataServiceImpl implements ScanDataService {
     @Override
     public ScanDataConversion findConversionById(Long conversionId, String username) {
         ScanDataConversion conversion = conversionRepository.findById(conversionId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Conversion not found by id " + conversionId));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Scan Data Conversion not found by id " + conversionId));
         if (!conversion.getUsername().equals(username)) {
-            throw new ResponseStatusException(FORBIDDEN, "Forbidden get other User conversion logs");
+            throw new ResponseStatusException(FORBIDDEN, "Forbidden get other User Scan Data Conversion logs");
         }
         return conversion;
     }
 
     @Transactional
-    public ScanDataConversion scanDatabaseData(ScanDbSetting settings,
+    public ScanDataConversion scanDatabaseData(ScanDbSettings settings,
                                                String username) {
         String project = settings.getDatabase();
         ScanDataConversion conversion = ScanDataConversion.builder()
@@ -97,13 +100,15 @@ public class ScanDataServiceImpl implements ScanDataService {
     }
 
     @Override
-    public List<ScanDataLog> logs(Long conversionId, String username) {
+    public ConversionWithLogsResponse conversionInfoWithLogs(Long conversionId, String username) {
         ScanDataConversion conversion = findConversionById(conversionId, username);
-        return logRepository
-                .findAllByScanDataConversionId(conversion.getId())
+        List<ScanDataLog> logs = logRepository.findAllByScanDataConversionId(conversion.getId())
                 .stream()
                 .sorted(Comparator.comparing(ScanDataLog::getId))
                 .collect(Collectors.toList());
+        conversion.setLogs(logs);
+
+        return toResponseWithLogs(conversion);
     }
 
     @Transactional

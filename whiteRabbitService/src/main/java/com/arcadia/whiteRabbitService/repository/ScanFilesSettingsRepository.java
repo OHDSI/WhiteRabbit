@@ -3,5 +3,5 @@ package com.arcadia.whiteRabbitService.repository;
 import com.arcadia.whiteRabbitService.model.scandata.ScanFilesSettings;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ScanFilesSettingRepository extends JpaRepository<ScanFilesSettings, Long> {
+public interface ScanFilesSettingsRepository extends JpaRepository<ScanFilesSettings, Long> {
 }

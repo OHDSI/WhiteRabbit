@@ -1,6 +1,6 @@
 package com.arcadia.whiteRabbitService.util;
 
-import com.arcadia.whiteRabbitService.model.scandata.ScanDbSetting;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDbSettings;
 import com.arcadia.whiteRabbitService.model.scandata.ScanFilesSettings;
 import com.arcadia.whiteRabbitService.service.error.DbTypeNotSupportedException;
 import com.arcadia.whiteRabbitService.service.error.DelimitedTextFileNotSupportedException;
@@ -53,7 +53,7 @@ public final class DbSettingsAdapter {
             DbSettings.SourceType.CSV_FILES, fileType -> fileType.toLowerCase().contains("csv")
     );
 
-    public static DbSettings adaptDbSettings(ScanDbSetting dbSetting) throws DbTypeNotSupportedException {
+    public static DbSettings adaptDbSettings(ScanDbSettings dbSetting) throws DbTypeNotSupportedException {
         DbSettings dbSettings = new DbSettings();
 
         dbSettings.sourceType = DbSettings.SourceType.DATABASE;

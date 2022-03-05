@@ -208,7 +208,7 @@ public class RichConnection implements Closeable {
 		try {
 			connection.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 

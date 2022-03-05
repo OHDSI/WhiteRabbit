@@ -5,4 +5,8 @@ public class FailedToScanException extends RuntimeException {
     public FailedToScanException(String message) {
         super(message);
     }
+
+    public FailedToScanException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

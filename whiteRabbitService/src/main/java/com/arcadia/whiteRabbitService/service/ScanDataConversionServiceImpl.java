@@ -1,12 +1,14 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDataLog;
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataSettings;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
 import com.arcadia.whiteRabbitService.service.error.FailedToScanException;
-import com.arcadia.whiteRabbitService.service.util.DatabaseInterrupter;
+import com.arcadia.whiteRabbitService.service.util.ScanDataInterrupter;
 import com.arcadia.whiteRabbitService.service.util.DatabaseLogger;
+import com.arcadia.whiteRabbitService.service.util.ScanDataLogCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -16,12 +18,12 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.concurrent.Future;
 
-import static com.arcadia.whiteRabbitService.service.ScanDataResultServiceImpl.FAILED_TO_SCAN_MESSAGE;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ScanDataConversionServiceImpl implements ScanDataConversionService {
+    public static final String FAILED_TO_SCAN_DATA_MESSAGE = "Failed to scan data";
+
     private final ScanDataLogRepository logRepository;
     private final ScanDataConversionRepository conversionRepository;
     private final WhiteRabbitFacade whiteRabbitFacade;
@@ -31,27 +33,25 @@ public class ScanDataConversionServiceImpl implements ScanDataConversionService 
     @Override
     public Future<Void> runConversion(ScanDataConversion conversion) {
         ScanDataSettings settings = conversion.getSettings();
-        DatabaseLogger logger = new DatabaseLogger(logRepository, conversion);
-        DatabaseInterrupter interrupter = new DatabaseInterrupter(conversionRepository, conversion.getId());
+        ScanDataLogCreator logCreator = new ScanDataLogCreator(conversion);
+        DatabaseLogger<ScanDataLog> logger = new DatabaseLogger<>(logRepository, logCreator);
+        ScanDataInterrupter interrupter = new ScanDataInterrupter(conversionRepository, conversion.getId());
         try {
-            log.info("Started scan data process");
             File scanReportFile = whiteRabbitFacade.generateScanReport(settings, logger, interrupter);
-            log.info("Finished scan data process");
-            resultService.saveCompletedResult(scanReportFile, conversion);
+            resultService.saveCompletedResult(scanReportFile, conversion.getId());
             scanReportFile.delete();
         } catch (InterruptedException e) {
-            logger.info("Scan data process aborted by User");
-            resultService.saveAbortedResult(conversion);
-            throw new FailedToScanException(e.getMessage());
+            resultService.saveAbortedResult(conversion.getId());
+            throw new FailedToScanException(e.getMessage(), e);
         } catch (Exception e) {
             try {
                 logger.error(e.getMessage());
-                logger.error(FAILED_TO_SCAN_MESSAGE);
+                logger.error(FAILED_TO_SCAN_DATA_MESSAGE);
             } catch (Exception logException) {
-                log.error("Can not log scan data error message: " + logException.getMessage());
+                log.error("Can not log message. " + logException.getMessage());
             }
-            resultService.saveFailedResult(conversion, e.getMessage());
-            throw new FailedToScanException(e.getMessage());
+            resultService.saveFailedResult(conversion.getId());
+            throw new FailedToScanException(e.getMessage(), e);
         } finally {
             settings.destroy();
         }

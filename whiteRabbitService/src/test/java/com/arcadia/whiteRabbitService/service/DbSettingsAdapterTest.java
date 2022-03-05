@@ -1,7 +1,7 @@
 package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataParams;
-import com.arcadia.whiteRabbitService.model.scandata.ScanDbSetting;
+import com.arcadia.whiteRabbitService.model.scandata.ScanDbSettings;
 import com.arcadia.whiteRabbitService.util.DbSettingsAdapter;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptFields() {
-        ScanDbSetting settings = createTestDbSettings("Sql Server", 1433);
+        ScanDbSettings settings = createTestDbSettings("Sql Server", 1433);
 
         DbSettings dbSettings = DbSettingsAdapter.adaptDbSettings(settings);
 
@@ -31,7 +31,7 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptMsSqlDbType() {
-        ScanDbSetting settings = createTestDbSettings("SQL SERVER", 1433);
+        ScanDbSettings settings = createTestDbSettings("SQL SERVER", 1433);
         DbSettings wrSettings = DbSettingsAdapter.adaptDbSettings(settings);
 
         assertEquals(wrSettings.dbType, DbType.MSSQL);
@@ -40,13 +40,13 @@ class DbSettingsAdapterTest {
     @SneakyThrows
     @Test
     void testAdaptPostgreDbType() {
-        ScanDbSetting settings = createTestDbSettings("postgresql", 5432);
+        ScanDbSettings settings = createTestDbSettings("postgresql", 5432);
         DbSettings wrSettings = DbSettingsAdapter.adaptDbSettings(settings);
 
         assertEquals(wrSettings.dbType, DbType.POSTGRESQL);
     }
 
-    public static ScanDbSetting createTestDbSettings(String dbType, int port) {
+    public static ScanDbSettings createTestDbSettings(String dbType, int port) {
         String server = "822JNJ16S03V";
         String database = "CPRD";
         String user = "cdm_builder";
@@ -68,7 +68,7 @@ class DbSettingsAdapterTest {
                 .numericStatsSamplerSize(numericStatsSamplerSize)
                 .build();
 
-        return ScanDbSetting
+        return ScanDbSettings
                 .builder()
                 .dbType(dbType)
                 .user(user)
