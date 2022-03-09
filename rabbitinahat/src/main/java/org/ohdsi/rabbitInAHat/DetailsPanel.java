@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.*;
@@ -41,9 +42,6 @@ import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
-import javax.swing.table.TableColumn;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.text.Document;
@@ -54,19 +52,19 @@ import org.ohdsi.rabbitInAHat.dataModel.*;
 
 public class DetailsPanel extends JPanel implements DetailsListener {
 
-	public static Font			font				= new Font("default", Font.PLAIN, 18);
+	public static Font font = new Font("default", Font.PLAIN, 18);
 
-	private static final long	serialVersionUID	= 4477553676983048468L;
-	private Object				object;
-	private TablePanel			tablePanel;
-	private FieldPanel			fieldPanel;
-	private TargetFieldPanel	targetFieldPanel;
-	private ItemToItemMapPanel	itemToItemMapPanel;
-	private CardLayout			cardLayout			= new CardLayout();
-	private NumberFormat	    numberFormat 	    = NumberFormat.getNumberInstance();
-	private NumberFormat	    percentageFormat    = NumberFormat.getPercentInstance();
+	private static final long serialVersionUID = 4477553676983048468L;
+	private Object object;
+	private final TablePanel tablePanel;
+	private final FieldPanel fieldPanel;
+	private final TargetFieldPanel targetFieldPanel;
+	private final ItemToItemMapPanel itemToItemMapPanel;
+	private final CardLayout cardLayout = new CardLayout();
+	private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
+	private final NumberFormat percentageFormat = NumberFormat.getPercentInstance();
 
-	private UndoManager			undoManager;
+	private final UndoManager undoManager;
 	
 	public DetailsPanel() {
 		UIManager.put("Label.font", font);
@@ -132,12 +130,7 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 	private void addUndoToTextArea(JTextArea jta){
 		Document doc = jta.getDocument();
-		doc.addUndoableEditListener(new UndoableEditListener() {
-		    @Override
-		    public void undoableEditHappened(UndoableEditEvent e) {
-		        undoManager.addEdit(e.getEdit());
-		    }
-		});
+		doc.addUndoableEditListener(e -> undoManager.addEdit(e.getEdit()));
 		
 		InputMap im = jta.getInputMap(JComponent.WHEN_FOCUSED);
 		ActionMap am = jta.getActionMap();
@@ -146,9 +139,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo");
 
 		am.put("Undo", new AbstractAction() {
-		    /**
-			 * 
-			 */
 			private static final long serialVersionUID = -3363877112423623107L;
 
 			@Override
@@ -164,9 +154,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		});
 		
 		am.put("Redo", new AbstractAction() {
-		    /**
-			 * 
-			 */
 			private static final long serialVersionUID = -5581878642285644039L;
 
 			@Override
@@ -185,12 +172,12 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 		private static final long	serialVersionUID	= -4393026616049677944L;
 		private Table				table;
-		private JLabel				nameLabel			= new JLabel("");
-		private DescriptionTextArea description			= new DescriptionTextArea ("");
-		private JLabel				rowCountLabel		= new JLabel("");
-		private SimpleTableModel	fieldTable			= new SimpleTableModel("Field", "Type","Description");
-		private JTextArea			commentsArea		= new JTextArea();
-		private JTable 				displayTable 		= new JTable(fieldTable);
+		private final JLabel				nameLabel			= new JLabel("");
+		private final DescriptionTextArea description			= new DescriptionTextArea ("");
+		private final JLabel				rowCountLabel		= new JLabel("");
+		private final SimpleTableModel	fieldTable			= new SimpleTableModel("Field", "Type", "Description");
+		private final JTextArea			commentsArea		= new JTextArea();
+		private final JTable 				displayTable 		= new JTable(fieldTable);
 		
 
 		public TablePanel() {
@@ -246,8 +233,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 					// TODO Auto-generated method stub
 					
 				}
-
-
 
 				@Override
 				public void columnSelectionChanged(ListSelectionEvent e) {
@@ -418,7 +403,9 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 				table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
 			}
 
-			String title = isTargetFieldPanel ? "Concept ID Hints" : "Value Counts";
+			String title = isTargetFieldPanel ?
+					"Concept ID Hints " + ObjectExchange.etl.getTargetDatabase().conceptIdHintsVocabularyVersion
+					: "Value Counts";
 			fieldListPanel.setBorder(BorderFactory.createTitledBorder(title));
 			add(fieldListPanel, BorderLayout.CENTER);
 
@@ -535,13 +522,12 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 	private class ItemToItemMapPanel extends JPanel implements DocumentListener {
 
-		private static final long	serialVersionUID	= -4393026616049677944L;
-		private JLabel				sourceLabel			= new JLabel("");
-		private JLabel				targetLabel			= new JLabel("");
-		private JTextArea			logicArea			= new JTextArea();
-		private JTextArea			commentsArea		= new JTextArea();
-		// private FlexTable testTable = new FlexTable();
-		private ItemToItemMap		itemToItemMap;
+		private static final long serialVersionUID = -4393026616049677944L;
+		private final JLabel sourceLabel = new JLabel("");
+		private final JLabel targetLabel = new JLabel("");
+		private final JTextArea	logicArea = new JTextArea();
+		private final JTextArea commentsArea = new JTextArea();
+		private ItemToItemMap itemToItemMap;
 
 		public ItemToItemMapPanel() {
 			setLayout(new BorderLayout());
@@ -581,11 +567,6 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 			commentsPanel.setPreferredSize(new Dimension(100, 200));
 
 			add(commentsPanel, BorderLayout.SOUTH);
-
-			// testTable.setMinimumSize(new Dimension(200, 200));
-			// JScrollPane testPanel = new JScrollPane(testTable);
-			// testPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-			// add(testPanel, BorderLayout.SOUTH);
 		}
 
 		public void showItemToItemMap(ItemToItemMap itemToItemMap) {
@@ -622,11 +603,11 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 
 	}
 
-	private class SimpleTableModel implements TableModel {
+	private static class SimpleTableModel implements TableModel {
 
-		private List<TableModelListener>	listeners	= new ArrayList<TableModelListener>();
-		private List<List<String>>			data		= new ArrayList<List<String>>();
-		private String[]					columnNames;
+		private final List<TableModelListener> listeners = new ArrayList<>();
+		private final List<List<String>> data = new ArrayList<>();
+		private final String[] columnNames;
 
 		public void clear() {
 			data.clear();
@@ -639,9 +620,8 @@ public class DetailsPanel extends JPanel implements DetailsListener {
 		}
 
 		public void add(String... values) {
-			List<String> row = new ArrayList<String>(values.length);
-			for (int i = 0; i < values.length; i++)
-				row.add(values[i]);
+			List<String> row = new ArrayList<>(values.length);
+			row.addAll(Arrays.asList(values));
 			data.add(row);
 			notifyListeners();
 		}

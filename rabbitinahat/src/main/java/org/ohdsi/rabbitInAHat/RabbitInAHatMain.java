@@ -49,11 +49,9 @@ import org.ohdsi.rabbitInAHat.dataModel.Database;
 import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
 import org.ohdsi.rabbitInAHat.dataModel.ETL;
 import org.ohdsi.rabbitInAHat.dataModel.Field;
-import org.ohdsi.rabbitInAHat.dataModel.MappableItem;
 import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
 import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.Version;
-import org.ohdsi.utilities.collections.Pair;
 
 /**
  * This is the main class for the RabbitInAHat application
@@ -76,15 +74,13 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_FILTER						= "Filter";
 	public final static String		ACTION_MAKE_MAPPING					= "Make Mappings";
 	public final static String		ACTION_REMOVE_MAPPING				= "Remove Mappings";
-	public final static String		ACTION_SET_TARGET_V4				= "CDM v4";
-	public final static String		ACTION_SET_TARGET_V5				= "CDM v5.0.0";
-	public final static String		ACTION_SET_TARGET_V501				= "CDM v5.0.1";
-	public final static String		ACTION_SET_TARGET_V510				= "CDM v5.1.0";
-	public final static String		ACTION_SET_TARGET_V520				= "CDM v5.2.0";
-	public final static String		ACTION_SET_TARGET_V530				= "CDM v5.3.0";
-	public final static String		ACTION_SET_TARGET_V531				= "CDM v5.3.1";
-	public final static String		ACTION_SET_TARGET_V60				= "CDM v6.0";
-	public final static String 		ACTION_SET_TARGET_V60_O 			= "CDM v6.0 + Oncology";
+	public final static String		ACTION_SET_TARGET_V4  = "CDM v4";
+	public final static String 		ACTION_SET_TARGET_V50 = "CDM v5.0";
+	public final static String 		ACTION_SET_TARGET_V51 = "CDM v5.1";
+	public final static String 		ACTION_SET_TARGET_V52 = "CDM v5.2";
+	public final static String 		ACTION_SET_TARGET_V53 = "CDM v5.3";
+	public final static String 		ACTION_SET_TARGET_V54 = "CDM v5.4";
+	public final static String		ACTION_SET_TARGET_V60 = "CDM v6.0-beta";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
 	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
@@ -92,7 +88,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
 	public final static String		ACTION_HELP							= "Open documentation";
 
-	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit";
+	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit/RabbitInAHat.html";
 	private final static FileFilter FILE_FILTER_GZ = new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
 	private final static FileFilter FILE_FILTER_JSON = new FileNameExtensionFilter("JSON Files (*.json)", "json");
 	private final static FileFilter FILE_FILTER_DOCX = new FileNameExtensionFilter("Microsoft Word documents (*.docx)", "docx");
@@ -146,7 +142,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV60));
+		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV54));
 
 		ObjectExchange.etl = etl;
 
@@ -229,7 +225,6 @@ public class RabbitInAHatMain implements ResizeListener {
 	private JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
-		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
 		menuBar.add(fileMenu);
 
@@ -250,20 +245,18 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		Map<String, CDMVersion> cdmOptions = new LinkedHashMap<>();
 	 	cdmOptions.put(ACTION_SET_TARGET_V4, CDMVersion.CDMV4);
-		cdmOptions.put(ACTION_SET_TARGET_V5, CDMVersion.CDMV5);
-		cdmOptions.put(ACTION_SET_TARGET_V501, CDMVersion.CDMV501);
-		cdmOptions.put(ACTION_SET_TARGET_V510, CDMVersion.CDMV510);
-		cdmOptions.put(ACTION_SET_TARGET_V520, CDMVersion.CDMV520);
-		cdmOptions.put(ACTION_SET_TARGET_V530, CDMVersion.CDMV530);
-		cdmOptions.put(ACTION_SET_TARGET_V531, CDMVersion.CDMV531);
+		cdmOptions.put(ACTION_SET_TARGET_V50, CDMVersion.CDMV50);
+		cdmOptions.put(ACTION_SET_TARGET_V51, CDMVersion.CDMV51);
+		cdmOptions.put(ACTION_SET_TARGET_V52, CDMVersion.CDMV52);
+		cdmOptions.put(ACTION_SET_TARGET_V53, CDMVersion.CDMV53);
+		cdmOptions.put(ACTION_SET_TARGET_V54, CDMVersion.CDMV54);
 		cdmOptions.put(ACTION_SET_TARGET_V60, CDMVersion.CDMV60);
-		cdmOptions.put(ACTION_SET_TARGET_V60_O, CDMVersion.CDMV60_O);
 
 		JRadioButtonMenuItem targetCDM;
 		ButtonGroup targetGroup = new ButtonGroup();
 		for (String optionName : cdmOptions.keySet()) {
 			targetCDM = new JRadioButtonMenuItem(optionName);
-			if (optionName.equals(ACTION_SET_TARGET_V60)) {
+			if (optionName.equals(ACTION_SET_TARGET_V54)) {
 				targetCDM.setSelected(true);
 			}
 			targetGroup.add(targetCDM);
@@ -474,8 +467,13 @@ public class RabbitInAHatMain implements ResizeListener {
 				etl.copyETLMappings(ObjectExchange.etl);
 				tableMappingPanel.setMapping(etl.getTableToTableMapping());
 				ObjectExchange.etl = etl;
-			} catch (IOException e) {
-				// Do nothing if error
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(
+						null, e.getMessage(),
+						"Error loading custom target database",
+						JOptionPane.ERROR_MESSAGE
+				);
 			}
 		}
 

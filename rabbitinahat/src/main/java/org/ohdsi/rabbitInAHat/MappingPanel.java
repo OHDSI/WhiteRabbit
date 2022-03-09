@@ -376,7 +376,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			selectedArrow = null;
 		}
 
-		if (!event.isShiftDown() && !((event.getModifiers() & shortcutMask) == shortcutMask)) {
+		if (!event.isShiftDown() && !((event.getModifiersEx() & shortcutMask) == shortcutMask)) {
 			for (LabeledRectangle component : cdmComponents) {
 				component.setSelected(false);
 			}
@@ -726,7 +726,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 
 			if (component.contains(event.getPoint())) {
 
-				if ((event.getModifiers() & shortcutMask) == shortcutMask) { // Add one at a time
+				if ((event.getModifiersEx() & shortcutMask) == shortcutMask) { // Add one at a time
 					component.toggleSelected();
 				} else if (event.isShiftDown()) { // Add in consecutive order
 

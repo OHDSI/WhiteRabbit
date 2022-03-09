@@ -16,6 +16,7 @@ tmp/*
 Try*
 /examples/
 .DS_Store
+data/
 
 # Scan reports
 scan-reports/*

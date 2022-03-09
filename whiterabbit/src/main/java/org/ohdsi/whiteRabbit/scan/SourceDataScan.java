@@ -87,6 +87,7 @@ public class SourceDataScan {
 	}
 
 	public void setSampleSize(int sampleSize) {
+		// -1 if sample size is not restricted
 		this.sampleSize = sampleSize;
 	}
 
@@ -581,7 +582,7 @@ public class SourceDataScan {
 					}
 				}
 			}
-			if (lineNr > sampleSize)
+			if (sampleSize != -1 && lineNr > sampleSize)
 				break;
 		}
 		for (FieldInfo fieldInfo : fieldInfos)
@@ -611,7 +612,7 @@ public class SourceDataScan {
 			return fieldInfos;
 		}
 
-		for (int lineNr = 0; lineNr < sasFileProperties.getRowCount() && lineNr < sampleSize; lineNr++) {
+		for (int lineNr = 0; lineNr < sasFileProperties.getRowCount(); lineNr++) {
 			Object[] row = sasFileReader.readNext();
 
 			if (row.length != fieldInfos.size()) {
@@ -622,6 +623,9 @@ public class SourceDataScan {
 			for (int i = 0; i < row.length; i++) {
 				fieldInfos.get(i).processValue(row[i] == null ? "" : row[i].toString());
 			}
+
+			if (sampleSize != -1 && lineNr >= sampleSize)
+				break;
 		}
 
 		for (FieldInfo fieldInfo : fieldInfos) {
