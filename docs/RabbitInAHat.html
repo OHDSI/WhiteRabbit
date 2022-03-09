@@ -13,12 +13,22 @@
 
 <title>Rabbit in a Hat</title>
 
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -27,12 +37,16 @@
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link rel='shortcut icon' type='image/x-icon' href='images/favicon.ico' />
 
-<style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -45,32 +59,7 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
+
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 
@@ -81,10 +70,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -101,40 +86,13 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 51px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h2 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h3 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h4 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h5 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h6 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -162,7 +120,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -174,7 +132,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -185,10 +143,23 @@ $(document).ready(function () {
   var menuAnchor = $('a[href="' + href + '"]');
 
   // mark it active
-  menuAnchor.parent().addClass('active');
+  menuAnchor.tab('show');
 
   // if it's got a parent navbar menu mark it active as well
   menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -200,7 +171,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -326,7 +296,7 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
+<div class="row">
 <div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
 </div>
@@ -396,7 +366,7 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
 
 
@@ -422,13 +392,13 @@ div.tocify {
 <li>Save Rabbit-In-a-Hat work and export to a MS Word document.</li>
 </ol>
 </div>
-<div id="installation-and-support" class="section level2">
-<h2>Installation and support</h2>
+</div>
+<div id="installation-and-support" class="section level1">
+<h1>Installation and support</h1>
 <p>Rabbit-In-a-Hat comes with WhiteRabbit, refer to step 1 and 2 of <a href="WhiteRabbit.html#installation">WhiteRabbit’s installation section</a>.</p>
 </div>
-</div>
-<div id="getting-started" class="section level1">
-<h1>Getting Started</h1>
+<div id="using-the-application-functions" class="section level1">
+<h1>Using the application functions</h1>
 <div id="creating-a-new-document" class="section level2">
 <h2>Creating a New Document</h2>
 <p>To create a new document, navigate to <em>File –&gt; Open Scan Report</em>. Use the “Open” window to browse for the scan document created by WhiteRabbit. When a scan report is opened, the tables scanned will appear in orange boxes on the “Source” side of the Tables.</p>
@@ -448,10 +418,10 @@ div.tocify {
 </div>
 <div id="loading-in-a-custom-cdm" class="section level2">
 <h2>Loading in a Custom CDM</h2>
-<p>There are times when users might need to load in a customized version of the CDM, for instance if they are sandboxing new features. To load in a custom CDM schema, first you must create a CSV file that uses the same format as <a href="https://github.com/OHDSI/WhiteRabbit/blob/master/src/org/ohdsi/rabbitInAHat/dataModel/CDMV5.csv">the existing CDMv5 schema file</a>.</p>
+<p>There are times when users might need to load in a customized version of the CDM, for instance if they are sandboxing new features. To load in a custom CDM schema, first you must create a CSV file that uses the same format as <a href="https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel/CDMV5.csv">the existing CDMv5 schema file</a>.</p>
 <p>Once you have created the CSV file, load it into RiaH as shown below:</p>
 <div class="figure">
-<img src="http://i.imgur.com/Tn9NKL3.gif" alt="Loading a custom CDM schema" />
+<img src="http://i.imgur.com/Tn9NKL3.gif" alt="" />
 <p class="caption">Loading a custom CDM schema</p>
 </div>
 <p>Please note that the name of the file you load in becomes the label that appears above the target tables, so “My Super File.csv” will create the label “My Super File” above the target tables, so name your CSV accordingly.</p>
@@ -459,7 +429,7 @@ div.tocify {
 <div id="stem-table" class="section level2">
 <h2>Stem table</h2>
 <p>In some cases a source domains maps to multiple OMOP CDM target domains. For example lab values that map to both the measurement and observation domain. Using the stem table will remove some overhead of repeating the mapping for every target and will also ease implementation (see below).</p>
-<p>The idea of the stem table is that it contains all the types of columns that you need regardless of the CDM table the data ultimately ends up in. There is a pre-specified map from stem to all CDM clinical event tables, linking every stem field to one or multiple fields in the CDM. When implementing the ETL, the vocabulary decides where a particular row mapped to stem table ultimately goes. The <a href="https://github.com/OHDSI/CommonDataModel/wiki/Data-Model-Conventions#content-of-each-table">OMOP CDM Data Model Conventions</a> mentions:</p>
+<p>The idea of the stem table is that it contains all the types of columns that you need regardless of the CDM table the data ultimately ends up in. There is a pre-specified map from stem to all CDM clinical event tables, linking every stem field to one or multiple fields in the CDM. When implementing the ETL, the vocabulary decides where a particular row mapped to stem table ultimately goes. The <a href="https://ohdsi.github.io/CommonDataModel/dataModelConventions.html">OMOP CDM Data Model Conventions</a> mentions:</p>
 <blockquote>
 <p>Write the data record into the table(s) corresponding to the domain of the Standard CONCEPT_ID(s).</p>
 </blockquote>
@@ -474,10 +444,9 @@ div.tocify {
 <p><img src="images/riah_concept_id_hints.png" /></p>
 <p>The concept id hints are stored statically in <a href="https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel/CDMConceptIDHints_v5.0_MAR-18.csv">a csv file</a> and are not automatically updated. The <a href="https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel/concept_id_hint_select.sql">code used to create the aforementioned csv file</a> is also included in the repo.</p>
 </div>
-</div>
-<div id="table-to-table-mappings" class="section level1">
-<h1>Table to Table Mappings</h1>
-<p>It is assumed that the owners of the source data should be able to provide detail of what the data table contains, Rabbit-In-a-Hat will describe the columns within the table but will not provide the context a data owner should provide. For the CDM tables, if more information is needed navigate to the <a href="https://github.com/ohdsi/commondatamodel/wiki">OMOP CDM wiki</a> and review the current OMOP specification.</p>
+<div id="table-to-table-mappings" class="section level2">
+<h2>Table to Table Mappings</h2>
+<p>It is assumed that the owners of the source data should be able to provide detail of what the data table contains, Rabbit-In-a-Hat will describe the columns within the table but will not provide the context a data owner should provide. For the CDM tables, if more information is needed navigate to the <a href="https://ohdsi.github.io/CommonDataModel/index.html">OMOP CDM documentation</a> and review the current OMOP specification.</p>
 <p>To connect a source table to a CDM table, simply hover over the source table until an arrow head appears.</p>
 <p><img src="images/rabbitinahat-drugclaims.png" /></p>
 <p>Use your mouse to grab the arrow head and drag it to the corresponding CDM table. In the example below, the <em>drug_claims</em> data will provide information for the <em>drug_exposure</em> table.</p>
@@ -486,26 +455,28 @@ div.tocify {
 <p><img src="images/rabbitinahat-arrow.png" /></p>
 <p>Continue this process until all tables that are needed to build a CDM are mapped to their corresponding CDM tables. One source table can map to multiple CDM tables and one CDM table can receive multiple mappings. There may be tables in the source data that should not be map into the CDM and there may be tables in the CDM that cannot be populated from the source data.</p>
 </div>
-<div id="field-to-field-mappings" class="section level1">
-<h1>Field to Field Mappings</h1>
+<div id="field-to-field-mappings" class="section level2">
+<h2>Field to Field Mappings</h2>
 <p>By double clicking on an arrow connecting a source and CDM table, it will open a <em>Fields</em> pane below the arrow selected. The <em>Fields</em> pane will have all the source table and CDM fields and is meant to make the specific column mappings between tables. Hovering over a source table will generate an arrow head that can then be selected and dragged to its corresponding CDM field. For example, in the <em>drug_claims</em> to <em>drug_exposure</em> table mapping example, the source data owners know that <em>patient_id</em> is the patient identifier and corresponds to the <em>CDM.person_id</em>. Also, just as before, the arrow can be selected and <em>Logic</em> and <em>Comments</em> can be added.</p>
 <p><img src="images/rabbitinahat-fields.png" /></p>
 <p>If you select the source table orange box, Rabbit-In-a-Hat will expose values the source data has for that table. This is meant to help in the process in understanding the source data and what logic may be required to handle the data in the ETL. In the example below <em>ndcnum</em> is selected and raw NDC codes are displayed starting with most frequent (note that in the WhiteRabbit scan a “Min cell count” could have been selected and values smaller than that count will not show).</p>
 <p><img src="images/rabbitinahat-fieldex.png" /></p>
 <p>Continue this process until all source columns necessary in all mapped tables have been mapped to the corresponding CDM column. Not all columns must be mapped into a CDM column and not all CDM columns require a mapping. One source column may supply information to multiple CDM columns and one CDM column can receive information from multiple columns.</p>
 </div>
-<div id="generating-an-etl-document" class="section level1">
-<h1>Generating an ETL Document</h1>
+<div id="output-generation" class="section level2">
+<h2>Output generation</h2>
+<div id="generating-an-etl-document" class="section level3">
+<h3>Generating an ETL Document</h3>
 <p>To generate an ETL MS Word document use <em>File –&gt; Generate ETL document –&gt; Generate ETL Word document</em> and select a location to save. The ETL document can also be exported to markdown or html. In this case, a file per target table is created and you will be prompted to select a folder. Regardless of the format, the generated document will contain all mappings and notes from Rabbit-In-a-Hat.</p>
 <p>Once the information is in the document, if an update is needed you must either update the information in Rabbit-In-a-Hat and regenerate the document or update the document. If you make changes in the document, Rabbit-In-a-Hat will not read those changes and update the information in the tool. However, it is common to generate the document with the core mapping information and fill in more detail within the document.</p>
 <p>Once the document is completed, this should be shared with the individuals who plan to implement the code to execute the ETL. The markdown and html format enable easy publishing as a web page on e.g. Github. A good example is the <a href="https://ohdsi.github.io/ETL-Synthea/">Synthea ETL documentation</a>.</p>
 </div>
-<div id="generating-a-testing-framework" class="section level1">
-<h1>Generating a Testing Framework</h1>
+<div id="generating-a-testing-framework" class="section level3">
+<h3>Generating a Testing Framework</h3>
 <p>To make sure the ETL process is working as specified, it is highly recommended creating <a href="https://en.wikipedia.org/wiki/Unit_testing">unit tests</a> that evaluate the behavior of the ETL process. To efficiently create a set of unit tests Rabbit-in-a-Hat can <a href="riah_test_framework.html">generate a testing framework</a>.</p>
 </div>
-<div id="generating-a-sql-skeleton-v0.9.0" class="section level1">
-<h1>Generating a SQL Skeleton (<em>v0.9.0</em>)</h1>
+<div id="generating-a-sql-skeleton-v0.9.0" class="section level3">
+<h3>Generating a SQL Skeleton (<em>v0.9.0</em>)</h3>
 <p>The step after documenting your ETL process is to implement it in an ETL framework of your choice. As many implementations involve SQL, Rabbit-In-a-Hat provides a convenience function to export your design to an SQL skeleton. This contains all field to field mappings, with logic/descriptions as comments, as non-functional pseudo-code. This saves you copying names into your SQL code, but still requires you to implement the actual logic. The general format of the skeleton is:</p>
 <pre class="sql"><code>INSERT INTO &lt;target_table&gt; (
   &lt;target_fields&gt;
@@ -514,6 +485,8 @@ SELECT
   &lt;source_fields&gt;
 FROM &lt;source_table&gt;
 ;</code></pre>
+</div>
+</div>
 </div>
 
 
@@ -527,7 +500,7 @@ FROM &lt;source_table&gt;
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -545,7 +518,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
@@ -554,6 +527,9 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')
@@ -566,7 +542,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0

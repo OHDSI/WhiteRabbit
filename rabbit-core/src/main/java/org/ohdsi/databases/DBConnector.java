@@ -70,7 +70,7 @@ public class DBConnector {
 		if (!server.contains("/"))
 			throw new RuntimeException("For Redshift, database name must be specified in the server field (<host>:<port>/<database>?<options>)");
 		try {
-			Class.forName("com.amazon.redshift.jdbc41.Driver");
+			Class.forName("com.amazon.redshift.jdbc42.Driver");
 		} catch (ClassNotFoundException e1) {
 			throw new RuntimeException("Cannot find JDBC driver. Make sure the file RedshiftJDBCx-x.x.xx.xxxx.jar is in the path");
 		}

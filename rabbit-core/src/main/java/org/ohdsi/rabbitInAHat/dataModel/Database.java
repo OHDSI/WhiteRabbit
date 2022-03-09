@@ -34,15 +34,12 @@ public class Database implements Serializable {
 
 	public enum CDMVersion {
 		  CDMV4("CDMV4.csv")
-		, CDMV5("CDMV5.csv")
-		, CDMV501("CDMV5.0.1.csv")
-		, CDMV510("CDMV5.1.0.csv")
-		, CDMV520("CDMV5.2.0.csv")
-		, CDMV530("CDMV5.3.0.csv")
-		, CDMV531("CDMV5.3.1.csv")
-		, CDMV531_O("CDMV5.3.1_Oncology.csv")
+		, CDMV50("CDMV5.0.csv")
+		, CDMV51("CDMV5.1.csv")
+		, CDMV52("CDMV5.2.csv")
+		, CDMV53("CDMV5.3.csv")
+		, CDMV54("CDMV5.4.csv")
 		, CDMV60("CDMV6.0.csv")
-		, CDMV60_O("CDMV6.0_Oncology.csv")
 		;
 
 		private final String fileName;
@@ -55,7 +52,8 @@ public class Database implements Serializable {
 	private List<Table>			tables				= new ArrayList<Table>();
 	private static final long	serialVersionUID	= -3912166654601191039L;
 	private String				dbName				= "";
-	private static String		CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints_v5.0_02-OCT-19.csv";
+	private static final String	CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints.csv";
+	public String 				conceptIdHintsVocabularyVersion;
 
 	public List<Table> getTables() {
 		return tables;
@@ -63,7 +61,7 @@ public class Database implements Serializable {
 
 	public Table getTableByName(String name) {
 		for (Table table : tables)
-			if (table.getName().toLowerCase().equals(name.toLowerCase()))
+			if (table.getName().equalsIgnoreCase(name))
 				return table;
 		return null;
 	}
@@ -91,7 +89,8 @@ public class Database implements Serializable {
 
 		Map<String, Table> nameToTable = new HashMap<>();
 		try {
-			ConceptsMap conceptsMap = new ConceptsMap(CONCEPT_ID_HINTS_FILE_NAME);
+			ConceptsMap conceptIdHintsMap = new ConceptsMap(CONCEPT_ID_HINTS_FILE_NAME);
+			database.conceptIdHintsVocabularyVersion = conceptIdHintsMap.vocabularyVersion;
 
 			for (CSVRecord row : CSVFormat.RFC4180.withHeader().parse(new InputStreamReader(stream))) {
 				String tableNameColumn;
@@ -128,7 +127,7 @@ public class Database implements Serializable {
 				field.setNullable(row.get(isNullableColumn).equals(nullableValue));
 				field.setType(row.get(dataTypeColumn));
 				field.setDescription(row.get(descriptionColumn));
-				field.setConceptIdHints(conceptsMap.get(table.getName(), field.getName()));
+				field.setConceptIdHints(conceptIdHintsMap.get(table.getName(), field.getName()));
 
 				table.getFields().add(field);
 			}

@@ -20,5 +20,5 @@ It comes with **RabbitInAHat**, an application for interactive design of an ETL 
 - Interactive tool (Rabbit in a Hat) for designing the ETL using the scan report as basis
 - Rabbit in a Hat generates ETL specification document according to OMOP templatement according to OMOP template
 
-# Current version
-[**v0.10.1**](https://github.com/OHDSI/WhiteRabbit/releases/latest)
+# Latest version
+[**v0.10.7**](https://github.com/OHDSI/WhiteRabbit/releases/latest)
