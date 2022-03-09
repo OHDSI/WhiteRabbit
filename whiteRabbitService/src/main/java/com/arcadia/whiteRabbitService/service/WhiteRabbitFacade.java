@@ -2,6 +2,7 @@ package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.config.FakeDataDbConfig;
 import com.arcadia.whiteRabbitService.model.fakedata.FakeDataSettings;
+import com.arcadia.whiteRabbitService.service.error.ServerErrorException;
 import com.arcadia.whiteRabbitService.service.response.TablesInfoResponse;
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataParams;
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataSettings;
@@ -75,6 +76,8 @@ public class WhiteRabbitFacade {
                 dbSettings.dbType
         )) {
             return new TablesInfoResponse(connection.getTableNames(dbSettings.database));
+        } catch (Exception e) {
+            throw new ServerErrorException(e.getMessage(), e);
         }
     }
 
