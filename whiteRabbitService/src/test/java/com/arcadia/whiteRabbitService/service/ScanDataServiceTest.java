@@ -68,6 +68,7 @@ public class ScanDataServiceTest {
         resultService = new ScanDataResultServiceImpl(
                 conversionRepository,
                 resultRepository,
+                logRepository,
                 filesManagerService
         );
         conversionService = new ScanDataConversionServiceImpl(
@@ -106,25 +107,6 @@ public class ScanDataServiceTest {
         ScanDataResult conversionResult = conversion.getResult();
         assertEquals(hash, conversionResult.getFileKey());
         assertEquals(dbSettings.getDatabase() + ".xlsx", conversionResult.getFileName());
-    }
-
-    @Transactional
-    @Test
-    void scanDatabaseDataAndAbort() throws InterruptedException {
-        ScanDbSettings dbSettings = createTestDbSettings("postgresql", 5433);
-        String username = "Perseus";
-        Mockito.when(whiteRabbitFacade.generateScanReport(eq(dbSettings), any(), any()))
-                .thenThrow(new InterruptedException("Test interruption"));
-        String hash = "hash";
-        FileSaveResponse fileSaveResponse = new FileSaveResponse(hash, username, DATA_KEY);
-        Mockito.when(filesManagerService.saveFile(any()))
-                .thenReturn(fileSaveResponse);
-
-        ScanDataConversion conversion = scanDataService.scanDatabaseData(dbSettings, username);
-
-        assertEquals(ABORTED.getCode(), conversion.getStatusCode());
-        assertEquals(ABORTED.getName(), conversion.getStatusName());
-        assertEquals(username, conversion.getUsername());
     }
 
     @Transactional

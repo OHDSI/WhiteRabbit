@@ -3,6 +3,7 @@ package com.arcadia.whiteRabbitService.service;
 import com.arcadia.whiteRabbitService.model.fakedata.FakeDataConversion;
 import com.arcadia.whiteRabbitService.model.fakedata.FakeDataSettings;
 import com.arcadia.whiteRabbitService.repository.FakeDataConversionRepository;
+import com.arcadia.whiteRabbitService.repository.FakeDataLogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +22,14 @@ public class FakeDataResultServiceImplTest {
     @Autowired
     FakeDataConversionRepository conversionRepository;
 
+    @Autowired
+    FakeDataLogRepository logRepository;
+
     FakeDataResultService fakeDataResultService;
 
     @BeforeEach
     void setUp() {
-        fakeDataResultService = new FakeDataResultServiceImpl(conversionRepository);
+        fakeDataResultService = new FakeDataResultServiceImpl(conversionRepository, logRepository);
     }
 
     @Test
@@ -43,22 +47,11 @@ public class FakeDataResultServiceImplTest {
     void saveFailedResult() {
         FakeDataConversion conversion = createFakeDataConversion();
         conversionRepository.save(conversion);
-        fakeDataResultService.saveFailedResult(conversion.getId());
+        fakeDataResultService.saveFailedResult(conversion.getId(), "Test error");
         conversion = conversionRepository.findById(conversion.getId()).get();
 
         assertEquals(FAILED.getCode(), conversion.getStatusCode());
         assertEquals(FAILED.getName(), conversion.getStatusName());
-    }
-
-    @Test
-    void saveAbortedResult() {
-        FakeDataConversion conversion = createFakeDataConversion();
-        conversionRepository.save(conversion);
-        fakeDataResultService.saveAbortedResult(conversion.getId());
-        conversion = conversionRepository.findById(conversion.getId()).get();
-
-        assertEquals(ABORTED.getCode(), conversion.getStatusCode());
-        assertEquals(ABORTED.getName(), conversion.getStatusName());
     }
 
     public static FakeDataConversion createFakeDataConversion() {

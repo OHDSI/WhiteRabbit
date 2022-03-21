@@ -36,7 +36,7 @@ public class FilesManagerServiceImpl implements FilesManagerService {
 
     @Override
     public FileSaveResponse saveFile(FileSaveRequest model) {
-        log.info("Sending Rest request to save Scan Report file");
+        log.info("Sending Rest request to save file");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MULTIPART_FORM_DATA);
 

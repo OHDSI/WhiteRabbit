@@ -35,14 +35,13 @@ public class ScanDataServiceImpl implements ScanDataService {
     private final StorageService storageService;
     private final ScanDataLogRepository logRepository;
     private final ScanDataResultRepository resultRepository;
-
-    @Transactional
+    
     @Override
     public ScanDataConversion findConversionById(Long conversionId, String username) {
         ScanDataConversion conversion = conversionRepository.findById(conversionId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Scan Data Conversion not found by id " + conversionId));
         if (!conversion.getUsername().equals(username)) {
-            throw new ResponseStatusException(FORBIDDEN, "Forbidden get other User Scan Data Conversion logs");
+            throw new ResponseStatusException(FORBIDDEN, "Forbidden to get Scan Data Conversion for other user");
         }
         return conversion;
     }
@@ -122,6 +121,7 @@ public class ScanDataServiceImpl implements ScanDataService {
     @Override
     public ScanDataResult result(Long conversionId, String username) {
         ScanDataConversion conversion = findConversionById(conversionId, username);
-        return resultRepository.findByScanDataConversionId(conversion.getId());
+        return resultRepository.findByScanDataConversionId(conversion.getId())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Scan Data Conversion Result not found by conversion id " + conversionId));
     }
 }

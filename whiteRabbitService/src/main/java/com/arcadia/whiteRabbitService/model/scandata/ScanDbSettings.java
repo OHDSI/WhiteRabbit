@@ -9,11 +9,9 @@ import org.ohdsi.whiteRabbit.DbSettings;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-
 import java.util.Objects;
 
 import static com.arcadia.whiteRabbitService.util.DbSettingsAdapter.adaptDbSettings;
-import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.SEQUENCE;

@@ -19,8 +19,6 @@ import java.util.concurrent.Future;
 @RequiredArgsConstructor
 @Slf4j
 public class FakeDataConversionServiceImpl implements FakeDataConversionService {
-    public static final String FAILED_TO_GENERATE_FAKE_DATA_MESSAGE = "Failed to generate Fake Data";
-
     private final FakeDataLogRepository logRepository;
     private final FakeDataConversionRepository conversionRepository;
     private final WhiteRabbitFacade whiteRabbitFacade;
@@ -38,16 +36,9 @@ public class FakeDataConversionServiceImpl implements FakeDataConversionService 
             resultService.saveCompletedResult(conversion.getId());
         } catch (InterruptedException e) {
             log.warn(e.getMessage());
-            resultService.saveAbortedResult(conversion.getId());
         } catch (Exception e) {
-            try {
-                logger.error(e.getMessage());
-                logger.error(FAILED_TO_GENERATE_FAKE_DATA_MESSAGE);
-            } catch (Exception logException) {
-                log.error("Can not log message. " + logException.getMessage());
-            }
             log.error(e.getMessage());
-            resultService.saveFailedResult(conversion.getId());
+            resultService.saveFailedResult(conversion.getId(), e.getMessage());
         } finally {
             settings.destroy();
         }

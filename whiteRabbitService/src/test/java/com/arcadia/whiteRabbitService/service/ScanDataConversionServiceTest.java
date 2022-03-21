@@ -59,21 +59,13 @@ public class ScanDataConversionServiceTest {
     }
 
     @Test
-    void saveAbortedResult() throws InterruptedException {
-        ScanDataConversion conversion = createScanDataConversion();
-        when(whiteRabbitFacade.generateScanReport(eq(conversion.getSettings()), any(), any()))
-                .thenThrow(new InterruptedException());
-        conversionService.runConversion(conversion);
-        Mockito.verify(resultService).saveAbortedResult(conversion.getId());
-    }
-
-    @Test
     void saveFailedResult() throws InterruptedException {
         ScanDataConversion conversion = createScanDataConversion();
+        RuntimeException exception = new RuntimeException("Test error");
         when(whiteRabbitFacade.generateScanReport(eq(conversion.getSettings()), any(), any()))
-                .thenThrow(new RuntimeException());
+                .thenThrow(exception);
         conversionService.runConversion(conversion);
-        Mockito.verify(resultService).saveFailedResult(eq(conversion.getId()));
+        Mockito.verify(resultService).saveFailedResult(eq(conversion.getId()), eq(exception.getMessage()));
     }
 
     public static ScanDataConversion createScanDataConversion() {

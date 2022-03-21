@@ -21,8 +21,6 @@ import java.util.concurrent.Future;
 @RequiredArgsConstructor
 @Slf4j
 public class ScanDataConversionServiceImpl implements ScanDataConversionService {
-    public static final String FAILED_TO_SCAN_DATA_MESSAGE = "Failed to scan data";
-
     private final ScanDataLogRepository logRepository;
     private final ScanDataConversionRepository conversionRepository;
     private final WhiteRabbitFacade whiteRabbitFacade;
@@ -37,20 +35,16 @@ public class ScanDataConversionServiceImpl implements ScanDataConversionService 
         ScanDataInterrupter interrupter = new ScanDataInterrupter(conversionRepository, conversion.getId());
         try {
             File scanReportFile = whiteRabbitFacade.generateScanReport(settings, logger, interrupter);
-            resultService.saveCompletedResult(scanReportFile, conversion.getId());
-            scanReportFile.delete();
+            try {
+                resultService.saveCompletedResult(scanReportFile, conversion.getId());
+            } finally {
+                scanReportFile.delete();
+            }
         } catch (InterruptedException e) {
             log.warn(e.getMessage());
-            resultService.saveAbortedResult(conversion.getId());
         } catch (Exception e) {
-            try {
-                logger.error(e.getMessage());
-                logger.error(FAILED_TO_SCAN_DATA_MESSAGE);
-            } catch (Exception logException) {
-                log.error("Can not log message. " + logException.getMessage());
-            }
             log.error(e.getMessage());
-            resultService.saveFailedResult(conversion.getId());
+            resultService.saveFailedResult(conversion.getId(), e.getMessage());
         } finally {
             settings.destroy();
         }

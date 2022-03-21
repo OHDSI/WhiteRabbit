@@ -2,6 +2,7 @@ package com.arcadia.whiteRabbitService.service;
 
 import com.arcadia.whiteRabbitService.model.scandata.ScanDataConversion;
 import com.arcadia.whiteRabbitService.repository.ScanDataConversionRepository;
+import com.arcadia.whiteRabbitService.repository.ScanDataLogRepository;
 import com.arcadia.whiteRabbitService.repository.ScanDataResultRepository;
 import com.arcadia.whiteRabbitService.service.response.FileSaveResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,9 @@ class ScanDataResultServiceTest {
     @Autowired
     ScanDataResultRepository resultRepository;
 
+    @Autowired
+    ScanDataLogRepository logRepository;
+
     @MockBean
     FilesManagerService filesManagerService;
 
@@ -41,6 +45,7 @@ class ScanDataResultServiceTest {
         resultService = new ScanDataResultServiceImpl(
                 conversionRepository,
                 resultRepository,
+                logRepository,
                 filesManagerService
         );
     }
@@ -67,21 +72,10 @@ class ScanDataResultServiceTest {
     void saveFailedResult() {
         ScanDataConversion conversion = createScanDataConversion();
         conversionRepository.save(conversion);
-        resultService.saveFailedResult(conversion.getId());
+        resultService.saveFailedResult(conversion.getId(), "Test error");
         conversion = conversionRepository.findById(conversion.getId()).get();
 
         assertEquals(FAILED.getCode(), conversion.getStatusCode());
         assertEquals(FAILED.getName(), conversion.getStatusName());
-    }
-
-    @Test
-    void saveAbortedResult() {
-        ScanDataConversion conversion = createScanDataConversion();
-        conversionRepository.save(conversion);
-        resultService.saveAbortedResult(conversion.getId());
-        conversion = conversionRepository.findById(conversion.getId()).get();
-
-        assertEquals(ABORTED.getCode(), conversion.getStatusCode());
-        assertEquals(ABORTED.getName(), conversion.getStatusName());
     }
 }

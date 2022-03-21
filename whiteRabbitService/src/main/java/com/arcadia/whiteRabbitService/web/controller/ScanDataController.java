@@ -36,7 +36,7 @@ public class ScanDataController {
     @PostMapping("/db")
     public ResponseEntity<ScanDataConversion> generate(@RequestHeader("Username") String username,
                                                        @Validated @RequestBody ScanDbSettings dbSetting) {
-        log.info("Rest request to generate scan report by database settings {}", dbSetting);
+        log.info("Rest request to generate scan report by database settings");
         return ok(scanDataService.scanDatabaseData(dbSetting, username));
     }
 
