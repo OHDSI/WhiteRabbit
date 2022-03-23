@@ -12,7 +12,7 @@ COPY pom.xml .
 
 RUN tr -d '\015' <./mvnw >./mvnw.sh && mv ./mvnw.sh ./mvnw && chmod 770 mvnw
 
-RUN ./mvnw install
+RUN ./mvnw package
 
 FROM openjdk:17
 VOLUME /tmp
