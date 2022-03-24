@@ -75,7 +75,7 @@ public class ScanDataController {
                                                        @PathVariable Long conversionId) {
         log.info("Rest request to download scan report with conversion id {}", conversionId);
         ScanDataResult result = scanDataService.result(conversionId, username);
-        Resource resource = filesManagerService.getFile(result.getFileKey());
+        Resource resource = filesManagerService.getFile(result.getFileId());
         return ok()
                 .contentType(MediaType.parseMediaType("application/x-xls"))
                 .header(CONTENT_DISPOSITION, format("attachment; filename=\"%S\"", result.getFileName()))

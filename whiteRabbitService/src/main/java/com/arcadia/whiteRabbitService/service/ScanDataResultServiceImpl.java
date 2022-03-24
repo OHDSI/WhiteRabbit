@@ -47,7 +47,7 @@ public class ScanDataResultServiceImpl implements ScanDataResultService {
         logRepository.save(log);
         ScanDataResult result = ScanDataResult.builder()
                 .fileName(conversion.getSettings().scanReportFileName())
-                .fileKey(fileSaveResponse.getHash())
+                .fileId(fileSaveResponse.getId())
                 .scanDataConversion(conversion)
                 .time(new Timestamp(System.currentTimeMillis()))
                 .build();

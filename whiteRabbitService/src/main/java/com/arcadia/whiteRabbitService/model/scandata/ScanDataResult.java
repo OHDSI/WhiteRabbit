@@ -32,12 +32,12 @@ public class ScanDataResult {
     @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(name = "file_key")
-    private String fileKey;
+    @Column(name = "file_id", nullable = false)
+    private Long fileId;
 
     @JsonIgnore
     @OneToOne(optional = false, fetch = LAZY)
-    @JoinColumn(name = "scan_data_conversion_id", referencedColumnName = "id")
+    @JoinColumn(name = "scan_data_conversion_id", referencedColumnName = "id", nullable = false)
     private ScanDataConversion scanDataConversion;
 
     @Override

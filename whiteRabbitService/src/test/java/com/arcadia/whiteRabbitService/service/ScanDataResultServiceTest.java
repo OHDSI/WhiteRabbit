@@ -54,18 +54,18 @@ class ScanDataResultServiceTest {
     void saveCompletedResult() {
         String fileName = "mdcd_native_test.xlsx";
         File scanReportFile = readFileFromResources(getClass(), fileName);
-        String fileHash = "test-hash";
+        Long fileId = 1L;
         ScanDataConversion conversion = createScanDataConversion();
         conversionRepository.save(conversion);
         Mockito.when(filesManagerService.saveFile(Mockito.any()))
-                .thenReturn(new FileSaveResponse(fileHash, conversion.getUsername(), DATA_KEY));
+                .thenReturn(new FileSaveResponse(fileId, conversion.getUsername(), DATA_KEY));
         resultService.saveCompletedResult(scanReportFile, conversion.getId());
         conversion = conversionRepository.findById(conversion.getId()).get();
 
         assertNotNull(conversion.getResult());
         assertEquals(COMPLETED.getCode(), conversion.getStatusCode());
         assertEquals(COMPLETED.getName(), conversion.getStatusName());
-        assertEquals(fileHash, conversion.getResult().getFileKey());
+        assertEquals(fileId, conversion.getResult().getFileId());
     }
 
     @Test

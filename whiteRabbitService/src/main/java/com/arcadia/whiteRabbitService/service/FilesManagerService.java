@@ -5,7 +5,7 @@ import com.arcadia.whiteRabbitService.service.response.FileSaveResponse;
 import org.springframework.core.io.ByteArrayResource;
 
 public interface FilesManagerService {
-    ByteArrayResource getFile(String key);
+    ByteArrayResource getFile(Long userDataId);
 
     FileSaveResponse saveFile(FileSaveRequest request);
 

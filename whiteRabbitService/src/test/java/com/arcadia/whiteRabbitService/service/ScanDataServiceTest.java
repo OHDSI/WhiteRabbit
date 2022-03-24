@@ -93,8 +93,8 @@ public class ScanDataServiceTest {
         String username = "Perseus";
         Mockito.when(whiteRabbitFacade.generateScanReport(eq(dbSettings), any(), any()))
                 .thenReturn(scanReportFile);
-        String hash = "hash";
-        FileSaveResponse fileSaveResponse = new FileSaveResponse(hash, username, DATA_KEY);
+        Long id = 1L;
+        FileSaveResponse fileSaveResponse = new FileSaveResponse(id, username, DATA_KEY);
         Mockito.when(filesManagerService.saveFile(any()))
                 .thenReturn(fileSaveResponse);
 
@@ -105,7 +105,7 @@ public class ScanDataServiceTest {
         assertEquals(username, conversion.getUsername());
 
         ScanDataResult conversionResult = conversion.getResult();
-        assertEquals(hash, conversionResult.getFileKey());
+        assertEquals(id, conversionResult.getFileId());
         assertEquals(dbSettings.getDatabase() + ".xlsx", conversionResult.getFileName());
     }
 
@@ -116,8 +116,8 @@ public class ScanDataServiceTest {
         String username = "Perseus";
         Mockito.when(whiteRabbitFacade.generateScanReport(eq(dbSettings), any(), any()))
                 .thenThrow(new RuntimeException("Test error"));
-        String hash = "hash";
-        FileSaveResponse fileSaveResponse = new FileSaveResponse(hash, username, DATA_KEY);
+        Long id = 1L;
+        FileSaveResponse fileSaveResponse = new FileSaveResponse(id, username, DATA_KEY);
         Mockito.when(filesManagerService.saveFile(any()))
                 .thenReturn(fileSaveResponse);
 

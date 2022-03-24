@@ -26,41 +26,36 @@ public class FilesManagerServiceImpl implements FilesManagerService {
     private final RestTemplate restTemplate;
 
     @Override
-    public ByteArrayResource getFile(String key) {
+    public ByteArrayResource getFile(Long userDataId) {
         return restTemplate.getForObject(
-                filesManagerUrl + "/api/{key}",
+                filesManagerUrl + "/api/{userDataId}",
                 ByteArrayResource.class,
-                key
+                userDataId
         );
     }
 
     @Override
     public FileSaveResponse saveFile(FileSaveRequest model) {
-        log.info("Sending Rest request to save file");
+        log.info("Sending Rest request to save scan report file");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MULTIPART_FORM_DATA);
 
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("username", model.getUsername());
         map.add("dataKey", model.getDataKey());
-        map.add("file", model.getScanReport());
+        map.add("file", model.getFile());
 
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(map, headers);
-
         ResponseEntity<FileSaveResponse> responseEntity = restTemplate.postForEntity(
                 filesManagerUrl + "/api",
                 request,
                 FileSaveResponse.class
         );
-
         return responseEntity.getBody();
     }
 
     @Override
     public void deleteFile(String key) {
-        restTemplate.delete(
-                filesManagerUrl + "/api/${key}",
-                key
-        );
+        restTemplate.delete(filesManagerUrl + "/api/${key}", key);
     }
 }

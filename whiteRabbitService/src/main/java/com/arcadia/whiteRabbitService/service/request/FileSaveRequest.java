@@ -11,5 +11,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileSaveRequest {
     private String username;
     private String dataKey;
-    private FileSystemResource scanReport;
+    private FileSystemResource file;
 }
