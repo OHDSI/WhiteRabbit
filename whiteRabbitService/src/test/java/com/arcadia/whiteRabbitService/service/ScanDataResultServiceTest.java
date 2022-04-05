@@ -58,7 +58,7 @@ class ScanDataResultServiceTest {
         ScanDataConversion conversion = createScanDataConversion();
         conversionRepository.save(conversion);
         Mockito.when(filesManagerService.saveFile(Mockito.any()))
-                .thenReturn(new FileSaveResponse(fileId, conversion.getUsername(), DATA_KEY));
+                .thenReturn(new FileSaveResponse(fileId, conversion.getUsername(), DATA_KEY, "test.xlsx"));
         resultService.saveCompletedResult(scanReportFile, conversion.getId());
         conversion = conversionRepository.findById(conversion.getId()).get();
 

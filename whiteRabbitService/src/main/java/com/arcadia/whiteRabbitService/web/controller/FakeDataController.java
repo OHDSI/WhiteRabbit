@@ -4,12 +4,14 @@ import com.arcadia.whiteRabbitService.model.fakedata.FakeDataConversion;
 import com.arcadia.whiteRabbitService.model.fakedata.FakeDataSettings;
 import com.arcadia.whiteRabbitService.service.FakeDataService;
 import com.arcadia.whiteRabbitService.service.error.BadRequestException;
+import com.arcadia.whiteRabbitService.service.request.FakeDataRequest;
 import com.arcadia.whiteRabbitService.service.response.ConversionWithLogsResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,11 +29,12 @@ public class FakeDataController {
     public static final String INCORRECT_PARAMS_MESSAGE = "Incorrect Fake Data Params";
     private final FakeDataService fakeDataService;
 
+    @Deprecated
     @PostMapping()
     public ResponseEntity<FakeDataConversion> generate(@RequestHeader("Username") String username,
                                                        @RequestParam MultipartFile file,
                                                        @RequestParam String settings) {
-        log.info("Rest request to generate Fake Data");
+        log.info("Rest request to generate Fake Data. Deprecated use /api/fake-data/generate");
         try {
             ObjectMapper mapper = new ObjectMapper();
             FakeDataSettings fakeDataSettings = mapper.readValue(settings, FakeDataSettings.class);
@@ -48,8 +51,16 @@ public class FakeDataController {
         }
     }
 
+    @PostMapping("/generate")
+    public ResponseEntity<FakeDataConversion> generate(@RequestHeader("Username") String username,
+                                                       @Validated @RequestBody FakeDataRequest fakeDataRequest) {
+        log.info("Rest request to generate Fake Data");
+        return ok(fakeDataService.generateFakeData(fakeDataRequest, username));
+    }
+
     @GetMapping("/abort/{conversionId}")
-    public ResponseEntity<Void> abort(@RequestHeader("Username") String username, @PathVariable Long conversionId) {
+    public ResponseEntity<Void> abort(@RequestHeader("Username") String username,
+                                      @PathVariable Long conversionId) {
         log.info("Rest request to abort Fake Data conversion with id {}", conversionId);
         fakeDataService.abort(conversionId, username);
         return noContent().build();

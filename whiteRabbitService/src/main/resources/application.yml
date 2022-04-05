@@ -13,7 +13,7 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
   datasource:
-    url: jdbc:postgresql://localhost:5432/shared
+    url: jdbc:postgresql://jnjperseusu1:5432/shared
     username: white_rabbit
     password: password
   jpa:
@@ -25,12 +25,12 @@ spring:
       ddl-auto: create-drop
     show-sql: true
 
-files-manager-url: http://localhost:10500/files-manager
+files-manager-url: http://jnjperseusu1/files-manager
 
 fake-data-db:
   db-type: PostgreSQL
-  server: jnjcicdu1
-  port: 5431
-  database: cdm_souffleur
-  user: postgres
-  password: 5eC_DkMr^3
+  server: jnjperseusu1
+  port: 5433
+  database: perseus
+  user: perseus
+  password: password

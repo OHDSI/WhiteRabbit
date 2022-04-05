@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,9 +75,11 @@ public class ScanDataServiceImpl implements ScanDataService {
         createDirectory(directoryName);
         settings.setDirectory(directoryName);
         try {
-            List<String> fileNames = files.stream()
-                    .map(file -> storageService.store(file, directoryName, file.getOriginalFilename()))
-                    .collect(Collectors.toList());
+            List<String> fileNames = new ArrayList<>();
+            for (MultipartFile file : files) {
+                String store = storageService.store(file, directoryName, file.getOriginalFilename());
+                fileNames.add(store);
+            }
             settings.setFileNames(fileNames);
 
             ScanDataConversion conversion = ScanDataConversion.builder()

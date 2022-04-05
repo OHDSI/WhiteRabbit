@@ -5,6 +5,7 @@ import com.arcadia.whiteRabbitService.service.FilesManagerService;
 import com.arcadia.whiteRabbitService.service.ScanDataService;
 import com.arcadia.whiteRabbitService.service.error.BadRequestException;
 import com.arcadia.whiteRabbitService.service.response.ConversionWithLogsResponse;
+import com.arcadia.whiteRabbitService.service.response.ScanReportResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +72,14 @@ public class ScanDataController {
     }
 
     @GetMapping("/result/{conversionId}")
+    public ResponseEntity<ScanReportResponse> scanResult(@RequestHeader("Username") String username,
+                                                         @PathVariable Long conversionId) {
+        ScanDataResult result = scanDataService.result(conversionId, username);
+        ScanReportResponse response = new ScanReportResponse(result.getFileId(), result.getFileName());
+        return ok(response);
+    }
+
+    @GetMapping("/result-as-resource/{conversionId}")
     public ResponseEntity<Resource> downloadScanReport(@RequestHeader("Username") String username,
                                                        @PathVariable Long conversionId) {
         log.info("Rest request to download scan report with conversion id {}", conversionId);

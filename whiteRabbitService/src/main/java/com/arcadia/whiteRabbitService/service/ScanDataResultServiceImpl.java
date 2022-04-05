@@ -25,7 +25,7 @@ import static com.arcadia.whiteRabbitService.model.LogStatus.INFO;
 @Service
 @RequiredArgsConstructor
 public class ScanDataResultServiceImpl implements ScanDataResultService {
-    public static final String DATA_KEY = "white-rabbit";
+    public static final String DATA_KEY = "scan-report";
     
     private final ScanDataConversionRepository conversionRepository;
     private final ScanDataResultRepository resultRepository;

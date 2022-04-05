@@ -10,4 +10,5 @@ public class FileSaveResponse {
     private Long id;
     private String username;
     private String dataKey;
+    private String fileName;
 }

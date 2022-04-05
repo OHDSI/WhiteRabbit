@@ -94,7 +94,7 @@ public class ScanDataServiceTest {
         Mockito.when(whiteRabbitFacade.generateScanReport(eq(dbSettings), any(), any()))
                 .thenReturn(scanReportFile);
         Long id = 1L;
-        FileSaveResponse fileSaveResponse = new FileSaveResponse(id, username, DATA_KEY);
+        FileSaveResponse fileSaveResponse = new FileSaveResponse(id, username, DATA_KEY, "test.xlsx");
         Mockito.when(filesManagerService.saveFile(any()))
                 .thenReturn(fileSaveResponse);
 
@@ -117,7 +117,7 @@ public class ScanDataServiceTest {
         Mockito.when(whiteRabbitFacade.generateScanReport(eq(dbSettings), any(), any()))
                 .thenThrow(new RuntimeException("Test error"));
         Long id = 1L;
-        FileSaveResponse fileSaveResponse = new FileSaveResponse(id, username, DATA_KEY);
+        FileSaveResponse fileSaveResponse = new FileSaveResponse(id, username, DATA_KEY, "text.xls");
         Mockito.when(filesManagerService.saveFile(any()))
                 .thenReturn(fileSaveResponse);
 
