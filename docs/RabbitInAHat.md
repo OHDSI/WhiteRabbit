@@ -51,7 +51,7 @@ However, `person.associated_provider_id` exists only in CDMv4 (it was renamed to
 
 ## Loading in a Custom CDM
 There are times when users might need to load in a customized version of the CDM, for instance if they are sandboxing new features.
-To load in a custom CDM schema, first you must create a CSV file that uses the same format as [the existing CDMv5 schema file](https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel/CDMV5.csv).
+To load in a custom CDM schema, first you must create a CSV file that uses the same format as [given for the CDM versions](https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel).
 
 Once you have created the CSV file, load it into RiaH as shown below:
 
