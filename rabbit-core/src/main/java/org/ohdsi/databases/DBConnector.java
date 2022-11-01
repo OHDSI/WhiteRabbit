@@ -33,6 +33,9 @@ public class DBConnector {
 
 	// If dbType.BIGQUERY: domain field has been replaced with  database field
 	public static Connection connect(String server, String domain, String user, String password, DbType dbType) {
+		if (System.getProperty("jdbc.drivers") != null && !System.getProperty("jdbc.drivers").equals("")) {
+			System.out.println("The following jdbc drivers will be loaded because they are set in system property 'jdbc.drivers': '" + System.getProperty("jdbc.drivers") + "'");
+		}
 		if (dbType.equals(DbType.MYSQL))
 			return DBConnector.connectToMySQL(server, user, password);
 		else if (dbType.equals(DbType.MSSQL) || dbType.equals(DbType.PDW) || dbType.equals(DbType.AZURE))
