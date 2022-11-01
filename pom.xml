@@ -6,7 +6,7 @@
     <groupId>org.ohdsi</groupId>
     <artifactId>leporidae</artifactId>
     <packaging>pom</packaging>
-    <version>0.10.7</version>
+    <version>0.10.7a</version>
     <modules>
         <module>rabbitinahat</module>
         <module>whiterabbit</module>
@@ -28,7 +28,7 @@
         <repository>
             <id>clojars</id>
             <name>Clojars Repository</name>
-            <url>http://clojars.org/repo/</url>
+            <url>https://clojars.org/repo/</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>false</enabled>
@@ -55,7 +55,7 @@
         <repository>
             <id>jahia</id>
             <name>Geomajas Repository</name>
-            <url>http://maven.geomajas.org/</url>
+            <url>https://maven.geomajas.org/</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>false</enabled>
