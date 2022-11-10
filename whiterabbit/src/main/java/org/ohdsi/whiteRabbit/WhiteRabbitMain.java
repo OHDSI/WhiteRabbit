@@ -328,7 +328,7 @@ public class WhiteRabbitMain implements ActionListener {
 			addAllButton.setEnabled(sourceIsDatabase);
 
 			if (sourceIsDatabase && selectedSourceType.equals("Oracle")) {
-				sourceServerField.setToolTipText("For Oracle servers this field contains the SID, servicename, and optionally the port: '<host>/<sid>', '<host>:<port>/<sid>', '<host>/<service name>', or '<host>:<port>/<service name>'");
+				sourceServerField.setToolTipText("For Oracle servers this field contains the connection string for the OCI/THIN driver. eg. 'jdbc:oracle:oci:@<server>', 'jdbc:oracle:thin:@<server>'");
 				sourceUserField.setToolTipText("For Oracle servers this field contains the name of the user used to log in");
 				sourcePasswordField.setToolTipText("For Oracle servers this field contains the password corresponding to the user");
 				sourceDatabaseField.setToolTipText("For Oracle servers this field contains the schema (i.e. 'user' in Oracle terms) containing the source tables");
@@ -585,7 +585,7 @@ public class WhiteRabbitMain implements ActionListener {
 
 			switch (event.getItem().toString()) {
 				case "Oracle":
-					targetServerField.setToolTipText("For Oracle servers this field contains the SID, servicename, and optionally the port: '<host>/<sid>', '<host>:<port>/<sid>', '<host>/<service name>', or '<host>:<port>/<service name>'");
+					targetServerField.setToolTipText("For Oracle servers this field contains the connection string for the OCI/THIN driver. eg. 'jdbc:oracle:oci:@<server>', 'jdbc:oracle:thin:@<server>'");
 					targetDatabaseField.setToolTipText("For Oracle servers this field contains the schema (i.e. 'user' in Oracle terms) containing the source tables");
 					break;
 				case "PostgreSQL":

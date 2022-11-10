@@ -200,20 +200,9 @@ public class DBConnector {
 		// If fails, try THIN driver:
 		if (error != null)
 			try {
-				String host = "127.0.0.1";
-				String sid = server;
-				String port = "1521";
-				if (server.contains("/")) {
-					host = server.split("/")[0];
-					if (host.contains(":")) {
-						port = host.split(":")[1];
-						host = host.split(":")[0];
-					}
-					sid = server.split("/")[1];
-				}
 				OracleDataSource ods;
 				ods = new OracleDataSource();
-				ods.setURL("jdbc:oracle:thin:@" + host + ":" + port + ":" + sid);
+				ods.setURL("jdbc:oracle:thin:@" + server);
 				ods.setUser(user);
 				ods.setPassword(password);
 				return ods.getConnection();
