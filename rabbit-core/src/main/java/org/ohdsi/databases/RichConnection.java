@@ -155,7 +155,7 @@ public class RichConnection implements Closeable {
 		} else if (dbType == DbType.ORACLE) {
 			query = "SELECT table_name FROM " +
 					"(SELECT table_name, owner FROM all_tables UNION ALL SELECT view_name, owner FROM all_views) tables_views " +
-					"WHERE owner='" + database.toUpperCase() + "'";
+					"WHERE owner='" + database.toUpperCase() + "' ORDER BY table_name";
 		} else if (dbType == DbType.POSTGRESQL || dbType == DbType.REDSHIFT) {
 			query = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + database.toLowerCase() + "' ORDER BY table_name";
 		} else if (dbType == DbType.MSACCESS) {
