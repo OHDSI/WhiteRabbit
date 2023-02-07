@@ -92,6 +92,18 @@ White Rabbit and Rabbit in a Hat are structured as a Maven package and can be de
 
 To generate the files ready for distribution, run `mvn install`.
 
+### Testing
+
+Some newer code has unit and/or integration tests. Tests that depend on external resources being available,
+such as a database, should be excluded from executing automatically. You can use the @Tag annotation to combine
+such tests in a group with the same tag, and exclude that tag from being run automatically.
+
+The exception to the above is tests that depend on Docker. It is assumed that Docker is installed and running.
+If you wish to exclude the docker tests, add `-DexcludedGroups=DockerRequired` to your maven command line, or
+add it to the run/debug configuration(s) in your IDE.
+Be aware that ignoring the Docker dependent tests will result in some essential integration tests not being run,
+so it is preferred that you test with Docker available.
+
 ### Development status
 
 Production. This program is being used by many people.

@@ -33,8 +33,37 @@
                     </programs>
                 </configuration>
             </plugin>
+            <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-surefire-plugin</artifactId>
+                 <!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
+                 <version>3.0.0-M8</version>
+                <configuration>
+                    <groups>DockerRequired</groups>
+                </configuration>
+                 <dependencies>
+                     <dependency>
+                         <groupId>org.junit.jupiter</groupId>
+                         <artifactId>junit-jupiter</artifactId>
+                         <version>5.8.2</version>
+                     </dependency>
+                 </dependencies>
+             </plugin>
+
         </plugins>
     </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>1.17.6</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -46,6 +75,31 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.30</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.testcontainers/testcontainers -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.9.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.testcontainers/junit-jupiter -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

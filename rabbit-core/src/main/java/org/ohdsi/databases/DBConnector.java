@@ -107,7 +107,8 @@ public class DBConnector {
 		} catch (ClassNotFoundException e1) {
 			throw new RuntimeException("Cannot find JDBC driver. Make sure the file postgresql-x.x-xxxx.jdbcx.jar is in the path");
 		}
-		String url = "jdbc:postgresql://" + server;
+		final String jdbcProtocol = "jdbc:postgresql://";
+		String url = (!server.startsWith(jdbcProtocol) ? jdbcProtocol : "") + server;
 		try {
 			return DriverManager.getConnection(url, user, password);
 		} catch (SQLException e1) {
