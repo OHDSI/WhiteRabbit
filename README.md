@@ -96,10 +96,11 @@ To generate the files ready for distribution, run `mvn install`.
 
 Some newer code has unit and/or integration tests. Tests that depend on external resources being available,
 such as a database, should be excluded from executing automatically. You can use the @Tag annotation to combine
-such tests in a group with the same tag, and exclude that tag from being run automatically.
+such tests in a group with the same tag, and exclude that tag from being run automatically by maven (this
+should be done in the configuration of the surefir plugin in pom.xml of the module involved).
 
-The exception to the above is tests that depend on Docker. It is assumed that Docker is installed and running.
-If you wish to exclude the docker tests, add `-DexcludedGroups=DockerRequired` to your maven command line, or
+An exception to the above are tests that depend on Docker. It is assumed that Docker is installed and running.
+If you wish to exclude the Docker tests, add `-DexcludedGroups=DockerRequired` to your maven command line, or
 add it to the run/debug configuration(s) in your IDE.
 Be aware that ignoring the Docker dependent tests will result in some essential integration tests not being run,
 so it is preferred that you test with Docker available.
