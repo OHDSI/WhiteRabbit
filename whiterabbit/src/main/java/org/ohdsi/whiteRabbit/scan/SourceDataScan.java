@@ -18,6 +18,9 @@
 package org.ohdsi.whiteRabbit.scan;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -29,11 +32,13 @@ import com.epam.parso.Column;
 import com.epam.parso.SasFileProperties;
 import com.epam.parso.SasFileReader;
 import com.epam.parso.impl.SasFileReaderImpl;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.commons.io.FileUtils;
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.databases.RichConnection.QueryResult;
@@ -70,6 +75,15 @@ public class SourceDataScan {
 
 	private LocalDateTime startTimeStamp;
 
+	static final String poiTmpPath;
+
+	static {
+		try {
+			poiTmpPath = setUniqueTempDirStrategyForApachePoi();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public void setSampleSize(int sampleSize) {
 		// -1 if sample size is not restricted
@@ -115,6 +129,32 @@ public class SourceDataScan {
 		}
 
 		generateReport(outputFileName);
+	}
+
+	public static String setUniqueTempDirStrategyForApachePoi() throws IOException {
+		// TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
+		final String poiFilesDir = "poifiles";
+		Path defaultTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDir);
+		Path myTmpPath = defaultTmpPath;
+		if (Files.exists(defaultTmpPath) && !Files.isWritable(defaultTmpPath)) {
+			// problem: someone else (?) already created the default tmp path for poi, but we cannot use it: it's readonly for us.
+			// solution: create our own tmp directory, taking property "org.ohdsi.whiterabbit.poi.tmpdir" into account if set.
+			String poiFilesDirProperty = System.getProperty("org.ohdsi.whiterabbit.poi.tmpdir");
+			if (!StringUtils.isEmpty(poiFilesDirProperty)) {
+				// use what the user configured.
+				myTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDirProperty, UUID.randomUUID().toString());
+			}
+			else {
+				// avoid the poifiles directory entirely
+				myTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), UUID.randomUUID().toString());
+			}
+			File tmpDir = Files.createDirectories(myTmpPath).toFile();
+			org.apache.poi.util.TempFile.setTempFileCreationStrategy(new org.apache.poi.util.DefaultTempFileCreationStrategy(tmpDir));
+		}
+
+		// return the path that is actually being used
+		// not needed for production code,  by handy for unit testing this
+		return myTmpPath.toFile().getAbsolutePath();
 	}
 
 	private void processDatabase(DbSettings dbSettings) {
@@ -735,7 +775,6 @@ public class SourceDataScan {
 					samplingReservoir.add(DateUtilities.parseDate(trimValue));
 				}
 			}
-
 		}
 
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {

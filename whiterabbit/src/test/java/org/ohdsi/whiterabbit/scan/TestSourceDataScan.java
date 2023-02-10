@@ -1,5 +1,6 @@
 package org.ohdsi.whiterabbit.scan;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -20,10 +21,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -92,9 +91,9 @@ class TestSourceDataScan {
         sourceDataScan.process(dbSettings, outFile.toString());
         assertTrue(Files.exists(outFile));
 
-	//
+	    //
         // Verify the contents of the generated xlsx file
-	//
+	    //
         FileInputStream file = new FileInputStream(new File(outFile.toUri()));
 
         ReadXlsxFileWithHeader sheet = new ReadXlsxFileWithHeader(file);
@@ -123,6 +122,62 @@ class TestSourceDataScan {
         expectRowNIsLike(66, data,"cost", "paid_dispensing_fee", "", "numeric", "0", "367378");
         expectRowNIsLike(155, data,"observation", "observation_datetime", "", "timestamp without time zone", "0", "19339");
         expectRowNIsLike(242, data, "visit_occurrence", "visit_type_concept_id", "", "integer", "0", "55261");
+    }
+
+    @Test
+    void testApachePoiTmpfileProblem(@TempDir Path tempDir) throws IOException {
+        // intends to verify solution of this bug: https://github.com/OHDSI/WhiteRabbit/issues/293
+
+        /*
+         * This tests a fix that assumes that the bug referenced here occurs in a multi-user situation where the
+         * first user running the scan, and causing /tmp/poifiles to created, does so by creating it read-only
+         * for everyone else. This directory is not automatically cleaned up, so every following user on the same
+         * system running the scan encounters the problem that /tmp/poifiles already exists and is read-only,
+         * causing a crash when the Apacho poi library attemps to create the xslx file.
+         *
+         * The class SourceDataScan has been extended with a static method, called implicitly once through a static{}
+         * block, to create a TempDir strategy to create a
+         * unique directory for each instance/run of WhiteRabbit. This effectively solves the assumes error
+         * situation.
+         *
+         * This test does not execute a multi-user situation, but emulates it by leaving the tmp directory in a
+         * read-only state after the first scan, and then confirming that a second scan fails. After that,
+         * a new unique tmp dir is enforced by invoking SourceDataScan.setUniqueTempDirStrategyForApachePoi(),
+         * and a new scan now runs successfully.
+         */
+        // TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
+        final String poiFilesDir = "poifiles";
+        Path defaultTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDir);
+
+        // attempt to resolve an already existing unworkable situation where the default tmp dir for poi files is readonly
+        if (Files.exists(defaultTmpPath) && !Files.isWritable(defaultTmpPath)) {
+            assertTrue(defaultTmpPath.toFile().setWritable(true),
+                    String.format("This test cannot run properly if %s exists but is not writeable. Either remove it or make it writeable",
+                            defaultTmpPath.toFile().getAbsolutePath()));
+        }
+
+        // process should pass without problem, and afterwards the default tmp dir should exist
+        testProcess(tempDir);
+        assertTrue(Files.exists(defaultTmpPath));
+
+        // provoke the problem situation. make the default tmp dir readonly, try to process again
+        assertTrue(defaultTmpPath.toFile().setReadOnly());
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+                    testProcess(tempDir);
+                });
+        assertTrue(thrown.getMessage().endsWith("Permission denied"));
+
+        // invoke the static method to set a new tmp dir, process again (should succeed) and verify that
+        // the new tmpdir is indeed different from the default
+        String myTmpDir = SourceDataScan.setUniqueTempDirStrategyForApachePoi();
+        testProcess(tempDir);
+        assertNotEquals(defaultTmpPath.toFile().getAbsolutePath(), myTmpDir);
+
+        // we might have left behind an unworkable situation; attempt to solve that
+        if (Files.exists(defaultTmpPath) && !Files.isWritable(defaultTmpPath)) {
+            assertTrue(defaultTmpPath.toFile().setWritable(true));
+        }
+
     }
 
     private boolean expectRowNIsLike(int n, List<Row> rows, String... expectedValues) {
@@ -159,5 +214,20 @@ class TestSourceDataScan {
         dbSettings.tables = getTableNames(dbSettings);
 
         return dbSettings;
+    }
+
+    private boolean deleteDir(File file) {
+        if (Files.exists(file.toPath())) {
+            File[] contents = file.listFiles();
+            if (contents != null) {
+                for (File f : contents) {
+                    if (!Files.isSymbolicLink(f.toPath())) {
+                        deleteDir(f);
+                    }
+                }
+            }
+            return file.delete();
+        }
+        return true;
     }
 }

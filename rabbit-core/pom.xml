@@ -14,6 +14,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<apache-poi-version>4.1.2</apache-poi-version>
     </properties>
 
     <dependencies>
@@ -41,22 +42,22 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>4.1.2</version>
+	    <version>${apache-poi-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>4.1.2</version>
+	    <version>${apache-poi-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-excelant</artifactId>
-            <version>4.1.2</version>
+	    <version>${apache-poi-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml-schemas</artifactId>
-            <version>4.1.2</version>
+	    <version>4.1.2</version>
         </dependency>
         <!-- Note: Apache xmlbeans v4.x and v5.x is incompatible with Apache poi v4-->
         <dependency>
