@@ -28,7 +28,7 @@
         <repository>
             <id>clojars</id>
             <name>Clojars Repository</name>
-            <url>http://clojars.org/repo/</url>
+            <url>https://clojars.org/repo/</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>false</enabled>
@@ -47,15 +47,6 @@
             <id>mulesoft</id>
             <name>Mulesoft Repository</name>
             <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jahia</id>
-            <name>Geomajas Repository</name>
-            <url>http://maven.geomajas.org/</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>false</enabled>
