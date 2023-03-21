@@ -1,6 +1,5 @@
 package org.ohdsi.whiterabbit.scan;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.DbType;
@@ -18,7 +17,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 
 @Testcontainers(disabledWithoutDocker = true)
 class TestSourceDataScanOracle {
@@ -46,11 +44,6 @@ class TestSourceDataScanOracle {
             .withDatabaseName("testDB")
             .withInitScript("scan_data/create_data_oracle.sql");
 
-    @BeforeEach
-    public void disableOracleregionTimezoneCheck() {
-        System.out.println("Setting -Doracle.jdbc.timezoneAsRegion=false");
-        System.setProperty("oracle.jdbc.timezoneAsRegion", "false");
-    }
     @Test
     public void connectToDatabase() {
         // this is also implicitly tested by testSourceDataScan(), but having it fail separately helps identify problems quicker
