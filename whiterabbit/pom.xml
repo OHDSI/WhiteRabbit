@@ -38,9 +38,6 @@
                  <artifactId>maven-surefire-plugin</artifactId>
                  <!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
                  <version>3.0.0-M8</version>
-                <configuration>
-                    <groups>DockerRequired</groups>
-                </configuration>
                  <dependencies>
                      <dependency>
                          <groupId>org.junit.jupiter</groupId>
@@ -49,8 +46,12 @@
                      </dependency>
                  </dependencies>
              </plugin>
-
         </plugins>
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+            </testResource>
+        </testResources>
     </build>
 
     <dependencyManagement>
@@ -90,6 +91,12 @@
             <version>5.9.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.9.2</version>
+            <scope>test</scope>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.testcontainers/junit-jupiter -->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -101,5 +108,12 @@
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.testcontainers/oracle-xe -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>oracle-xe</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

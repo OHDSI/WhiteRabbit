@@ -110,9 +110,10 @@ public class DBConnector {
 		final String jdbcProtocol = "jdbc:postgresql://";
 		String url = (!server.startsWith(jdbcProtocol) ? jdbcProtocol : "") + server;
 		try {
+			System.out.printf("DriverManager.getConnection(%s, %s, %s)%n", url, user, password);
 			return DriverManager.getConnection(url, user, password);
 		} catch (SQLException e1) {
-			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
+			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage() + " for url: " + url);
 		}
 	}
 
