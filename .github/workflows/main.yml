@@ -30,4 +30,4 @@ jobs:
 
       # Gradle check
       - name: Check
-        run: mvn test
+        run: mvn -Doracle.jdbc.timezoneAsRegion=false test
