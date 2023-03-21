@@ -1,6 +1,6 @@
 package org.ohdsi.whiterabbit.scan;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.DbType;
@@ -46,8 +46,9 @@ class TestSourceDataScanOracle {
             .withDatabaseName("testDB")
             .withInitScript("scan_data/create_data_oracle.sql");
 
-    @Before
+    @BeforeEach
     public void disableOracleregionTimezoneCheck() {
+        System.out.println("Setting -Doracle.jdbc.timezoneAsRegion=false");
         System.setProperty("oracle.jdbc.timezoneAsRegion", "false");
     }
     @Test
