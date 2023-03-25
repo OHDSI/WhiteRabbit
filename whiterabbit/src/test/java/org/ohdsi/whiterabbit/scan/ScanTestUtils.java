@@ -1,9 +1,12 @@
 package org.ohdsi.whiterabbit.scan;
 
 import org.ohdsi.databases.DbType;
+import org.ohdsi.databases.RichConnection;
 import org.ohdsi.ooxml.ReadXlsxFileWithHeader;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.RowUtilities;
+import org.ohdsi.whiteRabbit.DbSettings;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -98,4 +101,27 @@ public class ScanTestUtils {
             throw new RuntimeException("Unsupported DBType: " + dbType);
         }
     }
+
+    static DbSettings getTestPostgreSQLSettings(PostgreSQLContainer<?> container) {
+        DbSettings dbSettings = new DbSettings();
+        dbSettings.dbType = DbType.POSTGRESQL;
+        dbSettings.sourceType = DbSettings.SourceType.DATABASE;
+        dbSettings.server = container.getJdbcUrl();
+        dbSettings.database = "public"; // yes, really
+        dbSettings.user = container.getUsername();
+        dbSettings.password = container.getPassword();
+        dbSettings.tables = getTableNamesPostgreSQL(dbSettings);
+
+        return dbSettings;
+    }
+
+    static List<String> getTableNamesPostgreSQL(DbSettings dbSettings) {
+        try (RichConnection richConnection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
+            return richConnection.getTableNames("public");
+        }
+    }
+
+
+
+
 }

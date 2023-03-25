@@ -131,6 +131,12 @@ public class SourceDataScan {
 		generateReport(outputFileName);
 	}
 
+	/*
+	 * Implements a strategy for the mp dir to ise for files for apache poi
+	 * Attemps to solve an issue where some users report not having write access to the poi tmp dir
+	 * (see https://github.com/OHDSI/WhiteRabbit/issues/293). Vry likely this is caused by the poi tmp dir
+	 * being created on a multi-user system by a user with a too restrictive file mask.
+	 */
 	public static String setUniqueTempDirStrategyForApachePoi() throws IOException {
 		// TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
 		final String poiFilesDir = "poifiles";
@@ -152,8 +158,6 @@ public class SourceDataScan {
 			org.apache.poi.util.TempFile.setTempFileCreationStrategy(new org.apache.poi.util.DefaultTempFileCreationStrategy(tmpDir));
 		}
 
-		// return the path that is actually being used
-		// not needed for production code,  by handy for unit testing this
 		return myTmpPath.toFile().getAbsolutePath();
 	}
 
