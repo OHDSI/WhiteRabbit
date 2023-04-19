@@ -7,7 +7,7 @@ pagetitle: "White Rabbit"
 
 ## Scope and purpose
 WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the [Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)](https://github.com/OHDSI/CommonDataModel).
-The source data can be in delimited text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure SQL Database).
+The source data can be in delimited text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure).
 Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Amazon RedShift, Google BigQuery, Impala).
 
 WhiteRabbit’s main function is to perform a scan of the source data, providing detailed information on the tables, fields, and values that appear in a field.
@@ -67,7 +67,7 @@ Use the “Pick Folder” button to navigate in your local environment where you
 
 Here you can specify the location of the source data.
 The following source types are supported:
-   delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure SQL Database.
+   delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure.
 Below are connection instructions for each data type of data source.
 Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.
 
@@ -137,7 +137,7 @@ Authentication via service account credentials:
   * _**Password:**_ OAuth private key path (full path to the private key JSON file)
   * _**Database name:**_ data set name within ProjectID named in Server location field
 
-#### Azure SQL Database
+#### Azure
 
   * _**Server location:**_ server address string including database name (e.g. `<project>.database.windows.net:1433;database=<database_name>`)
   * _**User name:**_ name of the user used to log into the server
