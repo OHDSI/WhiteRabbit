@@ -9,6 +9,9 @@ dist/
 target/
 *.class
 
+# jenv file(s)
+.java-version
+
 # Repo specific ignores
 /ScanReport.xlsx
 *swp
