@@ -6,7 +6,7 @@
     <groupId>org.ohdsi</groupId>
     <artifactId>leporidae</artifactId>
     <packaging>pom</packaging>
-    <version>0.10.7</version>
+    <version>0.10.8</version>
     <modules>
         <module>rabbitinahat</module>
         <module>whiterabbit</module>
@@ -135,6 +135,16 @@
                         </fileset>
                     </filesets>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.7.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.0.0</version>
             </plugin>
         </plugins>
 
