@@ -107,6 +107,11 @@
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
         </dependency>
+	<dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.23.0</version>
+        </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
@@ -228,6 +233,5 @@
             <artifactId>ant</artifactId>
             <version>1.10.13</version>
         </dependency>
-
     </dependencies>
 </project>
