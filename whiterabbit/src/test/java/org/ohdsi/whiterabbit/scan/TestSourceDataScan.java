@@ -19,6 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,7 +67,7 @@ class TestSourceDataScan {
         }
     }
 
-    void testProcess(@TempDir Path tempDir) throws IOException {
+    void testProcess(Path tempDir) throws IOException {
         Path outFile = tempDir.resolve("scanresult.xslx");
         SourceDataScan sourceDataScan = new SourceDataScan();
         DbSettings dbSettings = ScanTestUtils.getTestPostgreSQLSettings(postgreSQL);
@@ -76,7 +77,7 @@ class TestSourceDataScan {
     }
 
     @Test
-    void testApachePoiTmpfileProblem(@TempDir Path tempDir) throws IOException {
+    void testApachePoiTmpFileProblemWithAutomaticResolution(@TempDir Path tempDir) throws IOException, ReflectiveOperationException {
         // intends to verify solution of this bug: https://github.com/OHDSI/WhiteRabbit/issues/293
 
         /*
@@ -87,25 +88,26 @@ class TestSourceDataScan {
          * causing a crash when the Apacho poi library attemps to create the xslx file.
          *
          * The class SourceDataScan has been extended with a static method, called implicitly once through a static{}
-         * block, to create a TempDir strategy to create a
-         * unique directory for each instance/run of WhiteRabbit. This effectively solves the assumes error
-         * situation.
+         * block, to create a TempDir strategy that will create a unique directory for each instance/run of WhiteRabbit.
+         * This effectively solves the assumed error situation.
          *
          * This test does not execute a multi-user situation, but emulates it by leaving the tmp directory in a
          * read-only state after the first scan, and then confirming that a second scan fails. After that,
          * a new unique tmp dir is enforced by invoking SourceDataScan.setUniqueTempDirStrategyForApachePoi(),
          * and a new scan now runs successfully.
          */
+
+        // Make sure the scenarios are tested without a user configured tmp dir, so set environment variable and
+        // system property to an empty value
+        System.setProperty(SourceDataScan.POI_TMP_DIR_PROPERTY_NAME, "");
+        updateEnv(SourceDataScan.POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME, "");
         // TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
         final String poiFilesDir = "poifiles";
         Path defaultTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDir);
 
-        // attempt to resolve an already existing unworkable situation where the default tmp dir for poi files is readonly
-        if (Files.exists(defaultTmpPath) && !Files.isWritable(defaultTmpPath)) {
-            assertTrue(defaultTmpPath.toFile().setWritable(true),
-                    String.format("This test cannot run properly if %s exists but is not writeable. Either remove it or make it writeable",
-                            defaultTmpPath.toFile().getAbsolutePath()));
-        }
+        // attempt to resolve an already existing unworkable situation where the default tmp dir for poi files
+        // exists, and is possibly readonly
+        cleanTmpDir(defaultTmpPath);
 
         // process should pass without problem, and afterwards the default tmp dir should exist
         testProcess(tempDir);
@@ -121,32 +123,46 @@ class TestSourceDataScan {
         // invoke the static method to set a new tmp dir, process again (should succeed) and verify that
         // the new tmpdir is indeed different from the default
         String myTmpDir = SourceDataScan.setUniqueTempDirStrategyForApachePoi();
-        testProcess(tempDir);
+        testProcess(Paths.get(myTmpDir));
         assertNotEquals(defaultTmpPath.toFile().getAbsolutePath(), myTmpDir);
 
         // we might have left behind an unworkable situation; attempt to solve that
         if (Files.exists(defaultTmpPath) && !Files.isWritable(defaultTmpPath)) {
             assertTrue(defaultTmpPath.toFile().setWritable(true));
         }
-
     }
 
-    private boolean expectRowNIsLike(int n, List<Row> rows, String... expectedValues) {
-        assert expectedValues.length == 6;
-        testColumnValue(n, rows.get(n), "Table", expectedValues[0]);
-        testColumnValue(n, rows.get(n), "Field", expectedValues[1]);
-        testColumnValue(n, rows.get(n), "Description", expectedValues[2]);
-        testColumnValue(n, rows.get(n), "Type", expectedValues[3]);
-        testColumnValue(n, rows.get(n), "Max length", expectedValues[4]);
-        testColumnValue(n, rows.get(n), "N rows", expectedValues[5]);
-        return true;
+    @Test
+    void testApachePoiTmpFileProblemWithUserConfiguredResolution(@TempDir Path tempDir) throws IOException, ReflectiveOperationException {
+        // 1. Verify that the poi tmp dir property is used, if set
+        Path tmpDirFromProperty = tempDir.resolve("setByProperty");
+        System.setProperty(SourceDataScan.POI_TMP_DIR_PROPERTY_NAME, tmpDirFromProperty.toFile().getAbsolutePath());
+        cleanTmpDir(tmpDirFromProperty);
+
+        SourceDataScan.setUniqueTempDirStrategyForApachePoi(); // need to reset to pick up the property
+        testProcess(tmpDirFromProperty);
+        assertTrue(Files.exists(tmpDirFromProperty));
+
+        cleanTmpDir(tmpDirFromProperty);
+
+        // 2. Verify that the poi tmp dir environment variable is used, if set, and overrules the property set above
+        Path tmpDirFromEnvironmentVariable = tempDir.resolve("setByEnvVar");
+        updateEnv(SourceDataScan.POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME, tmpDirFromEnvironmentVariable.toFile().getAbsolutePath());
+        cleanTmpDir(tmpDirFromEnvironmentVariable);
+
+        SourceDataScan.setUniqueTempDirStrategyForApachePoi(); // need to reset to pick up the env. var.
+        testProcess(tmpDirFromEnvironmentVariable);
+        assertFalse(Files.exists(tmpDirFromProperty));
+        assertTrue(Files.exists(tmpDirFromEnvironmentVariable));
+        cleanTmpDir(tmpDirFromEnvironmentVariable);
     }
 
-    private void testColumnValue(int i, Row row, String fieldName, String expected) {
-        if (!expected.equals(row.get(fieldName))) {
-            fail(String.format("In row %d, value '%s' was expected for column '%s', but '%s' was found",
-                    i, expected, fieldName, row.get(fieldName)));
-        }
+    @SuppressWarnings({ "unchecked" })
+    private static void updateEnv(String name, String val) throws ReflectiveOperationException {
+        Map<String, String> env = System.getenv();
+        Field field = env.getClass().getDeclaredField("m");
+        field.setAccessible(true);
+        ((Map<String, String>) field.get(env)).put(name, val);
     }
     private List<String> getTableNames(DbSettings dbSettings) {
         try (RichConnection richConnection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
@@ -154,20 +170,17 @@ class TestSourceDataScan {
         }
     }
 
-    private DbSettings getTestDbSettings() {
-        DbSettings dbSettings = new DbSettings();
-        dbSettings.dbType = DbType.POSTGRESQL;
-        dbSettings.sourceType = DbSettings.SourceType.DATABASE;
-        dbSettings.server = postgreSQL.getJdbcUrl();
-        dbSettings.database = "public"; // yes, really
-        dbSettings.user = postgreSQL.getUsername();
-        dbSettings.password = postgreSQL.getPassword();
-        dbSettings.tables = getTableNames(dbSettings);
-
-        return dbSettings;
+    private static void cleanTmpDir(Path path) {
+        if (Files.exists(path)) {
+            if (!Files.isWritable(path)) {
+                assertTrue(path.toFile().setWritable(true),
+                        String.format("This test cannot run properly if %s exists but is not writeable. Either remove it or make it writeable",
+                                path.toFile().getAbsolutePath()));
+            }
+            assertTrue(deleteDir(path.toFile()));
+        }
     }
-
-    private boolean deleteDir(File file) {
+    private static boolean deleteDir(File file) {
         if (Files.exists(file.toPath())) {
             File[] contents = file.listFiles();
             if (contents != null) {

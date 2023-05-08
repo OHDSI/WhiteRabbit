@@ -21,6 +21,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.rmi.RemoteException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -54,10 +55,13 @@ import static java.lang.Long.max;
 
 public class SourceDataScan {
 
-	public static int	MAX_VALUES_IN_MEMORY				= 100000;
-	public static int	MIN_CELL_COUNT_FOR_CSV				= 1000000;
-	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
-	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
+	public static int MAX_VALUES_IN_MEMORY = 100000;
+	public static int MIN_CELL_COUNT_FOR_CSV = 1000000;
+	public static int N_FOR_FREE_TEXT_CHECK = 1000;
+	public static int MIN_AVERAGE_LENGTH_FOR_FREE_TEXT = 100;
+
+	public static final String POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME = "ORG_OHDSI_WHITERABBIT_POI_TMPDIR";
+	public static final String POI_TMP_DIR_PROPERTY_NAME = "org.ohdsi.whiterabbit.poi.tmpdir";
 
 	private SXSSFWorkbook workbook;
 	private char delimiter = ',';
@@ -132,33 +136,57 @@ public class SourceDataScan {
 	}
 
 	/*
-	 * Implements a strategy for the mp dir to ise for files for apache poi
-	 * Attemps to solve an issue where some users report not having write access to the poi tmp dir
+	 * Implements a strategy for the tmp dir to ise for files for apache poi
+	 * Attempts to solve an issue where some users report not having write access to the poi tmp dir
 	 * (see https://github.com/OHDSI/WhiteRabbit/issues/293). Vry likely this is caused by the poi tmp dir
 	 * being created on a multi-user system by a user with a too restrictive file mask.
 	 */
 	public static String setUniqueTempDirStrategyForApachePoi() throws IOException {
 		// TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
 		final String poiFilesDir = "poifiles";
-		Path defaultTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDir);
-		Path myTmpPath = defaultTmpPath;
-		if (Files.exists(defaultTmpPath) && !Files.isWritable(defaultTmpPath)) {
-			// problem: someone else (?) already created the default tmp path for poi, but we cannot use it: it's readonly for us.
-			// solution: create our own tmp directory, taking property "org.ohdsi.whiterabbit.poi.tmpdir" into account if set.
-			String poiFilesDirProperty = System.getProperty("org.ohdsi.whiterabbit.poi.tmpdir");
-			if (!StringUtils.isEmpty(poiFilesDirProperty)) {
-				// use what the user configured.
-				myTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDirProperty, UUID.randomUUID().toString());
-			}
-			else {
-				// avoid the poifiles directory entirely
-				myTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), UUID.randomUUID().toString());
-			}
-			File tmpDir = Files.createDirectories(myTmpPath).toFile();
-			org.apache.poi.util.TempFile.setTempFileCreationStrategy(new org.apache.poi.util.DefaultTempFileCreationStrategy(tmpDir));
+		Path myTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDir);
+		String userConfiguredPoiTmpDir = getUserConfiguredPoiTmpDir();
+		if (!StringUtils.isEmpty(userConfiguredPoiTmpDir)) {
+			myTmpPath = Paths.get(userConfiguredPoiTmpDir);
+		}
+		Files.createDirectories(myTmpPath);
+		if (isNotWritable(myTmpPath)) {
+			// avoid the poi files directory entirely
+			myTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), UUID.randomUUID().toString());
+			Files.createDirectories(myTmpPath);
+			org.apache.poi.util.TempFile.setTempFileCreationStrategy(new org.apache.poi.util.DefaultTempFileCreationStrategy(myTmpPath.toFile()));
+		}
+
+		if (isNotWritable(myTmpPath)){
+			String message = String.format("Directory %s is not writable! (used for tmp files for Apache POI)", myTmpPath.toFile().getAbsolutePath());
+			System.out.println(message);
+			throw new RemoteException(message);
 		}
 
 		return myTmpPath.toFile().getAbsolutePath();
+	}
+
+	private static String getUserConfiguredPoiTmpDir() {
+		// search for a user configured dir for poi tmp files. Env.var. overrules Java property.
+		String userConfiguredDir = System.getenv(POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME);
+		if (StringUtils.isEmpty(userConfiguredDir)) {
+			userConfiguredDir = System.getProperty(POI_TMP_DIR_PROPERTY_NAME);
+		}
+		return userConfiguredDir;
+	}
+
+	private static boolean isNotWritable(Path path) {
+		final Path testFile = path.resolve("test.txt");
+		if (Files.exists(path) && Files.isDirectory(path)) {
+			try {
+				Files.createFile(testFile);
+				Files.delete(testFile);
+			} catch (IOException e) {
+				return true;
+			}
+			return false;
+		}
+		return true;
 	}
 
 	private void processDatabase(DbSettings dbSettings) {
@@ -530,11 +558,11 @@ public class SourceDataScan {
 					trimmedDatabase = database.substring(1, database.length() - 1);
 				String[] parts = table.split("\\.");
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_SCHEMA='" + parts[0] +
-						"' AND TABLE_NAME='" + parts[1]	+ "';";
+						"' AND TABLE_NAME='" + parts[1] + "';";
 			} else if (dbType == DbType.AZURE) {
 				String[] parts = table.split("\\.");
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='" + parts[0] +
-						"' AND TABLE_NAME='" + parts[1]	+ "';";
+						"' AND TABLE_NAME='" + parts[1] + "';";
 			} else if (dbType == DbType.MYSQL)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table
 						+ "';";
@@ -544,8 +572,7 @@ public class SourceDataScan {
 			else if (dbType == DbType.TERADATA) {
 				query = "SELECT ColumnName, ColumnType FROM dbc.columns WHERE DatabaseName= '" + database.toLowerCase() + "' AND TableName = '"
 						+ table.toLowerCase() + "';";
-			}
-			else if (dbType == DbType.BIGQUERY) {
+			} else if (dbType == DbType.BIGQUERY) {
 				query = "SELECT column_name AS COLUMN_NAME, data_type as DATA_TYPE FROM " + database + ".INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"" + table + "\";";
 			}
 
