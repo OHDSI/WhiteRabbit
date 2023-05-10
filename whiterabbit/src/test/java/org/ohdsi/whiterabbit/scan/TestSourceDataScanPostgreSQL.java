@@ -2,7 +2,6 @@ package org.ohdsi.whiterabbit.scan;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
@@ -59,7 +58,7 @@ class TestSourceDataScanPostgreSQL {
     @Test
     public void connectToDatabase() {
         // this is also implicitly tested by testSourceDataScan(), but having it fail separately helps identify problems quicker
-        DbSettings dbSettings = getTestDbSettings();
+        DbSettings dbSettings = ScanTestUtils.getTestPostgreSQLSettings(postgreSQL);
         try (RichConnection richConnection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
             // do nothing, connection will be closed automatically because RichConnection implements interface Closeable
         }
@@ -68,36 +67,17 @@ class TestSourceDataScanPostgreSQL {
     @Test
     public void testGetTableNames() {
         // this is also implicitly tested by testSourceDataScan(), but having it fail separately helps identify problems quicker
-        DbSettings dbSettings = getTestDbSettings();
-        List<String> tableNames = getTableNames(dbSettings);
+        DbSettings dbSettings = ScanTestUtils.getTestPostgreSQLSettings(postgreSQL);
+        List<String> tableNames = ScanTestUtils.getTableNamesPostgreSQL(dbSettings);
         assertEquals(2, tableNames.size());
     }
     @Test
     void testSourceDataScan(@TempDir Path tempDir) throws IOException {
         Path outFile = tempDir.resolve("scanresult.xslx");
         SourceDataScan sourceDataScan = new SourceDataScan();
-        DbSettings dbSettings = getTestDbSettings();
+        DbSettings dbSettings = ScanTestUtils.getTestPostgreSQLSettings(postgreSQL);
 
         sourceDataScan.process(dbSettings, outFile.toString());
         ScanTestUtils.verifyScanResultsFromXSLX(outFile, dbSettings.dbType);
-    }
-
-    private List<String> getTableNames(DbSettings dbSettings) {
-        try (RichConnection richConnection = new RichConnection(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType)) {
-            return richConnection.getTableNames("public");
-        }
-    }
-
-    private DbSettings getTestDbSettings() {
-        DbSettings dbSettings = new DbSettings();
-        dbSettings.dbType = DbType.POSTGRESQL;
-        dbSettings.sourceType = DbSettings.SourceType.DATABASE;
-        dbSettings.server = postgreSQL.getJdbcUrl();
-        dbSettings.database = "public"; // always for PostgreSQL
-        dbSettings.user = postgreSQL.getUsername();
-        dbSettings.password = postgreSQL.getPassword();
-        dbSettings.tables = getTableNames(dbSettings);
-
-        return dbSettings;
     }
 }
