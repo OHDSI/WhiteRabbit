@@ -45,6 +45,21 @@ To increase the memory (in this example to 2400m), either set the environment va
 To lower the memory, set one of these variables to e.g. `-Xmx600m`.
 If you have a 32-bit Java VM installed and problems persist, consider installing 64-bit Java.  
 
+### Temporary Directory for Apache POI
+(This addresses [issue 293](https://github.com/OHDSI/WhiteRabbit/issues/293))
+
+The Apache POI library is used for generated the report in Excel format. This library creates its own directory for
+temporary files in the system temporary directory. It has been reported that this can cause problems in a multi-user
+environment, when each user attempts to create this directory with too restrictive permissions (read-only for other
+users). WhiteRabbit from version 0.10.9 tries to circumvent this automatically, but this workaround can fail due
+to concurrency problems. If you want to prevent this from happening, you can set either the environment variable
+```ORG_OHDSI_WHITERABBIT_POI_TMPDIR``` or the Java system property ```org.ohdsi.whiterabbit.poi.tmpdir``` when starting
+WhiteRabbit (best would be to add this to the ```whiteRabbit``` or ```whiteRabbit.bat``` script). Please note that
+this directory should exist before your start WhiteRabbit, and is writable by any user that may want to run
+WhiteRabbit. Each user will then have a separate subdirectory, so that further conflicts should be avoided.
+Also, WhiteRabbit now attempts to detect this situation before the scan starts, so that the scan is not started, and
+the problem identified sooner.
+
 ## Support
 All source code, descriptions and input/output examples are available on GitHub: <https://github.com/OHDSI/WhiteRabbit>
 
