@@ -118,11 +118,9 @@ class TestSourceDataScan {
         // provoke the problem situation. make the default tmp dir readonly, try to process again
         assertTrue(Files.deleteIfExists(defaultTmpPath.resolve(SourceDataScan.SCAN_REPORT_FILE_NAME))); // or Apache Poi will happily reuse it
         assertTrue(defaultTmpPath.toFile().setReadOnly());
-        System.out.println("defaultTmpPath: " + defaultTmpPath.toFile().getAbsolutePath());
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-                    testProcess(defaultTmpPath);
-            System.out.println("Hold it!");
-                });
+            testProcess(defaultTmpPath);
+        });
         assertTrue(thrown.getMessage().contains("Permission denied"));
 
         // invoke the static method to set a new tmp dir, process again (should succeed) and verify that
