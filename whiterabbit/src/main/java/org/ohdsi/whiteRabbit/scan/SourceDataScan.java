@@ -18,6 +18,10 @@
 package org.ohdsi.whiteRabbit.scan;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.rmi.RemoteException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -29,11 +33,13 @@ import com.epam.parso.Column;
 import com.epam.parso.SasFileProperties;
 import com.epam.parso.SasFileReader;
 import com.epam.parso.impl.SasFileReaderImpl;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.commons.io.FileUtils;
 import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.databases.RichConnection.QueryResult;
@@ -49,10 +55,15 @@ import static java.lang.Long.max;
 
 public class SourceDataScan {
 
-	public static int	MAX_VALUES_IN_MEMORY				= 100000;
-	public static int	MIN_CELL_COUNT_FOR_CSV				= 1000000;
-	public static int	N_FOR_FREE_TEXT_CHECK				= 1000;
-	public static int	MIN_AVERAGE_LENGTH_FOR_FREE_TEXT	= 100;
+	public static int MAX_VALUES_IN_MEMORY = 100000;
+	public static int MIN_CELL_COUNT_FOR_CSV = 1000000;
+	public static int N_FOR_FREE_TEXT_CHECK = 1000;
+	public static int MIN_AVERAGE_LENGTH_FOR_FREE_TEXT = 100;
+
+	public final static String SCAN_REPORT_FILE_NAME = "ScanReport.xlsx";
+
+	public static final String POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME = "ORG_OHDSI_WHITERABBIT_POI_TMPDIR";
+	public static final String POI_TMP_DIR_PROPERTY_NAME = "org.ohdsi.whiterabbit.poi.tmpdir";
 
 	private SXSSFWorkbook workbook;
 	private char delimiter = ',';
@@ -70,6 +81,15 @@ public class SourceDataScan {
 
 	private LocalDateTime startTimeStamp;
 
+	static final String poiTmpPath;
+
+	static {
+		try {
+			poiTmpPath = setUniqueTempDirStrategyForApachePoi();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public void setSampleSize(int sampleSize) {
 		// -1 if sample size is not restricted
@@ -115,6 +135,78 @@ public class SourceDataScan {
 		}
 
 		generateReport(outputFileName);
+	}
+
+	/*
+	 * Implements a strategy for the tmp dir to ise for files for apache poi
+	 * Attempts to solve an issue where some users report not having write access to the poi tmp dir
+	 * (see https://github.com/OHDSI/WhiteRabbit/issues/293). Vry likely this is caused by the poi tmp dir
+	 * being created on a multi-user system by a user with a too restrictive file mask.
+	 */
+	public static String setUniqueTempDirStrategyForApachePoi() throws IOException {
+		Path myTmpDir = getDefaultPoiTmpPath(FileUtils.getTempDirectory().toPath());
+		String userConfiguredPoiTmpDir = getUserConfiguredPoiTmpDir();
+		if (!StringUtils.isEmpty(userConfiguredPoiTmpDir)) {
+			myTmpDir = setupTmpDir(Paths.get(userConfiguredPoiTmpDir));
+		} else {
+			if (isNotWritable(myTmpDir)) {
+				// avoid the poi files directory entirely by creating a separate directory in the standard tmp dir
+				myTmpDir = setupTmpDir(FileUtils.getTempDirectory().toPath());
+			}
+		}
+
+		String tmpDir = myTmpDir.toFile().getAbsolutePath();
+		checkWritableTmpDir(tmpDir);
+		return tmpDir;
+	}
+
+	public static Path getDefaultPoiTmpPath(Path tmpRoot) {
+		// TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
+		final String poiFilesDir = "poifiles"; // copied from poi implementation 4.x
+		return tmpRoot.resolve(poiFilesDir);
+	}
+
+	private static Path setupTmpDir(Path tmpDir) {
+		checkWritableTmpDir(tmpDir.toFile().getAbsolutePath());
+		Path myTmpDir = Paths.get(tmpDir.toFile().getAbsolutePath(), UUID.randomUUID().toString());
+		try {
+			Files.createDirectory(myTmpDir);
+			org.apache.poi.util.TempFile.setTempFileCreationStrategy(new org.apache.poi.util.DefaultTempFileCreationStrategy(myTmpDir.toFile()));
+		} catch (IOException ioException) {
+			throw new RuntimeException(String.format("Exception while creating directory %s", myTmpDir), ioException);
+		}
+		return myTmpDir;
+	}
+
+	private static void checkWritableTmpDir(String dir) {
+		if (isNotWritable(Paths.get(dir))) {
+			String message = String.format("Directory %s is not writable! (used for tmp files for Apache POI)", dir);
+			System.out.println(message);
+			throw new RuntimeException(message);
+		}
+	}
+
+	private static String getUserConfiguredPoiTmpDir() {
+		// search for a user configured dir for poi tmp files. Env.var. overrules Java property.
+		String userConfiguredDir = System.getenv(POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME);
+		if (StringUtils.isEmpty(userConfiguredDir)) {
+			userConfiguredDir = System.getProperty(POI_TMP_DIR_PROPERTY_NAME);
+		}
+		return userConfiguredDir;
+	}
+
+	public static boolean isNotWritable(Path path) {
+		final Path testFile = path.resolve("test.txt");
+		if (Files.exists(path) && Files.isDirectory(path)) {
+			try {
+				Files.createFile(testFile);
+				Files.delete(testFile);
+			} catch (IOException e) {
+				return true;
+			}
+			return false;
+		}
+		return true;
 	}
 
 	private void processDatabase(DbSettings dbSettings) {
@@ -486,11 +578,11 @@ public class SourceDataScan {
 					trimmedDatabase = database.substring(1, database.length() - 1);
 				String[] parts = table.split("\\.");
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_CATALOG='" + trimmedDatabase + "' AND TABLE_SCHEMA='" + parts[0] +
-						"' AND TABLE_NAME='" + parts[1]	+ "';";
+						"' AND TABLE_NAME='" + parts[1] + "';";
 			} else if (dbType == DbType.AZURE) {
 				String[] parts = table.split("\\.");
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='" + parts[0] +
-						"' AND TABLE_NAME='" + parts[1]	+ "';";
+						"' AND TABLE_NAME='" + parts[1] + "';";
 			} else if (dbType == DbType.MYSQL)
 				query = "SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + database + "' AND TABLE_NAME = '" + table
 						+ "';";
@@ -500,8 +592,7 @@ public class SourceDataScan {
 			else if (dbType == DbType.TERADATA) {
 				query = "SELECT ColumnName, ColumnType FROM dbc.columns WHERE DatabaseName= '" + database.toLowerCase() + "' AND TableName = '"
 						+ table.toLowerCase() + "';";
-			}
-			else if (dbType == DbType.BIGQUERY) {
+			} else if (dbType == DbType.BIGQUERY) {
 				query = "SELECT column_name AS COLUMN_NAME, data_type as DATA_TYPE FROM " + database + ".INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"" + table + "\";";
 			}
 
@@ -735,7 +826,6 @@ public class SourceDataScan {
 					samplingReservoir.add(DateUtilities.parseDate(trimValue));
 				}
 			}
-
 		}
 
 		public List<Pair<String, Integer>> getSortedValuesWithoutSmallValues() {

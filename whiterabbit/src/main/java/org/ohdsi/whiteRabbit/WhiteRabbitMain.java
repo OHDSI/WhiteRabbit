@@ -265,7 +265,7 @@ public class WhiteRabbitMain implements ActionListener {
 		sourceDataScan.setMaxValues(maxValues);
 		sourceDataScan.setCalculateNumericStats(calculateNumericStats);
 		sourceDataScan.setNumStatsSamplerSize(numericStatsSamplerSize);
-		sourceDataScan.process(dbSettings, iniFile.get("WORKING_FOLDER") + "/ScanReport.xlsx");
+		sourceDataScan.process(dbSettings, iniFile.get("WORKING_FOLDER") + "/" + SourceDataScan.SCAN_REPORT_FILE_NAME);
 	}
 
 	private JComponent createTabsPanel() {
@@ -543,7 +543,7 @@ public class WhiteRabbitMain implements ActionListener {
 		folderPanel.setLayout(new BoxLayout(folderPanel, BoxLayout.X_AXIS));
 		folderPanel.setBorder(BorderFactory.createTitledBorder("Scan report file"));
 		scanReportFileField = new JTextField();
-		scanReportFileField.setText((new File("ScanReport.xlsx").getAbsolutePath()));
+		scanReportFileField.setText((new File(SourceDataScan.SCAN_REPORT_FILE_NAME).getAbsolutePath()));
 		scanReportFileField.setToolTipText("The path to the scan report that will be used as a template to generate the fake data");
 		folderPanel.add(scanReportFileField);
 		JButton pickButton = new JButton("Pick file");
@@ -1051,7 +1051,7 @@ public class WhiteRabbitMain implements ActionListener {
 							table = folderField.getText() + "/" + table;
 						dbSettings.tables.add(table);
 					}
-					sourceDataScan.process(dbSettings, folderField.getText() + "/ScanReport.xlsx");
+					sourceDataScan.process(dbSettings, folderField.getText() + "/" + SourceDataScan.SCAN_REPORT_FILE_NAME);
 				}
 			} catch (Exception e) {
 				handleError(e);
