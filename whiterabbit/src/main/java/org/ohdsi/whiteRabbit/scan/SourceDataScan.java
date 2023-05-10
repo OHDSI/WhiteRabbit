@@ -60,6 +60,8 @@ public class SourceDataScan {
 	public static int N_FOR_FREE_TEXT_CHECK = 1000;
 	public static int MIN_AVERAGE_LENGTH_FOR_FREE_TEXT = 100;
 
+	public final static String SCAN_REPORT_FILE_NAME = "ScanReport.xlsx";
+
 	public static final String POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME = "ORG_OHDSI_WHITERABBIT_POI_TMPDIR";
 	public static final String POI_TMP_DIR_PROPERTY_NAME = "org.ohdsi.whiterabbit.poi.tmpdir";
 
@@ -142,28 +144,46 @@ public class SourceDataScan {
 	 * being created on a multi-user system by a user with a too restrictive file mask.
 	 */
 	public static String setUniqueTempDirStrategyForApachePoi() throws IOException {
-		// TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
-		final String poiFilesDir = "poifiles";
-		Path myTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDir);
+		Path myTmpDir = getDefaultPoiTmpPath(FileUtils.getTempDirectory().toPath());
 		String userConfiguredPoiTmpDir = getUserConfiguredPoiTmpDir();
 		if (!StringUtils.isEmpty(userConfiguredPoiTmpDir)) {
-			myTmpPath = Paths.get(userConfiguredPoiTmpDir);
-		}
-		Files.createDirectories(myTmpPath);
-		if (isNotWritable(myTmpPath)) {
-			// avoid the poi files directory entirely
-			myTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), UUID.randomUUID().toString());
-			Files.createDirectories(myTmpPath);
-			org.apache.poi.util.TempFile.setTempFileCreationStrategy(new org.apache.poi.util.DefaultTempFileCreationStrategy(myTmpPath.toFile()));
+			myTmpDir = setupTmpDir(Paths.get(userConfiguredPoiTmpDir));
+		} else {
+			if (isNotWritable(myTmpDir)) {
+				// avoid the poi files directory entirely by creating a separate directory in the standard tmp dir
+				myTmpDir = setupTmpDir(FileUtils.getTempDirectory().toPath());
+			}
 		}
 
-		if (isNotWritable(myTmpPath)){
-			String message = String.format("Directory %s is not writable! (used for tmp files for Apache POI)", myTmpPath.toFile().getAbsolutePath());
+		String tmpDir = myTmpDir.toFile().getAbsolutePath();
+		checkWritableTmpDir(tmpDir);
+		return tmpDir;
+	}
+
+	public static Path getDefaultPoiTmpPath(Path tmpRoot) {
+		// TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
+		final String poiFilesDir = "poifiles"; // copied from poi implementation 4.x
+		return tmpRoot.resolve(poiFilesDir);
+	}
+
+	private static Path setupTmpDir(Path tmpDir) {
+		checkWritableTmpDir(tmpDir.toFile().getAbsolutePath());
+		Path myTmpDir = Paths.get(tmpDir.toFile().getAbsolutePath(), UUID.randomUUID().toString());
+		try {
+			Files.createDirectory(myTmpDir);
+			org.apache.poi.util.TempFile.setTempFileCreationStrategy(new org.apache.poi.util.DefaultTempFileCreationStrategy(myTmpDir.toFile()));
+		} catch (IOException ioException) {
+			throw new RuntimeException(String.format("Exception while creating directory %s", myTmpDir), ioException);
+		}
+		return myTmpDir;
+	}
+
+	private static void checkWritableTmpDir(String dir) {
+		if (isNotWritable(Paths.get(dir))) {
+			String message = String.format("Directory %s is not writable! (used for tmp files for Apache POI)", dir);
 			System.out.println(message);
-			throw new RemoteException(message);
+			throw new RuntimeException(message);
 		}
-
-		return myTmpPath.toFile().getAbsolutePath();
 	}
 
 	private static String getUserConfiguredPoiTmpDir() {
@@ -175,7 +195,7 @@ public class SourceDataScan {
 		return userConfiguredDir;
 	}
 
-	private static boolean isNotWritable(Path path) {
+	public static boolean isNotWritable(Path path) {
 		final Path testFile = path.resolve("test.txt");
 		if (Files.exists(path) && Files.isDirectory(path)) {
 			try {

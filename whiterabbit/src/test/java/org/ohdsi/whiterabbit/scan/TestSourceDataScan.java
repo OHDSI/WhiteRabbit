@@ -68,7 +68,7 @@ class TestSourceDataScan {
     }
 
     void testProcess(Path tempDir) throws IOException {
-        Path outFile = tempDir.resolve("scanresult.xslx");
+        Path outFile = tempDir.resolve(SourceDataScan.SCAN_REPORT_FILE_NAME);
         SourceDataScan sourceDataScan = new SourceDataScan();
         DbSettings dbSettings = ScanTestUtils.getTestPostgreSQLSettings(postgreSQL);
 
@@ -101,24 +101,29 @@ class TestSourceDataScan {
         // system property to an empty value
         System.setProperty(SourceDataScan.POI_TMP_DIR_PROPERTY_NAME, "");
         updateEnv(SourceDataScan.POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME, "");
-        // TODO: if/when updating poi to 5.x or higher, use DefaultTempFileCreationStrategy.POIFILES instead of a string literal
-        final String poiFilesDir = "poifiles";
-        Path defaultTmpPath = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), poiFilesDir);
+        Path defaultTmpPath = SourceDataScan.getDefaultPoiTmpPath(tempDir);
 
-        // attempt to resolve an already existing unworkable situation where the default tmp dir for poi files
-        // exists, and is possibly readonly
-        cleanTmpDir(defaultTmpPath);
+        if (!Files.exists(defaultTmpPath)) {
+            Files.createDirectory(defaultTmpPath);
+        } else {
+            if (Files.exists(defaultTmpPath.resolve(SourceDataScan.SCAN_REPORT_FILE_NAME))) {
+                Files.delete(defaultTmpPath.resolve(SourceDataScan.SCAN_REPORT_FILE_NAME));
+            }
+        }
 
         // process should pass without problem, and afterwards the default tmp dir should exist
-        testProcess(tempDir);
+        testProcess(defaultTmpPath);
         assertTrue(Files.exists(defaultTmpPath));
 
         // provoke the problem situation. make the default tmp dir readonly, try to process again
+        assertTrue(Files.deleteIfExists(defaultTmpPath.resolve(SourceDataScan.SCAN_REPORT_FILE_NAME))); // or Apache Poi will happily reuse it
         assertTrue(defaultTmpPath.toFile().setReadOnly());
+        System.out.println("defaultTmpPath: " + defaultTmpPath.toFile().getAbsolutePath());
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-                    testProcess(tempDir);
+                    testProcess(defaultTmpPath);
+            System.out.println("Hold it!");
                 });
-        assertTrue(thrown.getMessage().endsWith("Permission denied"));
+        assertTrue(thrown.getMessage().contains("Permission denied"));
 
         // invoke the static method to set a new tmp dir, process again (should succeed) and verify that
         // the new tmpdir is indeed different from the default
@@ -137,7 +142,7 @@ class TestSourceDataScan {
         // 1. Verify that the poi tmp dir property is used, if set
         Path tmpDirFromProperty = tempDir.resolve("setByProperty");
         System.setProperty(SourceDataScan.POI_TMP_DIR_PROPERTY_NAME, tmpDirFromProperty.toFile().getAbsolutePath());
-        cleanTmpDir(tmpDirFromProperty);
+        Files.createDirectories(tmpDirFromProperty);
 
         SourceDataScan.setUniqueTempDirStrategyForApachePoi(); // need to reset to pick up the property
         testProcess(tmpDirFromProperty);
@@ -148,7 +153,7 @@ class TestSourceDataScan {
         // 2. Verify that the poi tmp dir environment variable is used, if set, and overrules the property set above
         Path tmpDirFromEnvironmentVariable = tempDir.resolve("setByEnvVar");
         updateEnv(SourceDataScan.POI_TMP_DIR_ENVIRONMENT_VARIABLE_NAME, tmpDirFromEnvironmentVariable.toFile().getAbsolutePath());
-        cleanTmpDir(tmpDirFromEnvironmentVariable);
+        Files.createDirectories(tmpDirFromEnvironmentVariable);
 
         SourceDataScan.setUniqueTempDirStrategyForApachePoi(); // need to reset to pick up the env. var.
         testProcess(tmpDirFromEnvironmentVariable);
