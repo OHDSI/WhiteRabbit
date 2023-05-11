@@ -28,8 +28,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@Testcontainers
-@Tag("DockerRequired")
+@Testcontainers(disabledWithoutDocker = true)
 class TestSourceDataScan {
 
     @Container
