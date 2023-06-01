@@ -87,6 +87,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_MARK_COMPLETED				= "Mark Highlighted As Complete";
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
 	public final static String		ACTION_HELP							= "Open documentation";
+	public final static String		ACTION_EXIT							= "Exit";
 
 	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit/RabbitInAHat.html";
 	private final static FileFilter FILE_FILTER_GZ = new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
@@ -125,16 +126,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				String[] objButtons = {"Yes","No"};
-				int PromptResult = JOptionPane.showOptionDialog(
-						null,
-						"Do you want to exit?\nPlease make sure that any work is saved",
-						"Rabbit In A Hat", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
-						null, objButtons, objButtons[1]
-				);
-				if (PromptResult==JOptionPane.YES_OPTION) {
-					System.exit(0);
-				}
+				didYouSaveBeforeExitDialog();
 			}
 		});
 		frame.setPreferredSize(new Dimension(700, 600));
@@ -198,6 +190,19 @@ public class RabbitInAHatMain implements ResizeListener {
 		}
 	}
 
+	private static void didYouSaveBeforeExitDialog() {
+		String[] objButtons = {"Yes","No"};
+		int PromptResult = JOptionPane.showOptionDialog(
+				null,
+				"Do you want to exit?\nPlease make sure that any work is saved",
+				"Rabbit In A Hat", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+				null, objButtons, objButtons[1]
+		);
+		if (PromptResult == JOptionPane.YES_OPTION) {
+			System.exit(0);
+		}
+	}
+
 	private void loadIcons(JFrame f) {
 		List<Image> icons = new ArrayList<>();
 		icons.add(loadIcon("RabbitInAHat16.png", f));
@@ -232,6 +237,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		addMenuItem(fileMenu, ACTION_OPEN_ETL_SPECS, evt -> this.doOpenSpecs(), KeyEvent.VK_O);
 		addMenuItem(fileMenu, ACTION_SAVE, evt -> this.doSave(), KeyEvent.VK_S);
 		addMenuItem(fileMenu, ACTION_SAVE_AS, evt -> this.doSaveAs());
+		addMenuItem(fileMenu, ACTION_EXIT, evt -> didYouSaveBeforeExitDialog());
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
@@ -299,6 +305,10 @@ public class RabbitInAHatMain implements ResizeListener {
 		addMenuItem(helpMenu, ACTION_HELP, evt -> this.doOpenDocumentation());
 
 		return menuBar;
+	}
+
+	public JFrame getFrame() {
+		return this.frame;
 	}
 
 	public JMenuItem addMenuItem(JMenu menu, String description, ActionListener actionListener) {
