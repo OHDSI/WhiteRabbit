@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -88,6 +90,11 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
 	public final static String		ACTION_HELP							= "Open documentation";
 	public final static String		ACTION_EXIT							= "Exit";
+	public final static String		TITLE_SELECT_FILE					= "Select File";
+	public final static String		TITLE_SELECT_FOLDER					= "Select Folder";
+
+	public final static String PANEL_TABLE_MAPPING = "Table Mapping";
+	public final static String PANEL_FIELD_MAPPING = "Field Mapping";
 
 	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit/RabbitInAHat.html";
 	private final static FileFilter FILE_FILTER_GZ = new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
@@ -123,13 +130,13 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		frame = new JFrame("Rabbit in a Hat");
 
-		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				didYouSaveBeforeExitDialog();
+				doAskIfSavedBeforeExit();
 			}
 		});
-		frame.setPreferredSize(new Dimension(700, 600));
+		frame.setPreferredSize(getPreferredDimension());
 		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 		frame.setJMenuBar(createMenuBar());
 
@@ -139,6 +146,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		ObjectExchange.etl = etl;
 
 		tableMappingPanel = new MappingPanel(etl.getTableToTableMapping());
+		tableMappingPanel.setName(PANEL_TABLE_MAPPING);
 		tableMappingPanel.addResizeListener(this);
 		scrollPane1 = new JScrollPane(tableMappingPanel);
 		scrollPane1.setBorder(new TitledBorder("Tables"));
@@ -149,6 +157,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		scrollPane1.setBackground(Color.WHITE);
 
 		fieldMappingPanel = new MappingPanel(etl.getTableToTableMapping());
+		fieldMappingPanel.setName(PANEL_FIELD_MAPPING);
 		tableMappingPanel.setSlaveMappingPanel(fieldMappingPanel);
 		fieldMappingPanel.addResizeListener(this);
 		scrollPane2 = new JScrollPane(fieldMappingPanel);
@@ -160,6 +169,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		tableFieldSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPane1, scrollPane2);
 		tableFieldSplitPane.setDividerLocation(600);
 		tableFieldSplitPane.setDividerSize(0);
+		tableFieldSplitPane.setName("splitpane");
 
 		detailsPanel = new DetailsPanel();
 		detailsPanel.setBorder(new TitledBorder("Details"));
@@ -190,7 +200,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		}
 	}
 
-	private static void didYouSaveBeforeExitDialog() {
+	private void doAskIfSavedBeforeExit() {
 		String[] objButtons = {"Yes","No"};
 		int PromptResult = JOptionPane.showOptionDialog(
 				null,
@@ -199,7 +209,8 @@ public class RabbitInAHatMain implements ResizeListener {
 				null, objButtons, objButtons[1]
 		);
 		if (PromptResult == JOptionPane.YES_OPTION) {
-			System.exit(0);
+			frame.dispose();
+			frame.invalidate();
 		}
 	}
 
@@ -233,11 +244,11 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		menuBar.add(fileMenu);
 
-		addMenuItem(fileMenu, ACTION_OPEN_SCAN_REPORT, evt -> this.doOpenScanReport(), KeyEvent.VK_W);
-		addMenuItem(fileMenu, ACTION_OPEN_ETL_SPECS, evt -> this.doOpenSpecs(), KeyEvent.VK_O);
+		addMenuItem(fileMenu, ACTION_OPEN_SCAN_REPORT, evt -> this.doOpenScanReport(), KeyEvent.VK_W).setName(ACTION_OPEN_SCAN_REPORT);
+		addMenuItem(fileMenu, ACTION_OPEN_ETL_SPECS, evt -> this.doOpenSpecs(), KeyEvent.VK_O).setName(ACTION_OPEN_ETL_SPECS);
 		addMenuItem(fileMenu, ACTION_SAVE, evt -> this.doSave(), KeyEvent.VK_S);
 		addMenuItem(fileMenu, ACTION_SAVE_AS, evt -> this.doSaveAs());
-		addMenuItem(fileMenu, ACTION_EXIT, evt -> didYouSaveBeforeExitDialog());
+		addMenuItem(fileMenu, ACTION_EXIT, evt -> doAskIfSavedBeforeExit()).setName(ACTION_EXIT);
 
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
@@ -368,10 +379,10 @@ public class RabbitInAHatMain implements ResizeListener {
 		chooser.resetChoosableFileFilters();
 
 		if (directoryMode) {
-			chooser.setDialogTitle("Select Folder");
+			chooser.setDialogTitle(TITLE_SELECT_FOLDER);
 			chooser.setAcceptAllFileFilterUsed(false);
 		} else {
-			chooser.setDialogTitle("Select File");
+			chooser.setDialogTitle(TITLE_SELECT_FILE);
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			chooser.setFileFilter(primaryFileFilter);
 			for (int i = 1; i < filter.length; i++) {
@@ -459,8 +470,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		try {
 			Desktop desktop = Desktop.getDesktop();
 			desktop.browse(new URI(DOCUMENTATION_URL));
-		} catch (URISyntaxException | IOException ex) {
-
+		} catch (URISyntaxException | IOException ignored) {
 		}
 	}
 
@@ -715,5 +725,25 @@ public class RabbitInAHatMain implements ResizeListener {
 	private void doUnmarkCompleted() {
 		this.tableMappingPanel.unmarkCompleted();
 		this.fieldMappingPanel.unmarkCompleted();
+	}
+
+	private Dimension getPreferredDimension() {
+		int preferredHeight = 700;
+		int preferredWidth = 600;
+
+		// for automated GUI testing: if screen size has been set for cacio: use it
+		String cacioScreenSize = System.getProperty("cacio.managed.screensize");
+		if (cacioScreenSize != null) {
+			Matcher matcher = Pattern.compile("^(\\d+)x(\\d+)$").matcher(cacioScreenSize);
+			if (matcher.matches()) {
+				if (matcher.groupCount() == 2) {
+					preferredHeight = Integer.parseInt(matcher.group(1));
+					preferredWidth = Integer.parseInt(matcher.group(2));
+					//System.out.println("Using cacio screen size: " + cacioScreenSize);
+				}
+			}
+		}
+
+		return new Dimension(preferredHeight, preferredWidth);
 	}
 }
