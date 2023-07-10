@@ -202,6 +202,12 @@
             <groupId>com.simba.googlebigquery.jdbc</groupId>
             <artifactId>opencensus-api</artifactId>
             <version>0.18.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.simba.googlebigquery.jdbc</groupId>
+                    <artifactId>avro</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.simba.googlebigquery.jdbc</groupId>
@@ -218,10 +224,11 @@
             <artifactId>joda-time</artifactId>
             <version>2.10.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
         <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
+            <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
-            <version>1.8.2</version>
+            <version>1.11.2</version>
         </dependency>
         <dependency>
             <groupId>com.epam</groupId>
