@@ -141,6 +141,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		return getVisibleRectangles(cdmComponents);
 	}
 
+
+	public List<Arrow> getArrows() {
+		return arrows;
+	}
+
 	public void setSlaveMappingPanel(MappingPanel mappingPanel) {
 		this.slaveMappingPanel = mappingPanel;
 	}
@@ -807,6 +812,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		for (Arrow other : arrows) {
 			if (source == other.getSource() && target == other.getTarget()) {
 				isNew = false;
+				break;
 			}
 		}
 
