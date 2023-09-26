@@ -168,8 +168,35 @@
                 <version>3.0.0</version>
             </plugin>
             <plugin>
+                <!--
+                  While the source and target Java version are still 1.8, Java 17 is required to be able to use
+                  recent versions of test and verification tools. This plugin enforces the required Java version,
+                  and gives a cleaner error message than failing on a dependency that is not compatible with an
+                  older version of Java
+                  -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>17</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.honton.chas</groupId>
                 <artifactId>license-maven-plugin</artifactId>
+                <version>0.0.3</version>
                 <configuration>
                     <acceptableLicenses>
                         <license>
@@ -203,8 +230,16 @@
                             <url>https://opensource.org/licenses/MIT</url>
                         </license>
                         <license>
+                            <name>Eclipse Public License 1.0</name>
+                            <url>https://www.eclipse.org/legal/epl-v10.html</url>
+                        </license>
+                        <license>
                             <name>Eclipse Public License v2.0</name>
                             <url>https://www.eclipse.org/legal/epl-v20.html</url>
+                        </license>
+                        <license>
+                            <name>GPL2 with classpath exception</name>
+                            <url>https://openjdk.java.net/legal/gplv2+ce.html</url>
                         </license>
                     </acceptableLicenses>
                     <excludes>

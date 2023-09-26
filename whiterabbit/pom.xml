@@ -39,7 +39,13 @@
                  <!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
                  <version>3.0.0-M8</version>
                 <configuration>
-                    <argLine>-Doracle.jdbc.timezoneAsRegion=false</argLine>
+                    <argLine>
+                        -Doracle.jdbc.timezoneAsRegion=false
+                        <!-- Line(s) below are needed to keep TestSourceDataScan.updateEnv() working in java 17+
+                             This is considered an acceptable hack since it only affects test code -->
+                        --add-exports=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                    </argLine>
                 </configuration>
                  <dependencies>
                      <dependency>
