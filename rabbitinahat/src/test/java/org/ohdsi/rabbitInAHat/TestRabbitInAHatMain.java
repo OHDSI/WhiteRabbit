@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 import static org.ohdsi.rabbitInAHat.RabbitInAHatMain.*;
 
 /*
- * CacioTestRunner enables running the Swing GUI tests in a virtual screen. This allows the integration tests to run
+ * The @CacioTest annotation below  enables running the Swing GUI tests in a virtual screen. This allows the integration tests to run
  * anywhere without being blocked by the absence of a real screen (e.g. github actions), and without being
  * disrupted by unrelated user activity on workstations/laptops (any keyboard or mouse action).
  * For debugging purposes, you can disable the annotation below to have the tests run on your screen. Be aware that
