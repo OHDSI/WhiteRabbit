@@ -55,6 +55,64 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <!-- The maven-shade-plugin takes care of building the fat jar for distribution -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>shade-main</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <outputFile>dist/RabbitInAHat.jar</outputFile>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/LICENSE</exclude>
+                                        <exclude>META-INF/LICENSE.txt</exclude>
+                                        <exclude>META-INF/NOTICE</exclude>
+                                        <exclude>META-INF/NOTICE.txt</exclude>
+                                        <!-- exclude signature files. they may not match amongst each other
+                                             and cause a SecurityException -->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <!-- This only prevents a warning, and is not really needed since the right JDBC class is loaded
+                                             using Class.forName() anyway -->
+                                        <exclude>META-INF/services/java.sql.Driver</exclude>
+
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.ohdsi.rabbitinahat:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>
+                                        org.ohdsi.rabbitInAHat.RabbitInAHatMain
+                                    </mainClass>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                                    <resource>MANIFEST.MF</resource>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
         <testResources>
             <testResource>
