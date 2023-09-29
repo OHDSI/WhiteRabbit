@@ -112,7 +112,35 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <!-- enforce that the used dependencies support Java 1.8 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-max-java-version</id>
+                        <phase>verify</phase>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <enforceBytecodeVersion>
+                                    <maxJdkVersion>${org.ohdsi.whiterabbit.maxjdkversion}</maxJdkVersion>
+                                    <ignoredScopes>test</ignoredScopes>
+                                </enforceBytecodeVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>extra-enforcer-rules</artifactId>
+                        <version>1.7.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
         <testResources>
             <testResource>

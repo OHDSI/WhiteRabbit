@@ -92,6 +92,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.release>1.8</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.ohdsi.whiterabbit.maxjdkversion>1.8</org.ohdsi.whiterabbit.maxjdkversion>
     </properties>
 
     <build>
