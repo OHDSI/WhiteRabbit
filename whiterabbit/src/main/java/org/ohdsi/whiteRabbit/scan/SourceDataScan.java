@@ -346,7 +346,7 @@ public class SourceDataScan {
 							fieldInfo.nProcessed,
 							fieldInfo.getFractionEmpty(),
 							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
-							fieldInfo.hasValuesTrimmed() ? String.format("<= %.3f", fractionUnique) : fractionUnique
+							fieldInfo.hasValuesTrimmed() ? String.format(Locale.ENGLISH, "<= %.3f", fractionUnique) : fractionUnique
 					));
 					if (calculateNumericStats) {
 						values.addAll(Arrays.asList(
