@@ -123,8 +123,16 @@ public class DBConnector {
 		} catch (ClassNotFoundException e1) {
 			throw new RuntimeException("Cannot find JDBC driver. Make sure the file mysql-connector-java-x.x.xx-bin.jar is in the path");
 		}
+		final String jdbcProtocol = "jdbc:mysql://";
+		
+		//if (!server.contains("/"))
+		//	throw new RuntimeException("For MySQL, database name must be specified in the server field (<host>[:port]/<database>)");
+		if (!server.contains(":"))
+			server = server.replace("/", ":3306/");
+		
+		String url = (!server.startsWith(jdbcProtocol) ? jdbcProtocol : "") + server;
 
-		String url = "jdbc:mysql://" + server + ":3306/?useCursorFetch=true&zeroDateTimeBehavior=convertToNull";
+		url += "?useCursorFetch=true&zeroDateTimeBehavior=convertToNull";
 
 		try {
 			return DriverManager.getConnection(url, user, password);
