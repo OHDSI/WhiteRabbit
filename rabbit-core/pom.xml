@@ -114,11 +114,6 @@
             <version>1.24.0</version>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.7.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.healthmarketscience.jackcess</groupId>
             <artifactId>jackcess</artifactId>
             <version>4.0.5</version>
@@ -127,6 +122,15 @@
             <groupId>net.sf.ucanaccess</groupId>
             <artifactId>ucanaccess</artifactId>
             <version>5.0.1</version>
+        </dependency>
+        <!-- ucanaccess depends on hsqldb. It's being kept at version 2.5.x to maintain Java 1,8 compatibility,
+             this does imply that the following CVE is included in the package: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-41853,
+             but since the project does not process unchecked SQL, this is not considered a threat (also, it would only affect users
+             of MS-Access) -->
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.5.2</version>
         </dependency>
         <dependency>
             <groupId>com.amazon.redshift</groupId>
@@ -202,6 +206,12 @@
             <groupId>com.simba.googlebigquery.jdbc</groupId>
             <artifactId>opencensus-api</artifactId>
             <version>0.18.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.simba.googlebigquery.jdbc</groupId>
+                    <artifactId>avro</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.simba.googlebigquery.jdbc</groupId>
@@ -218,10 +228,17 @@
             <artifactId>joda-time</artifactId>
             <version>2.10.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
         <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
+            <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
-            <version>1.8.2</version>
+            <version>1.11.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.epam</groupId>

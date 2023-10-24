@@ -1,14 +1,9 @@
 package org.ohdsi.whiterabbit.scan;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.ohdsi.databases.DbType;
 import org.ohdsi.databases.RichConnection;
-import org.ohdsi.ooxml.ReadXlsxFileWithHeader;
-import org.ohdsi.utilities.files.Row;
-import org.ohdsi.utilities.files.RowUtilities;
 import org.ohdsi.whiteRabbit.DbSettings;
 import org.ohdsi.whiteRabbit.scan.SourceDataScan;
 import org.testcontainers.containers.BindMode;
@@ -17,7 +12,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;

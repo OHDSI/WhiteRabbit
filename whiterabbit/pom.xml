@@ -39,7 +39,13 @@
                  <!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
                  <version>3.0.0-M8</version>
                 <configuration>
-                    <argLine>-Doracle.jdbc.timezoneAsRegion=false</argLine>
+                    <argLine>
+                        -Doracle.jdbc.timezoneAsRegion=false
+                        <!-- Line(s) below are needed to keep TestSourceDataScan.updateEnv() working in java 17+
+                             This is considered an acceptable hack since it only affects test code -->
+                        --add-exports=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                    </argLine>
                 </configuration>
                  <dependencies>
                      <dependency>
@@ -49,6 +55,93 @@
                      </dependency>
                  </dependencies>
              </plugin>
+            <plugin>
+                <!-- The maven-shade-plugin takes care of building the fat jar for distribution -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>shade-main</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <outputFile>dist/WhiteRabbit.jar</outputFile>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/LICENSE</exclude>
+                                        <exclude>META-INF/LICENSE.txt</exclude>
+                                        <exclude>META-INF/NOTICE</exclude>
+                                        <exclude>META-INF/NOTICE.txt</exclude>
+                                        <exclude>META-INF/versions/9/module-info.class</exclude>
+                                        <!-- exclude signature files. they may not match amongst each other
+                                             and cause a SecurityException -->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <!-- This only prevents a warning, and is not really needed since the right JDBC class is loaded
+                                             using Class.forName() anyway -->
+                                        <exclude>META-INF/services/java.sql.Driver</exclude>
+
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.ohdsi.whiterabbit:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>
+                                        org.ohdsi.whiteRabbit.WhiteRabbitMain
+                                    </mainClass>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                                    <resource>MANIFEST.MF</resource>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- enforce that the used dependencies support Java 1.8 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-max-java-version</id>
+                        <phase>verify</phase>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <enforceBytecodeVersion>
+                                    <maxJdkVersion>${org.ohdsi.whiterabbit.maxjdkversion}</maxJdkVersion>
+                                    <ignoredScopes>test</ignoredScopes>
+                                </enforceBytecodeVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>extra-enforcer-rules</artifactId>
+                        <version>1.7.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
         <testResources>
             <testResource>
@@ -99,6 +192,12 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
         <dependency>
