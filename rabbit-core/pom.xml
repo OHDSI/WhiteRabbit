@@ -114,11 +114,6 @@
             <version>1.24.0</version>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.7.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.healthmarketscience.jackcess</groupId>
             <artifactId>jackcess</artifactId>
             <version>4.0.5</version>
@@ -127,6 +122,18 @@
             <groupId>net.sf.ucanaccess</groupId>
             <artifactId>ucanaccess</artifactId>
             <version>5.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hsqldb</groupId>
+                    <artifactId>hsqldb</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.7.2</version>
+	    <classifier>jdk8</classifier>
         </dependency>
         <dependency>
             <groupId>com.amazon.redshift</groupId>
@@ -202,6 +209,12 @@
             <groupId>com.simba.googlebigquery.jdbc</groupId>
             <artifactId>opencensus-api</artifactId>
             <version>0.18.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.simba.googlebigquery.jdbc</groupId>
+                    <artifactId>avro</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.simba.googlebigquery.jdbc</groupId>
@@ -218,10 +231,17 @@
             <artifactId>joda-time</artifactId>
             <version>2.10.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
         <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
+            <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
-            <version>1.8.2</version>
+            <version>1.11.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.epam</groupId>

@@ -15,6 +15,18 @@
     <name>Leporidae</name>
     <url>https://www.ohdsi.org/analytic-tools/whiterabbit-for-etl-design/</url>
 
+    <organization>
+        <name>OHDSI</name>
+        <url>https://www.ohdsi.org</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
     <repositories>
         <repository>
             <id>central</id>
@@ -78,11 +90,13 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.release>1.8</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <skipTests>false</skipTests>
         <skipUnitTests>${skipTests}</skipUnitTests>
         <skipIntegrationTests>${skipTests}</skipIntegrationTests>
+        <org.ohdsi.whiterabbit.maxjdkversion>1.8</org.ohdsi.whiterabbit.maxjdkversion>
     </properties>
 
     <build>
@@ -140,6 +154,16 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.honton.chas</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>0.0.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -168,6 +192,117 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>3.0.0</version>
+            </plugin>
+            <plugin>
+                <!--
+                  While the source and target Java version are still 1.8, Java 17 is required to be able to use
+                  recent versions of test and verification tools. This plugin enforces the required Java version,
+                  and gives a cleaner error message than failing on a dependency that is not compatible with an
+                  older version of Java
+                  -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>17</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.honton.chas</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>0.0.3</version>
+                <configuration>
+                    <acceptableLicenses>
+                        <license>
+                            <name>Oracle Free Use Terms and Conditions \(FUTC\)</name>
+                        </license>
+                        <license>
+                            <name>The GNU General Public License, v2 with Universal FOSS Exception, v1.0</name>
+                        </license>
+                        <license>
+                            <name>Plexus</name>
+                            <url>https://github.com/dom4j/dom4j/blob/master/LICENSE</url>
+                        </license>
+                        <license>
+                            <name>(The )?Apache( )?(Software )?(License)?(,)? (Version )?(2.0|v2)</name>
+                            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                        </license>
+                        <license>
+                            <name>BSD-2-Clause</name>
+                            <url>https://jdbc.postgresql.org/about/license.html</url>
+                        </license>
+                        <license>
+                            <name>HSQLDB License, a BSD open source license</name>
+                            <url>https://hsqldb.org/web/hsqlLicense.html</url>
+                        </license>
+                        <license>
+                            <name>MIT License</name>
+                            <url>https://www.opensource.org/licenses/mit-license.php</url>
+                        </license>
+                        <license>
+                            <name>MIT</name>
+                            <url>https://opensource.org/licenses/MIT</url>
+                        </license>
+                        <license>
+                            <name>Eclipse Public License 1.0</name>
+                            <url>https://www.eclipse.org/legal/epl-v10.html</url>
+                        </license>
+                        <license>
+                            <name>Eclipse Public License v2.0</name>
+                            <url>https://www.eclipse.org/legal/epl-v20.html</url>
+                        </license>
+                        <license>
+                            <name>GPL2 with classpath exception</name>
+                            <url>https://openjdk.java.net/legal/gplv2+ce.html</url>
+                        </license>
+                    </acceptableLicenses>
+                    <excludes>
+                        <!-- apparently there is no license information available for sqljdbc4, even though
+                        it is published on Maven repos -->
+                        <exclude>com.microsoft.sqlserver:sqljdbc4</exclude>
+
+                        <!-- PLEASE NOTE: teradata and googlebigquery are provided within the project, they
+                             cannot be found on a maven repo; no license info available; they should ideally
+                             not be part of the project, and should be removed here -->
+                        <exclude>com.teradata.jdbc:terajdbc4</exclude>
+                        <exclude>com.teradata.tdgss:tdgssconfig</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:GoogleBigQueryJDBC</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:google-api-client</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:google-http-client</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:gax</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:google-http-client-jackson2</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:google-oauth-client</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:google-auth-library-oauth2-http</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:google-auth-library-credentials</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:jackson-core</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:guava</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:google-api-service-bigquery</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:opencensus-api</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:opencensus-contrib-http-util</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:grpc-context</exclude>
+                        <exclude>com.simba.googlebigquery.jdbc:joda-time</exclude>
+                    </excludes>
+                    <!-- acceptableLicenseResources>osi-widely-used</acceptableLicenseResources -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compliance</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 
