@@ -266,10 +266,17 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public Dimension getMinimumSize() {
 		Dimension dimension = new Dimension();
 		dimension.width = 2 * (ITEM_WIDTH + MARGIN) + MIN_SPACE_BETWEEN_COLUMNS;
-		int componentsHeight = Math.max(sourceComponents.size(), cdmComponents.size()) * (ITEM_HEIGHT + MARGIN);
+		int maxComponentsSize = Math.max(sourceComponents.size(), cdmComponents.size());
+		int componentsHeight = maxComponentsSize * (ITEM_HEIGHT + MARGIN);
 		dimension.height = Math.min(HEADER_HEIGHT + HEADER_TOP_MARGIN + componentsHeight, maxHeight);
+
 		if (ObjectExchange.etl.hasStemTable()) {
 			dimension.height += STEM_HEIGHT_MARGIN;
+			// For the table mapping panel, deduct the stem table from the items (as it's not shown as a normal item in the list)
+			boolean isTablesPanel = cdmComponents.stream().allMatch(n -> (n.getItem() instanceof Table));
+			if (!cdmComponents.isEmpty() && isTablesPanel) {
+				dimension.height -= (ITEM_HEIGHT + MARGIN);
+			}
 		}
 
 		return dimension;
