@@ -17,6 +17,10 @@
  ******************************************************************************/
 package org.ohdsi.utilities.collections;
 
+import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.AbstractSet;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,7 +36,8 @@ import java.util.stream.Stream;
  * @param <T>
  */
 public class CountingSet<T> extends AbstractSet<T> {
-	
+	static Logger logger = LoggerFactory.getLogger(CountingSet.class);
+
 	public Map<T, Count>	key2count;
 	
 	public CountingSet() {
@@ -188,7 +193,7 @@ public class CountingSet<T> extends AbstractSet<T> {
 	
 	public void printCounts() {
 		decliningCountStream()
-			.forEach(entry -> System.out.println(entry.getKey() + "\t" + entry.getValue().count));
+			.forEach(entry -> logger.info("{}\t{}", entry.getKey(), entry.getValue().count));
 	}
 
 	private Stream<Map.Entry<T, Count>> decliningCountStream() {

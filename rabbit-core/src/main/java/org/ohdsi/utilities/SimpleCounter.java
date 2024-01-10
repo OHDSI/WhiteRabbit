@@ -17,7 +17,13 @@
  ******************************************************************************/
 package org.ohdsi.utilities;
 
+import org.ohdsi.databases.UniformSamplingReservoir;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SimpleCounter {
+	static Logger logger = LoggerFactory.getLogger(SimpleCounter.class);
+
 	private int		reportN;
 	private long	count;
 	private long	lastTime;
@@ -43,14 +49,17 @@ public class SimpleCounter {
 	}
 	
 	private void report() {
-		if (reportRate){
-			long interval = System.currentTimeMillis() - lastTime;
-			long processed = count - lastCount;
-			System.out.println(count + " (time per unit = " + interval/(double)processed + "ms)");
-			lastTime = System.currentTimeMillis();
-			lastCount = count;
-		} else
-			System.out.println(count);
+		if (logger.isInfoEnabled()) {
+			if (reportRate) {
+				long interval = System.currentTimeMillis() - lastTime;
+				long processed = count - lastCount;
+				logger.info("{} (time per unit = {} ms", count, interval / (double) processed);
+				lastTime = System.currentTimeMillis();
+				lastCount = count;
+			} else {
+				logger.info(String.valueOf(count));
+			}
+		}
 	}
 	
 	public void finish() {

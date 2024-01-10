@@ -127,6 +127,38 @@
                     <version>3.1.2</version>
                     <configuration>
                         <skipTests>${skipUnitTests}</skipTests>
+                        <forkCount>1</forkCount>
+                        <reuseForks>false</reuseForks>
+                        <systemPropertyVariables>
+                            <java.awt.headless>false</java.awt.headless>
+                            <awt.toolkit>com.github.caciocavallosilano.cacio.ctc.CTCToolkit</awt.toolkit>
+                            <java.awt.graphicsenv>com.github.caciocavallosilano.cacio.ctc.CTCGraphicsEnvironment</java.awt.graphicsenv>
+                        </systemPropertyVariables>
+                        <argLine>
+                            -Doracle.jdbc.timezoneAsRegion=false
+                            <!-- Line(s) below are needed to keep TestSourceDataScan.updateEnv() working in java 17+
+                                 This is considered an acceptable hack since it only affects test code -->
+                            --add-exports=java.base/java.util=ALL-UNNAMED
+                            --add-opens=java.base/java.util=ALL-UNNAMED
+                            <!-- suppress exceptions from cacio-tta, see https://github.com/CaciocavalloSilano/caciocavallo -->
+                            --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                            --add-exports java.base/java.lang.reflect=ALL-UNNAMED
+                            --add-exports=java.desktop/java.awt=ALL-UNNAMED
+                            --add-exports=java.desktop/java.awt.peer=ALL-UNNAMED
+                            --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED
+                            --add-exports=java.desktop/sun.java2d=ALL-UNNAMED
+                            --add-exports=java.desktop/java.awt.dnd.peer=ALL-UNNAMED
+                            --add-exports=java.desktop/sun.awt=ALL-UNNAMED
+                            --add-exports=java.desktop/sun.awt.event=ALL-UNNAMED
+                            --add-exports=java.desktop/sun.awt.datatransfer=ALL-UNNAMED
+                            --add-exports=java.base/sun.security.action=ALL-UNNAMED
+                            --add-opens=java.base/java.util=ALL-UNNAMED
+                            --add-opens=java.desktop/java.awt=ALL-UNNAMED
+                            --add-opens=java.desktop/sun.java2d=ALL-UNNAMED
+                            --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                            --add-opens java.base/java.lang=ALL-UNNAMED
+                        </argLine>
+
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -303,6 +335,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.ferstl</groupId>
+                <artifactId>depgraph-maven-plugin</artifactId>
+                <version>4.0.2</version>
+                <!-- configuration>
+                    ...
+                </configuration -->
             </plugin>
         </plugins>
 

@@ -32,12 +32,16 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.ohdsi.utilities.SimpleCounter;
 import org.ohdsi.utilities.StringUtilities;
 import org.ohdsi.utilities.collections.IntegerComparator;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader.Sheet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 
+	static Logger logger = LoggerFactory.getLogger(QuickAndDirtyXlsxReader.class);
 	private static final long serialVersionUID = 25124428448185386L;
 	private static final Pattern DOUBLE_IGNORE_PATTERN = Pattern.compile("[<>= ]+");
 
@@ -142,7 +146,6 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 
 	private void processSheet(String filename, ZipInputStream inputStream) throws IOException {
 		Sheet sheet = filenameToSheet.get(filename);
-		//System.out.println(filename + "\t" + sheet.name);
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		String line;
 		StringBuilder fullSheet = new StringBuilder();
@@ -152,8 +155,9 @@ public class QuickAndDirtyXlsxReader extends ArrayList<Sheet> {
 		for (String rowLine : StringUtilities.multiFindBetween(fullSheet.toString(), "<row", "</row>")) {
 			Row row = new Row(sheet);
 			row.addAll(findCellValues(rowLine));
-			if (row.size() != 0)
+			if (!row.isEmpty()) {
 				sheet.add(row);
+			}
 		}
 
 	}

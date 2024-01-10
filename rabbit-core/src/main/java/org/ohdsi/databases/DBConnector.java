@@ -18,37 +18,46 @@
 package org.ohdsi.databases;
 
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oracle.jdbc.pool.OracleDataSource;
-import org.apache.tools.ant.types.selectors.SelectSelector;
+import org.ohdsi.databases.configuration.DbSettings;
+import org.ohdsi.databases.configuration.DbType;
 
 public class DBConnector {
 
-	public static void main(String[] args) {
+	public static DBConnection connect(DbSettings dbSettings, boolean verbose) {
+		assert dbSettings.dbType != null;
+		if (dbSettings.dbType.supportsStorageHandler()) {
+			return new DBConnection(dbSettings.dbType.getStorageHandler().getInstance(dbSettings), dbSettings.dbType, verbose);
+		} else {
+			return connect(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, dbSettings.dbType, verbose);
+		}
 	}
 
 	// If dbType.BIGQUERY: domain field has been replaced with  database field
-	public static Connection connect(String server, String domain, String user, String password, DbType dbType) {
-		if (dbType.equals(DbType.MYSQL))
-			return DBConnector.connectToMySQL(server, user, password);
-		else if (dbType.equals(DbType.MSSQL) || dbType.equals(DbType.PDW) || dbType.equals(DbType.AZURE))
-			return DBConnector.connectToMSSQL(server, domain, user, password);
-		else if (dbType.equals(DbType.ORACLE))
-			return DBConnector.connectToOracle(server, domain, user, password);
-		else if (dbType.equals(DbType.POSTGRESQL))
-			return DBConnector.connectToPostgreSQL(server, user, password);
-		else if (dbType.equals(DbType.MSACCESS))
-			return DBConnector.connectToMsAccess(server, user, password);
-		else if (dbType.equals(DbType.REDSHIFT))
-			return DBConnector.connectToRedshift(server, user, password);
-		else if (dbType.equals(DbType.TERADATA))
-			return DBConnector.connectToTeradata(server, user, password);
-		else if (dbType.equals(DbType.BIGQUERY))
-			return DBConnector.connectToBigQuery(server, domain, user, password);
+	private static DBConnection connect(String server, String domain, String user, String password, DbType dbType, boolean verbose) {
+		if (dbType.equalsDbType(DbType.MYSQL))
+			return new DBConnection(DBConnector.connectToMySQL(server, user, password), dbType, verbose);
+		else if (dbType.equalsDbType(DbType.SQL_SERVER) || dbType.equalsDbType(DbType.PDW) || dbType.equalsDbType(DbType.AZURE))
+			return new DBConnection(DBConnector.connectToMSSQL(server, domain, user, password), dbType, verbose);
+		else if (dbType.equalsDbType(DbType.ORACLE))
+			return new DBConnection(DBConnector.connectToOracle(server, domain, user, password), dbType, verbose);
+		else if (dbType.equalsDbType(DbType.POSTGRESQL))
+			return new DBConnection(DBConnector.connectToPostgreSQL(server, user, password), dbType, verbose);
+		else if (dbType.equalsDbType(DbType.MS_ACCESS))
+			return new DBConnection(DBConnector.connectToMsAccess(server, user, password), dbType, verbose);
+		else if (dbType.equalsDbType(DbType.REDSHIFT))
+			return new DBConnection(DBConnector.connectToRedshift(server, user, password), dbType, verbose);
+		else if (dbType.equalsDbType(DbType.TERADATA))
+			return new DBConnection(DBConnector.connectToTeradata(server, user, password), dbType, verbose);
+		else if (dbType.equalsDbType(DbType.BIGQUERY))
+			return new DBConnection(DBConnector.connectToBigQuery(server, domain, user, password), dbType, verbose);
 		else
 			return null;
 	}
@@ -110,10 +119,9 @@ public class DBConnector {
 		final String jdbcProtocol = "jdbc:postgresql://";
 		String url = (!server.startsWith(jdbcProtocol) ? jdbcProtocol : "") + server;
 		try {
-			System.out.printf("DriverManager.getConnection(%s, %s, %s)%n", url, user, password);
 			return DriverManager.getConnection(url, user, password);
 		} catch (SQLException e1) {
-			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage() + " for url: " + url);
+			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
 		}
 	}
 
@@ -251,6 +259,46 @@ public class DBConnector {
 			return DriverManager.getConnection(url);
 		} catch (SQLException e1) {
 			throw new RuntimeException("Simba URL failed: Cannot connect to DB server: " + e1.getMessage());
+		}
+	}
+
+	/*
+	 * main() can be run to verify that all configured JDBC drivers are loadable
+	 */
+	public static void main(String[] args) {
+		verifyDrivers();
+	}
+
+	public static final String ALL_JDBC_DRIVERS_LOADABLE = "All configured JDBC drivers could be loaded.";
+	static void verifyDrivers() {
+		// verify that a JDBC driver that is not included/supported cannot be loaded
+		String notSupportedDriver = "org.sqlite.JDBC"; // change this if WhiteRabbit starts supporting SQLite
+		if (DbType.driverNames().contains(notSupportedDriver)) {
+			throw new RuntimeException("Cannot run this test for a supported driver.");
+		}
+		try {
+			testJDBCDriverAndVersion(notSupportedDriver);
+			throw new RuntimeException(String.format("JDBC driver was not expected to be loaded: %s", notSupportedDriver));
+		} catch (ClassNotFoundException ignored) {}
+
+		DbType.driverNames().forEach(driver -> {
+			try {
+				testJDBCDriverAndVersion(driver);
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(String.format("JDBC driver class could not be loaded: %s", driver));
+			}
+		});
+		System.out.println(ALL_JDBC_DRIVERS_LOADABLE);
+	}
+
+	static void testJDBCDriverAndVersion(String driverName) throws ClassNotFoundException {
+		Enumeration<Driver> drivers = DriverManager.getDrivers();
+		while (drivers.hasMoreElements()) {
+			Driver driver = drivers.nextElement();
+			Class<?> driverClass = Class.forName(driverName);
+			if (driver.getClass().isAssignableFrom(driverClass)) {
+				int ignoredMajorVersion = driver.getMajorVersion();
+			}
 		}
 	}
 }

@@ -8,6 +8,7 @@ dist/
 .idea/
 target/
 *.class
+*.log
 
 # jenv file(s)
 .java-version
@@ -20,3 +21,6 @@ Try*
 /examples/
 .DS_Store
 data/
+
+# contains authentication data for a Snowflake instance
+snowflake.env

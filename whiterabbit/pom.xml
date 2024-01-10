@@ -27,7 +27,7 @@
                     <extraJvmArguments>-Xmx1200m</extraJvmArguments>
                     <programs>
                         <program>
-                            <mainClass>org.ohdsi.whiteRabbit.WhiteRabbitMain</mainClass>
+                            <mainClass>org.ohdsi.whiterabbit.WhiteRabbitMain</mainClass>
                             <id>whiteRabbit</id>
                         </program>
                     </programs>
@@ -36,33 +36,78 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
+                <!-- version>3.2.2</version -->
                 <configuration>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
                     <skipTests>${skipUnitTests}</skipTests>
+                    <systemPropertyVariables>
+                        <java.awt.headless>false</java.awt.headless>
+                        <awt.toolkit>com.github.caciocavallosilano.cacio.ctc.CTCToolkit</awt.toolkit>
+                        <java.awt.graphicsenv>com.github.caciocavallosilano.cacio.ctc.CTCGraphicsEnvironment</java.awt.graphicsenv>
+                    </systemPropertyVariables>
                     <argLine>
                         -Doracle.jdbc.timezoneAsRegion=false
                         <!-- Line(s) below are needed to keep TestSourceDataScan.updateEnv() working in java 17+
                              This is considered an acceptable hack since it only affects test code -->
                         --add-exports=java.base/java.util=ALL-UNNAMED
                         --add-opens=java.base/java.util=ALL-UNNAMED
+                        <!-- suppress exceptions from cacio-tta, see https://github.com/CaciocavalloSilano/caciocavallo -->
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-exports java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt.peer=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.java2d=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt.dnd.peer=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.event=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.datatransfer=ALL-UNNAMED
+                        --add-exports=java.base/sun.security.action=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.desktop/java.awt=ALL-UNNAMED
+                        --add-opens=java.desktop/sun.java2d=ALL-UNNAMED
+                        --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens java.base/java.lang=ALL-UNNAMED
                     </argLine>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter</artifactId>
-                        <version>5.8.2</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
+                    <systemPropertyVariables>
+                        <propertyName>propertyValue</propertyName>
+                        <projectBuildDirectory>${project.build.directory}</projectBuildDirectory>
+                    </systemPropertyVariables>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
                     <includes>
                         <include>**/*IT.java</include>
                     </includes>
                     <skipTests>${skipIntegrationTests}</skipTests>
+                    <argLine>
+                    <!-- experimental workaround for Snowflake JDBC issue,
+                         see https://community.snowflake.com/s/article/JDBC-Driver-Compatibility-Issue-With-JDK-16-and-Later -->
+                    --add-opens java.base/java.nio=ALL-UNNAMED
+                        <!-- suppress exceptions from cacio-tta, see https://github.com/CaciocavalloSilano/caciocavallo -->
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-exports java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt.peer=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.java2d=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt.dnd.peer=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.event=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.datatransfer=ALL-UNNAMED
+                        --add-exports=java.base/sun.security.action=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.desktop/java.awt=ALL-UNNAMED
+                        --add-opens=java.desktop/sun.java2d=ALL-UNNAMED
+                        --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                    </argLine>
                 </configuration>
                 <executions>
                     <execution>
@@ -70,64 +115,6 @@
                             <goal>integration-test</goal>
                             <goal>verify</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <!-- The maven-shade-plugin takes care of building the fat jar for distribution -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <id>shade-main</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>dist/WhiteRabbit.jar</outputFile>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/LICENSE</exclude>
-                                        <exclude>META-INF/LICENSE.txt</exclude>
-                                        <exclude>META-INF/NOTICE</exclude>
-                                        <exclude>META-INF/NOTICE.txt</exclude>
-                                        <exclude>META-INF/versions/9/module-info.class</exclude>
-                                        <!-- exclude signature files. they may not match amongst each other
-                                             and cause a SecurityException -->
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <!-- This only prevents a warning, and is not really needed since the right JDBC class is loaded
-                                             using Class.forName() anyway -->
-                                        <exclude>META-INF/services/java.sql.Driver</exclude>
-
-                                        <exclude>module-info.class</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.ohdsi.whiterabbit:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>
-                                        org.ohdsi.whiteRabbit.WhiteRabbitMain
-                                    </mainClass>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                                    <resource>MANIFEST.MF</resource>
-                                </transformer>
-                            </transformers>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -247,6 +234,55 @@
             <artifactId>oracle-xe</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ohdsi</groupId>
+            <artifactId>rabbit-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.httpcomponents</groupId>-->
+<!--            <artifactId>httpclient</artifactId>-->
+<!--            <version>4.5.14</version>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>one.util</groupId>
+            <artifactId>streamex</artifactId>
+            <version>0.8.2</version>
+        </dependency>
 
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml-lite</artifactId>
+            <version>5.2.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.caciocavallosilano</groupId>
+            <artifactId>cacio-tta</artifactId>
+            <version>1.17.3</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.assertj/assertj-swing-junit -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-swing-junit</artifactId>
+            <version>3.17.1</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.assertj/assertj-swing -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-swing</artifactId>
+            <version>3.17.1</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.21.1</version>
+        </dependency>
     </dependencies>
 </project>

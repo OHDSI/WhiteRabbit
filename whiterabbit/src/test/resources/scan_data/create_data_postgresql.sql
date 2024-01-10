@@ -51,5 +51,5 @@ CREATE TABLE cost
 ;
 
 
-COPY COST FROM '/scan_data/cost.csv' DELIMITER E'\t' CSV ENCODING 'UTF8';
-COPY PERSON FROM '/scan_data/person.csv' DELIMITER E'\t' CSV ENCODING 'UTF8';
+COPY COST FROM '/scan_data/cost-no-header.csv' DELIMITER ',' CSV ENCODING 'UTF8';
+COPY PERSON FROM '/scan_data/person-no-header.csv' DELIMITER ',' CSV ENCODING 'UTF8';
