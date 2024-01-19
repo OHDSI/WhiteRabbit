@@ -83,7 +83,7 @@ public class ReadXlsxFileWithHeader implements Iterable<Row> {
 			List<String> cells = new ArrayList<String>(fieldName2ColumnIndex.size());
 			for (Cell cell : iterator.next()) {
 				String text;
-				if (cell.getCellTypeEnum() == CellType.NUMERIC)
+				if (cell.getCellType() == CellType.NUMERIC)
 					text = myFormatter.format(cell.getNumericCellValue());
 				else
 					text = cell.toString();

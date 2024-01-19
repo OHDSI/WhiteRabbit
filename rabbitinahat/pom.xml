@@ -36,7 +36,28 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.awt.headless>false</java.awt.headless>
+                        <awt.toolkit>com.github.caciocavallosilano.cacio.ctc.CTCToolkit</awt.toolkit>
+                        <java.awt.graphicsenv>com.github.caciocavallosilano.cacio.ctc.CTCGraphicsEnvironment</java.awt.graphicsenv>
+                    </systemPropertyVariables>
+                    <argLine>
+                        --add-exports=java.desktop/java.awt=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt.peer=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.java2d=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt.dnd.peer=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.event=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.datatransfer=ALL-UNNAMED
+                        --add-exports=java.base/sun.security.action=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.desktop/java.awt=ALL-UNNAMED
+                        --add-opens=java.desktop/sun.java2d=ALL-UNNAMED
+                        --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                    </argLine>
+                </configuration>
             </plugin>
             <!-- unpack the examples zip so that the contents can be used as test resources -->
             <plugin>
@@ -56,6 +77,35 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <!-- enforce that the used dependencies support Java 1.8 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-max-java-version</id>
+                        <phase>verify</phase>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <enforceBytecodeVersion>
+                                    <maxJdkVersion>${org.ohdsi.whiterabbit.maxjdkversion}</maxJdkVersion>
+                                    <ignoredScopes>test</ignoredScopes>
+                                </enforceBytecodeVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>extra-enforcer-rules</artifactId>
+                        <version>1.7.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
         <testResources>
             <testResource>
@@ -64,47 +114,12 @@
         </testResources>
     </build>
 
-    <!-- profiles>
-        <profile>
-            <id>surefire-java17</id>
-            <activation>
-                <property>
-                    <name>jdk.version</name>
-                    <value>17</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.0.0-M8</version>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <java.awt.headless>false</java.awt.headless>
-                                <awt.toolkit>CTCToolkit</awt.toolkit>
-                                <java.awt.graphicsenv>CTCGraphicsEnvironment</java.awt.graphicsenv>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles -->
     <dependencies>
         <dependency>
             <groupId>org.ohdsi</groupId>
             <artifactId>rabbit-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.22.2</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -127,7 +142,7 @@
         <dependency>
             <groupId>com.github.caciocavallosilano</groupId>
             <artifactId>cacio-tta</artifactId>
-            <version>1.10</version>
+            <version>1.17.1</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-antrun-plugin -->
@@ -137,6 +152,11 @@
             <version>3.1.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.9.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
 </project>

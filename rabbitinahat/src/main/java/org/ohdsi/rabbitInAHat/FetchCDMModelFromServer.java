@@ -17,7 +17,8 @@
  ******************************************************************************/
 package org.ohdsi.rabbitInAHat;
 
-import org.ohdsi.databases.DbType;
+import org.ohdsi.databases.configuration.DbSettings;
+import org.ohdsi.databases.configuration.DbType;
 import org.ohdsi.databases.RichConnection;
 import org.ohdsi.utilities.files.Row;
 import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
@@ -31,7 +32,12 @@ import org.ohdsi.utilities.files.WriteCSVFileWithHeader;
 public class FetchCDMModelFromServer {
 	
 	public static void main(String[] args) {
-		RichConnection connection = new RichConnection("127.0.0.1/ohdsi", null, "postgres", "F1r3starter", DbType.POSTGRESQL);
+		DbSettings dbSettings = new DbSettings();
+		dbSettings.server = "127.0.0.1/ohdsi";
+		dbSettings.user = "postgres";
+		dbSettings.password = "F1r3starter";
+		dbSettings.dbType = DbType.POSTGRESQL;
+		RichConnection connection = new RichConnection(dbSettings);
 		connection.use("cdm5");
 		
 		WriteCSVFileWithHeader out = new WriteCSVFileWithHeader("c:/temp/CDMV5Model.csv");

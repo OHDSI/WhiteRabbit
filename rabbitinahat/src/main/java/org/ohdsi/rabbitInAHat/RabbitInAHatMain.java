@@ -739,7 +739,6 @@ public class RabbitInAHatMain implements ResizeListener {
 				if (matcher.groupCount() == 2) {
 					preferredHeight = Integer.parseInt(matcher.group(1));
 					preferredWidth = Integer.parseInt(matcher.group(2));
-					//System.out.println("Using cacio screen size: " + cacioScreenSize);
 				}
 			}
 		}

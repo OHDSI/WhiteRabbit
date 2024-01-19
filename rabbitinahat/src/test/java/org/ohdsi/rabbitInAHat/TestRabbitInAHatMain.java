@@ -1,18 +1,33 @@
+/*******************************************************************************
+ * Copyright 2023 Observational Health Data Sciences and Informatics & The Hyve
+ *
+ * This file is part of WhiteRabbit
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package org.ohdsi.rabbitInAHat;
 
-import com.github.caciocavallosilano.cacio.ctc.junit.CacioAssertJRunner;
+import com.github.caciocavallosilano.cacio.ctc.junit.CacioTest;
 import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.ComponentDragAndDrop;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.finder.JFileChooserFinder;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JFileChooserFixture;
-import org.assertj.swing.image.ScreenshotTaker;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -27,13 +42,13 @@ import static org.junit.Assert.*;
 import static org.ohdsi.rabbitInAHat.RabbitInAHatMain.*;
 
 /*
- * CacioTestRunner enables running the Swing GUI tests in a virtual screen. This allows the integration tests to run
+ * The @CacioTest annotation below  enables running the Swing GUI tests in a virtual screen. This allows the integration tests to run
  * anywhere without being blocked by the absence of a real screen (e.g. github actions), and without being
  * disrupted by unrelated user activity on workstations/laptops (any keyboard or mouse action).
  * For debugging purposes, you can disable the annotation below to have the tests run on your screen. Be aware that
  * any interaction with mouse or keyboard can (will) disrupt the tests if they run on your screen.
  */
-@RunWith(CacioAssertJRunner.class)
+@CacioTest
 public class TestRabbitInAHatMain {
 
     private static FrameFixture window;
@@ -81,7 +96,6 @@ public class TestRabbitInAHatMain {
         fileChooser.selectFile(new File(Objects.requireNonNull(scanReportUrl).toURI())).approve();
     }
 
-    @GUITest
     @Test
     public void openAndVerifySavedETLSpecs() throws URISyntaxException {
         // open the test ETL specification
@@ -115,8 +129,8 @@ public class TestRabbitInAHatMain {
         URL etlSpecsUrl = this.getClass().getClassLoader().getResource(specName);
         fileChooser.selectFile(new File(Objects.requireNonNull(etlSpecsUrl).toURI())).approve();
         MappingPanel tablesPanel = window.panel(PANEL_TABLE_MAPPING).targetCastedTo(MappingPanel.class);
-        assertTrue("There should be source items", tablesPanel.getVisibleSourceComponents().size() > 0);
-        assertTrue("There should be target items", tablesPanel.getVisibleTargetComponents().size() > 0);
+        assertFalse("There should be source items", tablesPanel.getVisibleSourceComponents().isEmpty());
+        assertFalse("There should be target items", tablesPanel.getVisibleTargetComponents().isEmpty());
     }
     private void verifyTableMapping(MappingPanel tablesPanel, String sourceName, String targetName) {
         LabeledRectangle sourceTable = findMappableItem(tablesPanel.getVisibleSourceComponents(), sourceName);
@@ -150,11 +164,6 @@ public class TestRabbitInAHatMain {
             if (rectangles.length > 1) {
                 window.robot().releaseKey(KeyEvent.VK_SHIFT);
             }
-//            if (!r.isSelected()) {
-//                ScreenshotTaker screenshotTaker = new ScreenshotTaker();
-//                screenshotTaker.saveDesktopAsPng("problem.png");
-//                System.out.println("Problem!");
-//            }
             assertTrue(r.isSelected());
         });
     }

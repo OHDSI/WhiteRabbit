@@ -62,6 +62,8 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public static final int				MIN_SPACE_BETWEEN_COLUMNS	= 200;
 	public static final int				ARROW_START_WIDTH			= 50;
 	public static final int				BORDER_HEIGHT				= 25;
+	// Extra margin between header and first item when using stem table
+	public static final int				STEM_HEIGHT_MARGIN			= ITEM_HEIGHT / 2;
 
 	private int						sourceX;
 	private int						cdmX;
@@ -240,7 +242,7 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		int y = HEADER_HEIGHT + HEADER_TOP_MARGIN;
 		if (ObjectExchange.etl.hasStemTable()) {
 			// Move all non-stem items
-			y = HEADER_TOP_MARGIN + ITEM_HEIGHT;
+			y += STEM_HEIGHT_MARGIN;
 		}
 		for (LabeledRectangle component : components) {
 			// Exception for laying out the stem table
@@ -264,8 +266,18 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 	public Dimension getMinimumSize() {
 		Dimension dimension = new Dimension();
 		dimension.width = 2 * (ITEM_WIDTH + MARGIN) + MIN_SPACE_BETWEEN_COLUMNS;
-		dimension.height = Math.min(HEADER_HEIGHT + HEADER_TOP_MARGIN + Math.max(sourceComponents.size(), cdmComponents.size()) * (ITEM_HEIGHT + MARGIN),
-				maxHeight);
+		int maxComponentsSize = Math.max(sourceComponents.size(), cdmComponents.size());
+		int componentsHeight = maxComponentsSize * (ITEM_HEIGHT + MARGIN);
+		dimension.height = Math.min(HEADER_HEIGHT + HEADER_TOP_MARGIN + componentsHeight, maxHeight);
+
+		if (ObjectExchange.etl.hasStemTable()) {
+			dimension.height += STEM_HEIGHT_MARGIN;
+			// For the table mapping panel, deduct the stem table from the items (as it's not shown as a normal item in the list)
+			boolean isTablesPanel = cdmComponents.stream().allMatch(n -> (n.getItem() instanceof Table));
+			if (!cdmComponents.isEmpty() && isTablesPanel) {
+				dimension.height -= (ITEM_HEIGHT + MARGIN);
+			}
+		}
 
 		return dimension;
 	}

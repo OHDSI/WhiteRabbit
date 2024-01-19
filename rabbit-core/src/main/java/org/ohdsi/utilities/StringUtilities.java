@@ -17,6 +17,10 @@
  ******************************************************************************/
 package org.ohdsi.utilities;
 
+import org.ohdsi.utilities.collections.CountingSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -32,7 +36,8 @@ import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class StringUtilities {
-	
+	static Logger logger = LoggerFactory.getLogger(StringUtilities.class);
+
 	public static long		SECOND			= 1000;
 	public static long		MINUTE			= 60 * SECOND;
 	public static long		HOUR			= 60 * MINUTE;
@@ -328,7 +333,8 @@ public class StringUtilities {
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 		return df.format(d);
 	}
-	
+
+	@SuppressWarnings("java:S106") // System.out is intended here
 	public static void outputWithTime(String message) {
 		System.out.println(now() + "\t" + message);
 	}
@@ -767,7 +773,6 @@ public class StringUtilities {
 			md5.update(buffer);
 			
 			result = md5.digest();
-			// System.out.println(result);
 			// create hex string from the 16-byte hash
 			buf = new StringBuffer(result.length * 2);
 			for (int i = 0; i < result.length; i++) {
@@ -779,9 +784,7 @@ public class StringUtilities {
 			}
 			return buf.toString();
 		} catch (NoSuchAlgorithmException e) {
-			System.err.println("Exception caught: " + e);
-			e.printStackTrace();
-			
+			logger.error(e.getMessage(), e);
 		}
 		return null;
 	}
@@ -802,7 +805,6 @@ public class StringUtilities {
 			sha256.update(buffer);
 			
 			result = sha256.digest();
-			// System.out.println(result);
 			// create hex string from the 16-byte hash
 			buf = new StringBuffer(result.length * 2);
 			for (int i = 0; i < result.length; i++) {
