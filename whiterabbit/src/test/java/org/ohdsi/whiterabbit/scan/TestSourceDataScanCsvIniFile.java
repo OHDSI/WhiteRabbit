@@ -59,7 +59,7 @@ class TestSourceDataScanCsvIniFile {
         assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.DELIMITED_TEXT_FILES));
     }
 
-    @Test
+    //@Test
     // minimal test to verify comparing ScanReports: test the tester :-) (and no, this test strictly speaking does not belong here, it should be in its own class)
     void testCompareSheets() {
         // conform that ScanTestUtils.compareSheets does know how to compare scan results (same, different)

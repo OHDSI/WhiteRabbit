@@ -21,8 +21,11 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.assertj.swing.timing.Condition;
+import org.ohdsi.databases.UniformSamplingReservoir;
 import org.ohdsi.databases.configuration.DbType;
 import org.ohdsi.whiterabbit.Console;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.assertj.swing.timing.Pause.pause;
@@ -39,6 +43,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.ohdsi.databases.configuration.DbType.*;
 
 public class ScanTestUtils {
+
+    static Logger logger = LoggerFactory.getLogger(ScanTestUtils.class);
+
 
     // Convenience for having the same scan parameters across tests
     public static SourceDataScan createSourceDataScan() {
@@ -86,6 +93,7 @@ public class ScanTestUtils {
                 scanSheet.sort(new RowsComparator());
                 referenceSheet.sort(new RowsComparator());
                 for (int i = 0; i < scanSheet.size(); ++i) {
+                    AtomicInteger mismatches = new AtomicInteger(0);
                     final int fi = i;
                     IntStream.range(0, scanSheet.get(fi).size())
                             .parallel()
@@ -97,11 +105,14 @@ public class ScanTestUtils {
                                             String.format("Field type '%s' cannot be matched with reference type '%s' for DbType %s",
                                                     scanValue, referenceValue, dbType.name()));
                                 } else {
-                                    assertTrue(scanValue.equalsIgnoreCase(referenceValue),
-                                            String.format("In sheet %s, value '%s' in scan results does not match '%s' in reference",
+                                    if (!scanValue.equalsIgnoreCase(referenceValue)) {
+                                        mismatches.incrementAndGet();
+                                        logger.error(String.format("In sheet %s, value '%s' in scan results does not match '%s' in reference",
                                                     tabName, scanValue, referenceValue));
+                                    }
                                 }
                             });
+                    assertEquals(0, mismatches.get(), "No mismatches of values with the reference data should have occurred");
                 }
             }
         }
@@ -110,7 +121,8 @@ public class ScanTestUtils {
     }
 
     private static boolean matchTypeName(String type, String reference, DbType dbType) {
-        if (dbType == ORACLE) {
+        switch (dbType) {
+        case ORACLE:
             switch (type) {
                 case "NUMBER": return reference.equals("integer");
                 case "VARCHAR2": return reference.equals("character varying");
@@ -119,14 +131,22 @@ public class ScanTestUtils {
                 case "TIMESTAMP(6) WITH TIME ZONE": return reference.equals("timestamp without time zone");
                 default: throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
             }
-        } else if (dbType == DbType.SNOWFLAKE) {
+        case SNOWFLAKE:
             switch (type) {
                 case "NUMBER": return reference.equals("integer") || reference.equals("numeric");
                 case "VARCHAR": return reference.equals("character varying");
                 case "TIMESTAMPNTZ": return reference.equals("timestamp without time zone");
                 default: throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
             }
-        } else {
+        case MYSQL:
+            switch (type) {
+                case "int":
+                case "decimal": return reference.equals("integer") || reference.equals("numeric");
+                case "varchar": return reference.equals("character varying");
+                case "timestamp": return reference.equals("timestamp without time zone");
+                default: throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
+            }
+        default:
             throw new RuntimeException("Unsupported DbType: " + dbType.name());
         }
     }
@@ -134,9 +154,19 @@ public class ScanTestUtils {
     static class RowsComparator implements Comparator<List<String>> {
         @Override
         public int compare(List<String> o1, List<String> o2) {
+            if (o1.isEmpty() || o2.isEmpty()) {
+                throw new RuntimeException("Nothing to compare...");
+            }
             String firstString_o1 = o1.get(0);
             String firstString_o2 = o2.get(0);
-            return firstString_o1.compareToIgnoreCase(firstString_o2);
+            if (!firstString_o1.equalsIgnoreCase(firstString_o2) || (o1.size() == 1 || o2.size() == 1)) {
+                // first field differs, or there is no second field to compare
+                return firstString_o1.compareToIgnoreCase(firstString_o2);
+            }
+            // compare on the second field
+            String secondString_o1 = o1.get(1);
+            String secondString_o2 = o2.get(1);
+            return secondString_o1.compareToIgnoreCase(secondString_o2);
         }
     }
 
