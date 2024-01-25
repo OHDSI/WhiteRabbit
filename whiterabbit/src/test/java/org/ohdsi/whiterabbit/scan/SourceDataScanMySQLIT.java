@@ -29,8 +29,10 @@ import org.testcontainers.junit.jupiter.Container;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -86,6 +88,7 @@ class SourceDataScanMySQLIT {
         DbSettings dbSettings = getTestDbSettings();
 
         sourceDataScan.process(dbSettings, outFile.toString());
+        Files.copy(outFile, Paths.get("/var/tmp/ScanReport.xlsx"), StandardCopyOption.REPLACE_EXISTING);
         assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(outFile, Paths.get(referenceScanReport.toURI()), DbType.MYSQL));
     }
 

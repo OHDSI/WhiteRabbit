@@ -78,6 +78,8 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 
 	public static final String TITLE_ERRORS_IN_DATABASE_CONFIGURATION = "There are errors in the database configuration";
 	public static final String TITLE_WARNINGS_ABOUT_DATABASE_CONFIGURATION = "There are warnings about the database configuration";
+	public static final String NAME_CHECKBOX_CALC_NUMERIC_STATS = "CheckboxCalcNumericStats";
+	public static final String NAME_STATS_SAMPLE_SIZE = "StatsSampleSize";
 
 	private JFrame				frame;
 	private JTextField			scanReportFileField;
@@ -381,6 +383,7 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 		scanOptionsLowerPanel.setLayout(new BoxLayout(scanOptionsLowerPanel, BoxLayout.X_AXIS));
 
 		calculateNumericStats = new JCheckBox("Numeric stats", false);
+		calculateNumericStats.setName(NAME_CHECKBOX_CALC_NUMERIC_STATS);
 		calculateNumericStats.setToolTipText("Include average, standard deviation and quartiles of numeric fields");
 		calculateNumericStats.addChangeListener(event -> numericStatsSampleSize.setEnabled(((JCheckBox) event.getSource()).isSelected()));
 		scanOptionsLowerPanel.add(calculateNumericStats);
@@ -388,6 +391,7 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 
 		scanOptionsLowerPanel.add(new JLabel("Numeric stats reservoir size: "));
 		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million" });
+		numericStatsSampleSize.setName(NAME_STATS_SAMPLE_SIZE);
 		numericStatsSampleSize.setSelectedIndex(0);
 		numericStatsSampleSize.setToolTipText("Maximum number of rows used to calculate numeric statistics");
 		scanOptionsLowerPanel.add(numericStatsSampleSize);

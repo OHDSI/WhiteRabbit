@@ -17,12 +17,15 @@
  ******************************************************************************/
 package org.ohdsi.whiterabbit.scan;
 
-import org.junit.jupiter.api.*;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.configuration.DbType;
 import org.ohdsi.whiterabbit.WhiteRabbitMain;
 import org.opentest4j.AssertionFailedError;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -31,31 +34,27 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TestSourceDataScanCsvIniFile {
+class TestSourceDataScanSasIniFile {
     @Test
     void testSourceDataScanFromIniFile(@TempDir Path tempDir) throws URISyntaxException, IOException {
         Charset charset = StandardCharsets.UTF_8;
-        Path iniFile = tempDir.resolve("tsv.ini");
-        URL iniTemplate = TestSourceDataScanCsvIniFile.class.getClassLoader().getResource("scan_data/tsv.ini.template");
-        URL referenceScanReport = TestSourceDataScanCsvIniFile.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-csv.xlsx");
-        Path personCsv = Paths.get(TestSourceDataScanCsvIniFile.class.getClassLoader().getResource("scan_data/person-header.csv").toURI());
-        Path costCsv = Paths.get(TestSourceDataScanCsvIniFile.class.getClassLoader().getResource("scan_data/cost-header.csv").toURI());
+        Path iniFile = tempDir.resolve("sas.ini");
+        URL iniTemplate = TestSourceDataScanSasIniFile.class.getClassLoader().getResource("scan_data/sas.ini.template");
+        URL referenceScanReport = TestSourceDataScanSasIniFile.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sas.xlsx");
         assertNotNull(iniTemplate);
         String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
         content = content.replaceAll("%WORKING_FOLDER%", tempDir.toString());
+        FileUtils.copyDirectory(
+                new File(Objects.requireNonNull(TestSourceDataScanSasIniFile.class.getClassLoader().getResource("examples/wr_input_sas")).toURI()),
+                tempDir.toFile());
         Files.write(iniFile, content.getBytes(charset));
-        Files.copy(personCsv, tempDir.resolve("person.csv"));
-        Files.copy(costCsv, tempDir.resolve("cost.csv"));
         WhiteRabbitMain wrMain = new WhiteRabbitMain(false, new String[]{"-ini", iniFile.toAbsolutePath().toString()});
         assertNotNull(referenceScanReport);
-        assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.DELIMITED_TEXT_FILES));
+        assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.SAS7BDAT));
     }
 }

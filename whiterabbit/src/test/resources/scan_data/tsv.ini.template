@@ -11,4 +11,4 @@ MIN_CELL_COUNT = 5                            # Minimum frequency for a field va
 MAX_DISTINCT_VALUES = 1000                    # Maximum number of distinct values per field to be reported
 ROWS_PER_TABLE = 100000                       # Maximum number of rows per table to be scanned for field values
 CALCULATE_NUMERIC_STATS = no                  # Include average, standard deviation and quartiles in the scan report? "yes" or "no"
-NUMERIC_STATS_SAMPLER_SIZE = 500              # Maximum number of rows used to calculate numeric statistics
+NUMERIC_STATS_SAMPLER_SIZE = 0                # Maximum number of rows used to calculate numeric statistics
