@@ -2,6 +2,10 @@
 // To be able to use the configured snowflake test environment, make sure that the role and grant
 // statements below have been exectuded, using the correct snowflake username for <<snowflake user>>
 //
+//create or replace warehouse compute_wh warehouse_size=xsmall initially_suspended=true auto_suspend=60;
+//use warehouse compute_wh
+//create database test;
+//create schema test.wr_test;
 //create role if not exists testrole;
 //grant usage on database test to role testrole;
 //grant usage on schema test.wr_test to role testrole;

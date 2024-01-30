@@ -45,8 +45,7 @@ import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.ohdsi.whiterabbit.scan.SourceDataScanSnowflakeIT.createPythonContainer;
-import static org.ohdsi.whiterabbit.scan.SourceDataScanSnowflakeIT.prepareTestData;
+import static org.ohdsi.whiterabbit.scan.SourceDataScanSnowflakeIT.*;
 
 /**
  * Intent: "deploy" the distributed application in a docker container (TestContainer) containing a Java runtime
@@ -202,6 +201,10 @@ public class VerifyDistributionIT {
 
             // run whiterabbit and verify the result
             execResult = javaContainer.execInContainer("sh", "-c", String.format("/app/bin/whiteRabbit -ini %s/tsv.ini", WORKDIR_IN_CONTAINER));
+            if (execResult.getExitCode() != 0) {
+                logger.error("stdout:" + execResult.getStdout());
+                logger.error("stderr:" + execResult.getStderr());
+            }
             assertTrue(execResult.getStdout().contains("Started new scan of 2 tables..."));
             assertTrue(execResult.getStdout().contains("Scanning table /whiterabbit/person.csv"));
             assertTrue(execResult.getStdout().contains("Scanning table /whiterabbit/cost.csv"));
