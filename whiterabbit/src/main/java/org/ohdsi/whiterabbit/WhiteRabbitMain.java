@@ -392,6 +392,7 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 		scanOptionsLowerPanel.add(new JLabel("Numeric stats reservoir size: "));
 		numericStatsSampleSize = new JComboBox<>(new String[] { "100,000", "500,000", "1 million" });
 		numericStatsSampleSize.setName(NAME_STATS_SAMPLE_SIZE);
+		numericStatsSampleSize.setEnabled(false);
 		numericStatsSampleSize.setSelectedIndex(0);
 		numericStatsSampleSize.setToolTipText("Maximum number of rows used to calculate numeric statistics");
 		scanOptionsLowerPanel.add(numericStatsSampleSize);
