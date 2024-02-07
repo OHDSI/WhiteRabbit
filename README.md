@@ -1,4 +1,4 @@
-![WR logo](https://github.com/OHDSI/WhiteRabbit/blob/master/whiterabbit/src/main/resources/org/ohdsi/whiteRabbit/WhiteRabbit64.png) White Rabbit 
+![WR logo](https://github.com/OHDSI/WhiteRabbit/blob/master/whiterabbit/src/main/resources/org/ohdsi/whiterabbit/WhiteRabbit64.png) White Rabbit 
 ===========
 
 ![RiaH logo](https://github.com/OHDSI/WhiteRabbit/blob/master/rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/RabbitInAHat64.png) Rabbit in a Hat
