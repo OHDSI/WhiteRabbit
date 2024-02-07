@@ -18,30 +18,34 @@
 package org.ohdsi.whiterabbit.scan;
 
 import com.github.caciocavallosilano.cacio.ctc.junit.CacioTest;
+import org.apache.commons.io.FileUtils;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.configuration.DbType;
 import org.ohdsi.whiterabbit.Console;
 import org.ohdsi.whiterabbit.WhiteRabbitMain;
+import static org.ohdsi.whiterabbit.WhiteRabbitMain.*;
 
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.ohdsi.whiterabbit.gui.LocationsPanel;
-
 @ExtendWith(GUITestExtension.class)
 @CacioTest
-public class TestSourceDataScanCsvGui {
+public class TestSourceDataScanSasGui {
     private static FrameFixture window;
     private static Console console;
 
@@ -63,18 +67,22 @@ public class TestSourceDataScanCsvGui {
 
     @Test
     void testSourceDataScanFromGui(@TempDir Path tempDir) throws IOException, URISyntaxException {
-        URL referenceScanReport = TestSourceDataScanCsvGui.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-csv.xlsx");
-        Path personCsv = Paths.get(TestSourceDataScanCsvGui.class.getClassLoader().getResource("scan_data/person-header.csv").toURI());
-        Path costCsv = Paths.get(TestSourceDataScanCsvGui.class.getClassLoader().getResource("scan_data/cost-header.csv").toURI());
-        Files.copy(personCsv, tempDir.resolve("person.csv"));
-        Files.copy(costCsv, tempDir.resolve("cost.csv"));
+        URL referenceScanReport = TestSourceDataScanSasGui.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sas.xlsx");
+        FileUtils.copyDirectory(
+                new File(Objects.requireNonNull(TestSourceDataScanSasIniFile.class.getClassLoader().getResource("examples/wr_input_sas")).toURI()),
+                tempDir.toFile());
         window.tabbedPane("TabbedPane").selectTab(WhiteRabbitMain.LABEL_LOCATIONS);
-        window.comboBox("SourceType").selectItem(DbType.DELIMITED_TEXT_FILES.label());
-        window.textBox(LocationsPanel.NAME_DELIMITER).setText(",");
+        window.comboBox("SourceType").selectItem(DbType.SAS7BDAT.label());
         window.textBox("FolderField").setText(tempDir.toAbsolutePath().toString());
         window.tabbedPane("TabbedPane").selectTab("Scan");
+        window.checkBox(NAME_CHECKBOX_CALC_NUMERIC_STATS).check();
+        window.comboBox(NAME_STATS_SAMPLE_SIZE).selectItem("500,000");
         window.button("Add").click();
-        window.fileChooser("FileChooser").fileNameTextBox().setText("\"cost.csv\" \"person.csv\"");
+        window.fileChooser("FileChooser").fileNameTextBox().setText(
+                "\"charset_lat1.sas7bdat\" " +
+                "\"date_formats.sas7bdat\" " +
+                "\"mixed_data_two.sas7bdat\" " +
+                "\"test-columnar.sas7bdat\"");
         window.fileChooser("FileChooser").approveButton().click();
         window.button(WhiteRabbitMain.LABEL_SCAN_TABLES).click();
 
@@ -82,6 +90,6 @@ public class TestSourceDataScanCsvGui {
                 console,
                 tempDir.resolve("ScanReport.xlsx"),
                 Paths.get(referenceScanReport.toURI()),
-                DbType.DELIMITED_TEXT_FILES));
+                DbType.SAS7BDAT));
     }
 }

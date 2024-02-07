@@ -17,14 +17,18 @@
  ******************************************************************************/
 package org.ohdsi.databases;
 
+import org.apache.commons.lang.StringUtils;
 import org.ohdsi.databases.configuration.*;
 import org.ohdsi.utilities.files.IniFile;
 import org.ohdsi.utilities.files.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +38,8 @@ import java.util.stream.Collectors;
  *
  */
 public interface StorageHandler {
+
+    Logger logger = LoggerFactory.getLogger(StorageHandler.class);
 
     /**
      * Creates an instance of the implementing class, or can return the singleton for.
@@ -94,9 +100,18 @@ public interface StorageHandler {
      *
      * No-op by default.
      *
-     * @param ignoredDatabase provided for compatibility
+     * @param database database to use
      */
-    default void use(String ignoredDatabase) {}
+    default void use(String database) {
+        String useQuery = getUseQuery(database);
+        if (StringUtils.isNotEmpty(useQuery)) {
+            execute(useQuery);
+        }
+    }
+
+    default String getUseQuery(String ignoredDatabase) {
+        return null;
+    }
 
     /**
      * closes the connection to the database. No-op by default.
@@ -118,6 +133,7 @@ public interface StorageHandler {
      */
     default List<String> getTableNames() {
         List<String> names = new ArrayList<>();
+        use(getDatabase());
         String query = this.getTablesQuery(getDatabase());
 
 		for (Row row : new QueryResult(query, new DBConnection(this, getDbType(), false))) {
@@ -230,4 +246,49 @@ public interface StorageHandler {
      * Returns the DBConfiguration object for the implementing class
      */
     DBConfiguration getDBConfiguration();
+
+    default void execute(String sql) {
+        execute(sql, false);
+    }
+
+    default void execute(String sql, boolean verbose) {
+        Statement statement = null;
+        try {
+            if (StringUtils.isEmpty(sql)) {
+                return;
+            }
+
+            statement = getDBConnection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            for (String subQuery : sql.split(";")) {
+                if (verbose) {
+                    String abbrSQL = subQuery.replace('\n', ' ').replace('\t', ' ').trim();
+                    if (abbrSQL.length() > 100)
+                        abbrSQL = abbrSQL.substring(0, 100).trim() + "...";
+                    logger.info("Adding query to batch: " + abbrSQL);
+                }
+
+                statement.addBatch(subQuery);
+            }
+            long start = System.currentTimeMillis();
+            if (verbose) {
+                logger.info("Executing batch");
+            }
+            statement.executeBatch();
+            if (verbose) {
+                // TODO outputQueryStats(statement, System.currentTimeMillis() - start);
+            }
+        } catch (SQLException e) {
+            logger.error(sql);
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
+    }
+
 }

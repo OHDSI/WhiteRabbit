@@ -39,8 +39,6 @@ import static org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration.*;
 public enum SnowflakeHandler implements StorageHandler {
     INSTANCE();
 
-    final static Logger logger = LoggerFactory.getLogger(SnowflakeHandler.class);
-
     DBConfiguration configuration = new SnowflakeConfiguration();
     private DBConnection snowflakeConnection = null;
 
@@ -97,6 +95,12 @@ public enum SnowflakeHandler implements StorageHandler {
     public DBConnection getDBConnection() {
         this.checkInitialised();
         return this.snowflakeConnection;
+    }
+
+    public String getUseQuery(String ignoredDatabase) {
+        String useQuery = String.format("USE WAREHOUSE \"%s\";", configuration.getValue(SNOWFLAKE_WAREHOUSE).toUpperCase());
+        logger.info("SnowFlakeHandler will execute query: " + useQuery);
+        return useQuery;
     }
 
     @Override

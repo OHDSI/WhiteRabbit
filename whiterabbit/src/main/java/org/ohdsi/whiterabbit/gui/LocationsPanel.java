@@ -50,6 +50,7 @@ public class LocationsPanel extends JPanel {
     public static final String NAME_DELIMITER = "DelimiterName";
 
     public static final String TOOLTIP_POSTGRESQL_SERVER = "For PostgreSQL servers this field contains the host name and database name (<host>/<database>)";
+    public static final String TOOLTIP_DATABASE_SERVER = "This field contains the name or IP address of the database server";
 
     private final JFrame parentFrame;
     private JTextField folderField;
@@ -259,7 +260,7 @@ public class LocationsPanel extends JPanel {
                 if (selectedSourceType.equals(DbType.AZURE.label())) {
                     sourceServerField.setToolTipText("For Azure, this field contains the host name and database name (<host>;database=<database>)");
                 } else {
-                    sourceServerField.setToolTipText("This field contains the name or IP address of the database server");
+                    sourceServerField.setToolTipText(TOOLTIP_DATABASE_SERVER);
                 }
                 if (selectedSourceType.equals(DbType.SQL_SERVER.label())) {
                     sourceUserField.setToolTipText("The user used to log in to the server. Optionally, the domain can be specified as <domain>/<user> (e.g. 'MyDomain/Joe')");

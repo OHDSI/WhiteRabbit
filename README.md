@@ -34,11 +34,12 @@ Screenshots
 
 Technology
 ============
-White Rabbit and Rabbit in a Hat are pure Java applications. Both applications use [Apache's POI Java libraries](http://poi.apache.org/) to read and write Word and Excel files. White Rabbit uses JDBC to connect to the respective databases.
+White Rabbit and Rabbit in a Hat are pure Java applications. Both applications use [Apache's POI Java libraries](http://poi.apache.org/) to read and write Word and Excel files. 
+White Rabbit uses JDBC to connect to the respective databases.
 
 System Requirements
 ============
-Requires Java 1.8 or higher, and read access to the database to be scanned. Java can be downloaded from
+Requires Java 1.8 or higher for running, and read access to the database to be scanned. Java can be downloaded from
 <a href="http://www.java.com" target="_blank">http://www.java.com</a>.
 
 Dependencies
@@ -101,16 +102,23 @@ To generate the files ready for distribution, run `mvn install`.
 ### Testing
 
 A limited number of unit and integration tests exist. The integration tests run only in the maven verification phase,
-(`mn verify`) and depend on docker being available to the user running the verification. If docker is not available, the
+(`mvn verify`) and depend on docker being available to the user running the verification. If docker is not available, the
 integration tests will fail.
 
 Also, GitHub actions have been configured to run the test suite automatically.
+
+#### MacOS
+
+It is currently not possible to run the maven verification phase on MacOS, as all GUI tests will fail with an
+exception. This has not been resolved yet. 
+The distributable packages can be built on MacOS using `mvn clean package -DskipTests=true`, but be aware that
+a new release must be validated on a platform where all tests can run.
 
 #### Snowflake
 
 There are automated tests for Snowflake, but since it is not (yet?) possible to have a local
 Snowflake instance in a Docker container, these test will only run if the following information
-is provided through environment variables:
+is provided through system properties, in a file named `snowflake.env` in the root directory of the project:
 
     SNOWFLAKE_WR_TEST_ACCOUNT
     SNOWFLAKE_WR_TEST_USER

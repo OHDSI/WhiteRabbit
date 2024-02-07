@@ -485,7 +485,7 @@ public class SourceDataScan implements ScanParameters {
 		addRow(metaSheet, "minCellCount", this.minCellCount);
 		addRow(metaSheet, "maxValues", this.maxValues);
 		addRow(metaSheet, "calculateNumericStats", this.calculateNumericStats);
-		addRow(metaSheet, "numStatsSamplerSize", this.numStatsSamplerSize);
+		addRow(metaSheet, "numStatsSamplerSize", this.calculateNumericStats ? this.numStatsSamplerSize: 0);
 
 	}
 

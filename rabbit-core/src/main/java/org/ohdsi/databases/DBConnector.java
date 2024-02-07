@@ -127,18 +127,35 @@ public class DBConnector {
 
 	public static Connection connectToMySQL(String server, String user, String password) {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 		} catch (ClassNotFoundException e1) {
 			throw new RuntimeException("Cannot find JDBC driver. Make sure the file mysql-connector-java-x.x.xx-bin.jar is in the path");
 		}
 
-		String url = "jdbc:mysql://" + server + ":3306/?useCursorFetch=true&zeroDateTimeBehavior=convertToNull";
+		String url = createMySQLUrl(server);
 
 		try {
 			return DriverManager.getConnection(url, user, password);
 		} catch (SQLException e1) {
 			throw new RuntimeException("Cannot connect to DB server: " + e1.getMessage());
 		}
+	}
+
+	static String createMySQLUrl(String server) {
+		final String jdbcProtocol = "jdbc:mysql://";
+
+		// only insert the default port if no port was specified
+		if (!server.contains(":")) {
+			if (!server.endsWith("/")) {
+				server += "/";
+			}
+			server = server.replace("/", ":3306/");
+		}
+
+		String url = (!server.startsWith(jdbcProtocol) ? jdbcProtocol : "") + server;
+		url += "?useCursorFetch=true&zeroDateTimeBehavior=convertToNull";
+
+		return url;
 	}
 
 	public static Connection connectToODBC(String server, String user, String password) {

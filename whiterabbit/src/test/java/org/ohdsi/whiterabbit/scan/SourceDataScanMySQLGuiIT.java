@@ -23,14 +23,16 @@ import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.finder.WindowFinder;
 import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.FrameFixture;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.configuration.DbType;
 import org.ohdsi.whiterabbit.Console;
 import org.ohdsi.whiterabbit.WhiteRabbitMain;
 import org.ohdsi.whiterabbit.gui.LocationsPanel;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 
 import javax.swing.*;
@@ -42,12 +44,12 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.ohdsi.databases.configuration.DbType.POSTGRESQL;
-import static org.ohdsi.whiterabbit.scan.SourceDataScanPostgreSQLIT.createPostgreSQLContainer;
+import static org.ohdsi.databases.configuration.DbType.MYSQL;
+import static org.ohdsi.whiterabbit.scan.SourceDataScanMySQLIT.createMySQLContainer;
 
 @ExtendWith(GUITestExtension.class)
 @CacioTest
-class SourceDataScanPostgreSQLGuiIT {
+class SourceDataScanMySQLGuiIT {
 
     private static FrameFixture window;
     private static Console console;
@@ -69,24 +71,23 @@ class SourceDataScanPostgreSQLGuiIT {
     }
 
     @Container
-    public static PostgreSQLContainer<?> postgreSQL = createPostgreSQLContainer();
+    public static MySQLContainer<?> mySQLContainer = createMySQLContainer();
 
     @ExtendWith(GUITestExtension.class)
     @Test
     void testConnectionAndSourceDataScan(@TempDir Path tempDir) throws IOException, URISyntaxException {
         URL referenceScanReport = TestSourceDataScanCsvGui.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
         window.tabbedPane(WhiteRabbitMain.NAME_TABBED_PANE).selectTab(WhiteRabbitMain.LABEL_LOCATIONS);
-        window.comboBox("SourceType").selectItem(DbType.POSTGRESQL.label());
+        window.comboBox("SourceType").selectItem(DbType.MYSQL.label());
         window.textBox("FolderField").setText(tempDir.toAbsolutePath().toString());
         // verify one tooltip text, assume that all other tooltip texts will be fine too (fingers crossed)
-        assertEquals(LocationsPanel.TOOLTIP_POSTGRESQL_SERVER, window.textBox(LocationsPanel.LABEL_SERVER_LOCATION).target().getToolTipText());
-        window.textBox(LocationsPanel.LABEL_SERVER_LOCATION).setText(String.format("%s:%s/%s",
-                postgreSQL.getHost(),
-                postgreSQL.getFirstMappedPort(),
-                postgreSQL.getDatabaseName()));
-        window.textBox(LocationsPanel.LABEL_USER_NAME).setText(postgreSQL.getUsername());
-        window.textBox(LocationsPanel.LABEL_PASSWORD).setText(postgreSQL.getPassword());
-        window.textBox(LocationsPanel.LABEL_DATABASE_NAME).setText("public");
+        assertEquals(LocationsPanel.TOOLTIP_DATABASE_SERVER, window.textBox(LocationsPanel.LABEL_SERVER_LOCATION).target().getToolTipText());
+        window.textBox(LocationsPanel.LABEL_SERVER_LOCATION).setText(String.format("%s:%s",
+                mySQLContainer.getHost(),
+                mySQLContainer.getFirstMappedPort()));
+        window.textBox(LocationsPanel.LABEL_USER_NAME).setText(mySQLContainer.getUsername());
+        window.textBox(LocationsPanel.LABEL_PASSWORD).setText(mySQLContainer.getPassword());
+        window.textBox(LocationsPanel.LABEL_DATABASE_NAME).setText(mySQLContainer.getDatabaseName());
 
         // use the "Test connection" button
         window.button(WhiteRabbitMain.LABEL_TEST_CONNECTION).click();
@@ -108,7 +109,7 @@ class SourceDataScanPostgreSQLGuiIT {
                 console,
                 tempDir.resolve("ScanReport.xlsx"),
                 Paths.get(referenceScanReport.toURI()),
-                POSTGRESQL));
+                MYSQL));
 
         //window.close();
     }
