@@ -88,7 +88,6 @@ class SourceDataScanMySQLIT {
         DbSettings dbSettings = getTestDbSettings();
 
         sourceDataScan.process(dbSettings, outFile.toString());
-        Files.copy(outFile, Paths.get("/var/tmp/ScanReport.xlsx"), StandardCopyOption.REPLACE_EXISTING);
         assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(outFile, Paths.get(referenceScanReport.toURI()), DbType.MYSQL));
     }
 

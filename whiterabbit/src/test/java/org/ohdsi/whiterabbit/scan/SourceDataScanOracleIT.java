@@ -140,7 +140,7 @@ class SourceDataScanOracleIT {
         dbSettings.dbType = DbType.ORACLE;
         dbSettings.sourceType = DbSettings.SourceType.DATABASE;
         //dbSettings.server = oracleContainer.getJdbcUrl();
-        dbSettings.server = String.format("%s:%s/%s", "localhost", oracleContainer.getOraclePort(), "XE");
+        dbSettings.server = String.format("%s:%s/%s", oracleContainer.getHost(), oracleContainer.getOraclePort(), "XE");
         if (dbSettings.server.toLowerCase().contains("thin")) {
             dbSettings.server = dbSettings.server.replace("/test", ":test").replace("@", "");
         }

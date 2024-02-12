@@ -17,23 +17,17 @@
  ******************************************************************************/
 package org.ohdsi.whiterabbit.scan;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.runners.Parameterized;
 import org.ohdsi.databases.DBConnector;
 import org.ohdsi.databases.SnowflakeTestUtils;
 import org.ohdsi.databases.configuration.DbType;
-import org.ohdsi.utilities.files.IniFile;
-import org.ohdsi.whiterabbit.WhiteRabbitMain;
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Container.ExecResult;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -41,8 +35,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.function.BooleanSupplier;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.ohdsi.whiterabbit.scan.SourceDataScanSnowflakeIT.*;
@@ -149,13 +141,13 @@ public class VerifyDistributionIT {
                 URL referenceScanReport = SourceDataScanSnowflakeIT.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
                 assert iniTemplate != null;
                 String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
-                content = content.replaceAll("%WORKING_FOLDER%", WORKDIR_IN_CONTAINER)
-                        .replaceAll("%SNOWFLAKE_ACCOUNT%", reader.getOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"))
-                        .replaceAll("%SNOWFLAKE_USER%", reader.getOrFail("SNOWFLAKE_WR_TEST_USER"))
-                        .replaceAll("%SNOWFLAKE_PASSWORD%", reader.getOrFail("SNOWFLAKE_WR_TEST_PASSWORD"))
-                        .replaceAll("%SNOWFLAKE_WAREHOUSE%", reader.getOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"))
-                        .replaceAll("%SNOWFLAKE_DATABASE%", reader.getOrFail("SNOWFLAKE_WR_TEST_DATABASE"))
-                        .replaceAll("%SNOWFLAKE_SCHEMA%", reader.getOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
+                content = content.replace("%WORKING_FOLDER%", WORKDIR_IN_CONTAINER)
+                        .replace("%SNOWFLAKE_ACCOUNT%", reader.getOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"))
+                        .replace("%SNOWFLAKE_USER%", reader.getOrFail("SNOWFLAKE_WR_TEST_USER"))
+                        .replace("%SNOWFLAKE_PASSWORD%", reader.getOrFail("SNOWFLAKE_WR_TEST_PASSWORD"))
+                        .replace("%SNOWFLAKE_WAREHOUSE%", reader.getOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"))
+                        .replace("%SNOWFLAKE_DATABASE%", reader.getOrFail("SNOWFLAKE_WR_TEST_DATABASE"))
+                        .replace("%SNOWFLAKE_SCHEMA%", reader.getOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
                 Files.write(iniFile, content.getBytes(charset));
                 // verify that the distribution of whiterabbit has been generated and is available inside the container
                 ExecResult execResult = javaContainer.execInContainer("sh", "-c", String.format("ls %s", APPDIR_IN_CONTAINER));
@@ -168,6 +160,8 @@ public class VerifyDistributionIT {
                 assertTrue(execResult.getStdout().contains("Scanning table PERSON"));
                 assertTrue(execResult.getStdout().contains("Scanning table COST"));
                 assertTrue(execResult.getStdout().contains("Scan report generated: /whiterabbit/ScanReport.xlsx"));
+
+                javaContainer.copyFileFromContainer("/whiterabbit/ScanReport.xlsx", tempDir.resolve("ScanReport.xlsx").toString());
 
                 assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.SNOWFLAKE));
             }
@@ -195,6 +189,7 @@ public class VerifyDistributionIT {
             ExecResult execResult = javaContainer.execInContainer("sh", "-c", "java -version");
             assertTrue(execResult.getStderr().startsWith(expectedVersion), "default java version in container should match version " + expectedVersion);
 
+            javaContainer.copyFileToContainer(MountableFile.forHostPath(tempDir), WORKDIR_IN_CONTAINER);
             // verify that the distribution of whiterabbit has been generated and is available inside the container
             execResult = javaContainer.execInContainer("sh", "-c", String.format("ls %s", APPDIR_IN_CONTAINER));
             assertTrue(execResult.getStdout().contains("repo"), "WhiteRabbit distribution is not accessible inside container");
@@ -210,6 +205,8 @@ public class VerifyDistributionIT {
             assertTrue(execResult.getStdout().contains("Scanning table /whiterabbit/cost.csv"));
             assertTrue(execResult.getStdout().contains("Scan report generated: /whiterabbit/ScanReport.xlsx"));
 
+            javaContainer.copyFileFromContainer("/whiterabbit/ScanReport.xlsx", tempDir.resolve("ScanReport.xlsx").toString());
+
             assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.DELIMITED_TEXT_FILES));
 
             javaContainer.stop();
@@ -220,7 +217,8 @@ public class VerifyDistributionIT {
         return new GenericContainer<>(
                 DockerImageName.parse(imageName))
                 .withCommand("sh", "-c", "tail -f /dev/null")
-                .withFileSystemBind(Paths.get("../dist").toAbsolutePath().toString(), APPDIR_IN_CONTAINER)
-                .withFileSystemBind(tempDir.toString(), WORKDIR_IN_CONTAINER, BindMode.READ_WRITE);
+                .withCopyToContainer(
+                        MountableFile.forHostPath("../dist/"),
+                        APPDIR_IN_CONTAINER);
     }
 }
