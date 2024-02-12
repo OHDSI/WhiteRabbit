@@ -68,7 +68,6 @@ Getting Involved
 * User guide and Help: [WhiteRabbit documentation](http://ohdsi.github.io/WhiteRabbit)
 * Developer questions/comments/feedback: [OHDSI Forum](http://forums.ohdsi.org/c/developers)
 * We use the [GitHub issue tracker](../../issues) for all bugs/issues/enhancements
-* Historically, all files have CRLF line endings. Please configure your IDE and local git to keep line endings as is. This avoids merge conflicts.
 * If you wish to contribute, please read the documentation on [contributing](CONTRIBUTING.md)
 
 License

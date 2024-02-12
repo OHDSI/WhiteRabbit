@@ -8,6 +8,8 @@ This has to do with test and verification dependencies that are not available in
 Please note that when using an IDE for development, source and target release must still be Java 8 (1.8) . This is enforced
 in the maven build file (pom.xml). You can use any IDE you prefer.
 
+Please note that historically, all files have CRLF line endings. Please configure your IDE and local git to keep line endings as is. This avoids merge conflicts.
+
 To generate the files ready for distribution, run `mvn install`.
 
 When creating a pull request, please make sure the verification phase (`mvn verify`) does not fail.
