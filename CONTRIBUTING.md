@@ -2,7 +2,7 @@
 
 White Rabbit and Rabbit in a Hat are structured as a Maven package. Contributions are welcome.
 
-While the software in the project can be executed with Java 8 (1.8), for development Java 17 is needed.
+While the software in the project can be executed with Java 8 (1.8), for development Java 17 (or higher, currently tested wth 21) is needed.
 This has to do with test and verification dependencies that are not available in a version compatible with Java 8 .
 
 Please note that when using an IDE for development, source and target release must still be Java 8 (1.8) . This is enforced

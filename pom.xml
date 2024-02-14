@@ -70,6 +70,10 @@
             <layout>default</layout>
             <url>file:///${project.basedir}/../lib</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -227,10 +231,10 @@
             </plugin>
             <plugin>
                 <!--
-                  While the source and target Java version are still 1.8, Java 17 is required to be able to use
+                  While the source and target Java version are still 1.8, Java 17+ is required to be able to use
                   recent versions of test and verification tools. This plugin enforces the required Java version,
                   and gives a cleaner error message than failing on a dependency that is not compatible with an
-                  older version of Java
+                  older version of Java.
                   -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -244,7 +248,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>17</version>
+                                    <version>[17,22)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -304,6 +308,9 @@
                         <!-- apparently there is no license information available for sqljdbc4, even though
                         it is published on Maven repos -->
                         <exclude>com.microsoft.sqlserver:sqljdbc4</exclude>
+
+                        <!-- temporary exclusion for the patched caciocavallo dependency -->
+                        <exclude>com.github.thehyve:caciocavallo</exclude>
 
                         <!-- PLEASE NOTE: teradata and googlebigquery are provided within the project, they
                              cannot be found on a maven repo; no license info available; they should ideally
