@@ -2,7 +2,8 @@
 pagetitle: "ReadMe"
 ---
 # White Rabbit Documentation Readme
-This folder contains the raw and rendered documentation of WhiteRabbit.
+This folder contains the raw (`.md`) and rendered (`.html`) documentation of WhiteRabbit.
+The documentation is renderd with the R package `rmarkdown` and used for the [github.io page](https://ohdsi.github.io/WhiteRabbit/).
 
 ## Contribute
 Contributions to the documentation are very welcome and even a must when new features are implemented.
@@ -13,8 +14,7 @@ To update the documentation, edit one of the following markdown files or create 
  - [best_practices.md](/docs/best_practices.md) 
 
 ## Render html
-To generate the site from markdown files, run the following R script with the `./docs` folder as working directory.
-Run this in a standalone R session, this is orders of magnitude faster compared to running in RStudio.
+To generate the site from markdown files, run the following R code with the `./docs` folder as working directory.
 
 ```R
 #devtools::install_github("ropenscilabs/icon")
