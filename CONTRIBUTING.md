@@ -2,7 +2,7 @@
 
 White Rabbit and Rabbit in a Hat are structured as a Maven package. Contributions are welcome.
 
-While the software in the project can be executed with Java 8 (1.8), for development Java 17 (or higher, currently tested wth 21) is needed.
+While the software in the project can be executed with Java 8 (1.8), for development Java 17 (or higher, currently tested upto version 21) is needed.
 This has to do with test and verification dependencies that are not available in a version compatible with Java 8 .
 
 Please note that when using an IDE for development, source and target release must still be Java 8 (1.8) . This is enforced
@@ -14,11 +14,13 @@ To generate the files ready for distribution, run `mvn install`.
 
 When creating a pull request, please make sure the verification phase (`mvn verify`) does not fail.
 
+When contributing code, please make sure that `mvn verify` runs without errors. 
+
 ### Testing
 
 A number of unit and integration tests exist. The integration tests run only in the maven verification phase,
-(`mvn verify`) and depend on docker being available to the user running the verification. If docker is not available, the
-integration tests will fail.
+(`mvn verify`) and depend on Docker being available to the user running the verification. If Docker is not available, the
+integration tests will fail. 
 
 When adding test, please follow these conventions:
 
@@ -47,6 +49,12 @@ These are used for testing of the main White Rabbit and Rabbit in a Hat features
 | `riah_input`   | An example mapping file used to create the Rabbit in a Hat outputs.                                                                                                                                                                                                                                                                                      |
 | `riah_output`  | All export formats created by Rabbit in a Hat: as word, html, markdown, sql skeleton and the R TestFramework.<br> These are all generated from `riah_input/riah_mapping_example.gz`.                                                                                                                                                                     |
 
+### Database support
+
+If you are considering adding support for a new type of database, it is recommended to follow the pattern as used
+by the SnowflakeHandler class, which extends the StorageHandler interface. This way, the brand/database specific code
+is isolated into one class, instead of through the code paths that implement support for the 
+databases that were added earlier. This will lead to clearer code, that will also be easier to test and debug.
 
 ### Snowflake
 
