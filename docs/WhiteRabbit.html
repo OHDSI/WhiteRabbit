@@ -380,41 +380,19 @@ div.tocify {
 <h1>Introduction</h1>
 <div id="scope-and-purpose" class="section level2">
 <h2>Scope and purpose</h2>
-<p>WhiteRabbit is a software tool to help prepare for ETLs (Extraction,
-Transformation, Loading) of longitudinal health care databases into the
-<a href="https://github.com/OHDSI/CommonDataModel">Observational Medical
-Outcomes Partnership (OMOP) Common Data Model (CDM)</a>. The source data
-can be in delimited text files, SAS files, or in a database (MySQL, SQL
-Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW,
-Teradata, Google BigQuery, Azure). Note that for support of the OHDSI
-analytical tooling, the OMOP CDM will need to be in one of a limited set
-of database platforms (SQL Server, Oracle, PostgreSQL, Amazon RedShift,
-Google BigQuery, Impala).</p>
-<p>WhiteRabbit’s main function is to perform a scan of the source data,
-providing detailed information on the tables, fields, and values that
-appear in a field. This scan will generate a report that can be used as
-a reference when designing the ETL, for instance by using the
-Rabbit-In-A-Hat tool. WhiteRabbit differs from standard data profiling
-tools in that it attempts to prevent the display of personally
-identifiable information (PII) data values in the generated output data
-file.</p>
+<p>WhiteRabbit is a software tool to help prepare for ETLs (Extraction, Transformation, Loading) of longitudinal health care databases into the <a href="https://github.com/OHDSI/CommonDataModel">Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM)</a>. The source data can be in delimited text files, SAS files, or in a database (MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure). Note that for support of the OHDSI analytical tooling, the OMOP CDM will need to be in one of a limited set of database platforms (SQL Server, Oracle, PostgreSQL, Amazon RedShift, Google BigQuery, Impala).</p>
+<p>WhiteRabbit’s main function is to perform a scan of the source data, providing detailed information on the tables, fields, and values that appear in a field. This scan will generate a report that can be used as a reference when designing the ETL, for instance by using the Rabbit-In-A-Hat tool. WhiteRabbit differs from standard data profiling tools in that it attempts to prevent the display of personally identifiable information (PII) data values in the generated output data file.</p>
 </div>
 <div id="process-overview" class="section level2">
 <h2>Process Overview</h2>
-<p>The typical sequence for using this software to scan source data in
-preparation of developing an ETL into an OMOP CDM:</p>
+<p>The typical sequence for using this software to scan source data in preparation of developing an ETL into an OMOP CDM:</p>
 <ol style="list-style-type: decimal">
-<li>Set working folder, the location on the local desktop computer where
-results will be exported.</li>
-<li>Connect to the source database or delimited text file and test
-connection.</li>
-<li>Select the tables to be scanned and execute the WhiteRabbit
-scan.</li>
-<li>WhiteRabbit creates a ‘ScanReport’ with information about the source
-data.</li>
+<li>Set working folder, the location on the local desktop computer where results will be exported.</li>
+<li>Connect to the source database or delimited text file and test connection.</li>
+<li>Select the tables to be scanned and execute the WhiteRabbit scan.</li>
+<li>WhiteRabbit creates a ‘ScanReport’ with information about the source data.</li>
 </ol>
-<p>Once the scan report is created, this report can then be used in the
-Rabbit-In-A-Hat tool or as a stand-alone data profiling document.</p>
+<p>Once the scan report is created, this report can then be used in the Rabbit-In-A-Hat tool or as a stand-alone data profiling document.</p>
 </div>
 </div>
 <div id="installation-and-support" class="section level1">
@@ -422,76 +400,29 @@ Rabbit-In-A-Hat tool or as a stand-alone data profiling document.</p>
 <div id="installation" class="section level2">
 <h2>Installation</h2>
 <ol style="list-style-type: decimal">
-<li>Download the latest version of WhiteRabbit from Github: <a
-href="https://github.com/OHDSI/WhiteRabbit/releases/latest"
-class="uri">https://github.com/OHDSI/WhiteRabbit/releases/latest</a>.<br />
-The packaged application can be found at the bottom of the page under
-assets, in a file called <em>WhiteRabbit_vX.X.X.zip</em> (where
-<code>X.X.X</code> is the latest version).</li>
+<li>Download the latest version of WhiteRabbit from Github: <a href="https://github.com/OHDSI/WhiteRabbit/releases/latest" class="uri">https://github.com/OHDSI/WhiteRabbit/releases/latest</a>.<br />
+The packaged application can be found at the bottom of the page under assets, in a file called <em>WhiteRabbit_vX.X.X.zip</em> (where <code>X.X.X</code> is the latest version).</li>
 <li>Unzip the download</li>
-<li>Double-click on <code>bin/whiteRabbit.bat</code> on Windows to start
-WhiteRabbit, and <code>bin/whiteRabbit</code> on macOS and Linux.<br />
-See <a href="#running-from-the-command-line">Running from the command
-line</a> for details on how to run from the command line instead.</li>
-<li>Go to <a href="#using-the-application-functions">Using the
-Application Functions</a> for detailed instructions on how to make a
-scan of your data.</li>
+<li>Double-click on <code>bin/whiteRabbit.bat</code> on Windows to start WhiteRabbit, and <code>bin/whiteRabbit</code> on macOS and Linux.<br />
+See <a href="#running-from-the-command-line">Running from the command line</a> for details on how to run from the command line instead.</li>
+<li>Go to <a href="#using-the-application-functions">Using the Application Functions</a> for detailed instructions on how to make a scan of your data.</li>
 </ol>
-<p>Note: on releases earlier than version 0.8.0, open the respective
-WhiteRabbit.jar or RabbitInAHat.jar files instead. Note: WhiteRabbit and
-RabbitInaHat only work from a path with only ascii characters.</p>
+<p>Note: on releases earlier than version 0.8.0, open the respective WhiteRabbit.jar or RabbitInAHat.jar files instead. Note: WhiteRabbit and RabbitInaHat only work from a path with only ascii characters.</p>
 <div id="memory" class="section level3">
 <h3>Memory</h3>
-<p>WhiteRabbit possibly does not start when the memory allocated by the
-JVM is too big or too small. By default this is set to 1200m. To
-increase the memory (in this example to 2400m), either set the
-environment variable <code>EXTRA_JVM_ARGUMENTS=-Xmx2400m</code> before
-starting or edit in <code>bin/WhiteRabbit.bat</code> the line
-<code>%JAVACMD% %JAVA_OPTS% -Xmx2400m...</code>. To lower the memory,
-set one of these variables to e.g. <code>-Xmx600m</code>. If you have a
-32-bit Java VM installed and problems persist, consider installing
-64-bit Java.</p>
+<p>WhiteRabbit possibly does not start when the memory allocated by the JVM is too big or too small. By default this is set to 1200m. To increase the memory (in this example to 2400m), either set the environment variable <code>EXTRA_JVM_ARGUMENTS=-Xmx2400m</code> before starting or edit in <code>bin/WhiteRabbit.bat</code> the line <code>%JAVACMD% %JAVA_OPTS% -Xmx2400m...</code>. To lower the memory, set one of these variables to e.g. <code>-Xmx600m</code>. If you have a 32-bit Java VM installed and problems persist, consider installing 64-bit Java.</p>
 </div>
 <div id="temporary-directory-for-apache-poi" class="section level3">
 <h3>Temporary Directory for Apache POI</h3>
-<p>(This addresses <a
-href="https://github.com/OHDSI/WhiteRabbit/issues/293">issue
-293</a>)</p>
-<p>The Apache POI library is used for generating the scan report in
-Excel format. This library creates its own directory for temporary files
-in the system temporary directory. In <a
-href="https://github.com/OHDSI/WhiteRabbit/issues/293">issue 293</a> it
-has been reported that this can cause problems in a multi-user
-environment, when multiple user attempt to create this directory with
-too restrictive permissions (read-only for other users). WhiteRabbit
-from version 0.10.9 attempts to circumvent this automatically, but this
-workaround can fail due to concurrency problems. If you want to prevent
-this from happening entirely , you can set either the environment
-variable <code>ORG_OHDSI_WHITERABBIT_POI_TMPDIR</code> or the Java
-system property <code>org.ohdsi.whiterabbit.poi.tmpdir</code> to a
-temporary directory of your choice when starting WhiteRabbit (best would
-be to add this to the <code>whiteRabbit</code> or
-<code>whiteRabbit.bat</code> script). Please note that this directory
-should exist before your start WhiteRabbit, and that it should be
-writable by any user that may want to run WhiteRabbit. For each user a
-separate subdirectory will be created, so that permission related
-conflicts should be avoided. Also, WhiteRabbit now attempts to detect
-this situation before the scan starts. If this is detected, the scan is
-not started, and the problem identified before the scan, instead of
-afterwards.</p>
+<p>(This addresses <a href="https://github.com/OHDSI/WhiteRabbit/issues/293">issue 293</a>)</p>
+<p>The Apache POI library is used for generating the scan report in Excel format. This library creates its own directory for temporary files in the system temporary directory. In <a href="https://github.com/OHDSI/WhiteRabbit/issues/293">issue 293</a> it has been reported that this can cause problems in a multi-user environment, when multiple user attempt to create this directory with too restrictive permissions (read-only for other users). WhiteRabbit from version 0.10.9 attempts to circumvent this automatically, but this workaround can fail due to concurrency problems. If you want to prevent this from happening entirely , you can set either the environment variable <code>ORG_OHDSI_WHITERABBIT_POI_TMPDIR</code> or the Java system property <code>org.ohdsi.whiterabbit.poi.tmpdir</code> to a temporary directory of your choice when starting WhiteRabbit (best would be to add this to the <code>whiteRabbit</code> or <code>whiteRabbit.bat</code> script). Please note that this directory should exist before your start WhiteRabbit, and that it should be writable by any user that may want to run WhiteRabbit. For each user a separate subdirectory will be created, so that permission related conflicts should be avoided. Also, WhiteRabbit now attempts to detect this situation before the scan starts. If this is detected, the scan is not started, and the problem identified before the scan, instead of afterwards.</p>
 </div>
 </div>
 <div id="support" class="section level2">
 <h2>Support</h2>
-<p>All source code, descriptions and input/output examples are available
-on GitHub: <a href="https://github.com/OHDSI/WhiteRabbit"
-class="uri">https://github.com/OHDSI/WhiteRabbit</a></p>
-<p>Any bugs/issues/enhancements should be posted to the GitHub
-repository: <a href="https://github.com/OHDSI/WhiteRabbit/issues"
-class="uri">https://github.com/OHDSI/WhiteRabbit/issues</a></p>
-<p>Any questions/comments/feedback/discussion can be posted on the OHDSI
-Developer Forum: <a href="http://forums.ohdsi.org/c/developers"
-class="uri">http://forums.ohdsi.org/c/developers</a></p>
+<p>All source code, descriptions and input/output examples are available on GitHub: <a href="https://github.com/OHDSI/WhiteRabbit" class="uri">https://github.com/OHDSI/WhiteRabbit</a></p>
+<p>Any bugs/issues/enhancements should be posted to the GitHub repository: <a href="https://github.com/OHDSI/WhiteRabbit/issues" class="uri">https://github.com/OHDSI/WhiteRabbit/issues</a></p>
+<p>Any questions/comments/feedback/discussion can be posted on the OHDSI Developer Forum: <a href="http://forums.ohdsi.org/c/developers" class="uri">http://forums.ohdsi.org/c/developers</a></p>
 </div>
 </div>
 <div id="using-the-application-functions" class="section level1">
@@ -501,159 +432,107 @@ class="uri">http://forums.ohdsi.org/c/developers</a></p>
 <p><img src="images/whiterabbitscreenshot_v0.10.1.PNG" /></p>
 <div id="working-folder" class="section level3">
 <h3>Working Folder</h3>
-<p>Any files that WhiteRabbit creates will be exported to this local
-folder. Use the “Pick Folder” button to navigate in your local
-environment where you would like the scan document to go.</p>
+<p>Any files that WhiteRabbit creates will be exported to this local folder. Use the “Pick Folder” button to navigate in your local environment where you would like the scan document to go.</p>
 </div>
 <div id="source-data" class="section level3">
 <h3>Source Data</h3>
-<p>Here you can specify the location of the source data. The following
-source types are supported: delimited text files, SAS files, MySQL, SQL
-Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW,
-Teradata, Google BigQuery, Azure. Below are connection instructions for
-each data type of data source. Once you have entered the necessary
-information, the “Test connection” button can ensure a connection can be
-made.</p>
+<p>Here you can specify the location of the source data. The following source types are supported: delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure, Snowflake. Below are connection instructions for each data type of data source. Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.</p>
 <div id="delimited-text-files" class="section level4">
 <h4>Delimited text files</h4>
 <ul>
-<li><strong><em>Delimiter:</em></strong> specifies the delimiter that
-separates columns. Enter <code>tab</code> for a tab delimited file.</li>
+<li><strong><em>Delimiter:</em></strong> specifies the delimiter that separates columns. Enter <code>tab</code> for a tab delimited file.</li>
 </ul>
-<p>WhiteRabbit will look for the files to scan in the same folder you
-set up as a working directory.</p>
+<p>WhiteRabbit will look for the files to scan in the same folder you set up as a working directory.</p>
 </div>
 <div id="sas" class="section level4">
 <h4>SAS</h4>
 <ul>
 <li>No parameters have to be provided for SAS files.</li>
 </ul>
-<p>WhiteRabbit will look for <code>.sas7bdat</code> files to scan in the
-same folder you set up as a working directory.</p>
-<p>Note that it is currently not possible to produce fake data for SAS
-files from a scan report.</p>
+<p>WhiteRabbit will look for <code>.sas7bdat</code> files to scan in the same folder you set up as a working directory.</p>
+<p>Note that it is currently not possible to produce fake data for SAS files from a scan report.</p>
 </div>
 <div id="mysql" class="section level4">
 <h4>MySQL</h4>
 <ul>
-<li><em><strong>Server location:</strong></em> the name or IP address of
-the server running MySQL. You can also specify the port (ex:
-<code>&lt;host&gt;:&lt;port&gt;</code>), which defaults to 3306.</li>
-<li><em><strong>User name:</strong></em> name of the user used to log
-into the server</li>
-<li><em><strong>Password:</strong></em> password for the supplied user
-name</li>
-<li><em><strong>Database name:</strong></em> name of the database
-containing the tables</li>
+<li><em><strong>Server location:</strong></em> the name or IP address of the server running MySQL. You can also specify the port (ex: <code>&lt;host&gt;:&lt;port&gt;</code>), which defaults to 3306.</li>
+<li><em><strong>User name:</strong></em> name of the user used to log into the server</li>
+<li><em><strong>Password:</strong></em> password for the supplied user name</li>
+<li><em><strong>Database name:</strong></em> name of the database containing the tables</li>
 </ul>
 </div>
 <div id="oracle" class="section level4">
 <h4>Oracle</h4>
 <ul>
-<li><em><strong>Server location:</strong></em> this field contains the
-SID, service name, and optionally the port:
-<code>&lt;host&gt;/&lt;sid&gt;</code>,
-<code>&lt;host&gt;:&lt;port&gt;/&lt;sid&gt;</code>,
-<code>&lt;host&gt;/&lt;service name&gt;</code>, or
-<code>&lt;host&gt;:&lt;port&gt;/&lt;service name&gt;</code></li>
-<li><em><strong>User name:</strong></em> name of the user used to log
-into the server</li>
-<li><em><strong>Password:</strong></em> password for the supplied user
-name</li>
-<li><em><strong>Database name:</strong></em> this field contains the
-schema (i.e. ‘user’ in Oracle terms) containing the tables</li>
+<li><em><strong>Server location:</strong></em> this field contains the SID, service name, and optionally the port: <code>&lt;host&gt;/&lt;sid&gt;</code>, <code>&lt;host&gt;:&lt;port&gt;/&lt;sid&gt;</code>, <code>&lt;host&gt;/&lt;service name&gt;</code>, or <code>&lt;host&gt;:&lt;port&gt;/&lt;service name&gt;</code></li>
+<li><em><strong>User name:</strong></em> name of the user used to log into the server</li>
+<li><em><strong>Password:</strong></em> password for the supplied user name</li>
+<li><em><strong>Database name:</strong></em> this field contains the schema (i.e. ‘user’ in Oracle terms) containing the tables</li>
 </ul>
 </div>
 <div id="sql-server" class="section level4">
 <h4>SQL Server</h4>
 <ul>
-<li><em><strong>Server location:</strong></em> the name or IP address of
-the server running SQL Server. You can also specify the port (ex:
-<code>&lt;host&gt;:&lt;port&gt;</code>), which defaults to 1433.</li>
-<li><em><strong>User name:</strong></em> name of the user used to log
-into the server. Optionally, the domain can be specified as
-<code>&lt;domain&gt;/&lt;user&gt;</code> (e.g. ‘MyDomain/Joe’)</li>
-<li><em><strong>Password:</strong></em> password for the supplied user
-name</li>
-<li><em><strong>Database name:</strong></em> name of the database
-containing the tables</li>
+<li><em><strong>Server location:</strong></em> the name or IP address of the server running SQL Server. You can also specify the port (ex: <code>&lt;host&gt;:&lt;port&gt;</code>), which defaults to 1433.</li>
+<li><em><strong>User name:</strong></em> name of the user used to log into the server. Optionally, the domain can be specified as <code>&lt;domain&gt;/&lt;user&gt;</code> (e.g. ‘MyDomain/Joe’)</li>
+<li><em><strong>Password:</strong></em> password for the supplied user name</li>
+<li><em><strong>Database name:</strong></em> name of the database containing the tables</li>
 </ul>
-<p>When the SQL Server JDBC drivers are installed, you can also use
-Windows authentication. In this case, user name and password should be
-empty.</p>
+<p>When the SQL Server JDBC drivers are installed, you can also use Windows authentication. In this case, user name and password should be empty.</p>
 <ol style="list-style-type: decimal">
-<li>Download the .exe from <a
-href="http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx"
-class="uri">http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx</a>.</li>
+<li>Download the .exe from <a href="http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx" class="uri">http://msdn.microsoft.com/en-us/sqlserver/aa937724.aspx</a>.</li>
 <li>Run it, thereby extracting its contents to a folder.</li>
-<li>In the extracted folder you will find the file
-<code>_sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll_</code> (64-bits) or
-<code>_sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll_</code> (32-bits),
-which needs to be moved to a location on the system path, for example to
-<code>c:/windows/system32</code>.</li>
+<li>In the extracted folder you will find the file <code>_sqljdbc_4.0/enu/auth/x64/sqljdbc_auth.dll_</code> (64-bits) or <code>_sqljdbc_4.0/enu/auth/x86/sqljdbc_auth.dll_</code> (32-bits), which needs to be moved to a location on the system path, for example to <code>c:/windows/system32</code>.</li>
 </ol>
 </div>
 <div id="postgresql" class="section level4">
 <h4>PostgreSQL</h4>
 <ul>
-<li><em><strong>Server location:</strong></em> this field contains the
-host name and database name
-(<code>&lt;host&gt;/&lt;database&gt;</code>). You can also specify the
-port (ex: <code>&lt;host&gt;:&lt;port&gt;/&lt;database&gt;</code>),
-which defaults to 5432.</li>
-<li><em><strong>User name:</strong></em> name of the user used to log
-into the server</li>
-<li><em><strong>Password:</strong></em> password for the supplied user
-name</li>
-<li><em><strong>Database name:</strong></em> this field contains the
-schema containing the tables</li>
+<li><em><strong>Server location:</strong></em> this field contains the host name and database name (<code>&lt;host&gt;/&lt;database&gt;</code>). You can also specify the port (ex: <code>&lt;host&gt;:&lt;port&gt;/&lt;database&gt;</code>), which defaults to 5432.</li>
+<li><em><strong>User name:</strong></em> name of the user used to log into the server</li>
+<li><em><strong>Password:</strong></em> password for the supplied user name</li>
+<li><em><strong>Database name:</strong></em> this field contains the schema containing the tables</li>
 </ul>
 </div>
 <div id="google-bigquery" class="section level4">
 <h4>Google BigQuery</h4>
-<p>Google BigQuery (GBQ) supports two different
-connection/authentication methods: application default credentials and
-service account authentication. The former method is considered more
-secure because it writes auditing events to stackdriver. The specific
-method used is determined by the arguments provided to the configuration
-panel as described below.</p>
+<p>Google BigQuery (GBQ) supports two different connection/authentication methods: application default credentials and service account authentication. The former method is considered more secure because it writes auditing events to stackdriver. The specific method used is determined by the arguments provided to the configuration panel as described below.</p>
 <p>Authentication via application default credentials:</p>
-<p>When using application default credentials authentication, you must
-run the following gcloud command in the user account only once:
-<code>gcloud auth application-default login</code> (do not include the
-single quote characters). An application key is written to
-<code>~/.config/gcloud/application_default_credentails.json</code>.</p>
+<p>When using application default credentials authentication, you must run the following gcloud command in the user account only once: <code>gcloud auth application-default login</code> (do not include the single quote characters). An application key is written to <code>~/.config/gcloud/application_default_credentails.json</code>.</p>
 <ul>
-<li><em><strong>Server location:</strong></em> name of the GBQ
-ProjectID</li>
+<li><em><strong>Server location:</strong></em> name of the GBQ ProjectID</li>
 <li><em><strong>User name:</strong></em> not used</li>
 <li><em><strong>Password:</strong></em> not used</li>
-<li><em><strong>Database name:</strong></em> data set name within
-ProjectID named in Server location field</li>
+<li><em><strong>Database name:</strong></em> data set name within ProjectID named in Server location field</li>
 </ul>
 <p>Authentication via service account credentials:</p>
 <ul>
-<li><em><strong>Server location:</strong></em> name of GBQ
-ProjectID</li>
-<li><em><strong>User name:</strong></em> OAuth service account email
-address</li>
-<li><em><strong>Password:</strong></em> OAuth private key path (full
-path to the private key JSON file)</li>
-<li><em><strong>Database name:</strong></em> data set name within
-ProjectID named in Server location field</li>
+<li><em><strong>Server location:</strong></em> name of GBQ ProjectID</li>
+<li><em><strong>User name:</strong></em> OAuth service account email address</li>
+<li><em><strong>Password:</strong></em> OAuth private key path (full path to the private key JSON file)</li>
+<li><em><strong>Database name:</strong></em> data set name within ProjectID named in Server location field</li>
 </ul>
 </div>
 <div id="azure" class="section level4">
 <h4>Azure</h4>
 <ul>
-<li><em><strong>Server location:</strong></em> server address string
-including database name
-(e.g. <code>&lt;project&gt;.database.windows.net:1433;database=&lt;database_name&gt;</code>)</li>
-<li><em><strong>User name:</strong></em> name of the user used to log
-into the server</li>
-<li><em><strong>Password:</strong></em> password for the supplied user
-name</li>
+<li><em><strong>Server location:</strong></em> server address string including database name (e.g. <code>&lt;project&gt;.database.windows.net:1433;database=&lt;database_name&gt;</code>)</li>
+<li><em><strong>User name:</strong></em> name of the user used to log into the server</li>
+<li><em><strong>Password:</strong></em> password for the supplied user name</li>
 </ul>
+</div>
+<div id="snowflake" class="section level4">
+<h4>Snowflake</h4>
+<ul>
+<li><em><strong>Account:</strong></em> the account name for your Snowflake instance</li>
+<li><em><strong>User:</strong></em> user name to be used for the Snowflake instance</li>
+<li><em><strong>Password:</strong></em> password for the above user</li>
+<li><em><strong>Warehouse:</strong></em> warehouse within the Snowflake instance</li>
+<li><em><strong>Database:</strong></em> database to be used within the warehouse</li>
+<li><em><strong>Schema:</strong></em> schema to be used within the database</li>
+<li><em><strong>Authentication method:</strong></em> authentication method to be used. Currently only the value ‘externalbrowser’ is supported</li>
+</ul>
+<p>Please note that the fields <em><strong>Password</strong></em> and <em><strong>Authentication method</strong></em> are mutually exclusive: for only one of these fields a value should be supplied. A warning will be given when a value is supplied for both fields.</p>
 </div>
 </div>
 </div>
@@ -662,50 +541,23 @@ name</li>
 <div id="performing-the-scan" class="section level3">
 <h3>Performing the Scan</h3>
 <p><img src="images/whiterabbitscreen-scan_v0.10.1.PNG" /></p>
-<p>A scan generates a report containing information on the source data
-that can be used to help design the ETL. Using the Scan tab in
-WhiteRabbit you can either select individual tables in the selected
-source database by clicking on ‘Add’ (Ctrl + mouse click), or
-automatically select all tables in the database by clicking on ‘Add all
-in DB’.</p>
+<p>A scan generates a report containing information on the source data that can be used to help design the ETL. Using the Scan tab in WhiteRabbit you can either select individual tables in the selected source database by clicking on ‘Add’ (Ctrl + mouse click), or automatically select all tables in the database by clicking on ‘Add all in DB’.</p>
 <p>There are a few setting options as well with the scan:</p>
 <ul>
-<li>Checking the “Scan field values” box tells WhiteRabbit that you
-would like to investigate raw data items within tables selected for a
-scan (i.e. if you select Table A, WhiteRabbit will review the contents
-in each column in Table A).
+<li>Checking the “Scan field values” box tells WhiteRabbit that you would like to investigate raw data items within tables selected for a scan (i.e. if you select Table A, WhiteRabbit will review the contents in each column in Table A).
 <ul>
-<li>“Min cell count” is an option when scanning field values. By
-default, this is set to 5, meaning values in the source data that appear
-less than 5 times will not appear in the report.</li>
-<li>“Rows per table” is an option when scanning field values. By
-default, WhiteRabbit will random 100,000 rows in the table. There are
-other options to review 500,000, 1 million or all rows within the
-table.</li>
-<li>“Max distinct values” is an option when scanning field values. By
-default, this is set to 1,000, meaning a maximum of 1,000 distinct
-values per field will appear in the scan report. This option can be set
-to 100, 1,000 or 10,000 distinct values.</li>
+<li>“Min cell count” is an option when scanning field values. By default, this is set to 5, meaning values in the source data that appear less than 5 times will not appear in the report.</li>
+<li>“Rows per table” is an option when scanning field values. By default, WhiteRabbit will random 100,000 rows in the table. There are other options to review 500,000, 1 million or all rows within the table.</li>
+<li>“Max distinct values” is an option when scanning field values. By default, this is set to 1,000, meaning a maximum of 1,000 distinct values per field will appear in the scan report. This option can be set to 100, 1,000 or 10,000 distinct values.</li>
 </ul></li>
-<li>Unchecking the “Scan field values” tells WhiteRabbit to not review
-or report on any of the raw data items.</li>
-<li>Checking the “Numeric stats” box will include numeric statistics.
-See the section on <a href="#numerical-statistics">Numerical
-Statistics</a>.</li>
+<li>Unchecking the “Scan field values” tells WhiteRabbit to not review or report on any of the raw data items.</li>
+<li>Checking the “Numeric stats” box will include numeric statistics. See the section on <a href="#numerical-statistics">Numerical Statistics</a>.</li>
 </ul>
-<p>Once all settings are completed, press the ‘Scan tables’ button.
-After the scan is completed the report will be written to the working
-folder.</p>
+<p>Once all settings are completed, press the ‘Scan tables’ button. After the scan is completed the report will be written to the working folder.</p>
 </div>
 <div id="running-from-the-command-line" class="section level3">
 <h3>Running from the command line</h3>
-<p>For various reasons one could prefer to run WhiteRabbit from the
-command line. This is possible by specifying all the options one would
-normally select in the user interface in an .ini file. An example ini
-file can be found in the <a
-href="https://github.com/OHDSI/WhiteRabbit/blob/master/iniFileExamples/WhiteRabbit.ini">iniFileExamples
-folder</a>. Then, we can reference the ini file when calling WhiteRabbit
-from the command line:</p>
+<p>For various reasons one could prefer to run WhiteRabbit from the command line. This is possible by specifying all the options one would normally select in the user interface in an .ini file. Example ini files can be found in the <a href="https://github.com/OHDSI/WhiteRabbit/blob/master/iniFileExamples/WhiteRabbit.ini">iniFileExamples folder</a>. <code>WhiteRabbit.ini</code> is a generic example, and there are also one or more database specific examples (e.g. <code>Snowflake.ini</code>) Then, we can reference the ini file when calling WhiteRabbit from the command line, e.g.:</p>
 <p><strong>Windows</strong></p>
 <p><code>bin/whiteRabbit.bat -ini WhiteRabbit.ini</code></p>
 <p><strong>Mac/Unix</strong></p>
@@ -713,159 +565,76 @@ from the command line:</p>
 </div>
 <div id="reading-the-scan" class="section level3">
 <h3>Reading the Scan</h3>
-<p>After the scan is completed, a “ScanReport” Excel document will be
-created in the working folder location selected earlier. The document
-will have multiple tabs. The first two tabs are a “Field Overview” tab
-and a “Table Overview” tab. The subsequent tabs contain field and value
-overviews for each database table or delimited text files selected for
-the scan. The last tab (indicated by <code>"_"</code>) contains metadata
-on the WhiteRabbit settings used to create the scan report. The “Table
-Overview” and <code>"_"</code> tab are not present in releases earlier
-than v0.10.0.</p>
+<p>After the scan is completed, a “ScanReport” Excel document will be created in the working folder location selected earlier. The document will have multiple tabs. The first two tabs are a “Field Overview” tab and a “Table Overview” tab. The subsequent tabs contain field and value overviews for each database table or delimited text files selected for the scan. The last tab (indicated by <code>"_"</code>) contains metadata on the WhiteRabbit settings used to create the scan report. The “Table Overview” and <code>"_"</code> tab are not present in releases earlier than v0.10.0.</p>
 <div id="field-overview" class="section level4">
 <h4>Field Overview</h4>
-<p>The “Field Overview” tab will show for each table scanned, the
-details for each field. For example the data type, the number of empty
-rows and other statistics.</p>
+<p>The “Field Overview” tab will show for each table scanned, the details for each field. For example the data type, the number of empty rows and other statistics.</p>
 <p><img src="images/wr_scan_report_field_overview_v0.10.1.PNG" /></p>
 <ul>
 <li>Column A: will list which table the information is about</li>
 <li>Column B: the column name</li>
 <li>Column C: a column description</li>
 <li>Column D: the data type</li>
-<li>Column E: the maximum length of the values (number of
-characters/digits)</li>
-<li>Column F: the number of rows (with text files it will return -
-1)</li>
-<li>Column G: will tell you how many rows of the N rows were
-scanned</li>
+<li>Column E: the maximum length of the values (number of characters/digits)</li>
+<li>Column F: the number of rows (with text files it will return - 1)</li>
+<li>Column G: will tell you how many rows of the N rows were scanned</li>
 <li>Column H: shows how many of the checked rows are empty</li>
-<li>Column I: shows a count of the unique values within the checked
-rows. This number is sometimes an upper limit of the unique values,
-indicated by a <code>&lt;=</code> sign (This column is not present in
-releases earlier than v0.9.0)</li>
-<li>Column J: shows the percentage of unique values among all (0% =
-constant value, 100% = unique column. This column is not present in
-releases earlier than v0.9.0)</li>
+<li>Column I: shows a count of the unique values within the checked rows. This number is sometimes an upper limit of the unique values, indicated by a <code>&lt;=</code> sign (This column is not present in releases earlier than v0.9.0)</li>
+<li>Column J: shows the percentage of unique values among all (0% = constant value, 100% = unique column. This column is not present in releases earlier than v0.9.0)</li>
 </ul>
 </div>
 </div>
 <div id="table-overview" class="section level3">
 <h3>Table Overview</h3>
-<p>The “Table Overview” tab gives information about each of the tables
-in the data source. Below is an example image of the “Table Overview”
-tab.</p>
+<p>The “Table Overview” tab gives information about each of the tables in the data source. Below is an example image of the “Table Overview” tab.</p>
 <p><img src="images/wr_scan_report_table_overview_v0.10.1.PNG" /></p>
 <ul>
 <li>Column A: will list which table the information is about</li>
 <li>Column B: a table description</li>
-<li>Column C: the number of rows in a table(with text files it will
-return - 1)</li>
-<li>Column D: will tell you how many rows of the N rows were
-scanned</li>
+<li>Column C: the number of rows in a table(with text files it will return - 1)</li>
+<li>Column D: will tell you how many rows of the N rows were scanned</li>
 <li>Column E: the number of fields in the table</li>
 <li>Column F: the number of empty fields</li>
 </ul>
-<p>The “Description” column for both the field and table overview was
-added in v0.10.0. These cells are not populated by WhiteRabbit (with the
-exception when scanning sas7bdat files that contain labels). Rather,
-this field provides a way for the data holder to add descriptions to the
-fields and tables. These descriptions are displayed in Rabbit-In-A-Hat
-when loading the scan report. This is especially useful when the
-fieldnames are abbreviations or in a foreign language.</p>
+<p>The “Description” column for both the field and table overview was added in v0.10.0. These cells are not populated by WhiteRabbit (with the exception when scanning sas7bdat files that contain labels). Rather, this field provides a way for the data holder to add descriptions to the fields and tables. These descriptions are displayed in Rabbit-In-A-Hat when loading the scan report. This is especially useful when the fieldnames are abbreviations or in a foreign language.</p>
 </div>
 <div id="value-scans" class="section level3">
 <h3>Value scans</h3>
-<p>If the values of the table have been scanned (described in <a
-href="#performing-the-scan">Performing the Scan</a>), the scan report
-will contain a tab for each scanned table. An example for one field is
-shown below.</p>
+<p>If the values of the table have been scanned (described in <a href="#performing-the-scan">Performing the Scan</a>), the scan report will contain a tab for each scanned table. An example for one field is shown below.</p>
 <p><img src="images/wr_scan_report_value_freq_v0.10.1.PNG" /></p>
-<p>The field names from the source table will be across the columns of
-the Excel tab. Each source field will generate two columns in the Excel.
-One column will list all distinct values that have a “Min cell count”
-greater than what was set at time of the scan. Next to each distinct
-value will be a second column that contains the frequency, or the number
-of times that value occurs in the data. These two columns(distinct
-values and frequency) will repeat for all the source columns in the
-profiled table.</p>
-<p>If a list of unique values was truncated, the last value in the list
-will be <code>"List truncated..."</code>; this indicates that there are
-one or more additional unique source values that have a frequency lower
-than the “Min cell count”.</p>
-<p>The scan report is powerful in understanding your source data by
-highlighting what exists. For example, the above example was retrieved
-for the “GENDER” column within one of the tables scanned, we can see
-that there were two common values (1 &amp; 2) that appeared 104 and 96
-times respectively. WhiteRabbit will not define “1” as male and “2” as
-female; the data holder will typically need to define source codes
-unique to the source system. However, these two values (1 &amp; 2) are
-not the only values present in the data because we see this list was
-truncated. These other values appear with very low frequency (defined by
-“Min cell count”) and often represent incorrect or highly suspicious
-values. When generating an ETL we should not only plan to handle the
-high-frequency gender concepts “1” and “2” but also the other
-low-frequency values that exist within this column.</p>
+<p>The field names from the source table will be across the columns of the Excel tab. Each source field will generate two columns in the Excel. One column will list all distinct values that have a “Min cell count” greater than what was set at time of the scan. Next to each distinct value will be a second column that contains the frequency, or the number of times that value occurs in the data. These two columns(distinct values and frequency) will repeat for all the source columns in the profiled table.</p>
+<p>If a list of unique values was truncated, the last value in the list will be <code>"List truncated..."</code>; this indicates that there are one or more additional unique source values that have a frequency lower than the “Min cell count”.</p>
+<p>The scan report is powerful in understanding your source data by highlighting what exists. For example, the above example was retrieved for the “GENDER” column within one of the tables scanned, we can see that there were two common values (1 &amp; 2) that appeared 104 and 96 times respectively. WhiteRabbit will not define “1” as male and “2” as female; the data holder will typically need to define source codes unique to the source system. However, these two values (1 &amp; 2) are not the only values present in the data because we see this list was truncated. These other values appear with very low frequency (defined by “Min cell count”) and often represent incorrect or highly suspicious values. When generating an ETL we should not only plan to handle the high-frequency gender concepts “1” and “2” but also the other low-frequency values that exist within this column.</p>
 <div id="numerical-statistics" class="section level4">
 <h4>Numerical Statistics</h4>
-<p>If the option for numerical statistics is checked, then a set of
-statistics is calculated for all integer, real and date data types. The
-following statistics are added to the Field Overview sheet (Columns
-K-Q):</p>
+<p>If the option for numerical statistics is checked, then a set of statistics is calculated for all integer, real and date data types. The following statistics are added to the Field Overview sheet (Columns K-Q):</p>
 <p><img src="images/wr_scan_report_numeric_stats_v0.10.1.png" /></p>
 <ul>
-<li><em>Columns E-J are not shown, see section above for a
-description</em></li>
+<li><em>Columns E-J are not shown, see section above for a description</em></li>
 <li>Column K: Average</li>
 <li>Column L: Standard Deviation (sampled)</li>
 <li>Column M: Minimum</li>
 <li>Columns N/O/P: Quartiles (sampled)</li>
 <li>Column Q: Maximum</li>
 </ul>
-<p>When selecting the option for scanning numerical statistics, the
-parameter “Numeric stats reservoir size” can be set. This defines the
-number of values that will be stored for calculation of the numeric
-statistics. These values will be randomly sampled from the field values
-in the scan report. If the number of values is smaller than the set
-reservoir size, then the standard deviation and three quartile
-boundaries are the exact population statistics. Otherwise, the
-statistics are approximated based on a representative sample. The
-average, minimum and maximum are always true population statistics. For
-dates, the standard deviation of dates is given in days. The other date
-statistics are converted to a date representation.</p>
+<p>When selecting the option for scanning numerical statistics, the parameter “Numeric stats reservoir size” can be set. This defines the number of values that will be stored for calculation of the numeric statistics. These values will be randomly sampled from the field values in the scan report. If the number of values is smaller than the set reservoir size, then the standard deviation and three quartile boundaries are the exact population statistics. Otherwise, the statistics are approximated based on a representative sample. The average, minimum and maximum are always true population statistics. For dates, the standard deviation of dates is given in days. The other date statistics are converted to a date representation.</p>
 </div>
 </div>
 </div>
 <div id="generating-fake-data" class="section level2">
 <h2>Generating Fake Data</h2>
 <p><img src="images/whiterabbitscreen-fakedata_v0.10.1.png" /></p>
-<p>This feature allows one to create a fake dataset based on a
-WhiteRabbit scan report. The generated fake data can be outputted
-directly to database tables (MySQL, Oracle, SQL Server, PostgreSQL) or
-as delimited text file. The resulting dataset could be used to develop
-ETL code when direct access to the data is not available.</p>
+<p>This feature allows one to create a fake dataset based on a WhiteRabbit scan report. The generated fake data can be outputted directly to database tables (MySQL, Oracle, SQL Server, PostgreSQL) or as delimited text file. The resulting dataset could be used to develop ETL code when direct access to the data is not available.</p>
 <p>WhiteRabbit has three modes to generate fake data:</p>
 <ol style="list-style-type: decimal">
-<li>If no values have been scanned (i.e. the column in the scan report
-doesn’t contain values), WhiteRabbit will generate random strings or
-numbers for that column.</li>
-<li>If there are values scanned, WhiteRabbit will generate the data by
-choosing from the scan values. Values are sampled either based on the
-frequencies of the values, or sampled uniformly (if this option
-selected).</li>
-<li>If the column only contains unique values (each value has a
-frequency of 1, e.g. for primary keys), the generated column will be
-kept unique.</li>
+<li>If no values have been scanned (i.e. the column in the scan report doesn’t contain values), WhiteRabbit will generate random strings or numbers for that column.</li>
+<li>If there are values scanned, WhiteRabbit will generate the data by choosing from the scan values. Values are sampled either based on the frequencies of the values, or sampled uniformly (if this option selected).</li>
+<li>If the column only contains unique values (each value has a frequency of 1, e.g. for primary keys), the generated column will be kept unique.</li>
 </ol>
 <p>The following options are available for generating fake data:</p>
 <ul>
-<li>“Max rows per table” sets the number of rows of each output table.
-By default, it is set to 10,000.</li>
-<li>By checking the “Uniform Sampling” box will generate the fake data
-uniformly. The frequency of each of the values will be treated as being
-1, but the value sampling will still be random. This increases the
-chance that each of the values in the scan report is at least once
-represented in the output data.</li>
+<li>“Max rows per table” sets the number of rows of each output table. By default, it is set to 10,000.</li>
+<li>By checking the “Uniform Sampling” box will generate the fake data uniformly. The frequency of each of the values will be treated as being 1, but the value sampling will still be random. This increases the chance that each of the values in the scan report is at least once represented in the output data.</li>
 </ul>
 </div>
 </div>

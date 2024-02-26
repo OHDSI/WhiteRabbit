@@ -377,24 +377,14 @@ div.tocify {
 
 <div id="white-rabbit-documentation-readme" class="section level1">
 <h1>White Rabbit Documentation Readme</h1>
-<p>This folder contains the raw (<code>.md</code>) and rendered
-(<code>.html</code>) documentation of WhiteRabbit. The documentation is
-renderd with the R package <code>rmarkdown</code> and used for the <a
-href="https://ohdsi.github.io/WhiteRabbit/">github.io page</a>.</p>
+<p>This folder contains the raw (<code>.md</code>) and rendered (<code>.html</code>) documentation of WhiteRabbit. The documentation is renderd with the R package <code>rmarkdown</code> and used for the <a href="https://ohdsi.github.io/WhiteRabbit/">github.io page</a>.</p>
 <div id="contribute" class="section level2">
 <h2>Contribute</h2>
-<p>Contributions to the documentation are very welcome and even a must
-when new features are implemented. To update the documentation, edit one
-of the following markdown files or create a new markdown file: - <a
-href="/docs/WhiteRabbit.md">WhiteRabbit.md</a> - <a
-href="/docs/RabbitInAHat.md">RabbitInAHat.md</a> - <a
-href="/docs/riah_test_framework.md">riah_test_framework.md</a> - <a
-href="/docs/best_practices.md">best_practices.md</a></p>
+<p>Contributions to the documentation are very welcome and even a must when new features are implemented. To update the documentation, edit one of the following markdown files or create a new markdown file: - <a href="/docs/WhiteRabbit.md">WhiteRabbit.md</a> - <a href="/docs/RabbitInAHat.md">RabbitInAHat.md</a> - <a href="/docs/riah_test_framework.md">riah_test_framework.md</a> - <a href="/docs/best_practices.md">best_practices.md</a></p>
 </div>
 <div id="render-html" class="section level2">
 <h2>Render html</h2>
-<p>To generate the site from markdown files, run the following R code
-with the <code>./docs</code> folder as working directory.</p>
+<p>To generate the site from markdown files, run the following R code with the <code>./docs</code> folder as working directory.</p>
 <pre class="r"><code>#devtools::install_github(&quot;ropenscilabs/icon&quot;)
 library(rmarkdown)
 rmarkdown::render_site()</code></pre>

@@ -296,7 +296,7 @@ public class SourceDataScan implements ScanParameters {
 		try (FileOutputStream out = new FileOutputStream(new File(filename))) {
 			workbook.write(out);
 			out.close();
-			StringUtilities.outputWithTime("Scan report generated: " + filename);
+			StringUtilities.outputWithTime("Scan report generated: " + Paths.get(filename).toAbsolutePath().toString());
 		} catch (IOException ex) {
 			throw new RuntimeException(ex.getMessage());
 		}

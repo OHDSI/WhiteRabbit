@@ -48,6 +48,7 @@
                     </systemPropertyVariables>
                     <argLine>
                         -Doracle.jdbc.timezoneAsRegion=false
+                        -XX:+EnableDynamicAgentLoading
                         <!-- Line(s) below are needed to keep TestSourceDataScan.updateEnv() working in java 17+
                              This is considered an acceptable hack since it only affects test code -->
                         --add-exports=java.base/java.util=ALL-UNNAMED
@@ -80,6 +81,7 @@
                     <systemPropertyVariables>
                         <propertyName>propertyValue</propertyName>
                         <projectBuildDirectory>${project.build.directory}</projectBuildDirectory>
+                        <java.awt.headless>false</java.awt.headless>
                     </systemPropertyVariables>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
@@ -88,6 +90,7 @@
                     </includes>
                     <skipTests>${skipIntegrationTests}</skipTests>
                     <argLine>
+                        -XX:+EnableDynamicAgentLoading
                     <!-- experimental workaround for Snowflake JDBC issue,
                          see https://community.snowflake.com/s/article/JDBC-Driver-Compatibility-Issue-With-JDK-16-and-Later -->
                     --add-opens java.base/java.nio=ALL-UNNAMED
@@ -267,11 +270,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.httpcomponents</groupId>-->
-<!--            <artifactId>httpclient</artifactId>-->
-<!--            <version>4.5.14</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>one.util</groupId>
             <artifactId>streamex</artifactId>
@@ -284,10 +282,19 @@
             <version>5.2.5</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
+        <!-- cacio-tta cannot be used with JDK 18+. Until that is solved in the parent project, use a fixed
+             fork hosted at The Hyve -->
+        <!-- dependency>
             <groupId>com.github.caciocavallosilano</groupId>
             <artifactId>cacio-tta</artifactId>
-            <version>1.17.3</version>
+            <version>1.17.4-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency -->
+        <!-- fixed fork, enabled through the jitpack repository -->
+        <dependency>
+            <groupId>com.github.thehyve</groupId>
+            <artifactId>caciocavallo</artifactId>
+            <version>1.17.7</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.assertj/assertj-swing-junit -->

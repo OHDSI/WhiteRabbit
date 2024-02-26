@@ -44,7 +44,7 @@ Requires Java 1.8 or higher for running, and read access to the database to be s
 
 Dependencies
 ============
-For the distributable packages, the only requirement is Java 8. For building the package, Java 17 and Maven are needed.
+For the distributable packages, the only requirement is Java 8. For building the package, Java 17+ and Maven are needed.
 
 Getting Started
 ===============

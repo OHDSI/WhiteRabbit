@@ -82,13 +82,13 @@ public class SourceDataScanSnowflakeIT {
         URL referenceScanReport = SourceDataScanSnowflakeIT.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
         assert iniTemplate != null;
         String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
-        content = content.replaceAll("%WORKING_FOLDER%", tempDir.toString())
-                .replaceAll("%SNOWFLAKE_ACCOUNT%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"))
-                .replaceAll("%SNOWFLAKE_USER%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_USER"))
-                .replaceAll("%SNOWFLAKE_PASSWORD%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"))
-                .replaceAll("%SNOWFLAKE_WAREHOUSE%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"))
-                .replaceAll("%SNOWFLAKE_DATABASE%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_DATABASE"))
-                .replaceAll("%SNOWFLAKE_SCHEMA%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
+        content = content.replace("%WORKING_FOLDER%", tempDir.toString())
+                .replace("%SNOWFLAKE_ACCOUNT%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"))
+                .replace("%SNOWFLAKE_USER%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_USER"))
+                .replace("%SNOWFLAKE_PASSWORD%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"))
+                .replace("%SNOWFLAKE_WAREHOUSE%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"))
+                .replace("%SNOWFLAKE_DATABASE%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_DATABASE"))
+                .replace("%SNOWFLAKE_SCHEMA%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
         Files.write(iniFile, content.getBytes(charset));
         WhiteRabbitMain wrMain = new WhiteRabbitMain(true, new String[]{"-ini", iniFile.toAbsolutePath().toString()});
         assert referenceScanReport != null;
