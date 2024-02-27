@@ -71,6 +71,7 @@ class SourceDataScanSnowflakeGuiIT {
 
     @BeforeEach
     public void onSetUp() {
+        Assumptions.assumeTrue(new SnowflakeTestUtils.SnowflakeSystemPropertiesFileChecker(), "Snowflake system properties file not available");
         try {
             testContainer = createPythonContainer();
             prepareTestData(testContainer);
