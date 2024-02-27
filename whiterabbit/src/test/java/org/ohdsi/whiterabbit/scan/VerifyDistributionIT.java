@@ -17,12 +17,12 @@
  ******************************************************************************/
 package org.ohdsi.whiterabbit.scan;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.DBConnector;
-import org.ohdsi.databases.SnowflakeTestUtils;
 import org.ohdsi.databases.configuration.DbType;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Container.ExecResult;
@@ -42,7 +42,7 @@ import static org.ohdsi.whiterabbit.scan.SourceDataScanSnowflakeIT.*;
 /**
  * Intent: "deploy" the distributed application in a docker container (TestContainer) containing a Java runtime
  * of a specified version, and runs a test of WhiteRabbit that aim to verify that the distribution is complete,
- * i.e. no dependencies are missing. A data for a scan on csv files is used to run whiterabbit.
+ * i.e. no dependencies are missing. A data for a scan on csv files is used to run whiteRabbit.
  *
  * Note that this does not test any of the JDBC driver dependencies, unless these databases are actually used.
  */
@@ -70,7 +70,7 @@ public class VerifyDistributionIT {
 
     @Test
     void verifyAllJDBCDriversLoadable() throws IOException, InterruptedException {
-        try (GenericContainer<?> javaContainer = createJavaContainer("eclipse-temurin:11")) {
+        try (GenericContainer<?> javaContainer = createJavaContainer("eclipse-temurin:17")) {
             javaContainer.start();
             ExecResult execResult = javaContainer.execInContainer("sh", "-c",
                     String.format("cd %s/repo; java -classpath '*' org.ohdsi.databases.DBConnector", APPDIR_IN_CONTAINER));
@@ -127,10 +127,10 @@ public class VerifyDistributionIT {
 
     void runDistributionWithSnowflake(String javaImageName, String javaOpts) throws IOException, InterruptedException, URISyntaxException {
         // test only run when there are settings available for Snowflake; otherwise it should be skipped
-        Assumptions.assumeTrue(new SnowflakeTestUtils.SnowflakeSystemPropertiesFileChecker(), "Snowflake system properties file not available");
-        SnowflakeTestUtils.PropertyReader reader = new SnowflakeTestUtils.PropertyReader();
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
+        ScanTestUtils.PropertyReader reader = new ScanTestUtils.PropertyReader();
         try (GenericContainer<?> testContainer = createPythonContainer()) {
-            prepareTestData(testContainer, reader);
+            prepareSnowflakeTestData(testContainer, reader);
             testContainer.stop();
 
             try (GenericContainer<?> javaContainer = createJavaContainer(javaImageName)) {
@@ -164,6 +164,88 @@ public class VerifyDistributionIT {
                 javaContainer.copyFileFromContainer("/whiterabbit/ScanReport.xlsx", tempDir.resolve("ScanReport.xlsx").toString());
 
                 assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.SNOWFLAKE));
+            }
+        }
+    }
+
+    // intent of this test: verify that downloading and unzipping the BigQuery JDBC dependencies
+    // works as intended.
+    // The license of the BigQuery JDBC jar does not allow distribution; users who wish to use
+    // bigquery have to download and install the dependencies themselves.
+    // This test verifies that an attempt to run WhiteRabbit for BigQuery fails if the jar is
+    // not installed, then install it, and repeats the test, expecting success.
+    //
+    // PLEASE NOTE that this test can only run if a valid json file with application default credentials for gcloud
+    // is provided through a file `bigquery.env` in the root of the project.
+    @Test
+    void runDistributionWithBigQuery() throws IOException, InterruptedException, URISyntaxException {
+        // test only run when there are settings available for BigQuery; otherwise it should be skipped
+        String bigQueryDriverUrl = "https://storage.googleapis.com/simba-bq-release/jdbc/SimbaJDBCDriverforGoogleBigQuery42_1.5.2.1005.zip";
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("bigquery.env"), "BigQuery system properties file not available");
+        ScanTestUtils.PropertyReader reader = new ScanTestUtils.PropertyReader();
+        try (GenericContainer<?> testContainer = createPythonContainer()) {
+            testContainer.stop();
+
+            try (GenericContainer<?> javaContainer = createJavaContainer("eclipse-temurin:17")) {
+                javaContainer.start();
+                Charset charset = StandardCharsets.UTF_8;
+                Path iniFile = tempDir.resolve("bigquery.ini");
+                URL iniTemplate = VerifyDistributionIT.class.getClassLoader().getResource("scan_data/bigquery.ini.template");
+                URL referenceScanReport = SourceDataScanSnowflakeIT.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
+                assert iniTemplate != null;
+                String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
+                content = content.replace("%WORKING_FOLDER%", WORKDIR_IN_CONTAINER)
+                        .replace("%SERVER_LOCATION%", reader.getOrFail("BIGQUERY_PROJECT_ID"))
+                        .replace("%USER_NAME%", "")
+                        .replace("%PASSWORD%", "/whiterabbit/application_default_credentials.json")
+                        .replace("%DATABASE_NAME%", reader.getOrFail("BIGQUERY_DATASET"));
+                Files.write(iniFile, content.getBytes(charset));
+                Files.copy(Paths.get(reader.getOrFail("BIGQUERY_KEY_FILE")), Paths.get(tempDir.toString(), "application_default_credentials.json"));
+                javaContainer.copyFileToContainer(MountableFile.forHostPath(tempDir), WORKDIR_IN_CONTAINER);
+
+                // verify that the distribution of whiterabbit has been generated and is available inside the container
+                ExecResult execResult = javaContainer.execInContainer("sh", "-c", String.format("ls %s", APPDIR_IN_CONTAINER));
+                assertTrue(execResult.getStdout().contains("repo"), "WhiteRabbit distribution is not accessible inside container");
+
+                // make the gcloud credentials available in the right location
+                execResult = javaContainer.execInContainer("sh", "-c",
+                        "mkdir -p /root/.config/gcloud; cp /whiterabbit/application_default_credentials.json /root/.config/gcloud/;");
+
+                // run whiteRabbit and verify failure because the BigQuery JDBC jar is not present
+                execResult = javaContainer.execInContainer("sh", "-c",
+                        String.format("/app/bin/whiteRabbit -ini %s/bigquery.ini", WORKDIR_IN_CONTAINER));
+                assertNotEquals(0, execResult.getExitCode());
+                assertTrue(execResult.getStderr().contains("java.lang.RuntimeException: Cannot find Simba GoogleBigQuery JDBC Driver class"));
+
+                // install the BigQuery JDBC jar, run whiteRabbit and verify success
+                installBigQueryJDBCJar(bigQueryDriverUrl, javaContainer);
+                execResult = javaContainer.execInContainer("sh", "-c",
+                        String.format("/app/bin/whiteRabbit -ini %s/bigquery.ini", WORKDIR_IN_CONTAINER));
+                assertEquals(0, execResult.getExitCode());
+                assertTrue(execResult.getStdout().contains("Started new scan of 2 tables..."));
+                assertTrue(execResult.getStdout().contains("Scanning table cost"));
+                assertTrue(execResult.getStdout().contains("Scanning table person"));
+                assertTrue(execResult.getStdout().contains("Scan report generated: /whiterabbit/ScanReport.xlsx"));
+
+                javaContainer.copyFileFromContainer("/whiterabbit/ScanReport.xlsx", tempDir.resolve("ScanReport.xlsx").toString());
+
+                assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.BIGQUERY));
+            }
+        }
+    }
+
+    private void installBigQueryJDBCJar(String bigQueryDriverUrl, GenericContainer<?> javaContainer) throws IOException, InterruptedException {
+        if (StringUtils.isNotEmpty(bigQueryDriverUrl)) {
+            String[] parts = bigQueryDriverUrl.split("/");
+            String command =
+                    "apt -qq -y update; apt -qq -y install unzip; " +
+                            "cd /app/repo; " +
+                            "wget " + bigQueryDriverUrl + "; " +
+                            "unzip -qq -o " + parts[parts.length - 1] + ";";
+            ExecResult execResult = javaContainer.execInContainer("sh", "-c", command);
+            if (execResult.getExitCode() != 0) {
+                System.out.println("stdout: " + execResult.getStdout());
+                System.out.println("stderr: " + execResult.getStderr());
             }
         }
     }

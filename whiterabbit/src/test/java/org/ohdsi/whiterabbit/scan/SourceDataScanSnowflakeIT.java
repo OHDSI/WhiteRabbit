@@ -17,14 +17,11 @@
  ******************************************************************************/
 package org.ohdsi.whiterabbit.scan;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.configuration.DbType;
-import org.ohdsi.databases.SnowflakeTestUtils;
 import org.ohdsi.whiterabbit.WhiteRabbitMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +30,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -56,27 +52,18 @@ public class SourceDataScanSnowflakeIT {
 
     @BeforeEach
     public void setUp() {
-        Assumptions.assumeTrue(new SnowflakeTestUtils.SnowflakeSystemPropertiesFileChecker(), "Snowflake system properties file not available");
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
         try {
             testContainer = createPythonContainer();
-            prepareTestData(testContainer);
+            prepareSnowflakeTestData(testContainer);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Creating python container failed.");
         }
     }
 
-    //@Test
-    void testWarnWhenRunningWithoutSnowflakeConfigured() {
-        String snowflakeWrTestAccunt = System.getenv(SNOWFLAKE_ACCOUNT_ENVIRONMENT_VARIABLE);
-        assertFalse(StringUtils.isEmpty(snowflakeWrTestAccunt) && StringUtils.isEmpty(System.getProperty("ohdsi.org.whiterabbit.skip_snowflake_tests")),
-                String.format("\nTest class %s is being run without a Snowflake test instance configured.\n" +
-                        "This is NOT a valid verification run.", SourceDataScanSnowflakeIT.class.getName()));
-    }
-
     @Test
-    //@EnabledIfEnvironmentVariable(named = SNOWFLAKE_ACCOUNT_ENVIRONMENT_VARIABLE, matches = ".+")
     void testProcessSnowflakeFromIni(@TempDir Path tempDir) throws URISyntaxException, IOException {
-        Assumptions.assumeTrue(new SnowflakeTestUtils.SnowflakeSystemPropertiesFileChecker(), "Snowflake system properties file not available");
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
         Charset charset = StandardCharsets.UTF_8;
         Path iniFile = tempDir.resolve("snowflake.ini");
         URL iniTemplate = SourceDataScanSnowflakeIT.class.getClassLoader().getResource("scan_data/snowflake.ini.template");
@@ -84,26 +71,26 @@ public class SourceDataScanSnowflakeIT {
         assert iniTemplate != null;
         String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
         content = content.replace("%WORKING_FOLDER%", tempDir.toString())
-                .replace("%SNOWFLAKE_ACCOUNT%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"))
-                .replace("%SNOWFLAKE_USER%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_USER"))
-                .replace("%SNOWFLAKE_PASSWORD%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"))
-                .replace("%SNOWFLAKE_WAREHOUSE%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"))
-                .replace("%SNOWFLAKE_DATABASE%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_DATABASE"))
-                .replace("%SNOWFLAKE_SCHEMA%", SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
+                .replace("%SNOWFLAKE_ACCOUNT%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"))
+                .replace("%SNOWFLAKE_USER%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_USER"))
+                .replace("%SNOWFLAKE_PASSWORD%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"))
+                .replace("%SNOWFLAKE_WAREHOUSE%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"))
+                .replace("%SNOWFLAKE_DATABASE%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_DATABASE"))
+                .replace("%SNOWFLAKE_SCHEMA%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
         Files.write(iniFile, content.getBytes(charset));
         WhiteRabbitMain wrMain = new WhiteRabbitMain(true, new String[]{"-ini", iniFile.toAbsolutePath().toString()});
         assert referenceScanReport != null;
         assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.SNOWFLAKE));
     }
 
-    static void prepareTestData(GenericContainer<?> container) throws IOException, InterruptedException {
-        SnowflakeTestUtils.SnowflakeSystemPropertiesFileChecker checker = new SnowflakeTestUtils.SnowflakeSystemPropertiesFileChecker();
+    static void prepareSnowflakeTestData(GenericContainer<?> container) throws IOException, InterruptedException {
+        ScanTestUtils.PropertiesFileChecker checker = new ScanTestUtils.PropertiesFileChecker("snowflake.env");
         if (checker.getAsBoolean()) {
-            prepareTestData(container, new SnowflakeTestUtils.PropertyReader());
+            prepareSnowflakeTestData(container, new ScanTestUtils.PropertyReader());
         }
     }
 
-    static void prepareTestData(GenericContainer<?> container, SnowflakeTestUtils.ReaderInterface reader) throws IOException, InterruptedException {
+    static void prepareSnowflakeTestData(GenericContainer<?> container, ScanTestUtils.ReaderInterface reader) throws IOException, InterruptedException {
         // snowsql is used for initializing the database
 
         // add some packages needed for the installation of snowsql
@@ -153,7 +140,8 @@ public class SourceDataScanSnowflakeIT {
             logger.error("stderr: {}", result.getStderr());
             // hide the password, if present, so it won't appear in logs (pragmatic)
             String message = ("Command failed: " + String.join(" ", command))
-                    .replace(SnowflakeTestUtils.getEnvOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "xxxxx");
+                    .replace(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****")
+                    .replace(ScanTestUtils.getEnvOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****");
             assertEquals(expectedExitValue, result.getExitCode(), message);
         }
     }

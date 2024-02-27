@@ -17,6 +17,7 @@
  ******************************************************************************/
 package org.ohdsi.whiterabbit.scan;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -32,7 +33,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -82,7 +85,7 @@ public class ScanTestUtils {
     }
 
     public static <scannedData> boolean scanValuesMatchReferenceValues(Map<String, List<List<String>>> scanSheets, Map<String, List<List<String>>> referenceSheets, DbType dbType) {
-        assertEquals(scanSheets.size(), referenceSheets.size(), "Number of sheets does not match.");
+        assertEquals(referenceSheets.size(), scanSheets.size(), "Number of sheets does not match.");
 
         List<String> tabNames = new ArrayList<>(referenceSheets.keySet());
         for (String tabName: tabNames) {
@@ -225,6 +228,18 @@ public class ScanTestUtils {
                     default:
                         throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
                 }
+            case BIGQUERY:
+                // Currently the bigquery verification on data types is rather permissive; this has to do with
+                // how the test tables were created: as CSV uploads, leading to only a few data types.
+                // As the main purpose of the bigquery tests is to verify that the JDBC diver is present
+                // and works, this is considered not a (real) problem.
+                switch (type) {
+                    case "STRING": return reference.equals("character varying") || reference.equals("timestamp without time zone") || reference.equals("numeric") || reference.equals("integer");
+                    case "INT64":
+                    case "INTEGER": return reference.equals("integer") || reference.equals("numeric") || reference.equals("character varying");
+                    default:
+                        throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
+                }
             default:
                 throw new RuntimeException("Unsupported DbType: " + dbType.name());
         }
@@ -290,5 +305,70 @@ public class ScanTestUtils {
         }
 
         return sheets;
+    }
+
+    public static class PropertiesFileChecker implements BooleanSupplier {
+        private final String propertiesFileName;
+
+        public PropertiesFileChecker(String propertiesFileName) {
+            this.propertiesFileName = propertiesFileName;
+        }
+
+        @Override
+        public boolean getAsBoolean() {
+            String buildDirectory = System.getProperty("projectBuildDirectory");
+            Path propertiesFilePath = Paths.get(buildDirectory,"../..", propertiesFileName);
+            if (StringUtils.isNotEmpty(buildDirectory) && Files.exists(propertiesFilePath)) {
+                try {
+                    loadSystemProperties(propertiesFilePath);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return true;
+            }
+            // check the endpoint here and return either true or false
+            return false;
+        }
+
+        private void loadSystemProperties(Path envVarFile) throws IOException {
+            Files.lines(envVarFile)
+                    .map(line -> line.replaceAll("^export ", ""))
+                    .map(line2 -> line2.split("=", 2))
+                    .forEach(v -> System.setProperty(v[0], v[1]));
+        }
+    }
+
+    @FunctionalInterface
+    public interface ReaderInterface {
+        String getOrFail(String name);
+    }
+
+    public static class EnvironmentReader implements ScanTestUtils.ReaderInterface {
+        public String getOrFail(String name) {
+            return getEnvOrFail(name);
+        }
+    }
+    public static class PropertyReader implements ScanTestUtils.ReaderInterface {
+        public String getOrFail(String name) {
+            return getPropertyOrFail(name);
+        }
+    }
+
+    public static String getEnvOrFail(String name) {
+        String value = System.getenv(name);
+        if (StringUtils.isEmpty(value)) {
+            throw new RuntimeException(String.format("Environment variable '%s' is not set.", name));
+        }
+
+        return value;
+    }
+
+    public static String getPropertyOrFail(String name) {
+        String value = System.getProperty(name);
+        if (StringUtils.isEmpty(value)) {
+            throw new RuntimeException(String.format("System property '%s' is not set.", name));
+        }
+
+        return value;
     }
 }

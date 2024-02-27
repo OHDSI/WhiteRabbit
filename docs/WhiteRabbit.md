@@ -133,6 +133,12 @@ When the SQL Server JDBC drivers are installed, you can also use Windows authent
 
 #### Google BigQuery
 
+If you want to use a BigQuery instance as the source database, after installing WhiteRabbit, you will need to download
+a zip file with the BigQuery JDBC driver, and unzip it in de `repo` directory of the WhiteRabbit installation.
+The latest version tested with WhiteRabbit is 1.5.2.1005 .
+
+The zip file can be downloaded [here](https://storage.googleapis.com/simba-bq-release/jdbc/SimbaJDBCDriverforGoogleBigQuery42_1.5.2.1005.zip).
+
 Google BigQuery (GBQ) supports two different connection/authentication methods: application default credentials and service account authentication.
 The former method is considered more secure because it writes auditing events to stackdriver.
 The specific method used is determined by the arguments provided to the configuration panel as described below.
@@ -172,6 +178,14 @@ Authentication via service account credentials:
 
 Please note that the fields _**Password**_ and _**Authentication method**_ are mutually exclusive: for only one of these fields
 a value should be supplied. A warning will be given when a value is supplied for both fields.
+
+#### Teradata
+
+If you want to use a Teradata instance as the source database, after installing WhiteRabbit, you will need to download
+a zip file with the Teradata JDBC driver, and unzip it in de `repo` directory of the WhiteRabbit installation.
+The latest version tested with WhiteRabbit is 20.00.00.16 .
+
+The zip file can be downloaded [here](https://downloads.teradata.com/download/connectivity/jdbc-driver).
 
 ## Scanning a Database
 

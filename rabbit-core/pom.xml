@@ -14,7 +14,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<apache-poi-version>5.2.4</apache-poi-version>
+	    <apache-poi-version>5.2.4</apache-poi-version>
+        <bigquery.scope>system</bigquery.scope>
     </properties>
 
     <build>
@@ -145,97 +146,6 @@
             <groupId>com.amazon.redshift</groupId>
             <artifactId>redshift-jdbc42</artifactId>
             <version>2.1.0.25</version>
-        </dependency>
-        <dependency>
-            <groupId>com.teradata.jdbc</groupId>
-            <artifactId>terajdbc4</artifactId>
-            <version>16.0.0.32</version>
-        </dependency>
-        <dependency>
-            <groupId>com.teradata.tdgss</groupId>
-            <artifactId>tdgssconfig</artifactId>
-            <version>16.0.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>GoogleBigQueryJDBC</artifactId>
-            <version>42</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.28.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>google-http-client</artifactId>
-            <version>1.29.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>gax</artifactId>
-            <version>1.42.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>google-http-client-jackson2</artifactId>
-            <version>1.28.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>google-oauth-client</artifactId>
-            <version>1.28.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>0.13.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>google-auth-library-credentials</artifactId>
-            <version>0.15.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.9.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>guava</artifactId>
-            <version>26.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>google-api-service-bigquery</artifactId>
-            <version>V2-rev426-1.25.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>opencensus-api</artifactId>
-            <version>0.18.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.simba.googlebigquery.jdbc</groupId>
-                    <artifactId>avro</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>opencensus-contrib-http-util</artifactId>
-            <version>0.18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>grpc-context</artifactId>
-            <version>1.18.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.simba.googlebigquery.jdbc</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.10.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
         <dependency>

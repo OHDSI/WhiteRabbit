@@ -303,32 +303,15 @@
                             <name>GPL2 with classpath exception</name>
                             <url>https://openjdk.java.net/legal/gplv2+ce.html</url>
                         </license>
+                        <license>
+                            <name>Teradata Generic Download License</name>
+                            <url>https://downloads.teradata.com/download/license/generic-download-license</url>
+                        </license>
                     </acceptableLicenses>
                     <excludes>
                         <!-- apparently there is no license information available for sqljdbc4, even though
                         it is published on Maven repos -->
                         <exclude>com.microsoft.sqlserver:sqljdbc4</exclude>
-
-                        <!-- PLEASE NOTE: teradata and googlebigquery are provided within the project, they
-                             cannot be found on a maven repo; no license info available; they should ideally
-                             not be part of the project, and should be removed here -->
-                        <exclude>com.teradata.jdbc:terajdbc4</exclude>
-                        <exclude>com.teradata.tdgss:tdgssconfig</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:GoogleBigQueryJDBC</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:google-api-client</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:google-http-client</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:gax</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:google-http-client-jackson2</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:google-oauth-client</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:google-auth-library-oauth2-http</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:google-auth-library-credentials</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:jackson-core</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:guava</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:google-api-service-bigquery</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:opencensus-api</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:opencensus-contrib-http-util</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:grpc-context</exclude>
-                        <exclude>com.simba.googlebigquery.jdbc:joda-time</exclude>
                     </excludes>
                     <!-- acceptableLicenseResources>osi-widely-used</acceptableLicenseResources -->
                 </configuration>
