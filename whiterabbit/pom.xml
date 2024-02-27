@@ -282,19 +282,10 @@
             <version>5.2.5</version>
             <scope>compile</scope>
         </dependency>
-        <!-- cacio-tta cannot be used with JDK 18+. Until that is solved in the parent project, use a fixed
-             fork hosted at The Hyve -->
-        <!-- dependency>
+        <dependency>
             <groupId>com.github.caciocavallosilano</groupId>
             <artifactId>cacio-tta</artifactId>
-            <version>1.17.4-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency -->
-        <!-- fixed fork, enabled through the jitpack repository -->
-        <dependency>
-            <groupId>com.github.thehyve</groupId>
-            <artifactId>caciocavallo</artifactId>
-            <version>1.17.7</version>
+            <version>1.18</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.assertj/assertj-swing-junit -->

@@ -309,9 +309,6 @@
                         it is published on Maven repos -->
                         <exclude>com.microsoft.sqlserver:sqljdbc4</exclude>
 
-                        <!-- temporary exclusion for the patched caciocavallo dependency -->
-                        <exclude>com.github.thehyve:caciocavallo</exclude>
-
                         <!-- PLEASE NOTE: teradata and googlebigquery are provided within the project, they
                              cannot be found on a maven repo; no license info available; they should ideally
                              not be part of the project, and should be removed here -->
