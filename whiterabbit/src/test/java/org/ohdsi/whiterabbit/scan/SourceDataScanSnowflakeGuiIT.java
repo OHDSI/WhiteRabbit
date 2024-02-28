@@ -18,7 +18,6 @@
 package org.ohdsi.whiterabbit.scan;
 
 import com.github.caciocavallosilano.cacio.ctc.junit.CacioTest;
-import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.finder.WindowFinder;
@@ -28,11 +27,9 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration;
-import org.ohdsi.databases.SnowflakeTestUtils;
 import org.ohdsi.databases.configuration.DbType;
 import org.ohdsi.whiterabbit.Console;
 import org.ohdsi.whiterabbit.WhiteRabbitMain;
@@ -71,9 +68,10 @@ class SourceDataScanSnowflakeGuiIT {
 
     @BeforeEach
     public void onSetUp() {
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
         try {
             testContainer = createPythonContainer();
-            prepareTestData(testContainer);
+            prepareSnowflakeTestData(testContainer);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Creating python container failed.");
         }
@@ -87,7 +85,7 @@ class SourceDataScanSnowflakeGuiIT {
     @ExtendWith(GUITestExtension.class)
     @Test
     void testConnectionAndSourceDataScan(@TempDir Path tempDir) throws IOException, URISyntaxException {
-        Assumptions.assumeTrue(new SnowflakeTestUtils.SnowflakeSystemPropertiesFileChecker(), "Snowflake system properties file not available");
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
         URL referenceScanReport = TestSourceDataScanCsvGui.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
         Path personCsv = Paths.get(TestSourceDataScanCsvGui.class.getClassLoader().getResource("scan_data/person-no-header.csv").toURI());
         Path costCsv = Paths.get(TestSourceDataScanCsvGui.class.getClassLoader().getResource("scan_data/cost-no-header.csv").toURI());
@@ -110,12 +108,12 @@ class SourceDataScanSnowflakeGuiIT {
 
         // fill in all the required values and try again
         assertEquals(SnowflakeConfiguration.TOOLTIP_SNOWFLAKE_ACCOUNT, window.textBox(SnowflakeConfiguration.SNOWFLAKE_ACCOUNT).target().getToolTipText());
-        window.textBox(SnowflakeConfiguration.SNOWFLAKE_ACCOUNT).setText(SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"));
-        window.textBox(SnowflakeConfiguration.SNOWFLAKE_USER).setText(SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_USER"));
-        window.textBox(SnowflakeConfiguration.SNOWFLAKE_PASSWORD).setText(SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"));
-        window.textBox(SnowflakeConfiguration.SNOWFLAKE_WAREHOUSE).setText(SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"));
-        window.textBox(SnowflakeConfiguration.SNOWFLAKE_DATABASE).setText(SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_DATABASE"));
-        window.textBox(SnowflakeConfiguration.SNOWFLAKE_SCHEMA).setText(SnowflakeTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
+        window.textBox(SnowflakeConfiguration.SNOWFLAKE_ACCOUNT).setText(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"));
+        window.textBox(SnowflakeConfiguration.SNOWFLAKE_USER).setText(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_USER"));
+        window.textBox(SnowflakeConfiguration.SNOWFLAKE_PASSWORD).setText(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"));
+        window.textBox(SnowflakeConfiguration.SNOWFLAKE_WAREHOUSE).setText(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"));
+        window.textBox(SnowflakeConfiguration.SNOWFLAKE_DATABASE).setText(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_DATABASE"));
+        window.textBox(SnowflakeConfiguration.SNOWFLAKE_SCHEMA).setText(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
 
         // use the "Test connection" button
         window.button(WhiteRabbitMain.LABEL_TEST_CONNECTION).click();

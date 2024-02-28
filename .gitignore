@@ -24,3 +24,5 @@ data/
 
 # contains authentication data for a Snowflake instance
 snowflake.env
+# contains authentication data for a BigQuery instance
+bigquery.env

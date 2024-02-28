@@ -496,6 +496,8 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 </div>
 <div id="google-bigquery" class="section level4">
 <h4>Google BigQuery</h4>
+<p>If you want to use a BigQuery instance as the source database, after installing WhiteRabbit, you will need to download a zip file with the BigQuery JDBC driver, and unzip it in de <code>repo</code> directory of the WhiteRabbit installation. The latest version tested with WhiteRabbit is 1.5.2.1005 .</p>
+<p>The zip file can be downloaded <a href="https://storage.googleapis.com/simba-bq-release/jdbc/SimbaJDBCDriverforGoogleBigQuery42_1.5.2.1005.zip">here</a></p>
 <p>Google BigQuery (GBQ) supports two different connection/authentication methods: application default credentials and service account authentication. The former method is considered more secure because it writes auditing events to stackdriver. The specific method used is determined by the arguments provided to the configuration panel as described below.</p>
 <p>Authentication via application default credentials:</p>
 <p>When using application default credentials authentication, you must run the following gcloud command in the user account only once: <code>gcloud auth application-default login</code> (do not include the single quote characters). An application key is written to <code>~/.config/gcloud/application_default_credentails.json</code>.</p>
@@ -533,6 +535,11 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <li><em><strong>Authentication method:</strong></em> authentication method to be used. Currently only the value ‘externalbrowser’ is supported</li>
 </ul>
 <p>Please note that the fields <em><strong>Password</strong></em> and <em><strong>Authentication method</strong></em> are mutually exclusive: for only one of these fields a value should be supplied. A warning will be given when a value is supplied for both fields.</p>
+</div>
+<div id="teradata" class="section level4">
+<h4>Teradata</h4>
+<p>If you want to use a Teradata instance as the source database, after installing WhiteRabbit, you will need to download a zip file with the Teradata JDBC driver, and unzip it in de <code>repo</code> directory of the WhiteRabbit installation. The latest version tested with WhiteRabbit is 20.00.00.16 .</p>
+<p>The zip file can be downloaded <a href="https://downloads.teradata.com/download/connectivity/jdbc-driver">here</a></p>
 </div>
 </div>
 </div>

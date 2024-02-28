@@ -45,6 +45,22 @@ Requires Java 1.8 or higher for running, and read access to the database to be s
 Dependencies
 ============
 For the distributable packages, the only requirement is Java 8. For building the package, Java 17+ and Maven are needed.
+There are exceptions for databases that use a JDBC driver with a license that does not allow distribution of the driver.
+(BigQuery, Teradata)
+
+**BigQuery**
+
+If you want to use a BigQuery instance as the source database, after installing WhiteRabbit, you will need to download
+a zip file with the BigQuery JDBC driver, and unzip it in de `repo` directory of the WhiteRabbit installation.
+The latest version tested with WhiteRabbit is 1.5.2.1005 .
+The zip file can be downloaded [here](https://storage.googleapis.com/simba-bq-release/jdbc/SimbaJDBCDriverforGoogleBigQuery42_1.5.2.1005.zip)
+
+**Teradata**
+
+If you want to use a Teradata instance as the source database, after installing WhiteRabbit, you will need to download
+a zip file with the Teradata JDBC driver, and unzip it in de `repo` directory of the WhiteRabbit installation.
+The latest version tested with WhiteRabbit is 20.00.00.16 . 
+The zip file can be downloaded [here](https://downloads.teradata.com/download/connectivity/jdbc-driver)
 
 Getting Started
 ===============

@@ -17,8 +17,10 @@
  ******************************************************************************/
 package org.ohdsi.whiterabbit.scan;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.io.TempDir;
 import org.ohdsi.databases.configuration.DbSettings;
 import org.ohdsi.databases.configuration.DbType;
@@ -35,11 +37,16 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class SourceDataScanOracleIT {
 
     private final static String USER_NAME = "test_user";
     private final static String SCHEMA_NAME = USER_NAME;
+
+    // The Oracle test container is somewhat  is slow to start, and these tests can be configured to be skipped by
+    // setting the environment variable SKIP_ORACLE_TESTS to "true" (e.g. in a Github workflow)
+    private final static String SKIP_ORACLE_TESTS = "SKIP_ORACLE_TESTS";
 
     /*
      * Since the database is only read, setting it up once suffices.
@@ -51,22 +58,29 @@ class SourceDataScanOracleIT {
      * for this data is know and could simply be copied instead of composed.
      * Also, for the technical correctness of WhiteRabbit (does it open the database, get the table
      * names and scan those tables), the actual nature of the source data does not matter.
+     *
      */
     @Container
-    public static OracleContainer oracleContainer = new OracleContainer("gvenzl/oracle-xe:11.2.0.2-slim-faststart")
-            .withReuse(true)
-            .usingSid()
-            .withUsername(USER_NAME)
-            .withPassword("test_password")
-            .withDatabaseName("testDB")
-            .withInitScript("scan_data/create_data_oracle.sql");
+    public static OracleContainer oracleContainer;
 
     @BeforeAll
     public static void startContainer() {
+        String skipOracleTests = System.getenv(SKIP_ORACLE_TESTS);
+        assumeTrue(!(StringUtils.isNotEmpty(skipOracleTests) && skipOracleTests.matches("true")),
+                String.format("Skipping Oracle tests, triggered by environment variable %s", SKIP_ORACLE_TESTS));
+
+        oracleContainer = new OracleContainer("gvenzl/oracle-xe:11.2.0.2-slim-faststart")
+                .withReuse(true)
+                .usingSid()
+                .withUsername(USER_NAME)
+                .withPassword("test_password")
+                .withDatabaseName("testDB")
+                .withInitScript("scan_data/create_data_oracle.sql");
         oracleContainer.start();
     }
 
     @Test
+    @DisabledIfEnvironmentVariable(named = SKIP_ORACLE_TESTS, matches = "true")
     public void connectToDatabase() {
         // this is also implicitly tested by testSourceDataScan(), but having it fail separately helps identify problems quicker
         DbSettings dbSettings = getTestDbSettings();
@@ -76,6 +90,7 @@ class SourceDataScanOracleIT {
     }
 
     @Test
+    @DisabledIfEnvironmentVariable(named = SKIP_ORACLE_TESTS, matches = "true")
     public void testGetTableNames() {
         // this is also implicitly tested by testSourceDataScan(), but having it fail separately helps identify problems quicker
         DbSettings dbSettings = getTestDbSettings();
@@ -83,6 +98,7 @@ class SourceDataScanOracleIT {
         assertEquals(2, tableNames.size());
     }
     @Test
+    @DisabledIfEnvironmentVariable(named = SKIP_ORACLE_TESTS, matches = "true")
     void testSourceDataScan(@TempDir Path tempDir) throws IOException, URISyntaxException {
         loadData();
         Path outFile = tempDir.resolve("scanresult.xslx");

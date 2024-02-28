@@ -23,7 +23,7 @@ class DBConnectorTest {
         assertFalse(DbType.driverNames().contains(notSupportedDriver), "Cannot test this for a supported driver.");
         assertThrows(ClassNotFoundException.class, () ->
             testJDBCDriverAndVersion(notSupportedDriver));
-        DbType.driverNames().forEach(driver -> {
+        DbType.includedDriverNames().forEach(driver -> {
             try {
                 testJDBCDriverAndVersion(driver);
             } catch (ClassNotFoundException e) {
