@@ -98,18 +98,40 @@ public enum SnowflakeHandler implements StorageHandler {
     }
 
     public String getUseQuery(String ignoredDatabase) {
-        String useQuery = String.format("USE WAREHOUSE \"%s\";", configuration.getValue(SNOWFLAKE_WAREHOUSE).toUpperCase());
-        logger.info("SnowFlakeHandler will execute query: " + useQuery);
+        String useQuery = String.format("USE WAREHOUSE %s;", configuration.getValue(SNOWFLAKE_WAREHOUSE));
+        logger.info("SnowFlakeHandler will execute query: {}", useQuery);
         return useQuery;
     }
 
     @Override
     public String getTableSizeQuery(String tableName) {
-        return String.format("SELECT COUNT(*) FROM %s.%s.%s;", this.getDatabase(), this.getSchema(), tableName);
+        return String.format("SELECT COUNT(*) FROM %s;", resolveTableName(tableName));
     }
 
-    public String getRowSampleQuery(String table, long rowCount, long sampleSize) {
-        return String.format("SELECT * FROM %s ORDER BY RANDOM() LIMIT %s", table, sampleSize);
+    public String getRowSampleQuery(String tableName, long rowCount, long sampleSize) {
+        return String.format("SELECT * FROM %s ORDER BY RANDOM() LIMIT %s", resolveTableName(tableName), sampleSize);
+    }
+
+    private String resolveTableName(String tableName) {
+        return String.format("%s.%s.%s", this.getDatabase(), this.getSchema(), tableName);
+    }
+
+    @Override
+    public ResultSet getFieldNamesFromJDBC(String tableName) {
+        try {
+            String database = this.getDatabase();
+            String schema = this.getSchema();
+            DatabaseMetaData metadata = getDBConnection().getMetaData();
+            if (metadata.storesUpperCaseIdentifiers()) {
+                database = database.toUpperCase();
+                schema = schema.toUpperCase();
+                tableName = tableName.toUpperCase();
+            }
+
+            return metadata.getColumns(database, schema, tableName, null);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public String getTablesQuery(String database) {

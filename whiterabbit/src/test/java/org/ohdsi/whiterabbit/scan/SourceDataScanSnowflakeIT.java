@@ -140,8 +140,7 @@ public class SourceDataScanSnowflakeIT {
             logger.error("stderr: {}", result.getStderr());
             // hide the password, if present, so it won't appear in logs (pragmatic)
             String message = ("Command failed: " + String.join(" ", command))
-                    .replace(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****")
-                    .replace(ScanTestUtils.getEnvOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****");
+                    .replace(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****");
             assertEquals(expectedExitValue, result.getExitCode(), message);
         }
     }
