@@ -86,8 +86,10 @@ public class VerifyDistributionIT {
         }
     }
 
-    @Test // useful while developing/debugging, leaving in place to test again after Snowflake JDBC driver update
+    @Test
     void verifySnowflakeFailureInJava17() throws IOException, URISyntaxException, InterruptedException {
+        // only run this when a snowflake.env file is available
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
         /*
          * There is an issue with Snowflake JDBC that causes a failure in Java 16 and later
          * (see https://community.snowflake.com/s/article/JDBC-Driver-Compatibility-Issue-With-JDK-16-and-Later)
