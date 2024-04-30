@@ -38,6 +38,7 @@ import static org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration.*;
  */
 public enum SnowflakeHandler implements StorageHandler {
     INSTANCE();
+    public static final String WR_USE_SNOWFLAKE_JDBC_METADATA = "WR_USE_SNOWFLAKE_METADATA";
 
     DBConfiguration configuration = new SnowflakeConfiguration();
     private DBConnection snowflakeConnection = null;
@@ -117,7 +118,7 @@ public enum SnowflakeHandler implements StorageHandler {
     }
 
     @Override
-    public ResultSet getFieldNamesFromJDBC(String tableName) {
+    public ResultSet getFieldNamesInfo(String tableName) {
         try {
             String database = this.getDatabase();
             String schema = this.getSchema();
@@ -131,6 +132,17 @@ public enum SnowflakeHandler implements StorageHandler {
             return metadata.getColumns(database, schema, tableName, null);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public String getFieldsInformationQuery(String tableName) {
+        if (System.getenv(WR_USE_SNOWFLAKE_JDBC_METADATA) != null || System.getProperty(WR_USE_SNOWFLAKE_JDBC_METADATA) != null) {
+            return null;    // not providing a query forces use of JDBC metadata
+        } else {
+            return String.format(
+                    "SELECT column_name, data_type FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
+                    this.getDatabase().toUpperCase(), this.getSchema().toUpperCase(), tableName.toUpperCase());
         }
     }
 

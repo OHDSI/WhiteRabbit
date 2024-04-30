@@ -210,8 +210,8 @@ public class ScanTestUtils {
             case SNOWFLAKE:
                 switch (type) {
                     case "NUMBER": return reference.equals("integer") || reference.equals("numeric");
-                    case "VARCHAR": return reference.equals("character varying");
-                    case "TIMESTAMPNTZ": return reference.equals("timestamp without time zone");
+                    case "VARCHAR": case "TEXT": return reference.equals("character varying");
+                    case "TIMESTAMP_NTZ": case "TIMESTAMPNTZ": return reference.equals("timestamp without time zone");
                     default: throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
                 }
             case MYSQL:
