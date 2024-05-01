@@ -118,7 +118,7 @@ public enum SnowflakeHandler implements StorageHandler {
     }
 
     @Override
-    public ResultSet getFieldNamesInfo(String tableName) {
+    public ResultSet getFieldsInformation(String tableName) {
         try {
             String database = this.getDatabase();
             String schema = this.getSchema();
@@ -127,8 +127,14 @@ public enum SnowflakeHandler implements StorageHandler {
                 database = database.toUpperCase();
                 schema = schema.toUpperCase();
                 tableName = tableName.toUpperCase();
+            } else if (metadata.storesLowerCaseIdentifiers()) {
+                database = database.toLowerCase();
+                schema = schema.toLowerCase();
+                tableName = tableName.toLowerCase();
             }
 
+            logger.warn("Obtaining columnn information from JDBC metadata: metadata.getColumns({}, {}, {}, null)",
+                    database, schema, tableName);
             return metadata.getColumns(database, schema, tableName, null);
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());

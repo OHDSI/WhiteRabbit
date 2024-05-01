@@ -157,7 +157,7 @@ public interface StorageHandler {
         List<FieldInfo> fieldInfos = new ArrayList<>();
         String fieldInfoQuery = getFieldsInformationQuery(table);
         if (fieldInfoQuery != null) {
-            logger.warn("Obtaining field metadata through SQL");
+            logger.warn("Obtaining field metadata through SQL query: {}", fieldInfoQuery);
             QueryResult queryResult = getDBConnection().query(fieldInfoQuery);
             for (Row row : queryResult) {
                 FieldInfo fieldInfo = new FieldInfo(scanParameters, row.getCells().get(0));
@@ -167,7 +167,7 @@ public interface StorageHandler {
             }
         } else {
             logger.warn("Obtaining field metadata through JDBC");
-            ResultSet rs = getFieldNamesInfo(table);
+            ResultSet rs = getFieldsInformation(table);
             try {
                 while (rs.next()) {
                     FieldInfo fieldInfo = new FieldInfo(scanParameters, rs.getString("COLUMN_NAME"));
@@ -196,7 +196,7 @@ public interface StorageHandler {
      * @param table name of the table to get the column names for
      * @return java.sql.ResultSet
      */
-    default ResultSet getFieldNamesInfo(String table) {
+    default ResultSet getFieldsInformation(String table) {
         try {
             DatabaseMetaData metadata = getDBConnection().getMetaData();
             return metadata.getColumns(null, null, table, null);
