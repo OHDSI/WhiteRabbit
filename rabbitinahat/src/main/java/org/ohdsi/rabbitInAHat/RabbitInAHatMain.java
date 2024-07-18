@@ -34,10 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,6 +82,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_SET_TARGET_V60 = "CDM v6.0-beta";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
 	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
+	public final static String 		ACTION_HIDE_TABLES					= "Hide unwanted tables";
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
 	public final static String		ACTION_MARK_COMPLETED				= "Mark Highlighted As Complete";
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
@@ -111,7 +109,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	private JScrollPane				scrollPane2;
 	private MappingPanel			tableMappingPanel;
 	private MappingPanel			fieldMappingPanel;
-	private DetailsPanel			detailsPanel;
+	private DetailsPanel		detailsPanel;
 	private JSplitPane				tableFieldSplitPane;
 	private JFileChooser			chooser;
 
@@ -256,6 +254,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		addMenuItem(editMenu, ACTION_FILTER, evt -> this.doOpenFilterDialog(), KeyEvent.VK_F);
 		addMenuItem(editMenu, ACTION_ADD_STEM_TABLE, evt -> this.doAddStemTable());
 		addMenuItem(editMenu, ACTION_REMOVE_STEM_TABLE, evt -> this.doRemoveStemTable());
+		addMenuItem(editMenu, ACTION_HIDE_TABLES, evt -> this.doHideTables());
 
 		JMenu targetDatabaseMenu = new JMenu("Set Target Database");
 		editMenu.add(targetDatabaseMenu);
@@ -454,6 +453,21 @@ public class RabbitInAHatMain implements ResizeListener {
 			StemTableFactory.removeStemTable(ObjectExchange.etl);
 			tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
 		}
+	}
+
+	private void doHideTables() {
+
+		List<String> tableNames = new ArrayList<>(ObjectExchange.etl.getSourceDatabase().getTables().size());
+		for(Table table : ObjectExchange.etl.getSourceDatabase().getTables()){
+			tableNames.add(table.getName());
+		}
+
+		MaskListDialog dialog = new MaskListDialog("Please select an item in the list: ", new JList(tableNames.toArray()));
+		dialog.show();
+
+		ObjectExchange.etl.getSourceDatabase().setSelectedIndices(dialog.getSelectedIndices());
+		tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+		return;
 	}
 
 	private void doGenerateTestFramework() {

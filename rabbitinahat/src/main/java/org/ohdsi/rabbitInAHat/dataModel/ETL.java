@@ -104,6 +104,18 @@ public class ETL implements Serializable {
 	}
 
 	public Mapping<Table> getTableToTableMapping() {
+		if(sourceDb.getSelectedIndices() != null){
+			List<Table> sourceTables = sourceDb.getTables();
+			List<ItemToItemMap> maskedTableToTableMaps = new ArrayList<>(tableToTableMaps.size());
+			for(ItemToItemMap tableToTablemap : tableToTableMaps) {
+				for(Table sourceTable : sourceTables) {
+					if(tableToTablemap.getSourceItem().getName().equals(sourceTable.getName())) {
+						maskedTableToTableMaps.add(tableToTablemap);
+					}
+				}
+			}
+			return new Mapping<>(sourceTables, cdmDb.getTables(), maskedTableToTableMaps);
+		}
 		return new Mapping<>(sourceDb.getTables(), cdmDb.getTables(), tableToTableMaps);
 	}
 
