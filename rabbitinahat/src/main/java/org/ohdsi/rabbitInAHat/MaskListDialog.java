@@ -20,69 +20,22 @@ package org.ohdsi.rabbitInAHat;
 
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This Frame is used to select specific source tables
  * @author EIjo
  *
  */
-//public class MaskFrame extends JFrame {
-//
-//    final int MAX = 10;
-//    // initialize list elements
-//    String[] listElems = new String[MAX];
-//    public void test1() {
-//        JOptionPane.showInputDialog(null, "Please choose a name", "Example 1",
-//                JOptionPane.QUESTION_MESSAGE, null, new Object[]{"Amanda",
-//                        "Colin", "Don", "Fred", "Gordon", "Janet", "Jay",
-//                        "Joe", "Judie", "Kerstin", "Lotus", "Maciek", "Mark",
-//                        "Mike", "Mulhern", "Oliver", "Peter", "Quaxo", "Rita",
-//                        "Sandro", "Tim", "Will"}, "Joe");
-//    }
-//    public void test(){
-//
-//    }
-//
-//    public void  init(){
-//        for (int i = 0; i < MAX; i++) {
-//            listElems[i] = "element " + i;
-//        }
-//        final JList list = new JList(listElems);
-//        final JScrollPane pane = new JScrollPane(list);
-//        final JFrame frame = new JFrame("JList Demo");
-//
-//        // create a button and add action listener
-//        final JButton btnGet = new JButton("Get Selected");
-//        btnGet.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String selectedElem = "";
-//                int selectedIndices[] = list.getSelectedIndices();
-//                for (int j = 0; j < selectedIndices.length; j++) {
-//                    String elem =
-//                            (String) list.getModel().getElementAt(selectedIndices[j]);
-//                    selectedElem += "\n" + elem;
-//
-//                }
-//                JOptionPane.showMessageDialog(frame,
-//                        "You've selected:" + selectedElem);
-//            }// end actionPerformed
-//        });
-
-//        frame.setLayout(new BorderLayout());
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        frame.getContentPane().add(pane, BorderLayout.CENTER);
-//        frame.getContentPane().add(btnGet, BorderLayout.SOUTH);
-//        frame.setSize(250, 200);
-//        frame.setVisible(true);
-//    }
-//}
 
 
 public class MaskListDialog {
-    private JList list;
     private JLabel label;
     private JOptionPane optionPane;
     private JButton okButton, cancelButton;
@@ -90,46 +43,82 @@ public class MaskListDialog {
     private JDialog dialog;
     private JScrollPane scrollPane;
     private JTextField searchField;
-    private JButton searchSubmitButton;
+    private JButton searchSelectButton;
+    private JButton searchDeselectButton;
     private JRadioButton matchCase, regexCase;
     private ButtonGroup searchRadioGroup;
+    private JTable table;
 
-    public MaskListDialog(String message, JList listToDisplay){
+    public MaskListDialog(List<String> listToDisplay, List<Integer> selectedIndices){
 
-        list = listToDisplay;
-        scrollPane = new JScrollPane(list);
-        label = new JLabel(message);
+        DefaultListModel checkboxListModel = new DefaultListModel();
+        JPanel listPanel = new JPanel();
+
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+
+        scrollPane = new JScrollPane();
+
+
+        Object[] columnNames = {"source", "selected"};
+        Object[][] data = new Object[listToDisplay.size()][2];
+
+        for(int i = 0; i < listToDisplay.size(); i++){
+            data[i][0] = listToDisplay.get(i);
+            data[i][1] = selectedIndices.contains(i);
+        }
+
+
+        DefaultTableModel model = new DefaultTableModel(data, columnNames);
+        table = new JTable(model) {
+            /*@Override
+            public Class getColumnClass(int column) {
+            return getValueAt(0, column).getClass();
+            }*/
+            @Override
+            public Class getColumnClass(int column) {
+                if (column == 0) {
+                    return String.class;
+                }
+                return Boolean.class;
+            }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                //Only the third column
+                return column == 1;
+            }
+        };
+        table.setEditingColumn(0);
+
+
+        scrollPane = new JScrollPane(table);
+
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+
+        label = new JLabel("select the source tables you would like to display");
         createAndDisplayOptionPane();
     }
-
-//    public MaskListDialog(String title, String message, JList listToDisplay){
-//        this(message, listToDisplay);
-//        dialog.setTitle(title);
-//    }
 
     private void createAndDisplayOptionPane(){
         setupButtons();
         JPanel pane = layoutComponents();
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
-        buttonPanel.add(regexCase);
-        buttonPanel.add(matchCase);
-//        pane.add(buttonPanel, BorderLayout.EAST);
-
-
         optionPane = new JOptionPane(pane);
-        optionPane.setOptions(new Object[]{searchField, searchSubmitButton, okButton, cancelButton});
-        optionPane.add(buttonPanel, BorderLayout.EAST);
-        dialog = optionPane.createDialog("Select option");
+        optionPane.setOptions(new Object[]{okButton, cancelButton});
+
+        dialog = optionPane.createDialog("Hide Unwanted Tables");
     }
 
     private void setupButtons(){
         searchField = new JTextField(16);
-        searchSubmitButton = new JButton("submit");
-        searchSubmitButton.addActionListener(this::handleSearchField);
+        searchSelectButton = new JButton("Select");
+        searchSelectButton.addActionListener(this::handleSelectField);
+        searchDeselectButton = new JButton("Deselect");
+        searchDeselectButton.addActionListener(this::handleDeselectField);
+
 
         matchCase = new JRadioButton("Match Case");
+        matchCase.setSelected(true);
         regexCase = new JRadioButton("Regex");
         searchRadioGroup =new ButtonGroup();
         searchRadioGroup.add(matchCase);
@@ -143,31 +132,31 @@ public class MaskListDialog {
     }
 
     private JPanel layoutComponents(){
-        centerListElements();
         JPanel panel = new JPanel(new BorderLayout(5,5));
         panel.add(label, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+        searchPanel.add(searchField);
+        JPanel addRemoveButtonPanel = new JPanel();
+        addRemoveButtonPanel.setLayout(new BoxLayout(addRemoveButtonPanel, BoxLayout.PAGE_AXIS));
+        addRemoveButtonPanel.add(searchSelectButton);
+        addRemoveButtonPanel.add(searchDeselectButton);
+        searchPanel.add(addRemoveButtonPanel);
+
+        JPanel caseButtonPanel = new JPanel();
+        caseButtonPanel.setLayout(new BoxLayout(caseButtonPanel, BoxLayout.PAGE_AXIS));
+        caseButtonPanel.add(matchCase);
+        caseButtonPanel.add(regexCase);
+        searchPanel.add(caseButtonPanel);
+
+        panel.add(searchPanel, BorderLayout.SOUTH);
+
         return panel;
     }
-
-    private void centerListElements(){
-        DefaultListCellRenderer renderer = (DefaultListCellRenderer) list.getCellRenderer();
-        renderer.setHorizontalAlignment(SwingConstants.CENTER);
-    }
-
-//    public void setOnOk(ActionListener event){
-//        okEvent = event;
-//    }
-//
-//    public void setOnClose(ActionListener event){
-//        cancelEvent  = event;
-//    }
-//
-//    public void setOnSearch(ActionListener event){
-//        searchEvent  = event;
-//    }
-
 
     private void handleOkButtonClick(ActionEvent e){
         if(okEvent != null){ okEvent.actionPerformed(e); }
@@ -179,26 +168,63 @@ public class MaskListDialog {
         hide();
     }
 
-    private void handleSearchField(ActionEvent e){
+    private void handleSelectField(ActionEvent e){
         if(cancelEvent != null){ searchEvent.actionPerformed(e);}
 
-        HashSet<Integer> newIndices = new HashSet<Integer>();
-        for(int index : list.getSelectedIndices()){
-            newIndices.add(index);
+        if(matchCase.isSelected()){
+            toggleTableStatusMatchCase(true);
+        } else if(regexCase.isSelected()){
+            toggleTableStatusRegexCase(true);
+        }
+    }
+
+
+    private void handleDeselectField(ActionEvent e) {
+        if (cancelEvent != null) {
+            searchEvent.actionPerformed(e);
+        }
+        if(matchCase.isSelected()){
+            toggleTableStatusMatchCase(false);
+        } else if(regexCase.isSelected()){
+            toggleTableStatusRegexCase(false);
         }
 
-        for(int i = 0; i < list.getModel().getSize(); i ++){
-            if (list.getModel().getElementAt(i).toString().contains(searchField.getText())){
-                newIndices.add(i);
+    }
+
+    // true to toggle elements on false to toggle off
+    private void toggleTableStatusMatchCase(Boolean bool){
+        for (int i = 0; i < table.getRowCount(); i++) {
+            if (table.getModel().getValueAt(i, 0).toString().contains(searchField.getText())) {
+                table.setValueAt(bool, i, 1);
             }
         }
-        list.setSelectedIndices(newIndices.stream().mapToInt(Number::intValue).toArray());
     }
+
+
+    // true to toggle elements on false to toggle off
+    private void toggleTableStatusRegexCase(Boolean bool){
+        Pattern pattern = Pattern.compile(searchField.getText());
+        for (int i = 0; i < table.getRowCount(); i++) {
+            Matcher matcher = pattern.matcher(table.getModel().getValueAt(i, 0).toString());
+            if (matcher.find()) {
+                table.setValueAt(bool, i, 1);
+            }
+        }
+    }
+
+
     public void show(){ dialog.setVisible(true); }
 
     private void hide(){ dialog.setVisible(false); }
 
-    public int[] getSelectedIndices(){
-        return list.getSelectedIndices();
+
+    public List<Integer> getSelectedIndices(){
+        List<Integer> selectedIndices = new ArrayList<>();
+        for(int i = 0; i < table.getRowCount(); i++){
+            if((Boolean) table.getModel().getValueAt(i,1)){
+                selectedIndices.add(i);
+            }
+        }
+        return selectedIndices;
     }
 }

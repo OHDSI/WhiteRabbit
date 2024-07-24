@@ -44,12 +44,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.ohdsi.rabbitInAHat.ETLMarkupDocumentGenerator.DocumentType;
-import org.ohdsi.rabbitInAHat.dataModel.Database;
+import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
-import org.ohdsi.rabbitInAHat.dataModel.ETL;
-import org.ohdsi.rabbitInAHat.dataModel.Field;
-import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
-import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.Version;
 
 /**
@@ -457,17 +453,18 @@ public class RabbitInAHatMain implements ResizeListener {
 
 	private void doHideTables() {
 
-		List<String> tableNames = new ArrayList<>(ObjectExchange.etl.getSourceDatabase().getTables().size());
-		for(Table table : ObjectExchange.etl.getSourceDatabase().getTables()){
+		List<String> tableNames = new ArrayList<>(ObjectExchange.etl.getSourceDatabase().getUnmaskedTables().size());
+		List<Integer> selectedIndices = ObjectExchange.etl.getSourceDatabase().getSelectedIndices();
+		for(Table table : ObjectExchange.etl.getSourceDatabase().getUnmaskedTables()){
 			tableNames.add(table.getName());
 		}
 
-		MaskListDialog dialog = new MaskListDialog("Please select an item in the list: ", new JList(tableNames.toArray()));
+		MaskListDialog dialog = new MaskListDialog(tableNames, selectedIndices);
 		dialog.show();
 
 		ObjectExchange.etl.getSourceDatabase().setSelectedIndices(dialog.getSelectedIndices());
+		ObjectExchange.etl.updateSourceMapping();
 		tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
-		return;
 	}
 
 	private void doGenerateTestFramework() {

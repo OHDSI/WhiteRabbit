@@ -43,7 +43,7 @@ public class ETL implements Serializable {
 
 	private Database								sourceDb					= new Database();
 	private Database								cdmDb						= new Database();
-	private final List<ItemToItemMap>						tableToTableMaps			= new ArrayList<>();
+	private List<ItemToItemMap>						tableToTableMaps			= new ArrayList<>();
 	private final Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<>();
 	private transient String						filename					= null;
 	private static final long						serialVersionUID			= 8987388381751618498L;
@@ -104,18 +104,6 @@ public class ETL implements Serializable {
 	}
 
 	public Mapping<Table> getTableToTableMapping() {
-		if(sourceDb.getSelectedIndices() != null){
-			List<Table> sourceTables = sourceDb.getTables();
-			List<ItemToItemMap> maskedTableToTableMaps = new ArrayList<>(tableToTableMaps.size());
-			for(ItemToItemMap tableToTablemap : tableToTableMaps) {
-				for(Table sourceTable : sourceTables) {
-					if(tableToTablemap.getSourceItem().getName().equals(sourceTable.getName())) {
-						maskedTableToTableMaps.add(tableToTablemap);
-					}
-				}
-			}
-			return new Mapping<>(sourceTables, cdmDb.getTables(), maskedTableToTableMaps);
-		}
 		return new Mapping<>(sourceDb.getTables(), cdmDb.getTables(), tableToTableMaps);
 	}
 
@@ -123,6 +111,19 @@ public class ETL implements Serializable {
 		ItemToItemMap key = new ItemToItemMap(sourceTable, targetTable);
 		List<ItemToItemMap> fieldToFieldMaps = tableMapToFieldToFieldMaps.computeIfAbsent(key, k -> new ArrayList<>());
 		return new Mapping<>(sourceTable.getFields(), targetTable.getFields(), fieldToFieldMaps);
+	}
+
+	public void updateSourceMapping(){
+		ArrayList<ItemToItemMap> newTableToTableMaps = new ArrayList<>();
+		for(ItemToItemMap tableToTableMap: tableToTableMaps){
+			for(Table table : sourceDb.getTables()){
+				if(table.getName().equals(tableToTableMap.getSourceItem().getName())){
+					newTableToTableMaps.add(tableToTableMap);
+				}
+			}
+
+		}
+		this.tableToTableMaps = newTableToTableMaps;
 	}
 
 	public String getFilename() {

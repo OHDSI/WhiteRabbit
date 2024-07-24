@@ -54,16 +54,20 @@ public class Database implements Serializable {
 	private String				dbName				= "";
 	private static final String	CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints.csv";
 	public String 				conceptIdHintsVocabularyVersion;
-	private int[]		selectedIndices;
+	private List<Integer>		selectedIndices;
 
 	public List<Table> getTables() {
 		if(selectedIndices != null){
 			List<Table> maskedTables = new ArrayList<>();
-            for (int selectedIndex : selectedIndices) {
+            for (Integer selectedIndex : selectedIndices) {
                 maskedTables.add(tables.get(selectedIndex));
             }
 			return maskedTables;
 		}
+		return tables;
+	}
+
+	public List<Table> getUnmaskedTables() {
 		return tables;
 	}
 
@@ -86,11 +90,17 @@ public class Database implements Serializable {
 		return dbName;
 	}
 
-	public void setSelectedIndices(int[] tableMask) {
+	public void setSelectedIndices(List<Integer> tableMask) {
 		this.selectedIndices = tableMask;
 	}
 
-	public int[] getSelectedIndices() {
+	public List<Integer> getSelectedIndices() {
+		if(selectedIndices == null){
+			selectedIndices = new ArrayList<>();
+			for(int i = 0; i < tables.size(); i++){
+				selectedIndices.add(i);
+			}
+		}
 		return selectedIndices;
 	}
 

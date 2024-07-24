@@ -182,14 +182,10 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 		}
 		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
-			for (MappableItem item : mapping.getSourceItems()) {
-				if (item.getName().equals(map.getSourceItem().getName())){
 					Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents),
 							map);
 					arrows.add(component);
 				}
-			}
-		}
 		layoutItems();
 		repaint();
 	}
