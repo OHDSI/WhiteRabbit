@@ -57,6 +57,13 @@ public class MaskListDialog extends JDialog implements ActionListener, ResizeLis
     private ButtonGroup searchRadioGroup;
     private JTable table;
 
+
+    public final static String MATCH_BUTTON = "Match Button";
+    public final static String REGEX_BUTTON = "Regex Button";
+
+    public final static String SELECT_BUTTON = "Select Button";
+    public final static String DESELECT_BUTTON = "Deselect Button";
+
     Container contentPane = this.getContentPane();
 
     public MaskListDialog(Window parentWindow) throws ExceptionInInitializerError{
@@ -69,7 +76,7 @@ public class MaskListDialog extends JDialog implements ActionListener, ResizeLis
 
         label = new JLabel("select the source tables you would like to display");
 
-        contentPane.add(createOptionPane());
+        contentPane.add(createPanel());
 
         this.pack();
 
@@ -96,15 +103,10 @@ public class MaskListDialog extends JDialog implements ActionListener, ResizeLis
         }
     }
 
-    private JOptionPane createOptionPane() {
+    private JPanel createPanel() {
         setupTablePane();
         setupButtons();
-        JPanel pane = layoutComponents();
-
-        optionPane = new JOptionPane(pane);
-        optionPane.setOptions(new Object[]{okButton, cancelButton});
-
-        return optionPane;
+        return layoutComponents();
     }
 
     private void setupTablePane() {
@@ -160,13 +162,17 @@ public class MaskListDialog extends JDialog implements ActionListener, ResizeLis
         searchField = new JTextField(32);
         searchSelectButton = new JButton("Select");
         searchSelectButton.addActionListener(this::handleSelectField);
+        searchSelectButton.setName(SELECT_BUTTON);
         searchDeselectButton = new JButton("Deselect");
         searchDeselectButton.addActionListener(this::handleDeselectField);
+        searchDeselectButton.setName(DESELECT_BUTTON);
 
 
         matchCase = new JRadioButton("Match Case");
         matchCase.setSelected(true);
+        matchCase.setName(MATCH_BUTTON);
         regexCase = new JRadioButton("Regex");
+        regexCase.setName(REGEX_BUTTON);
         searchRadioGroup = new ButtonGroup();
         searchRadioGroup.add(matchCase);
         searchRadioGroup.add(regexCase);
@@ -277,9 +283,9 @@ public class MaskListDialog extends JDialog implements ActionListener, ResizeLis
 
     private void updateIndices(){
         ObjectExchange.etl.getSourceDatabase().setSelectedIndices(getSelectedIndices());
-        ObjectExchange.etl.updateSourceMapping();
         mappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
     }
+
     public List<Integer> getSelectedIndices(){
         List<Integer> selectedIndices = new ArrayList<>();
         for(int i = 0; i < table.getRowCount(); i++){

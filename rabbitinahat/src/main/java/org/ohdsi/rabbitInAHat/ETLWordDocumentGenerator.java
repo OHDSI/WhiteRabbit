@@ -113,7 +113,7 @@ public class ETLWordDocumentGenerator {
 		createDocumentParagraph(document, targetTable.getComment());
 		
 		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps())
-			if (tableToTableMap.getTargetItem() == targetTable) {
+			if (tableToTableMap.getTargetItem() == targetTable && etl.isSelectedTable(tableToTableMap.getSourceItem())) {
 				Table sourceTable = (Table) tableToTableMap.getSourceItem();
 				Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
 				

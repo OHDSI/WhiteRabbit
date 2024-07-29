@@ -113,18 +113,6 @@ public class ETL implements Serializable {
 		return new Mapping<>(sourceTable.getFields(), targetTable.getFields(), fieldToFieldMaps);
 	}
 
-	public void updateSourceMapping(){
-		ArrayList<ItemToItemMap> newTableToTableMaps = new ArrayList<>();
-		for(ItemToItemMap tableToTableMap: tableToTableMaps){
-			for(Table table : sourceDb.getTables()){
-				if(table.getName().equals(tableToTableMap.getSourceItem().getName())){
-					newTableToTableMaps.add(tableToTableMap);
-				}
-			}
-
-		}
-		this.tableToTableMaps = newTableToTableMaps;
-	}
 
 	public String getFilename() {
 		return filename;
@@ -258,5 +246,15 @@ public class ETL implements Serializable {
 			}
 		}
 		return result;
+	}
+
+	public boolean isSelectedTable(MappableItem item) {
+		List<Integer> indices = sourceDb.getSelectedIndices();
+		for(int i : indices){
+			if(sourceDb.getUnmaskedTables().get(i) == item){
+				return true;
+			}
+		}
+		return false;
 	}
 }

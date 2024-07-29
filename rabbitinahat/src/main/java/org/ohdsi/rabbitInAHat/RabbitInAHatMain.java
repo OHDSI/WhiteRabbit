@@ -89,6 +89,7 @@ public class RabbitInAHatMain implements ResizeListener {
 
 	public final static String PANEL_TABLE_MAPPING = "Table Mapping";
 	public final static String PANEL_FIELD_MAPPING = "Field Mapping";
+	public final static String MASK_LIST_DIALOG = "Mask List Dialog";
 
 	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit/RabbitInAHat.html";
 	private final static FileFilter FILE_FILTER_GZ = new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
@@ -250,7 +251,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		addMenuItem(editMenu, ACTION_FILTER, evt -> this.doOpenFilterDialog(), KeyEvent.VK_F);
 		addMenuItem(editMenu, ACTION_ADD_STEM_TABLE, evt -> this.doAddStemTable());
 		addMenuItem(editMenu, ACTION_REMOVE_STEM_TABLE, evt -> this.doRemoveStemTable());
-		addMenuItem(editMenu, ACTION_HIDE_TABLES, evt -> this.doHideTables());
+		addMenuItem(editMenu, ACTION_HIDE_TABLES, evt -> this.doHideTables()).setName(ACTION_HIDE_TABLES);
 
 		JMenu targetDatabaseMenu = new JMenu("Set Target Database");
 		editMenu.add(targetDatabaseMenu);
@@ -457,6 +458,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		}
 		else {
 			MaskListDialog maskListDialog = new MaskListDialog(frame);
+			maskListDialog.setName(MASK_LIST_DIALOG);
 			maskListDialog.setMaskListPanel(tableMappingPanel);
 			maskListDialog.setVisible(true);
 		}
@@ -611,10 +613,10 @@ public class RabbitInAHatMain implements ResizeListener {
 		if (replace) {
 			ETL etl = new ETL();
 			doRemoveStemTable();
-			etl.getSourceDatabase().setSelectedIndices(null);
 			try {
 				etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
 				etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());
+				ObjectExchange.etl = etl;
 				tableMappingPanel.setMapping(etl.getTableToTableMapping());
 				ObjectExchange.etl = etl;
 			} catch (Exception e) {
