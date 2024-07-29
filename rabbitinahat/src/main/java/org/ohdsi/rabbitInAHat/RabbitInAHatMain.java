@@ -452,19 +452,16 @@ public class RabbitInAHatMain implements ResizeListener {
 	}
 
 	private void doHideTables() {
-
-		List<String> tableNames = new ArrayList<>(ObjectExchange.etl.getSourceDatabase().getUnmaskedTables().size());
-		List<Integer> selectedIndices = ObjectExchange.etl.getSourceDatabase().getSelectedIndices();
-		for(Table table : ObjectExchange.etl.getSourceDatabase().getUnmaskedTables()){
-			tableNames.add(table.getName());
+		if (MaskListDialog.alreadyOpened()){
+			MaskListDialog.bringToFront();
+		}
+		else {
+			MaskListDialog maskListDialog = new MaskListDialog(frame);
+			maskListDialog.setMaskListPanel(tableMappingPanel);
+			maskListDialog.setVisible(true);
 		}
 
-		MaskListDialog dialog = new MaskListDialog(tableNames, selectedIndices);
-		dialog.show();
 
-		ObjectExchange.etl.getSourceDatabase().setSelectedIndices(dialog.getSelectedIndices());
-		ObjectExchange.etl.updateSourceMapping();
-		tableMappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
 	}
 
 	private void doGenerateTestFramework() {
@@ -614,6 +611,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		if (replace) {
 			ETL etl = new ETL();
 			doRemoveStemTable();
+			etl.getSourceDatabase().setSelectedIndices(null);
 			try {
 				etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
 				etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());

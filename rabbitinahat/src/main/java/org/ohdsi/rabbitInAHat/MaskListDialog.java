@@ -19,7 +19,10 @@
 package org.ohdsi.rabbitInAHat;
 
 
+import org.ohdsi.rabbitInAHat.dataModel.Table;
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
@@ -35,7 +38,12 @@ import java.util.regex.Pattern;
  */
 
 
-public class MaskListDialog {
+public class MaskListDialog extends JDialog implements ActionListener, ResizeListener  {
+
+    private static final long serialVersionUID = 7009265246652874341L;
+    private static MaskListDialog instance;
+    private MappingPanel mappingPanel;
+
     private JLabel label;
     private JOptionPane optionPane;
     private JButton okButton, cancelButton;
@@ -49,31 +57,80 @@ public class MaskListDialog {
     private ButtonGroup searchRadioGroup;
     private JTable table;
 
-    public MaskListDialog(List<String> listToDisplay, List<Integer> selectedIndices){
+    Container contentPane = this.getContentPane();
 
-        DefaultListModel checkboxListModel = new DefaultListModel();
+    public MaskListDialog(Window parentWindow) throws ExceptionInInitializerError{
+        super(parentWindow,"Hide Tables",ModalityType.MODELESS);
+        if (alreadyOpened()) {
+            throw new ExceptionInInitializerError("An instance of FilterDialog already exists");
+        }
+        this.setResizable(false);
+        this.setLocation(parentWindow.getX()+parentWindow.getWidth()/2, parentWindow.getY()+100);
+
+        label = new JLabel("select the source tables you would like to display");
+
+        contentPane.add(createOptionPane());
+
+        this.pack();
+
+        // Make sure the instance is reset to null when the search dialog window is closed
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent arg0) {
+                instance = null;
+            }
+        });
+
+        instance = this;
+    }
+
+    public static boolean alreadyOpened(){
+        return (instance != null);
+    }
+
+    public static void bringToFront(){
+        if (alreadyOpened()) {
+            instance.setVisible(true);
+            instance.toFront();
+        }
+    }
+
+    private JOptionPane createOptionPane() {
+        setupTablePane();
+        setupButtons();
+        JPanel pane = layoutComponents();
+
+        optionPane = new JOptionPane(pane);
+        optionPane.setOptions(new Object[]{okButton, cancelButton});
+
+        return optionPane;
+    }
+
+    private void setupTablePane() {
         JPanel listPanel = new JPanel();
 
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
         scrollPane = new JScrollPane();
 
+        List<String> tableNames = new ArrayList<>(ObjectExchange.etl.getSourceDatabase().getUnmaskedTables().size());
+        List<Integer> selectedIndices = ObjectExchange.etl.getSourceDatabase().getSelectedIndices();
+
+        for(Table table : ObjectExchange.etl.getSourceDatabase().getUnmaskedTables()){
+            tableNames.add(table.getName());
+        }
 
         Object[] columnNames = {"source", "selected"};
-        Object[][] data = new Object[listToDisplay.size()][2];
+        Object[][] data = new Object[selectedIndices.size()][2];
 
-        for(int i = 0; i < listToDisplay.size(); i++){
-            data[i][0] = listToDisplay.get(i);
+        for(int i = 0; i < tableNames.size(); i++){
+            data[i][0] = tableNames.get(i);
             data[i][1] = selectedIndices.contains(i);
         }
 
-
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         table = new JTable(model) {
-            /*@Override
-            public Class getColumnClass(int column) {
-            return getValueAt(0, column).getClass();
-            }*/
             @Override
             public Class getColumnClass(int column) {
                 if (column == 0) {
@@ -88,29 +145,19 @@ public class MaskListDialog {
             }
         };
         table.setEditingColumn(0);
-
+        table.getModel().addTableModelListener(new TableModelListener() {
+            public void tableChanged(TableModelEvent e) {
+                updateIndices();
+            }
+        });
 
         scrollPane = new JScrollPane(table);
 
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-
-        label = new JLabel("select the source tables you would like to display");
-        createAndDisplayOptionPane();
     }
 
-    private void createAndDisplayOptionPane(){
-        setupButtons();
-        JPanel pane = layoutComponents();
-
-        optionPane = new JOptionPane(pane);
-        optionPane.setOptions(new Object[]{okButton, cancelButton});
-
-        dialog = optionPane.createDialog("Hide Unwanted Tables");
-    }
-
-    private void setupButtons(){
-        searchField = new JTextField(16);
+    private void setupButtons() {
+        searchField = new JTextField(32);
         searchSelectButton = new JButton("Select");
         searchSelectButton.addActionListener(this::handleSelectField);
         searchDeselectButton = new JButton("Deselect");
@@ -120,7 +167,7 @@ public class MaskListDialog {
         matchCase = new JRadioButton("Match Case");
         matchCase.setSelected(true);
         regexCase = new JRadioButton("Regex");
-        searchRadioGroup =new ButtonGroup();
+        searchRadioGroup = new ButtonGroup();
         searchRadioGroup.add(matchCase);
         searchRadioGroup.add(regexCase);
 
@@ -131,8 +178,8 @@ public class MaskListDialog {
         cancelButton.addActionListener(this::handleCancelButtonClick);
     }
 
-    private JPanel layoutComponents(){
-        JPanel panel = new JPanel(new BorderLayout(5,5));
+    private JPanel layoutComponents() {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.add(label, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -158,14 +205,29 @@ public class MaskListDialog {
         return panel;
     }
 
+
+    public void setMaskListPanel(MappingPanel aMaskListPanel){
+        if (mappingPanel != null) {
+            mappingPanel.removeResizeListener(this);
+        }
+
+        mappingPanel = aMaskListPanel;
+
+        if (aMaskListPanel != null) {
+            aMaskListPanel.addResizeListener(this);
+        }
+
+    }
+
+
     private void handleOkButtonClick(ActionEvent e){
         if(okEvent != null){ okEvent.actionPerformed(e); }
-        hide();
+        instance.setVisible(false);
     }
 
     private void handleCancelButtonClick(ActionEvent e){
         if(cancelEvent != null){ cancelEvent.actionPerformed(e);}
-        hide();
+        instance.setVisible(false);
     }
 
     private void handleSelectField(ActionEvent e){
@@ -176,6 +238,7 @@ public class MaskListDialog {
         } else if(regexCase.isSelected()){
             toggleTableStatusRegexCase(true);
         }
+        updateIndices();
     }
 
 
@@ -188,7 +251,7 @@ public class MaskListDialog {
         } else if(regexCase.isSelected()){
             toggleTableStatusRegexCase(false);
         }
-
+        updateIndices();
     }
 
     // true to toggle elements on false to toggle off
@@ -212,12 +275,11 @@ public class MaskListDialog {
         }
     }
 
-
-    public void show(){ dialog.setVisible(true); }
-
-    private void hide(){ dialog.setVisible(false); }
-
-
+    private void updateIndices(){
+        ObjectExchange.etl.getSourceDatabase().setSelectedIndices(getSelectedIndices());
+        ObjectExchange.etl.updateSourceMapping();
+        mappingPanel.setMapping(ObjectExchange.etl.getTableToTableMapping());
+    }
     public List<Integer> getSelectedIndices(){
         List<Integer> selectedIndices = new ArrayList<>();
         for(int i = 0; i < table.getRowCount(); i++){
@@ -227,4 +289,14 @@ public class MaskListDialog {
         }
         return selectedIndices;
     }
+
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+    }
+
+    @Override
+    public void notifyResized(int height, boolean minimized, boolean maximized) {
+
+    }
+
 }
