@@ -70,7 +70,7 @@ public class VerifyDistributionIT {
 
     @Test
     void verifyAllJDBCDriversLoadable() throws IOException, InterruptedException {
-        try (GenericContainer<?> javaContainer = createJavaContainer("eclipse-temurin:17")) {
+        try (GenericContainer<?> javaContainer = createJavaContainer("eclipse-temurin:17", tempDir)) {
             javaContainer.start();
             ExecResult execResult = javaContainer.execInContainer("sh", "-c",
                     String.format("cd %s/repo; java -classpath '*' org.ohdsi.databases.DBConnector", APPDIR_IN_CONTAINER));
@@ -86,8 +86,10 @@ public class VerifyDistributionIT {
         }
     }
 
-    //@Test // useful while developing/debugging, leaving in place to test again after Snowflake JDBC driver update
+    @Test
     void verifySnowflakeFailureInJava17() throws IOException, URISyntaxException, InterruptedException {
+        // only run this when a snowflake.env file is available
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
         /*
          * There is an issue with Snowflake JDBC that causes a failure in Java 16 and later
          * (see https://community.snowflake.com/s/article/JDBC-Driver-Compatibility-Issue-With-JDK-16-and-Later)
@@ -112,17 +114,23 @@ public class VerifyDistributionIT {
         String patchingFlag = "--add-opens=java.base/java.nio=ALL-UNNAMED";
         String javaOpts = String.format("JAVA_OPTS='%s'", patchingFlag);
 
+        runDistributionWithSnowflake("eclipse-temurin:8", "");
+
+        AssertionError ignoredError = Assertions.assertThrows(org.opentest4j.AssertionFailedError.class, () -> {
+            runDistributionWithSnowflake("eclipse-temurin:8", javaOpts);
+        });
+
         // verify that the flag as set in the whiteRabbit script does not have an adversary effect when running with Java 11
         // note that this flag is not supported by Java 8 (1.8)
-        runDistributionWithSnowflake("eclipse-temurin:11",javaOpts);
+        runDistributionWithSnowflake("eclipse-temurin:11", javaOpts);
 
         // verify that the failure occurs when running with Java 17, without the flag
-        AssertionError ignoredError = Assertions.assertThrows(org.opentest4j.AssertionFailedError.class, () -> {
+        ignoredError = Assertions.assertThrows(org.opentest4j.AssertionFailedError.class, () -> {
             runDistributionWithSnowflake("eclipse-temurin:17","");
         });
 
         // finally, verify that passing the flag fixes the failure when running wuth Java 17
-        runDistributionWithSnowflake("eclipse-temurin:17",javaOpts);
+        runDistributionWithSnowflake("eclipse-temurin:17", javaOpts);
     }
 
     void runDistributionWithSnowflake(String javaImageName, String javaOpts) throws IOException, InterruptedException, URISyntaxException {
@@ -133,7 +141,7 @@ public class VerifyDistributionIT {
             prepareSnowflakeTestData(testContainer, reader);
             testContainer.stop();
 
-            try (GenericContainer<?> javaContainer = createJavaContainer(javaImageName)) {
+            try (GenericContainer<?> javaContainer = createJavaContainer(javaImageName, tempDir)) {
                 javaContainer.start();
                 Charset charset = StandardCharsets.UTF_8;
                 Path iniFile = tempDir.resolve("snowflake.ini");
@@ -153,19 +161,30 @@ public class VerifyDistributionIT {
                 ExecResult execResult = javaContainer.execInContainer("sh", "-c", String.format("ls %s", APPDIR_IN_CONTAINER));
                 assertTrue(execResult.getStdout().contains("repo"), "WhiteRabbit distribution is not accessible inside container");
 
+                javaContainer.copyFileToContainer(MountableFile.forHostPath(tempDir), WORKDIR_IN_CONTAINER);
+
                 // run whiterabbit and verify the result
                 execResult = javaContainer.execInContainer("sh", "-c",
                         String.format("%s /app/bin/whiteRabbit -ini %s/snowflake.ini", javaOpts, WORKDIR_IN_CONTAINER));
-                assertTrue(execResult.getStdout().contains("Started new scan of 2 tables..."));
-                assertTrue(execResult.getStdout().contains("Scanning table PERSON"));
-                assertTrue(execResult.getStdout().contains("Scanning table COST"));
-                assertTrue(execResult.getStdout().contains("Scan report generated: /whiterabbit/ScanReport.xlsx"));
+                verifyResultOrLog(execResult, "Started new scan of 2 tables...");
+                verifyResultOrLog(execResult, "Scanning table PERSON");
+                verifyResultOrLog(execResult, "Scanning table COST");
+                verifyResultOrLog(execResult, "Scan report generated: /whiterabbit/ScanReport.xlsx");
 
                 javaContainer.copyFileFromContainer("/whiterabbit/ScanReport.xlsx", tempDir.resolve("ScanReport.xlsx").toString());
 
                 assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.SNOWFLAKE));
             }
         }
+    }
+
+    private void verifyResultOrLog(ExecResult execResult, String expected) {
+        if (execResult.getExitCode() != 0) {
+            System.out.println("stdout:" + execResult.getStdout());
+            System.out.println("stderr:" + execResult.getStderr());
+        }
+        assertEquals(0, execResult.getExitCode());
+        assertTrue(execResult.getStdout().contains(expected));
     }
 
     // intent of this test: verify that downloading and unzipping the BigQuery JDBC dependencies
@@ -186,7 +205,7 @@ public class VerifyDistributionIT {
         try (GenericContainer<?> testContainer = createPythonContainer()) {
             testContainer.stop();
 
-            try (GenericContainer<?> javaContainer = createJavaContainer("eclipse-temurin:17")) {
+            try (GenericContainer<?> javaContainer = createJavaContainer("eclipse-temurin:17", tempDir)) {
                 javaContainer.start();
                 Charset charset = StandardCharsets.UTF_8;
                 Path iniFile = tempDir.resolve("bigquery.ini");
@@ -222,14 +241,10 @@ public class VerifyDistributionIT {
                 execResult = javaContainer.execInContainer("sh", "-c",
                         String.format("/app/bin/whiteRabbit -ini %s/bigquery.ini", WORKDIR_IN_CONTAINER));
                 assertEquals(0, execResult.getExitCode());
-                assertTrue(execResult.getStdout().contains("Started new scan of 2 tables..."));
-                assertTrue(execResult.getStdout().contains("Scanning table cost"));
-                assertTrue(execResult.getStdout().contains("Scanning table person"));
+
+                // For easier setup, do not verify results, not having a failure for the missing BigQuery JDBC jar is sufficient.
+                assertTrue(execResult.getStdout().contains("Started new scan of 0 tables..."));
                 assertTrue(execResult.getStdout().contains("Scan report generated: /whiterabbit/ScanReport.xlsx"));
-
-                javaContainer.copyFileFromContainer("/whiterabbit/ScanReport.xlsx", tempDir.resolve("ScanReport.xlsx").toString());
-
-                assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.BIGQUERY));
             }
         }
     }
@@ -251,7 +266,7 @@ public class VerifyDistributionIT {
     }
 
     private void testWhiteRabbitInContainer(String imageName, String expectedVersion) throws IOException, InterruptedException, URISyntaxException {
-        try (GenericContainer<?> javaContainer = createJavaContainer(imageName)) {
+        try (GenericContainer<?> javaContainer = createJavaContainer(imageName, tempDir)) {
             javaContainer.start();
 
             Charset charset = StandardCharsets.UTF_8;
@@ -295,12 +310,15 @@ public class VerifyDistributionIT {
         }
     }
 
-    private GenericContainer<?> createJavaContainer(String imageName) {
+    private GenericContainer<?> createJavaContainer(String imageName, Path workingDir) {
         return new GenericContainer<>(
                 DockerImageName.parse(imageName))
                 .withCommand("sh", "-c", "tail -f /dev/null")
                 .withCopyToContainer(
                         MountableFile.forHostPath("../dist/"),
-                        APPDIR_IN_CONTAINER);
+                        APPDIR_IN_CONTAINER)
+                .withCopyToContainer(
+                        MountableFile.forHostPath(workingDir),
+                        WORKDIR_IN_CONTAINER);
     }
 }

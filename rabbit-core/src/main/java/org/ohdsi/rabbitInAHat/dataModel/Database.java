@@ -25,6 +25,7 @@ import java.util.*;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.input.BOMInputStream;
 import org.ohdsi.utilities.ScanFieldName;
 import org.ohdsi.utilities.ScanSheetName;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
@@ -78,14 +79,17 @@ public class Database implements Serializable {
 		return dbName;
 	}
 
-	public static Database generateCDMModel(CDMVersion cdmVersion) {
+	public static Database generateCDMModel(CDMVersion cdmVersion) throws IOException {
 		return Database.generateModelFromCSV(Database.class.getResourceAsStream(cdmVersion.fileName), cdmVersion.fileName);
 	}
 
-	public static Database generateModelFromCSV(InputStream stream, String dbName) {
+	public static Database generateModelFromCSV(InputStream stream, String dbName) throws IOException {
 		Database database = new Database();
 
 		database.dbName = dbName.substring(0, dbName.lastIndexOf("."));
+
+		// wrap the stream with a BOM handling inputstream
+		stream = BOMInputStream.builder().setInputStream(stream).get();
 
 		Map<String, Table> nameToTable = new HashMap<>();
 		try {
