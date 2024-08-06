@@ -155,19 +155,36 @@ public interface StorageHandler {
      */
     default List<FieldInfo> fetchTableStructure(String table, ScanParameters scanParameters) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
-        ResultSet rs = getFieldNamesFromJDBC(table);
-        try {
-            while (rs.next()) {
-                FieldInfo fieldInfo = new FieldInfo(scanParameters, rs.getString("COLUMN_NAME"));
-                fieldInfo.type = rs.getString("TYPE_NAME");
+        String fieldInfoQuery = getFieldsInformationQuery(table);
+        if (fieldInfoQuery != null) {
+            logger.warn("Obtaining field metadata through SQL query: {}", fieldInfoQuery);
+            QueryResult queryResult = getDBConnection().query(fieldInfoQuery);
+            for (Row row : queryResult) {
+                FieldInfo fieldInfo = new FieldInfo(scanParameters, row.getCells().get(0));
+                fieldInfo.type = row.getCells().get(1);
                 fieldInfo.rowCount = getTableSize(table);
                 fieldInfos.add(fieldInfo);
             }
-        } catch (
-                SQLException e) {
-            throw new RuntimeException(e.getMessage());
+        } else {
+            logger.warn("Obtaining field metadata through JDBC");
+            ResultSet rs = getFieldsInformation(table);
+            try {
+                while (rs.next()) {
+                    FieldInfo fieldInfo = new FieldInfo(scanParameters, rs.getString("COLUMN_NAME"));
+                    fieldInfo.type = rs.getString("TYPE_NAME");
+                    fieldInfo.rowCount = getTableSize(table);
+                    fieldInfos.add(fieldInfo);
+                }
+            } catch (
+                    SQLException e) {
+                throw new RuntimeException(e.getMessage());
+            }
         }
         return fieldInfos;
+    }
+
+    default String getFieldsInformationQuery(String table) {
+        return null;
     }
 
     /**
@@ -179,7 +196,7 @@ public interface StorageHandler {
      * @param table name of the table to get the column names for
      * @return java.sql.ResultSet
      */
-    default ResultSet getFieldNamesFromJDBC(String table) {
+    default ResultSet getFieldsInformation(String table) {
         try {
             DatabaseMetaData metadata = getDBConnection().getMetaData();
             return metadata.getColumns(null, null, table, null);

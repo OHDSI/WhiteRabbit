@@ -20,7 +20,7 @@ package org.ohdsi.rabbitInAHat.dataModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Table implements MappableItem {
+public class Table implements MappableItem, Comparable {
 
 	private Database			db;
 	private String				name;
@@ -151,5 +151,10 @@ public class Table implements MappableItem {
 		// Backslash causes issues in excel
 		name = name.replace('/','_');
 		return name;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return this.name.compareTo(((Table) o).name);
 	}
 }

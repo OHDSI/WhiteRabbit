@@ -37,6 +37,11 @@ Technology
 White Rabbit and Rabbit in a Hat are pure Java applications. Both applications use [Apache's POI Java libraries](http://poi.apache.org/) to read and write Word and Excel files. 
 White Rabbit uses JDBC to connect to the respective databases.
 
+Intended use
+============
+Whte Rabbit and Rabbit In A hat were designed and implemented for use within a secure and trusted environment. No efforts have been made to
+encrypt or otherwise protect the passwords, parameters and results. This should be kept in mind when deploying these tools.
+
 System Requirements
 ============
 Requires Java 1.8 or higher for running, and read access to the database to be scanned. Java can be downloaded from

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.ohdsi.databases.SnowflakeHandler;
 import org.ohdsi.databases.configuration.DbType;
 import org.ohdsi.whiterabbit.WhiteRabbitMain;
 import org.slf4j.Logger;
@@ -62,6 +63,17 @@ public class SourceDataScanSnowflakeIT {
     }
 
     @Test
+    void testProcessSnowflakeFromIniWithSQLMetadata(@TempDir Path tempDir) throws URISyntaxException, IOException {
+        System.clearProperty(SnowflakeHandler.WR_USE_SNOWFLAKE_JDBC_METADATA);
+        testProcessSnowflakeFromIni(tempDir);
+    }
+
+    @Test
+    void testProcessSnowflakeFromIniWithJDBCMetadata(@TempDir Path tempDir) throws URISyntaxException, IOException {
+        System.setProperty(SnowflakeHandler.WR_USE_SNOWFLAKE_JDBC_METADATA, "true");
+        testProcessSnowflakeFromIni(tempDir);
+    }
+
     void testProcessSnowflakeFromIni(@TempDir Path tempDir) throws URISyntaxException, IOException {
         Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
         Charset charset = StandardCharsets.UTF_8;
@@ -140,8 +152,7 @@ public class SourceDataScanSnowflakeIT {
             logger.error("stderr: {}", result.getStderr());
             // hide the password, if present, so it won't appear in logs (pragmatic)
             String message = ("Command failed: " + String.join(" ", command))
-                    .replace(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****")
-                    .replace(ScanTestUtils.getEnvOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****");
+                    .replace(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****");
             assertEquals(expectedExitValue, result.getExitCode(), message);
         }
     }
