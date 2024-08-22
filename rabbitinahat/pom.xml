@@ -28,7 +28,7 @@
                     <programs>
                         <program>
                             <mainClass>org.ohdsi.rabbitInAHat.RabbitInAHatMain</mainClass>
-                            <id>rabbitInAHat</id>
+                            <id>rabbitinahat</id>
                         </program>
                     </programs>
                 </configuration>
@@ -36,13 +36,26 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <!-- version>3.2.2</version -->
                 <configuration>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <skipTests>${skipUnitTests}</skipTests>
                     <systemPropertyVariables>
                         <java.awt.headless>false</java.awt.headless>
                         <awt.toolkit>com.github.caciocavallosilano.cacio.ctc.CTCToolkit</awt.toolkit>
                         <java.awt.graphicsenv>com.github.caciocavallosilano.cacio.ctc.CTCGraphicsEnvironment</java.awt.graphicsenv>
                     </systemPropertyVariables>
                     <argLine>
+                        -Doracle.jdbc.timezoneAsRegion=false
+                        -XX:+EnableDynamicAgentLoading
+                        <!-- Line(s) below are needed to keep TestSourceDataScan.updateEnv() working in java 17+
+                             This is considered an acceptable hack since it only affects test code -->
+                        --add-exports=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                        <!-- suppress exceptions from cacio-tta, see https://github.com/CaciocavalloSilano/caciocavallo -->
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-exports java.base/java.lang.reflect=ALL-UNNAMED
                         --add-exports=java.desktop/java.awt=ALL-UNNAMED
                         --add-exports=java.desktop/java.awt.peer=ALL-UNNAMED
                         --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED
@@ -56,14 +69,64 @@
                         --add-opens=java.desktop/java.awt=ALL-UNNAMED
                         --add-opens=java.desktop/sun.java2d=ALL-UNNAMED
                         --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens java.base/java.lang=ALL-UNNAMED
                     </argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <propertyName>propertyValue</propertyName>
+                        <projectBuildDirectory>${project.build.directory}</projectBuildDirectory>
+                        <java.awt.headless>false</java.awt.headless>
+                    </systemPropertyVariables>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <skipTests>${skipIntegrationTests}</skipTests>
+                    <argLine>
+                        -XX:+EnableDynamicAgentLoading
+                        <!-- experimental workaround for Snowflake JDBC issue,
+                             see https://community.snowflake.com/s/article/JDBC-Driver-Compatibility-Issue-With-JDK-16-and-Later -->
+                        --add-opens java.base/java.nio=ALL-UNNAMED
+                        <!-- suppress exceptions from cacio-tta, see https://github.com/CaciocavalloSilano/caciocavallo -->
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-exports java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt.peer=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.java2d=ALL-UNNAMED
+                        --add-exports=java.desktop/java.awt.dnd.peer=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.event=ALL-UNNAMED
+                        --add-exports=java.desktop/sun.awt.datatransfer=ALL-UNNAMED
+                        --add-exports=java.base/sun.security.action=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.desktop/java.awt=ALL-UNNAMED
+                        --add-opens=java.desktop/sun.java2d=ALL-UNNAMED
+                        --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <!-- unpack the examples zip so that the contents can be used as test resources -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-		<version>3.1.0</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <phase>process-test-resources</phase>
@@ -77,15 +140,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.1</version>
-                <configuration>
-                    <nonFilteredFileExtensions>
-                        <nonFilteredFileExtension>csv</nonFilteredFileExtension>
-                    </nonFilteredFileExtensions>
-                </configuration>
             </plugin>
             <plugin>
                 <!-- enforce that the used dependencies support Java 1.8 -->
@@ -130,10 +184,17 @@
             <artifactId>rabbit-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -145,6 +206,12 @@
         <!-- causes warning for CVE-2020-15250 but is only used in test scope -->
         <dependency>
             <groupId>org.assertj</groupId>
+            <artifactId>assertj-swing</artifactId>
+            <version>3.17.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
             <artifactId>assertj-swing-junit</artifactId>
             <version>3.17.1</version>
             <scope>test</scope>
@@ -152,9 +219,10 @@
         <dependency>
             <groupId>com.github.caciocavallosilano</groupId>
             <artifactId>cacio-tta</artifactId>
-            <version>1.17.3</version>
+            <version>1.18</version>
             <scope>test</scope>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-antrun-plugin -->
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -163,9 +231,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.10.1</version>
+            <groupId>org.ohdsi</groupId>
+            <artifactId>whiterabbit</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -22,12 +22,11 @@ import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.ComponentDragAndDrop;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.finder.JFileChooserFinder;
+import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JFileChooserFixture;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.assertj.swing.timing.Condition;
+import org.junit.jupiter.api.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -38,7 +37,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.swing.timing.Pause.pause;
+import static org.assertj.swing.timing.Timeout.timeout;
 import static org.junit.Assert.*;
+import static org.ohdsi.rabbitInAHat.MaskListDialog.*;
 import static org.ohdsi.rabbitInAHat.RabbitInAHatMain.*;
 
 /*
@@ -48,6 +50,7 @@ import static org.ohdsi.rabbitInAHat.RabbitInAHatMain.*;
  * For debugging purposes, you can disable the annotation below to have the tests run on your screen. Be aware that
  * any interaction with mouse or keyboard can (will) disrupt the tests if they run on your screen.
  */
+
 @CacioTest
 public class TestRabbitInAHatMain {
 
@@ -55,12 +58,12 @@ public class TestRabbitInAHatMain {
 
     private final static int WIDTH = 1920;
     private final static int HEIGHT = 1080;
-    @BeforeClass
+    @BeforeAll
     public static void setupOnce() {
         System.setProperty("cacio.managed.screensize", String.format("%sx%s", WIDTH, HEIGHT));
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         String[] args = {};
         RabbitInAHatMain rabbitInAHatMain = GuiActionRunner.execute(() -> new RabbitInAHatMain(args));
@@ -69,7 +72,8 @@ public class TestRabbitInAHatMain {
         window.show(); // shows the frame to test
     }
 
-    @After
+    @AfterEach
+
     public void tearDown() {
         // uncertain if the assertions with isActive() are sufficient, but at least it's an indication the open window
         // did close
@@ -116,6 +120,37 @@ public class TestRabbitInAHatMain {
 
     @GUITest
     @Test
+    public void openAndVerifySavedETLSpecsWithHiddenTables() throws URISyntaxException {
+        // open the test ETL specification
+        openETLSpecs("scan/etl-specs.json.gz");
+        MappingPanel tablesPanel = getTablesPanel();
+
+        hideTables();
+
+        assertEquals("4 mappings are expected", 4, tablesPanel.getArrows().size());
+
+        // verify the mappings
+        verifyTableMapping(tablesPanel, "conditions.csv", "observation");
+        verifyTableMapping(tablesPanel, "conditions.csv", "condition_occurrence");
+        verifyTableMapping(tablesPanel, "encounters.csv", "observation_period");
+        verifyTableMapping(tablesPanel, "encounters.csv", "visit_occurrence");
+    }
+
+    private void hideTables() throws URISyntaxException {
+        window.menuItem(ACTION_HIDE_TABLES).click();
+        DialogFixture hideTablesDialog = window.dialog(MASK_LIST_DIALOG);
+        hideTablesDialog.moveTo(new Point(1, 1));  // avoid problems with the window being out of the boundaries of the "visible" screen
+        hideTablesDialog.textBox().setText(".csv");
+        hideTablesDialog.button(DESELECT_BUTTON).click();
+        hideTablesDialog.radioButton(REGEX_BUTTON).click();
+        hideTablesDialog.textBox().setText(".*co.*");
+        hideTablesDialog.button(SELECT_BUTTON).click();
+        hideTablesDialog.close();
+    }
+
+
+    @GUITest
+    @Test
     public void createTableMapping() throws URISyntaxException {
         openETLSpecs("scan/etl-specs.json.gz");
         MappingPanel tablesPanel = getTablesPanel();
@@ -127,11 +162,20 @@ public class TestRabbitInAHatMain {
         JFileChooserFixture fileChooser = JFileChooserFinder.findFileChooser().using(window.robot());
         assertEquals(TITLE_SELECT_FILE, fileChooser.target().getDialogTitle());
         URL etlSpecsUrl = this.getClass().getClassLoader().getResource(specName);
-        fileChooser.selectFile(new File(Objects.requireNonNull(etlSpecsUrl).toURI())).approve();
+        File specs = new File(Objects.requireNonNull(etlSpecsUrl).toURI());
+        fileChooser.setCurrentDirectory(specs.getParentFile());
+        fileChooser.selectFile(specs).approve();
         MappingPanel tablesPanel = window.panel(PANEL_TABLE_MAPPING).targetCastedTo(MappingPanel.class);
+        pause(new Condition("wait for source items to appear in the tables panel") {
+            public boolean test() {
+                return !tablesPanel.getVisibleSourceComponents().isEmpty();
+            }
+
+        }, timeout(10000));
         assertFalse("There should be source items", tablesPanel.getVisibleSourceComponents().isEmpty());
         assertFalse("There should be target items", tablesPanel.getVisibleTargetComponents().isEmpty());
     }
+
     private void verifyTableMapping(MappingPanel tablesPanel, String sourceName, String targetName) {
         LabeledRectangle sourceTable = findMappableItem(tablesPanel.getVisibleSourceComponents(), sourceName);
         LabeledRectangle targetTable = findMappableItem(tablesPanel.getVisibleTargetComponents(), targetName);
