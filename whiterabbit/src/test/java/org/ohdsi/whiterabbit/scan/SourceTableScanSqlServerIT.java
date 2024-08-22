@@ -25,6 +25,7 @@ import org.ohdsi.databases.configuration.DbType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.List;
 
@@ -42,7 +43,7 @@ class SourceTableScanSqlServerIT {
 
     @BeforeAll
     static void setUp() {
-        mssqlserver = new MSSQLServerContainer<>()
+        mssqlserver = new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/mssql/server:2019-latest"))
                 .acceptLicense()
                 .withEnv("MSSQL_PID", "Developer")
                 .withExposedPorts(1433);

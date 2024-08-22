@@ -115,6 +115,10 @@ public class DBConnection {
         }
     }
 
+    public QueryResult query(String sql) {
+        return new QueryResult(sql, this, verbose);
+    }
+
     public void execute(String sql) {
         execute(sql, false);
     }

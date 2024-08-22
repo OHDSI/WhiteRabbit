@@ -110,11 +110,11 @@ public class RabbitInAHatMain implements ResizeListener {
 	private JSplitPane				tableFieldSplitPane;
 	private JFileChooser			chooser;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		new RabbitInAHatMain(args);
 	}
 
-	public RabbitInAHatMain(String[] args) {
+	public RabbitInAHatMain(String[] args) throws IOException {
 
 		// Set look and feel to the system look and feel
 		try {
@@ -273,7 +273,13 @@ public class RabbitInAHatMain implements ResizeListener {
 				targetCDM.setSelected(true);
 			}
 			targetGroup.add(targetCDM);
-			targetDatabaseMenu.add(targetCDM).addActionListener(evt -> this.doSetTargetCDM(cdmOptions.get(optionName)));
+			targetDatabaseMenu.add(targetCDM).addActionListener(evt -> {
+                try {
+                    this.doSetTargetCDM(cdmOptions.get(optionName));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 		}
 
 		targetCDM = new JRadioButtonMenuItem(ACTION_SET_TARGET_CUSTOM);
@@ -509,7 +515,7 @@ public class RabbitInAHatMain implements ResizeListener {
 
 	}
 
-	private void doSetTargetCDM(CDMVersion cdmVersion) {
+	private void doSetTargetCDM(CDMVersion cdmVersion) throws IOException {
 		ETL etl = new ETL(ObjectExchange.etl.getSourceDatabase(), Database.generateCDMModel(cdmVersion));
 		etl.copyETLMappings(ObjectExchange.etl);
 		tableMappingPanel.setMapping(etl.getTableToTableMapping());

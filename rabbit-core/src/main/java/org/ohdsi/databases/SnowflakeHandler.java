@@ -38,6 +38,7 @@ import static org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration.*;
  */
 public enum SnowflakeHandler implements StorageHandler {
     INSTANCE();
+    public static final String WR_USE_SNOWFLAKE_JDBC_METADATA = "WR_USE_SNOWFLAKE_METADATA";
 
     DBConfiguration configuration = new SnowflakeConfiguration();
     private DBConnection snowflakeConnection = null;
@@ -98,18 +99,57 @@ public enum SnowflakeHandler implements StorageHandler {
     }
 
     public String getUseQuery(String ignoredDatabase) {
-        String useQuery = String.format("USE WAREHOUSE \"%s\";", configuration.getValue(SNOWFLAKE_WAREHOUSE).toUpperCase());
-        logger.info("SnowFlakeHandler will execute query: " + useQuery);
+        String useQuery = String.format("USE WAREHOUSE %s;", configuration.getValue(SNOWFLAKE_WAREHOUSE));
+        logger.info("SnowFlakeHandler will execute query: {}", useQuery);
         return useQuery;
     }
 
     @Override
     public String getTableSizeQuery(String tableName) {
-        return String.format("SELECT COUNT(*) FROM %s.%s.%s;", this.getDatabase(), this.getSchema(), tableName);
+        return String.format("SELECT COUNT(*) FROM %s;", resolveTableName(tableName));
     }
 
-    public String getRowSampleQuery(String table, long rowCount, long sampleSize) {
-        return String.format("SELECT * FROM %s ORDER BY RANDOM() LIMIT %s", table, sampleSize);
+    public String getRowSampleQuery(String tableName, long rowCount, long sampleSize) {
+        return String.format("SELECT * FROM %s ORDER BY RANDOM() LIMIT %s", resolveTableName(tableName), sampleSize);
+    }
+
+    private String resolveTableName(String tableName) {
+        return String.format("%s.%s.%s", this.getDatabase(), this.getSchema(), tableName);
+    }
+
+    @Override
+    public ResultSet getFieldsInformation(String tableName) {
+        try {
+            String database = this.getDatabase();
+            String schema = this.getSchema();
+            DatabaseMetaData metadata = getDBConnection().getMetaData();
+            if (metadata.storesUpperCaseIdentifiers()) {
+                database = database.toUpperCase();
+                schema = schema.toUpperCase();
+                tableName = tableName.toUpperCase();
+            } else if (metadata.storesLowerCaseIdentifiers()) {
+                database = database.toLowerCase();
+                schema = schema.toLowerCase();
+                tableName = tableName.toLowerCase();
+            }
+
+            logger.warn("Obtaining columnn information from JDBC metadata: metadata.getColumns({}, {}, {}, null)",
+                    database, schema, tableName);
+            return metadata.getColumns(database, schema, tableName, null);
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public String getFieldsInformationQuery(String tableName) {
+        if (System.getenv(WR_USE_SNOWFLAKE_JDBC_METADATA) != null || System.getProperty(WR_USE_SNOWFLAKE_JDBC_METADATA) != null) {
+            return null;    // not providing a query forces use of JDBC metadata
+        } else {
+            return String.format(
+                    "SELECT column_name, data_type FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'",
+                    this.getDatabase().toUpperCase(), this.getSchema().toUpperCase(), tableName.toUpperCase());
+        }
     }
 
     public String getTablesQuery(String database) {
