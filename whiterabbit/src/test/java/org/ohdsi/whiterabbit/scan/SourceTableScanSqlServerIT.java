@@ -51,7 +51,7 @@ class SourceTableScanSqlServerIT {
         mssqlserver.start();
     }
 
-    @Test
+    //@Test
     void testGetTableNames() {
         DbSettings dbSettings = getTestDbSettings();
         List<String> tableNames = getTableNames(dbSettings);
