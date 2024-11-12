@@ -14,8 +14,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	    <apache-poi-version>5.2.4</apache-poi-version>
         <bigquery.scope>system</bigquery.scope>
+
+        <versions-rules>file:///${project.basedir}/../maven-version-rules.xml</versions-rules>
     </properties>
 
     <build>
@@ -39,96 +40,78 @@
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
-            <version>19.23.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>sqljdbc4</artifactId>
-            <version>4.0</version>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>2.1.4</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.36</version>
         </dependency>
 
         <!-- Note: Apache poi v5.x is current incompatible with the QuickAndDirtyXLSReader-->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>${apache-poi-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>${apache-poi-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-excelant</artifactId>
-            <version>${apache-poi-version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml-lite -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml-lite</artifactId>
-            <version>${apache-poi-version}</version>
         </dependency>
         <!-- Note: Apache xmlbeans v4.x and v5.x is incompatible with Apache poi v4-->
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
-            <version>5.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.2</version>
         </dependency>
         <dependency>
             <groupId>com.cedarsoftware</groupId>
             <artifactId>json-io</artifactId>
-            <version>4.18.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.10.0</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.3.0</version>
         </dependency>
-	<dependency>
+	    <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.26.0</version>
         </dependency>
         <dependency>
             <groupId>com.healthmarketscience.jackcess</groupId>
             <artifactId>jackcess</artifactId>
-            <version>4.0.5</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ucanaccess</groupId>
             <artifactId>ucanaccess</artifactId>
-            <version>5.0.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.hsqldb</groupId>
@@ -139,19 +122,16 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>2.7.2</version>
-	    <classifier>jdk8</classifier>
+	        <classifier>jdk8</classifier>
         </dependency>
         <dependency>
             <groupId>com.amazon.redshift</groupId>
             <artifactId>redshift-jdbc42</artifactId>
-            <version>2.1.0.28</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
-            <version>1.11.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
@@ -162,37 +142,31 @@
         <dependency>
             <groupId>com.epam</groupId>
             <artifactId>parso</artifactId>
-            <version>2.0.14</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.ant/ant -->
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
-            <version>1.10.14</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
-            <version>3.15.0</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.14</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>one.util</groupId>
             <artifactId>streamex</artifactId>
-            <version>0.8.2</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

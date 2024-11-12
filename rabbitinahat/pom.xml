@@ -15,6 +15,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <versions-rules>file:///${project.basedir}/../maven-version-rules.xml</versions-rules>
     </properties>
 
     <build>
@@ -166,7 +168,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.7.0</version>
+                        <version>1.9.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -188,38 +190,32 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.25.2</version>
             <scope>test</scope>
         </dependency>
         <!-- causes warning for CVE-2020-15250 but is only used in test scope -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-swing</artifactId>
-            <version>3.17.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-swing-junit</artifactId>
-            <version>3.17.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.caciocavallosilano</groupId>
             <artifactId>cacio-tta</artifactId>
-            <version>1.18</version>
             <scope>test</scope>
         </dependency>
 
@@ -227,13 +223,12 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>3.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ohdsi</groupId>
             <artifactId>whiterabbit</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -15,6 +15,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <versions-rules>file:///${project.basedir}/../maven-version-rules.xml</versions-rules>
     </properties>
 
     <build>
@@ -166,7 +168,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.7.0</version>
+                        <version>1.9.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -180,19 +182,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers-bom</artifactId>
-                <version>1.19.4</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.15.1</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -200,18 +190,15 @@
         <dependency>
             <groupId>org.ohdsi</groupId>
             <artifactId>rabbit-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.36</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.15.1</version>
         </dependency>
 
 
@@ -231,13 +218,11 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.testcontainers/junit-jupiter -->
@@ -254,7 +239,6 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mysql</artifactId>
-            <!-- version>1.19.3</version -->
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.testcontainers/oracle-xe -->
@@ -266,7 +250,6 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mssqlserver</artifactId>
-            <version>1.19.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -279,40 +262,34 @@
         <dependency>
             <groupId>one.util</groupId>
             <artifactId>streamex</artifactId>
-            <version>0.8.2</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml-lite</artifactId>
-            <version>5.2.5</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.caciocavallosilano</groupId>
             <artifactId>cacio-tta</artifactId>
-            <version>1.18</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.assertj/assertj-swing-junit -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-swing-junit</artifactId>
-            <version>3.17.1</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.assertj/assertj-swing -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-swing</artifactId>
-            <version>3.17.1</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.21.1</version>
         </dependency>
     </dependencies>
 </project>
