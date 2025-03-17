@@ -59,7 +59,7 @@ class SourceDataScanPostgreSQLIT {
     }
 
     public static PostgreSQLContainer<?> createPostgreSQLContainer() {
-        PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:13.1")
+        PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16-alpine")
                 .withUsername("test")
                 .withPassword("test")
                 .withDatabaseName("test")
