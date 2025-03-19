@@ -1,0 +1,114 @@
+/*******************************************************************************
+ * Copyright 2023 Observational Health Data Sciences and Informatics & The Hyve
+ *
+ * This file is part of WhiteRabbit
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package org.ohdsi.whiterabbit.scan;
+
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.ohdsi.databases.*;
+import org.ohdsi.databases.configuration.DbType;
+import org.ohdsi.whiterabbit.WhiteRabbitMain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class TestSourceDataScanDatabricks {
+
+    static Logger logger = LoggerFactory.getLogger(TestSourceDataScanDatabricks.class);
+
+    final static String CONTAINER_DATA_PATH = "/scan_data";
+
+    // simple test until full configuration is implemented
+    @Test
+    public void testGetInstance() {
+        StorageHandler instance = DatabricksHandler.INSTANCE.getInstance(null);
+        List<String> tableNames = instance.getTableNames();
+        ScanParameters scanParameters = new SourceDataScan();
+        for (String tableName : tableNames) {
+            long tableSize = instance.getTableSize(tableName);
+            logger.info("Table {} has size {}", tableName, tableSize);
+            List<FieldInfo> fieldInfo = instance.fetchTableStructure(tableName, scanParameters);
+            logger.info("Table {} has {} fields", tableName, fieldInfo.size());
+            String query = instance.getRowSampleQuery(tableName, tableSize, 10);
+            logger.info("Query for table {}: {}", tableName, query);
+        }
+        System.out.println("Hold it!");
+    }
+    //@Test
+    void testProcessSnowflakeFromIniWithSQLMetadata(@TempDir Path tempDir) throws URISyntaxException, IOException {
+        System.clearProperty(SnowflakeHandler.WR_USE_SNOWFLAKE_JDBC_METADATA);
+        testProcessSnowflakeFromIni(tempDir);
+    }
+
+    //@Test
+    void testProcessSnowflakeFromIniWithJDBCMetadata(@TempDir Path tempDir) throws URISyntaxException, IOException {
+        System.setProperty(SnowflakeHandler.WR_USE_SNOWFLAKE_JDBC_METADATA, "true");
+        testProcessSnowflakeFromIni(tempDir);
+    }
+
+    void testProcessSnowflakeFromIni(@TempDir Path tempDir) throws URISyntaxException, IOException {
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
+        Charset charset = StandardCharsets.UTF_8;
+        Path iniFile = tempDir.resolve("snowflake.ini");
+        URL iniTemplate = TestSourceDataScanDatabricks.class.getClassLoader().getResource("scan_data/snowflake.ini.template");
+        URL referenceScanReport = TestSourceDataScanDatabricks.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
+        assert iniTemplate != null;
+        String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
+        content = content.replace("%WORKING_FOLDER%", tempDir.toString())
+                .replace("%SNOWFLAKE_ACCOUNT%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"))
+                .replace("%SNOWFLAKE_USER%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_USER"))
+                .replace("%SNOWFLAKE_PASSWORD%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"))
+                .replace("%SNOWFLAKE_WAREHOUSE%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"))
+                .replace("%SNOWFLAKE_DATABASE%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_DATABASE"))
+                .replace("%SNOWFLAKE_SCHEMA%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
+        Files.write(iniFile, content.getBytes(charset));
+        WhiteRabbitMain wrMain = new WhiteRabbitMain(true, new String[]{"-ini", iniFile.toAbsolutePath().toString()});
+        assert referenceScanReport != null;
+        assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.SNOWFLAKE));
+    }
+
+    private static void execAndVerifyCommand(GenericContainer<?> container, String... command) throws IOException, InterruptedException {
+        execAndVerifyCommand(container, 0, command);
+    }
+    private static void execAndVerifyCommand(GenericContainer<?> container, int expectedExitValue, String... command) throws IOException, InterruptedException {
+        org.testcontainers.containers.Container.ExecResult result;
+
+        result = container.execInContainer(command);
+        if (result.getExitCode() != expectedExitValue) {
+            logger.error("stdout: {}", result.getStdout());
+            logger.error("stderr: {}", result.getStderr());
+            // hide the password, if present, so it won't appear in logs (pragmatic)
+            String message = ("Command failed: " + String.join(" ", command))
+                    .replace(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****");
+            assertEquals(expectedExitValue, result.getExitCode(), message);
+        }
+    }
+}

@@ -18,6 +18,7 @@
 package org.ohdsi.databases.configuration;
 
 import org.apache.commons.lang.StringUtils;
+import org.ohdsi.databases.DatabricksHandler;
 import org.ohdsi.databases.StorageHandler;
 import org.ohdsi.databases.SnowflakeHandler;
 
@@ -43,7 +44,8 @@ public enum DbType {
 	BIGQUERY("BigQuery", "com.simba.googlebigquery.jdbc42.Driver", null, false),	// license does not allow inclusion with the distribution
 	AZURE("Azure", "com.microsoft.sqlserver.jdbc.SQLServerDriver"),
 	SNOWFLAKE("Snowflake", "net.snowflake.client.jdbc.SnowflakeDriver", SnowflakeHandler.INSTANCE),
-	SAS7BDAT("Sas7bdat", null);
+	SAS7BDAT("Sas7bdat", null),
+	DATABRICKS("Databricks", DatabricksHandler.DATABRICKS_JDBC_CLASSNAME, DatabricksHandler.INSTANCE);
 
 	private final String label;
 	private final String driverName;
@@ -102,7 +104,7 @@ public enum DbType {
 	 * @return Array of labels for the supported database, intended for use in a selector (like a Swing JComboBox)
 	 */
 	public static String[] pickList() {
-		return Stream.of(DELIMITED_TEXT_FILES, SAS7BDAT, MYSQL, ORACLE, SQL_SERVER, POSTGRESQL, MS_ACCESS, PDW, REDSHIFT, TERADATA, BIGQUERY, AZURE, SNOWFLAKE)
+		return Stream.of(DELIMITED_TEXT_FILES, SAS7BDAT, MYSQL, ORACLE, SQL_SERVER, POSTGRESQL, MS_ACCESS, PDW, REDSHIFT, TERADATA, BIGQUERY, AZURE, SNOWFLAKE, DATABRICKS)
 				.map(DbType::label).toArray(String[]::new);
 	}
 

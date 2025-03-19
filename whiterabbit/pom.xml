@@ -53,6 +53,8 @@
                              This is considered an acceptable hack since it only affects test code -->
                         --add-exports=java.base/java.util=ALL-UNNAMED
                         --add-opens=java.base/java.util=ALL-UNNAMED
+		        <!-- required by Databricks JDBC -->
+		        --add-opens=java.base/java.nio=ALL-UNNAMED
                         <!-- suppress exceptions from cacio-tta, see https://github.com/CaciocavalloSilano/caciocavallo -->
                         --add-opens java.base/java.lang.reflect=ALL-UNNAMED
                         --add-exports java.base/java.lang.reflect=ALL-UNNAMED
@@ -309,10 +311,10 @@
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.21.1</version>
-        </dependency>
+            <version>2.24.3</version>
+        </dependency-->
     </dependencies>
 </project>

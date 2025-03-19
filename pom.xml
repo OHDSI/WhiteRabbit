@@ -307,6 +307,10 @@
                             <name>Teradata Generic Download License</name>
                             <url>https://downloads.teradata.com/download/license/generic-download-license</url>
                         </license>
+			<license>
+			    <name>Databricks JDBC Driver License</name>
+			    <url>https://databricks.com/jdbc-odbc-driver-license</url>
+                        </license>
                     </acceptableLicenses>
                     <excludes>
                         <!-- apparently there is no license information available for sqljdbc4, even though

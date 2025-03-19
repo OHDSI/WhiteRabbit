@@ -137,7 +137,7 @@ public interface StorageHandler {
         String query = this.getTablesQuery(getDatabase());
 
 		for (Row row : new QueryResult(query, new DBConnection(this, getDbType(), false))) {
-            names.add(row.getCells().get(0));
+            names.add(row.getCells().get(this.getTableNameIndex()));
         }
 
         return names;
@@ -308,4 +308,7 @@ public interface StorageHandler {
         }
     }
 
+    default int getTableNameIndex() {
+        return 0;
+    }
 }
