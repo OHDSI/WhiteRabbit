@@ -48,51 +48,25 @@ public class TestSourceDataScanDatabricks {
 
     // simple test until full configuration is implemented
     @Test
-    public void testGetInstance() {
-        StorageHandler instance = DatabricksHandler.INSTANCE.getInstance(null);
-        List<String> tableNames = instance.getTableNames();
-        ScanParameters scanParameters = new SourceDataScan();
-        for (String tableName : tableNames) {
-            long tableSize = instance.getTableSize(tableName);
-            logger.info("Table {} has size {}", tableName, tableSize);
-            List<FieldInfo> fieldInfo = instance.fetchTableStructure(tableName, scanParameters);
-            logger.info("Table {} has {} fields", tableName, fieldInfo.size());
-            String query = instance.getRowSampleQuery(tableName, tableSize, 10);
-            logger.info("Query for table {}: {}", tableName, query);
-        }
-        System.out.println("Hold it!");
-    }
-    //@Test
-    void testProcessSnowflakeFromIniWithSQLMetadata(@TempDir Path tempDir) throws URISyntaxException, IOException {
-        System.clearProperty(SnowflakeHandler.WR_USE_SNOWFLAKE_JDBC_METADATA);
-        testProcessSnowflakeFromIni(tempDir);
-    }
-
-    //@Test
-    void testProcessSnowflakeFromIniWithJDBCMetadata(@TempDir Path tempDir) throws URISyntaxException, IOException {
-        System.setProperty(SnowflakeHandler.WR_USE_SNOWFLAKE_JDBC_METADATA, "true");
-        testProcessSnowflakeFromIni(tempDir);
-    }
-
-    void testProcessSnowflakeFromIni(@TempDir Path tempDir) throws URISyntaxException, IOException {
-        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("snowflake.env"), "Snowflake system properties file not available");
+    void testProcessDatabricksFromIni(@TempDir Path tempDir) throws URISyntaxException, IOException {
+        Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("databricks.env"), "Databricks properties file not available");
         Charset charset = StandardCharsets.UTF_8;
-        Path iniFile = tempDir.resolve("snowflake.ini");
-        URL iniTemplate = TestSourceDataScanDatabricks.class.getClassLoader().getResource("scan_data/snowflake.ini.template");
+        Path iniFile = tempDir.resolve("databricks.ini");
+        URL iniTemplate = TestSourceDataScanDatabricks.class.getClassLoader().getResource("scan_data/databricks.ini.template");
         URL referenceScanReport = TestSourceDataScanDatabricks.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
         assert iniTemplate != null;
         String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
         content = content.replace("%WORKING_FOLDER%", tempDir.toString())
-                .replace("%SNOWFLAKE_ACCOUNT%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_ACCOUNT"))
-                .replace("%SNOWFLAKE_USER%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_USER"))
-                .replace("%SNOWFLAKE_PASSWORD%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"))
-                .replace("%SNOWFLAKE_WAREHOUSE%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_WAREHOUSE"))
-                .replace("%SNOWFLAKE_DATABASE%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_DATABASE"))
-                .replace("%SNOWFLAKE_SCHEMA%", ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_SCHEMA"));
+                .replace("%DATABRICKS_SERVER%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_SERVER"))
+                .replace("%DATABRICKS_HTTP_PATH%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_HTTP_PATH"))
+                .replace("%DATABRICKS_PERSONAL_ACCESS_TOKEN%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_PERSONAL_ACCESS_TOKEN"))
+                //.replace("%DATABRICKS_CATALOG%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_CATALOG"))
+                //.replace("%DATABRICKS_SCHEMA%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_SCHEMA"))
+                ;
         Files.write(iniFile, content.getBytes(charset));
         WhiteRabbitMain wrMain = new WhiteRabbitMain(true, new String[]{"-ini", iniFile.toAbsolutePath().toString()});
         assert referenceScanReport != null;
-        assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.SNOWFLAKE));
+        assertTrue(ScanTestUtils.scanResultsSheetMatchesReference(tempDir.resolve("ScanReport.xlsx"), Paths.get(referenceScanReport.toURI()), DbType.DATABRICKS));
     }
 
     private static void execAndVerifyCommand(GenericContainer<?> container, String... command) throws IOException, InterruptedException {

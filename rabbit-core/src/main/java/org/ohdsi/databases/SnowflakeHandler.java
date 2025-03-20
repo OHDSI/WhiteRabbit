@@ -194,6 +194,7 @@ public enum SnowflakeHandler implements StorageHandler {
 
         return this.configuration;
     }
+
     public static class SnowflakeConfiguration extends DBConfiguration {
         public static final String SNOWFLAKE_ACCOUNT = "SNOWFLAKE_ACCOUNT";
         public static final String TOOLTIP_SNOWFLAKE_ACCOUNT = "Account for the Snowflake instance";

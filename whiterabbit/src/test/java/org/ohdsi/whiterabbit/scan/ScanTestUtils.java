@@ -214,6 +214,14 @@ public class ScanTestUtils {
                     case "TIMESTAMP_NTZ": case "TIMESTAMPNTZ": return reference.equals("timestamp without time zone");
                     default: throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
                 }
+            case DATABRICKS:
+                // with the current test tables, the databricks verification on data types is rather permissive; possibly a consequence of making the test data available as CSV uploads
+                switch (type) {
+                    case "BIGINT": return reference.equals("integer") || reference.equals("numeric") || reference.equals("character varying");
+                    case "STRING": return reference.equals("character varying") || reference.equals("numeric") || reference.equals("integer") || reference.equals("timestamp without time zone");
+                    default:
+                        throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
+                }
             case MYSQL:
                 switch (type) {
                     case "int":

@@ -65,13 +65,13 @@ public enum DatabricksHandler implements StorageHandler {
 
     @Override
     public String getRowSampleQuery(String tableName, long rowCount, long sampleSize) {
-        // SELECT * FROM test TABLESAMPLE (30 PERCENT) REPEATABLE (123);
-        int percentage = (int) Math.ceil((double) sampleSize / rowCount * 100);
-        if (percentage < 1) {
-            percentage = 1;
-        }
-        String query = String.format("SELECT * FROM %s TABLESAMPLE (%d PERCENT) REPEATABLE (20250318)", resolveTableName(tableName), percentage);
-        logger.info("Row sample query: {}", query);
+        return getRowSampleQueryStaticForResolvedTableName(resolveTableName(tableName), rowCount, sampleSize);
+    }
+
+    public static String getRowSampleQueryStaticForResolvedTableName(String tableName, long rowCount, long sampleSize) {
+        // sample query example: SELECT * FROM test TABLESAMPLE (30 PERCENT) REPEATABLE (123);
+        int percentage = (int) Math.min(Math.max(Math.ceil((double) sampleSize / rowCount * 100), 1), 100);
+        String query = String.format("SELECT * FROM %s TABLESAMPLE (%d PERCENT) REPEATABLE (20250318)", tableName, percentage);
         return query;
     }
 
@@ -86,7 +86,6 @@ public enum DatabricksHandler implements StorageHandler {
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException("Cannot find JDBC driver. Make sure the jar dependency for Databricks is available: " + ex.getMessage());
         }
-        //String url = buildUrl(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, INSTANCE.configuration.getValue(SNOWFLAKE_AUTHENTICATOR));
         String url = buildUrl();
         try {
             return new DBConnection(DriverManager.getConnection(url), DbType.DATABRICKS, true);
@@ -192,12 +191,8 @@ public enum DatabricksHandler implements StorageHandler {
         final String jdbcPrefix = "jdbc:databricks://";
         String server = configuration.getValue(DATABRICKS_SERVER);
         String url = (!server.startsWith(jdbcPrefix) ? jdbcPrefix : "") + server;
-        /*if (!url.contains("?")) {
-            url += "?";
-        }*/
         url += ":443/default;transportMode=http;ssl=1;AuthMech=3";
 
-        //String[] parts = splitDatabaseName(schema);
         url = appendParameterIfSet(url, "httpPath", configuration.getValue(DATABRICKS_HTTP_PATH));
         url = appendParameterIfSet(url, "PWD", configuration.getValue(DATABRICKS_PERSONAL_ACCESS_TOKEN));
         url = appendParameterIfSet(url, "ConnCatalog", configuration.getValue(DATABRICKS_CATALOG));
@@ -207,6 +202,10 @@ public enum DatabricksHandler implements StorageHandler {
         } else {
             url = appendParameterIfSet(url, "password", password);
         }*/
+
+        // disable Apache Arrow as it causes issues with logging
+        // see: https://stackoverflow.com/questions/74467671/azure-databricks-logging-configuration-problems
+        url += ";EnableArrow=0";
 
         return url;
     }
