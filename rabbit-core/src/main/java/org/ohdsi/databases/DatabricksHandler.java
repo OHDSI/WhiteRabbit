@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.ohdsi.databases.DatabricksHandler.DatabricksConfiguration.*;
+import static org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration.SNOWFLAKE_WAREHOUSE;
 
 public enum DatabricksHandler implements StorageHandler {
     INSTANCE();
@@ -60,7 +61,9 @@ public enum DatabricksHandler implements StorageHandler {
 
     @Override
     public String getTablesQuery(String database) {
-        return "SHOW TABLES IN default"; // TODO: this is hardcoded to the default database/schema
+        String getTablesQuery = String.format("SHOW TABLES IN %s.%s", configuration.getValue(DATABRICKS_CATALOG), configuration.getValue(DATABRICKS_SCHEMA));
+        logger.info("DatabricksHandler will execute query: {}", getTablesQuery);
+        return getTablesQuery;
     }
 
     @Override
@@ -72,6 +75,7 @@ public enum DatabricksHandler implements StorageHandler {
         // sample query example: SELECT * FROM test TABLESAMPLE (30 PERCENT) REPEATABLE (123);
         int percentage = (int) Math.min(Math.max(Math.ceil((double) sampleSize / rowCount * 100), 1), 100);
         String query = String.format("SELECT * FROM %s TABLESAMPLE (%d PERCENT) REPEATABLE (20250318)", tableName, percentage);
+        logger.info("DatabricksHandler sample query: {}", query);
         return query;
     }
 
@@ -95,6 +99,11 @@ public enum DatabricksHandler implements StorageHandler {
     }
 
     @Override
+    public String getFieldsInformationQuery(String table) {
+        return String.format("DESCRIBE TABLE %s;", resolveTableName(table));
+    }
+
+    @Override
     public int getTableNameIndex() {
         return 1;
     }
@@ -108,6 +117,9 @@ public enum DatabricksHandler implements StorageHandler {
         public static final String DATABRICKS_CATALOG = "DATABRICKS_CATALOG";
         //public static final String SNOWFLAKE_DATABASE = "SNOWFLAKE_DATABASE";
         public static final String DATABRICKS_SCHEMA = "DATABRICKS_SCHEMA";
+
+        private String catalog;
+        private String schema;
 
         //public static final String ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR = "Either password or authenticator must be specified for Snowflake";
         //public static final String ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR = "Specify only one of password or authenticator Snowflake";
@@ -131,11 +143,13 @@ public enum DatabricksHandler implements StorageHandler {
                     ConfigurationField.create(
                                     DATABRICKS_CATALOG,
                                     "Catalog",
-                                    "Catalog for the Databricks instance"),
+                                    "Catalog for the Databricks instance")
+                            .required(),
                     ConfigurationField.create(
                                     DATABRICKS_SCHEMA,
                                     "Schema",
                                     "Schema for the Databricks instance")
+                            .required()
                     /* ConfigurationField.create(
                                     SNOWFLAKE_AUTHENTICATOR,
                                     "Authenticator method",
@@ -163,7 +177,6 @@ public enum DatabricksHandler implements StorageHandler {
         public DbSettings toDbSettings(ValidationFeedback feedback) {
             return getConfiguration(this.toIniFile(),feedback ).getItem2();
         }
-
     }
 
     public static Pair<DatabricksHandler.DatabricksConfiguration, DbSettings> getConfiguration(IniFile iniFile, ValidationFeedback feedback) {
@@ -176,11 +189,11 @@ public enum DatabricksHandler implements StorageHandler {
         DbSettings dbSettings = new DbSettings();
         dbSettings.dbType = DbType.DATABRICKS;
         dbSettings.server = String.format("%s:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=%s;", configuration.getValue(DATABRICKS_SERVER), configuration.getValue(DATABRICKS_HTTP_PATH));
-        dbSettings.database = String.format("%s.%s",
-                configuration.getValue(DATABRICKS_CATALOG),
-                configuration.getValue(DATABRICKS_SCHEMA));
+        configuration.catalog = configuration.getValue(DATABRICKS_CATALOG);
+        configuration.schema = configuration.getValue(DATABRICKS_SCHEMA);
+        dbSettings.database = String.format("%s.%s", configuration.catalog, configuration.schema);
         dbSettings.domain = dbSettings.database;
-        dbSettings.user = "";
+        dbSettings.user = null; // no user for Databricks
         dbSettings.password = configuration.getValue(DATABRICKS_PERSONAL_ACCESS_TOKEN);
         dbSettings.sourceType = DbSettings.SourceType.DATABASE;
 
@@ -207,6 +220,8 @@ public enum DatabricksHandler implements StorageHandler {
         // see: https://stackoverflow.com/questions/74467671/azure-databricks-logging-configuration-problems
         url += ";EnableArrow=0";
 
+        logger.info("Databricks JDBC URL: {}", url);
+
         return url;
     }
     private static String appendParameterIfSet(String url, String name, String value) {
@@ -220,6 +235,7 @@ public enum DatabricksHandler implements StorageHandler {
     }
 
     private String resolveTableName(String tableName) {
-        return tableName;
+        String resolvedTableName = String.format("%s.%s.%s", configuration.getValue(DATABRICKS_CATALOG), configuration.getValue(DATABRICKS_SCHEMA), tableName);
+        return resolvedTableName;
     }
 }

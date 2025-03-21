@@ -154,7 +154,7 @@ public class ScanTestUtils {
                     scannedData.get(row).get(column).equals("28.0") &&
                     referenceData.get(row).get(column).equals("29.0")
             ) {
-                // this is a knopwn difference that will not show up in a dev environment, but it
+                // this is a known difference that will not show up in a dev environment, but it
                 // does show up in Github actions
                 return true;
             }
@@ -166,7 +166,7 @@ public class ScanTestUtils {
                     scannedData.get(row).get(column).equals("28.0") &&
                     referenceData.get(row).get(column).equals("29.0")
             ) {
-                // this is a knopwn difference that will not show up in a dev environment, but it
+                // this is a known difference that will not show up in a dev environment, but it
                 // does show up in Github actions
                 return true;
             }
@@ -215,11 +215,14 @@ public class ScanTestUtils {
                     default: throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
                 }
             case DATABRICKS:
-                // with the current test tables, the databricks verification on data types is rather permissive; possibly a consequence of making the test data available as CSV uploads
                 switch (type) {
-                    case "BIGINT": return reference.equals("integer") || reference.equals("numeric") || reference.equals("character varying");
-                    case "STRING": return reference.equals("character varying") || reference.equals("numeric") || reference.equals("integer") || reference.equals("timestamp without time zone");
+                    case "bigint": return reference.equals("integer") || reference.equals("numeric");
+                    case "string": return reference.equals("character varying");
+                    case "timestamp_ntz": return reference.equals("timestamp without time zone");
                     default:
+                        if (type.startsWith("decimal(")) {
+                            return reference.equals("numeric");
+                        }
                         throw new RuntimeException(String.format("Unsupported column type '%s' for DbType %s ", type, dbType.name()));
                 }
             case MYSQL:

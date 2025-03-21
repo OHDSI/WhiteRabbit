@@ -35,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,9 +43,6 @@ public class TestSourceDataScanDatabricks {
 
     static Logger logger = LoggerFactory.getLogger(TestSourceDataScanDatabricks.class);
 
-    final static String CONTAINER_DATA_PATH = "/scan_data";
-
-    // simple test until full configuration is implemented
     @Test
     void testProcessDatabricksFromIni(@TempDir Path tempDir) throws URISyntaxException, IOException {
         Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("databricks.env"), "Databricks properties file not available");
@@ -60,9 +56,8 @@ public class TestSourceDataScanDatabricks {
                 .replace("%DATABRICKS_SERVER%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_SERVER"))
                 .replace("%DATABRICKS_HTTP_PATH%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_HTTP_PATH"))
                 .replace("%DATABRICKS_PERSONAL_ACCESS_TOKEN%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_PERSONAL_ACCESS_TOKEN"))
-                //.replace("%DATABRICKS_CATALOG%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_CATALOG"))
-                //.replace("%DATABRICKS_SCHEMA%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_SCHEMA"))
-                ;
+                .replace("%DATABRICKS_CATALOG%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_CATALOG"))
+                .replace("%DATABRICKS_SCHEMA%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_SCHEMA"));
         Files.write(iniFile, content.getBytes(charset));
         WhiteRabbitMain wrMain = new WhiteRabbitMain(true, new String[]{"-ini", iniFile.toAbsolutePath().toString()});
         assert referenceScanReport != null;

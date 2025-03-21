@@ -155,6 +155,7 @@ public interface StorageHandler {
      */
     default List<FieldInfo> fetchTableStructure(String table, ScanParameters scanParameters) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
+        long rowCount = getTableSize(table);
         String fieldInfoQuery = getFieldsInformationQuery(table);
         if (fieldInfoQuery != null) {
             logger.warn("Obtaining field metadata through SQL query: {}", fieldInfoQuery);
@@ -162,7 +163,7 @@ public interface StorageHandler {
             for (Row row : queryResult) {
                 FieldInfo fieldInfo = new FieldInfo(scanParameters, row.getCells().get(0));
                 fieldInfo.type = row.getCells().get(1);
-                fieldInfo.rowCount = getTableSize(table);
+                fieldInfo.rowCount = rowCount;
                 fieldInfos.add(fieldInfo);
             }
         } else {
@@ -172,7 +173,7 @@ public interface StorageHandler {
                 while (rs.next()) {
                     FieldInfo fieldInfo = new FieldInfo(scanParameters, rs.getString("COLUMN_NAME"));
                     fieldInfo.type = rs.getString("TYPE_NAME");
-                    fieldInfo.rowCount = getTableSize(table);
+                    fieldInfo.rowCount = rowCount;
                     fieldInfos.add(fieldInfo);
                 }
             } catch (

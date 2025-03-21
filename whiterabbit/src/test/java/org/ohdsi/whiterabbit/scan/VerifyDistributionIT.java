@@ -63,6 +63,7 @@ public class VerifyDistributionIT {
     void testDistributionWithJava11() throws IOException, URISyntaxException, InterruptedException {
         testWhiteRabbitInContainer("eclipse-temurin:11", "openjdk version \"11.0.");
     }
+
     @Test
     void testDistributionWithJava17() throws IOException, URISyntaxException, InterruptedException {
         testWhiteRabbitInContainer("eclipse-temurin:17", "openjdk version \"17.0.");
