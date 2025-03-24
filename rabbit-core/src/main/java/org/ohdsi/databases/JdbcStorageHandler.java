@@ -34,20 +34,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * StorageHandler defines the interface that a database connection class must implement.
+ * JdbcStorageHandler defines the interface that a database connection class must implement.
  *
  */
-public interface StorageHandler {
+public interface JdbcStorageHandler {
 
-    Logger logger = LoggerFactory.getLogger(StorageHandler.class);
+    Logger logger = LoggerFactory.getLogger(JdbcStorageHandler.class);
 
     /**
      * Creates an instance of the implementing class, or can return the singleton for.
      *
      * @param dbSettings Configuration parameters for the implemented database
-     * @return instance of a StorageHandler implementing class
+     * @return instance of a JdbcStorageHandler implementing class
      */
-    StorageHandler getInstance(DbSettings dbSettings);
+    JdbcStorageHandler getInstance(DbSettings dbSettings);
 
     /**
      * Returns the DBConnection object associated with the database connection
@@ -69,12 +69,12 @@ public interface StorageHandler {
     String getTableSizeQuery(String tableName);
 
     /**
-     * Verifies if the implementing object was properly configured for use. Should throw a DBConfigurationException
+     * Verifies if the implementing object was properly configured for use. Should throw a ScanConfigurationException
      * if this is not the case.
      *
-     * @throws DBConfigurationException Object not ready for use
+     * @throws ScanConfigurationException Object not ready for use
      */
-    void checkInitialised() throws DBConfigurationException;
+    void checkInitialised() throws ScanConfigurationException;
 
     /**
      * Returns the row count of the specified table.
@@ -229,19 +229,19 @@ public interface StorageHandler {
      * @return the DbSettings object used to initialize the database connection
      */
     default DbSettings getDbSettings(ValidationFeedback feedback) {
-        return getDBConfiguration().toDbSettings(feedback);
+        return getScanConfiguration().toDbSettings(feedback);
     }
 
     /**
      * Returns a validated DbSettings object with values based on the IniFile object
      *
      * @param iniFile IniFile object containing database configuration values for the class
-     *                that implements the StorageHandler
+     *                that implements the JdbcStorageHandler
      *
      * @return DbSettings object
      */
     default DbSettings getDbSettings(IniFile iniFile, ValidationFeedback feedback, PrintStream outStream) {
-        ValidationFeedback validationFeedback = getDBConfiguration().loadAndValidateConfiguration(iniFile);
+        ValidationFeedback validationFeedback = getScanConfiguration().loadAndValidateConfiguration(iniFile);
         if (feedback != null) {
             feedback.add(validationFeedback);
         }
@@ -257,13 +257,13 @@ public interface StorageHandler {
                         outStream.printf("\t%s (%s)%n", warning, fields.stream().map(f -> f.name).collect(Collectors.joining(","))));
             }
         }
-        return getDBConfiguration().toDbSettings(feedback);
+        return getScanConfiguration().toDbSettings(feedback);
     }
 
     /**
-     * Returns the DBConfiguration object for the implementing class
+     * Returns the ScanConfiguration object for the implementing class
      */
-    DBConfiguration getDBConfiguration();
+    ScanConfiguration getScanConfiguration();
 
     default void execute(String sql) {
         execute(sql, false);

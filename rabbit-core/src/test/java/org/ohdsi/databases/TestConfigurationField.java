@@ -19,7 +19,7 @@ package org.ohdsi.databases;
 
 import org.junit.jupiter.api.Test;
 import org.ohdsi.databases.configuration.ConfigurationField;
-import org.ohdsi.databases.configuration.DBConfiguration;
+import org.ohdsi.databases.configuration.ScanConfiguration;
 import org.ohdsi.databases.configuration.FieldValidator;
 import org.ohdsi.databases.configuration.ValidationFeedback;
 
@@ -35,7 +35,7 @@ class TestConfigurationField {
         final String REQUIRED_INTEGER_FIELD = "REQUIRED_INTEGER_FIELD";
         final String OPTIONAL_YESNO_FIELD = "OPTIONAL_YESNO_FIELD";
         final String REQUIRED_YESNO_FIELD = "REQUIRED_YESNO_FIELD";
-        DBConfiguration configuration = new DBConfiguration(
+        ScanConfiguration configuration = new ScanConfigurationForTest(
                 ConfigurationField
                         .create(REQUIRED_FIELD, REQUIRED_FIELD, "")
                         .required(),
@@ -123,7 +123,7 @@ class TestConfigurationField {
     @Test
     void testBespokeWarningValidator() {
         final String FIELD_NAME = "FieldName";
-        DBConfiguration configuration = new DBConfiguration(
+        ScanConfiguration configuration = new ScanConfigurationForTest(
                 ConfigurationField
                         .create(FIELD_NAME, FIELD_NAME, "")
                         .addValidator(new WarningValidator())

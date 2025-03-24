@@ -40,7 +40,7 @@ class TestSnowflakeHandler {
     void testPrintIniFileTemplate() throws IOException {
         String output;
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); PrintStream printStream = new PrintStream(outputStream)) {
-            DBConfiguration configuration = new SnowflakeConfiguration();
+            ScanConfiguration configuration = new SnowflakeConfiguration();
             configuration.printIniFileTemplate(printStream);
             output = outputStream.toString();
             for (ConfigurationField field: configuration.getFields()) {
@@ -55,10 +55,10 @@ class TestSnowflakeHandler {
 
     @Test
     void testLoadAndValidateConfiguration() {
-        DBConfiguration snowflakeConfiguration = new SnowflakeConfiguration();
+        ScanConfiguration snowflakeConfiguration = new SnowflakeConfiguration();
         IniFile iniFile = new IniFile();
 
-        iniFile.set(DBConfiguration.DATA_TYPE_FIELD, DbType.SNOWFLAKE.name());
+        iniFile.set(ScanConfiguration.DATA_TYPE_FIELD, DbType.SNOWFLAKE.name());
 
         // start with no values set, should generate an error for each required field
         ValidationFeedback feedback = snowflakeConfiguration.loadAndValidateConfiguration(iniFile);

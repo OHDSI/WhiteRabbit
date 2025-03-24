@@ -18,7 +18,7 @@
 package org.ohdsi.utilities.files;
 
 import org.apache.commons.lang.StringUtils;
-import org.ohdsi.databases.configuration.DBConfiguration;
+import org.ohdsi.databases.configuration.ScanConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +63,6 @@ public class IniFile {
 	}
 
 	public String getDataType() {
-		return getOrFail(DBConfiguration.DATA_TYPE_FIELD);
+		return getOrFail(ScanConfiguration.DATA_TYPE_FIELD);
 	}
 }

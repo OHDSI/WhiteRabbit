@@ -12,15 +12,15 @@ import java.util.List;
 
 import static org.ohdsi.databases.DatabricksHandler.DatabricksConfiguration.*;
 
-public enum DatabricksHandler implements StorageHandler {
+public enum DatabricksHandler implements JdbcStorageHandler {
     INSTANCE();
     public static final String DATABRICKS_JDBC_CLASSNAME = "com.databricks.client.jdbc.Driver";
     private DBConnection databricksConnection = null;
-    static DBConfiguration configuration = new DatabricksConfiguration();
+    static ScanConfiguration configuration = new DatabricksConfiguration();
     public static final String ERROR_NO_FIELD_OF_TYPE = "No value was specified for type";
 
     @Override
-    public StorageHandler getInstance(DbSettings dbSettings) {
+    public JdbcStorageHandler getInstance(DbSettings dbSettings) {
         if (databricksConnection == null) {
             databricksConnection = connectToDatabricks(dbSettings);
         }
@@ -45,9 +45,9 @@ public enum DatabricksHandler implements StorageHandler {
     }
 
     @Override
-    public void checkInitialised() throws DBConfigurationException {
+    public void checkInitialised() throws ScanConfigurationException {
         if (this.databricksConnection == null) {
-            throw new DBConfigurationException("Databricks DB/connection was not initialized");
+            throw new ScanConfigurationException("Databricks DB/connection was not initialized");
         }
     }
 
@@ -81,7 +81,7 @@ public enum DatabricksHandler implements StorageHandler {
     }
 
     @Override
-    public DBConfiguration getDBConfiguration() {
+    public ScanConfiguration getScanConfiguration() {
         return configuration;
     }
 
@@ -109,7 +109,7 @@ public enum DatabricksHandler implements StorageHandler {
         return 1;
     }
 
-    public static class DatabricksConfiguration extends DBConfiguration {
+    public static class DatabricksConfiguration extends ScanConfiguration {
         public static final String DATABRICKS_SERVER = "DATABRICKS_SERVER";
         public static final String TOOLTIP_DATABRICKS_SERVER = "Server for the Databricks instance";
         public static final String DATABRICKS_HTTP_PATH = "DATABRICKS_HTTP_PATH";
