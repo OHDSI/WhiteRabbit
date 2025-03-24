@@ -62,6 +62,9 @@ instance and authentication information is provided through environment files (c
 the related tests will be skipped during the maven verify phase. Also, these files should never be committed to git,
 and they are excluded in the `.gitignore` file.
 
+Please note that for Snowflake and Databricks, a browser flow authentication can be used optionally. These flows
+are not automatically tested, they should be verified manually from the WhiteRabbit GUI.
+
 ### Snowflake
 
 There are automated tests for Snowflake, but since it is not (yet?) possible to have a local
