@@ -7,6 +7,8 @@ import org.ohdsi.utilities.files.IniFile;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.ohdsi.databases.DatabricksHandler.DatabricksConfiguration.*;
 import static org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration.SNOWFLAKE_WAREHOUSE;
@@ -113,17 +115,16 @@ public enum DatabricksHandler implements StorageHandler {
         public static final String TOOLTIP_DATABRICKS_SERVER = "Server for the Databricks instance";
         public static final String DATABRICKS_HTTP_PATH = "DATABRICKS_HTTP_PATH";
         public static final String DATABRICKS_PERSONAL_ACCESS_TOKEN = "DATABRICKS_PERSONAL_ACCESS_TOKEN";
-        //public static final String SNOWFLAKE_AUTHENTICATOR = "SNOWFLAKE_AUTHENTICATOR";
+        public static final String DATABRICKS_AUTHENTICATION_METHOD= "DATABRICKS_AUTHENTICATION_METHOD";
         public static final String DATABRICKS_CATALOG = "DATABRICKS_CATALOG";
-        //public static final String SNOWFLAKE_DATABASE = "SNOWFLAKE_DATABASE";
         public static final String DATABRICKS_SCHEMA = "DATABRICKS_SCHEMA";
 
         private String catalog;
         private String schema;
 
-        //public static final String ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR = "Either password or authenticator must be specified for Snowflake";
-        //public static final String ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR = "Specify only one of password or authenticator Snowflake";
-        //public static final String ERROR_VALUE_CAN_ONLY_BE_ONE_OF = "Error can only be one of ";
+        public static final String ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR = "Either password or authentication method must be specified";
+        public static final String ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR = "Specify only one of password or authentication method";
+        public static final String ERROR_VALUE_CAN_ONLY_BE_ONE_OF = "Error can only be one of ";
         public DatabricksConfiguration() {
             super(
                     ConfigurationField.create(
@@ -149,13 +150,13 @@ public enum DatabricksHandler implements StorageHandler {
                                     DATABRICKS_SCHEMA,
                                     "Schema",
                                     "Schema for the Databricks instance")
-                            .required()
-                    /* ConfigurationField.create(
-                                    SNOWFLAKE_AUTHENTICATOR,
+                            .required(),
+                    ConfigurationField.create(
+                                    DATABRICKS_AUTHENTICATION_METHOD,
                                     "Authenticator method",
-                                    "Snowflake JDBC authenticator method (only 'externalbrowser' is currently supported)")
+                                    "Databricks JDBC authentication method (only 'browser' is currently supported)")
                             .addValidator(new FieldValidator() {
-                                private final List<String> allowedValues = Arrays.asList("externalbrowser");
+                                private final List<String> allowedValues = Arrays.asList("browser");
                                 @Override
                                 public ValidationFeedback validate(ConfigurationField field) {
                                     ValidationFeedback feedback = new ValidationFeedback();
@@ -169,9 +170,28 @@ public enum DatabricksHandler implements StorageHandler {
                                     }
                                     return feedback;
                                 }
-                            }) */
+                            })
             );
-            //this.configurationFields.addValidator(new DatabricksHandler.SnowflakeConfiguration.PasswordXORAuthenticatorValidator());
+            this.configurationFields.addValidator(new DatabricksHandler.DatabricksConfiguration.PasswordXORAuthenticatorValidator());
+        }
+
+        static class PasswordXORAuthenticatorValidator implements ConfigurationValidator {
+
+            @Override
+            public ValidationFeedback validate(ConfigurationFields fields) {
+                ValidationFeedback feedback = new ValidationFeedback();
+                String password = fields.getValue(DATABRICKS_PERSONAL_ACCESS_TOKEN);
+                String authenticator = fields.getValue(DATABRICKS_AUTHENTICATION_METHOD);
+                if (StringUtils.isEmpty(password) && StringUtils.isEmpty(authenticator)) {
+                    feedback.addError(ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR, fields.get(DATABRICKS_PERSONAL_ACCESS_TOKEN));
+                    feedback.addError(ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR, fields.get(DATABRICKS_AUTHENTICATION_METHOD));
+                } else if (!StringUtils.isEmpty(password) && !StringUtils.isEmpty(authenticator)) {
+                    feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(DATABRICKS_PERSONAL_ACCESS_TOKEN));
+                    feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(DATABRICKS_AUTHENTICATION_METHOD));
+                }
+
+                return feedback;
+            }
         }
 
         public DbSettings toDbSettings(ValidationFeedback feedback) {
@@ -203,24 +223,30 @@ public enum DatabricksHandler implements StorageHandler {
     private static String buildUrl() {
         final String jdbcPrefix = "jdbc:databricks://";
         String server = configuration.getValue(DATABRICKS_SERVER);
+        String authenticator = configuration.getValue(DATABRICKS_AUTHENTICATION_METHOD);
         String url = (!server.startsWith(jdbcPrefix) ? jdbcPrefix : "") + server;
-        url += ":443/default;transportMode=http;ssl=1;AuthMech=3";
+        url += ":443/default;transportMode=http;ssl=1;";
+
+        if (StringUtils.isEmpty(authenticator)) {
+            url = appendParameterIfSet(url, "AuthMech", "3");
+            url = appendParameterIfSet(url, "PWD", configuration.getValue(DATABRICKS_PERSONAL_ACCESS_TOKEN));
+        } else {
+            url = appendParameterIfSet(url, "AuthMech", "11");
+            url = appendParameterIfSet(url, "Auth_Flow", "2");
+            //url = appendParameterIfSet(url, "TokenCachePassPhrase", "WhiteRabbit");
+            url = appendParameterIfSet(url, "PWD", "SomeValueForTesting");
+            url = appendParameterIfSet(url, "EnableTokenCache", "0");
+        }
+
 
         url = appendParameterIfSet(url, "httpPath", configuration.getValue(DATABRICKS_HTTP_PATH));
-        url = appendParameterIfSet(url, "PWD", configuration.getValue(DATABRICKS_PERSONAL_ACCESS_TOKEN));
         url = appendParameterIfSet(url, "ConnCatalog", configuration.getValue(DATABRICKS_CATALOG));
         url = appendParameterIfSet(url, "ConnSchema", configuration.getValue(DATABRICKS_SCHEMA));
-        /*if (!StringUtils.isEmpty(authenticator)) {
-            url = appendParameterIfSet(url, "authenticator", authenticator);
-        } else {
-            url = appendParameterIfSet(url, "password", password);
-        }*/
-
         // disable Apache Arrow as it causes issues with logging
         // see: https://stackoverflow.com/questions/74467671/azure-databricks-logging-configuration-problems
         url += ";EnableArrow=0";
 
-        logger.info("Databricks JDBC URL: {}", url);
+        //logger.info("Databricks JDBC URL: {}", url);
 
         return url;
     }
