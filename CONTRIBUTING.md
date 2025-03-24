@@ -96,8 +96,10 @@ is provided through system properties, in a file named `databricks.env` in the r
     DATABRICKS_WR_TEST_CATALOG=<Catalog to use for the tests>
     DATABRICKS_WR_TEST_SCHEMA=<Schema to use for the tests>
 
-There is no automated upload of test data yet. The folder `whiterabbit/src/test/resources/scan_data/databricks` 
-contains the SQL scripts to create the tables and data for the tests. These scripts need to be run before the 
-Databricks integration tests can be run.
+There is no automated upload of test data (yet). The folder `whiterabbit/src/test/resources/scan_data/databricks` 
+contains the scripts to create the tables and data for the tests. These scripts need to be run before the 
+Databricks integration tests can be run. For a short outline of the tools needed, and the steps to perform. see
+`whiterabbit/src/test/resources/scan_data/databricks/prepare_test_data.sh`.
+
 It is recommended that token, catalog and schema are created for these tests only, and do not relate in any way to 
 any production environment.
