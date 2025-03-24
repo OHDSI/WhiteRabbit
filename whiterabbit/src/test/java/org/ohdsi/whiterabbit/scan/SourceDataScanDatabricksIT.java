@@ -38,22 +38,22 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestSourceDataScanDatabricks {
+public class SourceDataScanDatabricksIT {
     public static final String ENV_SERVER_LABEL = "DATABRICKS_WR_TEST_SERVER";
     public static final String ENV_HTTP_PATH_LABEL = "DATABRICKS_WR_TEST_HTTP_PATH";
     public static final String ENV_PERSONAL_ACCESS_TOKEN_LABEL = "DATABRICKS_WR_TEST_PERSONAL_ACCESS_TOKEN";
     public static final String ENV_CATALOG_LABEL = "DATABRICKS_WR_TEST_CATALOG";
     public static final String ENV_SCHEMA_LABEL = "DATABRICKS_WR_TEST_SCHEMA";
 
-    static Logger logger = LoggerFactory.getLogger(TestSourceDataScanDatabricks.class);
+    static Logger logger = LoggerFactory.getLogger(SourceDataScanDatabricksIT.class);
 
     @Test
     void testProcessDatabricksFromIni(@TempDir Path tempDir) throws URISyntaxException, IOException {
         Assumptions.assumeTrue(new ScanTestUtils.PropertiesFileChecker("databricks.env"), "Databricks properties file not available");
         Charset charset = StandardCharsets.UTF_8;
         Path iniFile = tempDir.resolve("databricks.ini");
-        URL iniTemplate = TestSourceDataScanDatabricks.class.getClassLoader().getResource("scan_data/databricks.ini.template");
-        URL referenceScanReport = TestSourceDataScanDatabricks.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
+        URL iniTemplate = SourceDataScanDatabricksIT.class.getClassLoader().getResource("scan_data/databricks.ini.template");
+        URL referenceScanReport = SourceDataScanDatabricksIT.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sql.xlsx");
         assert iniTemplate != null;
         String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
         content = content.replace("%WORKING_FOLDER%", tempDir.toString())

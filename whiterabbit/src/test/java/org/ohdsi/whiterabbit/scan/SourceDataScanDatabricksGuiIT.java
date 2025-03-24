@@ -43,11 +43,11 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.ohdsi.databases.configuration.DbType.DATABRICKS;
-import static org.ohdsi.whiterabbit.scan.TestSourceDataScanDatabricks.*;
+import static org.ohdsi.whiterabbit.scan.SourceDataScanDatabricksIT.*;
 
 @ExtendWith(GUITestExtension.class)
 @CacioTest
-class TestSourceDataScanDatabricksGui {
+class SourceDataScanDatabricksGuiIT {
 
     private static FrameFixture window;
     private static Console console;
