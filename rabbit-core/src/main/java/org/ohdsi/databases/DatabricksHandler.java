@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.ohdsi.databases.DatabricksHandler.DatabricksConfiguration.*;
-import static org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration.SNOWFLAKE_WAREHOUSE;
 
 public enum DatabricksHandler implements StorageHandler {
     INSTANCE();

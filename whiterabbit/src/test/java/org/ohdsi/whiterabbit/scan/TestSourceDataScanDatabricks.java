@@ -20,7 +20,6 @@ package org.ohdsi.whiterabbit.scan;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.ohdsi.databases.*;
 import org.ohdsi.databases.configuration.DbType;
 import org.ohdsi.whiterabbit.WhiteRabbitMain;
 import org.slf4j.Logger;
@@ -40,6 +39,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestSourceDataScanDatabricks {
+    public static final String ENV_SERVER_LABEL = "DATABRICKS_WR_TEST_SERVER";
+    public static final String ENV_HTTP_PATH_LABEL = "DATABRICKS_WR_TEST_HTTP_PATH";
+    public static final String ENV_PERSONAL_ACCESS_TOKEN_LABEL = "DATABRICKS_WR_TEST_PERSONAL_ACCESS_TOKEN";
+    public static final String ENV_CATALOG_LABEL = "DATABRICKS_WR_TEST_CATALOG";
+    public static final String ENV_SCHEMA_LABEL = "DATABRICKS_WR_TEST_SCHEMA";
 
     static Logger logger = LoggerFactory.getLogger(TestSourceDataScanDatabricks.class);
 
@@ -53,11 +57,11 @@ public class TestSourceDataScanDatabricks {
         assert iniTemplate != null;
         String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
         content = content.replace("%WORKING_FOLDER%", tempDir.toString())
-                .replace("%DATABRICKS_SERVER%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_SERVER"))
-                .replace("%DATABRICKS_HTTP_PATH%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_HTTP_PATH"))
-                .replace("%DATABRICKS_PERSONAL_ACCESS_TOKEN%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_PERSONAL_ACCESS_TOKEN"))
-                .replace("%DATABRICKS_CATALOG%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_CATALOG"))
-                .replace("%DATABRICKS_SCHEMA%", ScanTestUtils.getPropertyOrFail("DATABRICKS_WR_TEST_SCHEMA"));
+                .replace("%DATABRICKS_SERVER%", ScanTestUtils.getPropertyOrFail(ENV_SERVER_LABEL))
+                .replace("%DATABRICKS_HTTP_PATH%", ScanTestUtils.getPropertyOrFail(ENV_HTTP_PATH_LABEL))
+                .replace("%DATABRICKS_PERSONAL_ACCESS_TOKEN%", ScanTestUtils.getPropertyOrFail(ENV_PERSONAL_ACCESS_TOKEN_LABEL))
+                .replace("%DATABRICKS_CATALOG%", ScanTestUtils.getPropertyOrFail(ENV_CATALOG_LABEL))
+                .replace("%DATABRICKS_SCHEMA%", ScanTestUtils.getPropertyOrFail(ENV_SCHEMA_LABEL));
         Files.write(iniFile, content.getBytes(charset));
         WhiteRabbitMain wrMain = new WhiteRabbitMain(true, new String[]{"-ini", iniFile.toAbsolutePath().toString()});
         assert referenceScanReport != null;
@@ -67,6 +71,7 @@ public class TestSourceDataScanDatabricks {
     private static void execAndVerifyCommand(GenericContainer<?> container, String... command) throws IOException, InterruptedException {
         execAndVerifyCommand(container, 0, command);
     }
+
     private static void execAndVerifyCommand(GenericContainer<?> container, int expectedExitValue, String... command) throws IOException, InterruptedException {
         org.testcontainers.containers.Container.ExecResult result;
 
@@ -76,7 +81,7 @@ public class TestSourceDataScanDatabricks {
             logger.error("stderr: {}", result.getStderr());
             // hide the password, if present, so it won't appear in logs (pragmatic)
             String message = ("Command failed: " + String.join(" ", command))
-                    .replace(ScanTestUtils.getPropertyOrFail("SNOWFLAKE_WR_TEST_PASSWORD"), "*****");
+                    .replace(ScanTestUtils.getPropertyOrFail(ENV_PERSONAL_ACCESS_TOKEN_LABEL), "*****");
             assertEquals(expectedExitValue, result.getExitCode(), message);
         }
     }
