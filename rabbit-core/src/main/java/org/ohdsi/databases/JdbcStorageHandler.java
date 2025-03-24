@@ -147,7 +147,7 @@ public interface JdbcStorageHandler {
      * Fetches the structure of a table as a list of FieldInfo objects.
      *
      * The default implementation should work for some/most/all JDBC databases and only needs to be overridden
-     * for databases where this is not the case.
+     * for databases where this is not the case, or where a more efficient method is available.
      *
      * @param table name of the table to fetch the structure for
      * @param scanParameters parameters that are to be used for scanning the table
@@ -309,6 +309,11 @@ public interface JdbcStorageHandler {
         }
     }
 
+    /**
+     * Returns the index of the column in the result set that contains the table name.
+     *
+     * @return index of the column in the result set that contains the table name
+     */
     default int getTableNameIndex() {
         return 0;
     }

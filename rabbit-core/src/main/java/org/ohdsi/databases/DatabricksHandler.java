@@ -12,6 +12,9 @@ import java.util.List;
 
 import static org.ohdsi.databases.DatabricksHandler.DatabricksConfiguration.*;
 
+/**
+ * DatabricksHandler provides the implementation of JdbcStorageHandler for access to Databricks cloud data platform
+ */
 public enum DatabricksHandler implements JdbcStorageHandler {
     INSTANCE();
     public static final String DATABRICKS_JDBC_CLASSNAME = "com.databricks.client.jdbc.Driver";
@@ -63,7 +66,6 @@ public enum DatabricksHandler implements JdbcStorageHandler {
     @Override
     public String getTablesQuery(String database) {
         String getTablesQuery = String.format("SHOW TABLES IN %s.%s", configuration.getValue(DATABRICKS_CATALOG), configuration.getValue(DATABRICKS_SCHEMA));
-        logger.info("DatabricksHandler will execute query: {}", getTablesQuery);
         return getTablesQuery;
     }
 
@@ -72,6 +74,10 @@ public enum DatabricksHandler implements JdbcStorageHandler {
         return getRowSampleQueryStaticForResolvedTableName(resolveTableName(tableName), rowCount, sampleSize);
     }
 
+    // This method is static so that it can be tested without instantiating the class (which requires
+    // a connection to a Databricks instance
+    //
+    // The query used has been tested (by observation) to provide a distributed random sample of the data
     public static String getRowSampleQueryStaticForResolvedTableName(String tableName, long rowCount, long sampleSize) {
         // sample query example: SELECT * FROM test TABLESAMPLE (30 PERCENT) REPEATABLE (123);
         int percentage = (int) Math.min(Math.max(Math.ceil((double) sampleSize / rowCount * 100), 1), 100);
@@ -109,6 +115,9 @@ public enum DatabricksHandler implements JdbcStorageHandler {
         return 1;
     }
 
+    /**
+     * Implementation of the parameters required to connect to a Databricks instance
+     */
     public static class DatabricksConfiguration extends ScanConfiguration {
         public static final String DATABRICKS_SERVER = "DATABRICKS_SERVER";
         public static final String TOOLTIP_DATABRICKS_SERVER = "Server for the Databricks instance";
@@ -150,6 +159,10 @@ public enum DatabricksHandler implements JdbcStorageHandler {
                                     "Schema",
                                     "Schema for the Databricks instance")
                             .required(),
+                    /*
+                     * optionally, a connection can be authenticated through a browser flow, useful
+                     * in cases where a user has only been allowed access through a browser based login
+                     */
                     ConfigurationField.create(
                                     DATABRICKS_AUTHENTICATION_METHOD,
                                     "Authenticator method",
@@ -171,11 +184,13 @@ public enum DatabricksHandler implements JdbcStorageHandler {
                                 }
                             })
             );
-            this.configurationFields.addValidator(new DatabricksHandler.DatabricksConfiguration.PasswordXORAuthenticatorValidator());
+            this.configurationFields.addValidator(new PersonalAccessTokenXORAuthenticationFlowValidator());
         }
 
-        static class PasswordXORAuthenticatorValidator implements ConfigurationValidator {
-
+        /*
+         * validates that only one of personal access token or browser flow authentication is set
+         */
+        static class PersonalAccessTokenXORAuthenticationFlowValidator implements ConfigurationValidator {
             @Override
             public ValidationFeedback validate(ConfigurationFields fields) {
                 ValidationFeedback feedback = new ValidationFeedback();

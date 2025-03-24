@@ -52,9 +52,15 @@ These are used for testing of the main White Rabbit and Rabbit in a Hat features
 ### Database support
 
 If you are considering adding support for a new type of database, it is recommended to follow the pattern as used
-by the SnowflakeHandler class, which extends the StorageHandler interface. This way, the brand/database specific code
+by the SnowflakeHandler class, which extends the JdbcStorageHandler interface. This way, the brand/database specific code
 is isolated into one class, instead of through the code paths that implement support for the 
 databases that were added earlier. This will lead to clearer code, that will also be easier to test and debug.
+
+For a number of (cloud) databases, integration tests are available. These tests will only run if the necessary
+instance and authentication information is provided through environment files (currently `snowflake.env` and 
+`databricks.env`). These files, if provided, should exist in the root directory of the project. If they do not exist,
+the related tests will be skipped during the maven verify phase. Also, these files should never be committed to git,
+and they are excluded in the `.gitignore` file.
 
 ### Snowflake
 
@@ -75,5 +81,20 @@ It is recommended that user, password, database and schema are created for these
 and do not relate in any way to any production environment.
 The schema should not contain any tables when the test is started.
 
-It is possible to skip the Snowflake tests without failing the build by passing
-`-Dohdsi.org.whiterabbit.skip_snowflake_tests=1` to maven.
+### Databricks
+
+Like Snowflake, Databricks is a cloud-based service for which it is not (yet?) possible to have a local
+test instance. The Databricks tests will only run if the following information
+is provided through system properties, in a file named `databricks.env` in the root directory of the project:
+
+    DATABRICKS_WR_TEST_SERVER=<Databricks instance server url>
+    DATABRICKS_WR_TEST_HTTP_PATH=<Databricks Http Path for the instance>
+    DATABRICKS_WR_TEST_PERSONAL_ACCESS_TOKEN=<Personal Access Token for the instance>
+    DATABRICKS_WR_TEST_CATALOG=<Catalog to use for the tests>
+    DATABRICKS_WR_TEST_SCHEMA=<Schema to use for the tests>
+
+There is no automated upload of test data yet. The folder `whiterabbit/src/test/resources/scan_data/databricks` 
+contains the SQL scripts to create the tables and data for the tests. These scripts need to be run before the 
+Databricks integration tests can be run.
+It is recommended that token, catalog and schema are created for these tests only, and do not relate in any way to 
+any production environment.
