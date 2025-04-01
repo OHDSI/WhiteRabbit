@@ -81,7 +81,7 @@ public enum DatabricksHandler implements JdbcStorageHandler {
     public static String getRowSampleQueryStaticForResolvedTableName(String tableName, long rowCount, long sampleSize) {
         // sample query example: SELECT * FROM test TABLESAMPLE (30 PERCENT) REPEATABLE (123);
         int percentage = (int) Math.min(Math.max(Math.ceil((double) sampleSize / rowCount * 100), 1), 100);
-        String query = String.format("SELECT * FROM %s TABLESAMPLE (%d PERCENT) REPEATABLE (20250318)", tableName, percentage);
+        String query = String.format("SELECT * FROM %s TABLESAMPLE (%d PERCENT) REPEATABLE (20250318) LIMIT %d", tableName, percentage, sampleSize);
         logger.info("DatabricksHandler sample query: {}", query);
         return query;
     }
@@ -113,6 +113,13 @@ public enum DatabricksHandler implements JdbcStorageHandler {
     @Override
     public int getTableNameIndex() {
         return 1;
+    }
+
+    @Override
+    public boolean columnIsComment(String columnName) {
+        // in DataBricks, columns can appear having their name start with a hash (#)
+        // these are not part of the proper table schema.
+        return columnName.startsWith("#");
     }
 
     /**

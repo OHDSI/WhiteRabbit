@@ -161,20 +161,14 @@ public interface JdbcStorageHandler {
             logger.warn("Obtaining field metadata through SQL query: {}", fieldInfoQuery);
             QueryResult queryResult = getDBConnection().query(fieldInfoQuery);
             for (Row row : queryResult) {
-                FieldInfo fieldInfo = new FieldInfo(scanParameters, row.getCells().get(0));
-                fieldInfo.type = row.getCells().get(1);
-                fieldInfo.rowCount = rowCount;
-                fieldInfos.add(fieldInfo);
+                addFieldInfo(fieldInfos, scanParameters, row.getCells().get(0), row.getCells().get(1), rowCount);
             }
         } else {
             logger.warn("Obtaining field metadata through JDBC");
             ResultSet rs = getFieldsInformation(table);
             try {
                 while (rs.next()) {
-                    FieldInfo fieldInfo = new FieldInfo(scanParameters, rs.getString("COLUMN_NAME"));
-                    fieldInfo.type = rs.getString("TYPE_NAME");
-                    fieldInfo.rowCount = rowCount;
-                    fieldInfos.add(fieldInfo);
+                    addFieldInfo(fieldInfos, scanParameters, rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"), rowCount);
                 }
             } catch (
                     SQLException e) {
@@ -182,6 +176,15 @@ public interface JdbcStorageHandler {
             }
         }
         return fieldInfos;
+    }
+
+    default void addFieldInfo(List<FieldInfo> fieldInfos, ScanParameters scanParameters, String columnName, String type, long rowCount) {
+        if (!columnIsComment(columnName)) {
+            FieldInfo fieldInfo = new FieldInfo(scanParameters, columnName);
+            fieldInfo.type = type;
+            fieldInfo.rowCount = rowCount;
+            fieldInfos.add(fieldInfo);
+        }
     }
 
     default String getFieldsInformationQuery(String table) {
@@ -307,6 +310,10 @@ public interface JdbcStorageHandler {
                 }
             }
         }
+    }
+
+    default boolean columnIsComment(String colunmName) {
+        return false;
     }
 
     /**
