@@ -84,7 +84,7 @@ Use the “Pick Folder” button to navigate in your local environment where you
 
 Here you can specify the location of the source data.
 The following source types are supported:
-   delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure, Snowflake.
+   delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure, Snowflake, Databricks.
 Below are connection instructions for each data type of data source.
 Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.
 
@@ -177,6 +177,21 @@ Authentication via service account credentials:
   * _**Authentication method:**_ authentication method to be used. Currently only the value 'externalbrowser' is supported
 
 Please note that the fields _**Password**_ and _**Authentication method**_ are mutually exclusive: for only one of these fields
+a value should be supplied. A warning will be given when a value is supplied for both fields.
+
+#### Databricks
+
+Please see [this page](https://docs.databricks.com/aws/en/integrations/compute-details) for information on some of the parameters needed to connect to Databricks.
+For a Personal Access Token, see [this page](https://docs.databricks.com/dev-tools/api/latest/authentication.html#generate-a-token).
+
+  * _**Server:**_ the server address string 
+  * _**HTTP path:**_ HTTP path to the Databricks workspace (e.g. "/sql/protocolv1/o/1234567890123456/0123-456789-abcde1234567890")
+  * _**Catalog:**_ the catalog to be used
+  * _**Schema:**_ the schema to be used
+  * _**Authentication method:**_ the text "browser" if you want to used the browser for authentication, or empty if you want to use a personal access token.
+  * _**Personal Access Token:**_ Personal Access Token (PAT) to be used for authentication
+
+Please note that the fields _**Authentication method**_ and _**Personal Access Token**_ are mutually exclusive: for only one of these fields
 a value should be supplied. A warning will be given when a value is supplied for both fields.
 
 #### Teradata

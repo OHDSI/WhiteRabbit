@@ -202,8 +202,8 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
         public static final String SNOWFLAKE_WAREHOUSE = "SNOWFLAKE_WAREHOUSE";
         public static final String SNOWFLAKE_DATABASE = "SNOWFLAKE_DATABASE";
         public static final String SNOWFLAKE_SCHEMA = "SNOWFLAKE_SCHEMA";
-        public static final String ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR = "Either password or authenticator must be specified for Snowflake";
-        public static final String ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR = "Specify only one of password or authenticator Snowflake";
+        public static final String ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR = "Either password or authentication method must be specified for Snowflake";
+        public static final String ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR = "Specify only one of password or authentication method Snowflake";
         public static final String ERROR_VALUE_CAN_ONLY_BE_ONE_OF = "Error can only be one of ";
         public SnowflakeConfiguration() {
             super(
@@ -238,8 +238,8 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
                         .required(),
                 ConfigurationField.create(
                         SNOWFLAKE_AUTHENTICATOR,
-                        "Authenticator method",
-                        "Snowflake JDBC authenticator method (only 'externalbrowser' is currently supported)")
+                        "Authentication method",
+                        "Snowflake JDBC authentication method (only 'externalbrowser' is currently supported)")
                         .addValidator(new FieldValidator() {
                             private final List<String> allowedValues = Arrays.asList("externalbrowser");
                             @Override

@@ -153,10 +153,6 @@ public enum DatabricksHandler implements JdbcStorageHandler {
                                     "HTTP path for the Databricks instance")
                             .required(),
                     ConfigurationField.create(
-                            DATABRICKS_PERSONAL_ACCESS_TOKEN,
-                            "Personal Access Token",
-                            "Personal Access Token for the Databricks instance"),
-                    ConfigurationField.create(
                                     DATABRICKS_CATALOG,
                                     "Catalog",
                                     "Catalog for the Databricks instance")
@@ -172,7 +168,7 @@ public enum DatabricksHandler implements JdbcStorageHandler {
                      */
                     ConfigurationField.create(
                                     DATABRICKS_AUTHENTICATION_METHOD,
-                                    "Authenticator method",
+                                    "Authentication method",
                                     "Databricks JDBC authentication method (only 'browser' is currently supported)")
                             .addValidator(new FieldValidator() {
                                 private final List<String> allowedValues = Arrays.asList("browser");
@@ -189,8 +185,11 @@ public enum DatabricksHandler implements JdbcStorageHandler {
                                     }
                                     return feedback;
                                 }
-                            })
-            );
+                            }),
+                    ConfigurationField.create(
+                            DATABRICKS_PERSONAL_ACCESS_TOKEN,
+                            "Personal Access Token",
+                            "Personal Access Token for the Databricks instance"));
             this.configurationFields.addValidator(new PersonalAccessTokenXORAuthenticationFlowValidator());
         }
 

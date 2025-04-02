@@ -13,7 +13,7 @@
 
 <title>White Rabbit</title>
 
-<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -436,7 +436,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 </div>
 <div id="source-data" class="section level3">
 <h3>Source Data</h3>
-<p>Here you can specify the location of the source data. The following source types are supported: delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure, Snowflake. Below are connection instructions for each data type of data source. Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.</p>
+<p>Here you can specify the location of the source data. The following source types are supported: delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure, Snowflake, Databricks. Below are connection instructions for each data type of data source. Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.</p>
 <div id="delimited-text-files" class="section level4">
 <h4>Delimited text files</h4>
 <ul>
@@ -497,7 +497,7 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 <div id="google-bigquery" class="section level4">
 <h4>Google BigQuery</h4>
 <p>If you want to use a BigQuery instance as the source database, after installing WhiteRabbit, you will need to download a zip file with the BigQuery JDBC driver, and unzip it in de <code>repo</code> directory of the WhiteRabbit installation. The latest version tested with WhiteRabbit is 1.5.2.1005 .</p>
-<p>The zip file can be downloaded <a href="https://storage.googleapis.com/simba-bq-release/jdbc/SimbaJDBCDriverforGoogleBigQuery42_1.5.2.1005.zip">here</a></p>
+<p>The zip file can be downloaded <a href="https://storage.googleapis.com/simba-bq-release/jdbc/SimbaJDBCDriverforGoogleBigQuery42_1.5.2.1005.zip">here</a>.</p>
 <p>Google BigQuery (GBQ) supports two different connection/authentication methods: application default credentials and service account authentication. The former method is considered more secure because it writes auditing events to stackdriver. The specific method used is determined by the arguments provided to the configuration panel as described below.</p>
 <p>Authentication via application default credentials:</p>
 <p>When using application default credentials authentication, you must run the following gcloud command in the user account only once: <code>gcloud auth application-default login</code> (do not include the single quote characters). An application key is written to <code>~/.config/gcloud/application_default_credentails.json</code>.</p>
@@ -536,10 +536,23 @@ See <a href="#running-from-the-command-line">Running from the command line</a> f
 </ul>
 <p>Please note that the fields <em><strong>Password</strong></em> and <em><strong>Authentication method</strong></em> are mutually exclusive: for only one of these fields a value should be supplied. A warning will be given when a value is supplied for both fields.</p>
 </div>
+<div id="databricks" class="section level4">
+<h4>Databricks</h4>
+<p>Please see <a href="https://docs.databricks.com/aws/en/integrations/compute-details">this page</a> for information on some of the parameters needed to connect to Databricks. For a Personal Access Token, see <a href="https://docs.databricks.com/dev-tools/api/latest/authentication.html#generate-a-token">this page</a>.</p>
+<ul>
+<li><em><strong>Server:</strong></em> the server address string</li>
+<li><em><strong>HTTP path:</strong></em> HTTP path to the Databricks workspace (e.g. “/sql/protocolv1/o/1234567890123456/0123-456789-abcde1234567890”)</li>
+<li><em><strong>Catalog:</strong></em> the catalog to be used</li>
+<li><em><strong>Schema:</strong></em> the schema to be used</li>
+<li><em><strong>Authentication method:</strong></em> the text “browser” if you want to used the browser for authentication, or empty if you want to use a personal access token.</li>
+<li><em><strong>Personal Access Token:</strong></em> Personal Access Token (PAT) to be used for authentication</li>
+</ul>
+<p>Please note that the fields <em><strong>Authentication method</strong></em> and <em><strong>Personal Access Token</strong></em> are mutually exclusive: for only one of these fields a value should be supplied. A warning will be given when a value is supplied for both fields.</p>
+</div>
 <div id="teradata" class="section level4">
 <h4>Teradata</h4>
 <p>If you want to use a Teradata instance as the source database, after installing WhiteRabbit, you will need to download a zip file with the Teradata JDBC driver, and unzip it in de <code>repo</code> directory of the WhiteRabbit installation. The latest version tested with WhiteRabbit is 20.00.00.16 .</p>
-<p>The zip file can be downloaded <a href="https://downloads.teradata.com/download/connectivity/jdbc-driver">here</a></p>
+<p>The zip file can be downloaded <a href="https://downloads.teradata.com/download/connectivity/jdbc-driver">here</a>.</p>
 </div>
 </div>
 </div>

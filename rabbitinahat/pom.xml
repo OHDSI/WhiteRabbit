@@ -80,11 +80,12 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.1.0</version>
                 <configuration>
                     <nonFilteredFileExtensions>
                         <nonFilteredFileExtension>csv</nonFilteredFileExtension>
                     </nonFilteredFileExtensions>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>
