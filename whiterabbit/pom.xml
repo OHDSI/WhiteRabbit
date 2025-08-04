@@ -191,7 +191,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.15.1</version>
+                <version>2.20.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -208,11 +208,11 @@
             <version>1.7.36</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-        <dependency>
+        <!--dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.15.1</version>
-        </dependency>
+        </dependency-->
 
 
         <!-- https://mvnrepository.com/artifact/org.testcontainers/testcontainers -->
