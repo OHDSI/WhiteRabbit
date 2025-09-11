@@ -34,10 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,12 +44,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.ohdsi.rabbitInAHat.ETLMarkupDocumentGenerator.DocumentType;
-import org.ohdsi.rabbitInAHat.dataModel.Database;
+import org.ohdsi.rabbitInAHat.dataModel.*;
 import org.ohdsi.rabbitInAHat.dataModel.Database.CDMVersion;
-import org.ohdsi.rabbitInAHat.dataModel.ETL;
-import org.ohdsi.rabbitInAHat.dataModel.Field;
-import org.ohdsi.rabbitInAHat.dataModel.StemTableFactory;
-import org.ohdsi.rabbitInAHat.dataModel.Table;
 import org.ohdsi.utilities.Version;
 
 /**
@@ -85,6 +78,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String		ACTION_SET_TARGET_V60 = "CDM v6.0-beta";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
 	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
+	public final static String 		ACTION_HIDE_TABLES					= "Hide unwanted tables";
 	public final static String		ACTION_SET_TARGET_CUSTOM			= "Load Custom...";
 	public final static String		ACTION_MARK_COMPLETED				= "Mark Highlighted As Complete";
 	public final static String		ACTION_UNMARK_COMPLETED				= "Mark Highlighted As Incomplete";
@@ -95,6 +89,7 @@ public class RabbitInAHatMain implements ResizeListener {
 
 	public final static String PANEL_TABLE_MAPPING = "Table Mapping";
 	public final static String PANEL_FIELD_MAPPING = "Field Mapping";
+	public final static String MASK_LIST_DIALOG = "Mask List Dialog";
 
 	public final static String DOCUMENTATION_URL = "http://ohdsi.github.io/WhiteRabbit/RabbitInAHat.html";
 	private final static FileFilter FILE_FILTER_GZ = new FileNameExtensionFilter("GZIP Files (*.gz)", "gz");
@@ -111,7 +106,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	private JScrollPane				scrollPane2;
 	private MappingPanel			tableMappingPanel;
 	private MappingPanel			fieldMappingPanel;
-	private DetailsPanel			detailsPanel;
+	private DetailsPanel		detailsPanel;
 	private JSplitPane				tableFieldSplitPane;
 	private JFileChooser			chooser;
 
@@ -256,6 +251,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		addMenuItem(editMenu, ACTION_FILTER, evt -> this.doOpenFilterDialog(), KeyEvent.VK_F);
 		addMenuItem(editMenu, ACTION_ADD_STEM_TABLE, evt -> this.doAddStemTable());
 		addMenuItem(editMenu, ACTION_REMOVE_STEM_TABLE, evt -> this.doRemoveStemTable());
+		addMenuItem(editMenu, ACTION_HIDE_TABLES, evt -> this.doHideTables()).setName(ACTION_HIDE_TABLES);
 
 		JMenu targetDatabaseMenu = new JMenu("Set Target Database");
 		editMenu.add(targetDatabaseMenu);
@@ -462,6 +458,20 @@ public class RabbitInAHatMain implements ResizeListener {
 		}
 	}
 
+	private void doHideTables() {
+		if (MaskListDialog.alreadyOpened()){
+			MaskListDialog.bringToFront();
+		}
+		else {
+			MaskListDialog maskListDialog = new MaskListDialog(frame);
+			maskListDialog.setName(MASK_LIST_DIALOG);
+			maskListDialog.setMaskListPanel(tableMappingPanel);
+			maskListDialog.setVisible(true);
+		}
+
+
+	}
+
 	private void doGenerateTestFramework() {
 		String filename = chooseSavePath("TestFramework", FILE_FILTER_R);
 		if (filename != null) {
@@ -612,6 +622,7 @@ public class RabbitInAHatMain implements ResizeListener {
 			try {
 				etl.setSourceDatabase(Database.generateModelFromScanReport(filename));
 				etl.setTargetDatabase(ObjectExchange.etl.getTargetDatabase());
+				ObjectExchange.etl = etl;
 				tableMappingPanel.setMapping(etl.getTableToTableMapping());
 				ObjectExchange.etl = etl;
 			} catch (Exception e) {
@@ -634,7 +645,6 @@ public class RabbitInAHatMain implements ResizeListener {
 								oldField.setDescription(newField.getDescription());
 								oldField.setFractionEmpty(newField.getFractionEmpty());
 								oldField.setUniqueCount(newField.getUniqueCount());
-								oldField.setFractionUnique(newField.getFractionUnique());
 								oldField.setNullable(newField.isNullable());
 								oldField.setValueCounts(newField.getValueCounts());
 							} else {

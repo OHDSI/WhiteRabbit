@@ -20,13 +20,20 @@ package org.ohdsi.databases;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.ohdsi.databases.configuration.ConfigurationField;
-import org.ohdsi.databases.configuration.DBConfiguration;
-import org.ohdsi.databases.configuration.DBConfigurationException;
+import org.ohdsi.databases.configuration.ScanConfiguration;
+import org.ohdsi.databases.configuration.ScanConfigurationException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.ohdsi.databases.configuration.DBConfiguration.ERROR_DUPLICATE_DEFINITIONS_FOR_FIELD;
+import static org.ohdsi.databases.configuration.ScanConfiguration.ERROR_DUPLICATE_DEFINITIONS_FOR_FIELD;
 
-class DBConfigurationTest {
+// since the class is abstract, we need to create a concrete class to test the abstract class
+class ScanConfigurationForTest extends ScanConfiguration {
+    public ScanConfigurationForTest(ConfigurationField... fields) {
+        super(fields);
+    }
+}
+
+class ScanConfigurationTest {
 
     private final String NAME_FIELD1 = "FIELD_1";
     private final String LABEL_FIELD1 = "Field one";
@@ -39,10 +46,11 @@ class DBConfigurationTest {
     void setUp() {
     }
 
+    class TestScanConfiguration extends ScanConfiguration {}
     @Test
     void doNotAcceptDuplicateDefinitionsForField() {
-    Exception exception = assertThrows(DBConfigurationException.class, () -> {
-        DBConfiguration testConfiguration = new DBConfiguration(
+    Exception exception = assertThrows(ScanConfigurationException.class, () -> {
+        ScanConfiguration testConfiguration = new ScanConfigurationForTest(
                 ConfigurationField.create(NAME_FIELD1, LABEL_FIELD1, TOOLTIP_FIELD1).required(),
                 ConfigurationField.create(NAME_FIELD1, LABEL_FIELD2, TOOLTIP_FIELD2));
         });

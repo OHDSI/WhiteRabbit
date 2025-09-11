@@ -55,8 +55,20 @@ public class Database implements Serializable {
 	private String				dbName				= "";
 	private static final String	CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints.csv";
 	public String 				conceptIdHintsVocabularyVersion;
+	private List<Integer>		selectedIndices;
 
 	public List<Table> getTables() {
+		if(selectedIndices != null){
+			List<Table> maskedTables = new ArrayList<>();
+            for (Integer selectedIndex : selectedIndices) {
+                maskedTables.add(tables.get(selectedIndex));
+            }
+			return maskedTables;
+		}
+		return tables;
+	}
+
+	public List<Table> getUnmaskedTables() {
 		return tables;
 	}
 
@@ -77,6 +89,20 @@ public class Database implements Serializable {
 
 	public String getDbName() {
 		return dbName;
+	}
+
+	public void setSelectedIndices(List<Integer> tableMask) {
+		this.selectedIndices = tableMask;
+	}
+
+	public List<Integer> getSelectedIndices() {
+		if(selectedIndices == null){
+			selectedIndices = new ArrayList<>();
+			for(int i = 0; i < tables.size(); i++){
+				selectedIndices.add(i);
+			}
+		}
+		return selectedIndices;
 	}
 
 	public static Database generateCDMModel(CDMVersion cdmVersion) throws IOException {
@@ -183,7 +209,6 @@ public class Database implements Serializable {
 				field.setDescription(row.getStringByHeaderName(ScanFieldName.DESCRIPTION));
 				field.setFractionEmpty(row.getDoubleByHeaderName(ScanFieldName.FRACTION_EMPTY));
 				field.setUniqueCount(row.getIntByHeaderName(ScanFieldName.UNIQUE_COUNT));
-				field.setFractionUnique(row.getDoubleByHeaderName(ScanFieldName.FRACTION_UNIQUE));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 
 				table.getFields().add(field);

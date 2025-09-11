@@ -34,20 +34,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * StorageHandler defines the interface that a database connection class must implement.
+ * JdbcStorageHandler defines the interface that a database connection class must implement.
  *
  */
-public interface StorageHandler {
+public interface JdbcStorageHandler {
 
-    Logger logger = LoggerFactory.getLogger(StorageHandler.class);
+    Logger logger = LoggerFactory.getLogger(JdbcStorageHandler.class);
 
     /**
      * Creates an instance of the implementing class, or can return the singleton for.
      *
      * @param dbSettings Configuration parameters for the implemented database
-     * @return instance of a StorageHandler implementing class
+     * @return instance of a JdbcStorageHandler implementing class
      */
-    StorageHandler getInstance(DbSettings dbSettings);
+    JdbcStorageHandler getInstance(DbSettings dbSettings);
 
     /**
      * Returns the DBConnection object associated with the database connection
@@ -69,12 +69,12 @@ public interface StorageHandler {
     String getTableSizeQuery(String tableName);
 
     /**
-     * Verifies if the implementing object was properly configured for use. Should throw a DBConfigurationException
+     * Verifies if the implementing object was properly configured for use. Should throw a ScanConfigurationException
      * if this is not the case.
      *
-     * @throws DBConfigurationException Object not ready for use
+     * @throws ScanConfigurationException Object not ready for use
      */
-    void checkInitialised() throws DBConfigurationException;
+    void checkInitialised() throws ScanConfigurationException;
 
     /**
      * Returns the row count of the specified table.
@@ -137,7 +137,7 @@ public interface StorageHandler {
         String query = this.getTablesQuery(getDatabase());
 
 		for (Row row : new QueryResult(query, new DBConnection(this, getDbType(), false))) {
-            names.add(row.getCells().get(0));
+            names.add(row.getCells().get(this.getTableNameIndex()));
         }
 
         return names;
@@ -147,7 +147,7 @@ public interface StorageHandler {
      * Fetches the structure of a table as a list of FieldInfo objects.
      *
      * The default implementation should work for some/most/all JDBC databases and only needs to be overridden
-     * for databases where this is not the case.
+     * for databases where this is not the case, or where a more efficient method is available.
      *
      * @param table name of the table to fetch the structure for
      * @param scanParameters parameters that are to be used for scanning the table
@@ -155,25 +155,20 @@ public interface StorageHandler {
      */
     default List<FieldInfo> fetchTableStructure(String table, ScanParameters scanParameters) {
         List<FieldInfo> fieldInfos = new ArrayList<>();
+        long rowCount = getTableSize(table);
         String fieldInfoQuery = getFieldsInformationQuery(table);
         if (fieldInfoQuery != null) {
             logger.warn("Obtaining field metadata through SQL query: {}", fieldInfoQuery);
             QueryResult queryResult = getDBConnection().query(fieldInfoQuery);
             for (Row row : queryResult) {
-                FieldInfo fieldInfo = new FieldInfo(scanParameters, row.getCells().get(0));
-                fieldInfo.type = row.getCells().get(1);
-                fieldInfo.rowCount = getTableSize(table);
-                fieldInfos.add(fieldInfo);
+                addFieldInfo(fieldInfos, scanParameters, row.getCells().get(0), row.getCells().get(1), rowCount);
             }
         } else {
             logger.warn("Obtaining field metadata through JDBC");
             ResultSet rs = getFieldsInformation(table);
             try {
                 while (rs.next()) {
-                    FieldInfo fieldInfo = new FieldInfo(scanParameters, rs.getString("COLUMN_NAME"));
-                    fieldInfo.type = rs.getString("TYPE_NAME");
-                    fieldInfo.rowCount = getTableSize(table);
-                    fieldInfos.add(fieldInfo);
+                    addFieldInfo(fieldInfos, scanParameters, rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"), rowCount);
                 }
             } catch (
                     SQLException e) {
@@ -181,6 +176,15 @@ public interface StorageHandler {
             }
         }
         return fieldInfos;
+    }
+
+    default void addFieldInfo(List<FieldInfo> fieldInfos, ScanParameters scanParameters, String columnName, String type, long rowCount) {
+        if (!columnIsComment(columnName)) {
+            FieldInfo fieldInfo = new FieldInfo(scanParameters, columnName);
+            fieldInfo.type = type;
+            fieldInfo.rowCount = rowCount;
+            fieldInfos.add(fieldInfo);
+        }
     }
 
     default String getFieldsInformationQuery(String table) {
@@ -228,19 +232,19 @@ public interface StorageHandler {
      * @return the DbSettings object used to initialize the database connection
      */
     default DbSettings getDbSettings(ValidationFeedback feedback) {
-        return getDBConfiguration().toDbSettings(feedback);
+        return getScanConfiguration().toDbSettings(feedback);
     }
 
     /**
      * Returns a validated DbSettings object with values based on the IniFile object
      *
      * @param iniFile IniFile object containing database configuration values for the class
-     *                that implements the StorageHandler
+     *                that implements the JdbcStorageHandler
      *
      * @return DbSettings object
      */
     default DbSettings getDbSettings(IniFile iniFile, ValidationFeedback feedback, PrintStream outStream) {
-        ValidationFeedback validationFeedback = getDBConfiguration().loadAndValidateConfiguration(iniFile);
+        ValidationFeedback validationFeedback = getScanConfiguration().loadAndValidateConfiguration(iniFile);
         if (feedback != null) {
             feedback.add(validationFeedback);
         }
@@ -256,13 +260,13 @@ public interface StorageHandler {
                         outStream.printf("\t%s (%s)%n", warning, fields.stream().map(f -> f.name).collect(Collectors.joining(","))));
             }
         }
-        return getDBConfiguration().toDbSettings(feedback);
+        return getScanConfiguration().toDbSettings(feedback);
     }
 
     /**
-     * Returns the DBConfiguration object for the implementing class
+     * Returns the ScanConfiguration object for the implementing class
      */
-    DBConfiguration getDBConfiguration();
+    ScanConfiguration getScanConfiguration();
 
     default void execute(String sql) {
         execute(sql, false);
@@ -308,4 +312,16 @@ public interface StorageHandler {
         }
     }
 
+    default boolean columnIsComment(String colunmName) {
+        return false;
+    }
+
+    /**
+     * Returns the index of the column in the result set that contains the table name.
+     *
+     * @return index of the column in the result set that contains the table name
+     */
+    default int getTableNameIndex() {
+        return 0;
+    }
 }

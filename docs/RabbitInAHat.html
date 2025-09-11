@@ -13,7 +13,7 @@
 
 <title>Rabbit in a Hat</title>
 
-<script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -463,6 +463,7 @@ div.tocify {
 <p>If you select the source table orange box, Rabbit-In-a-Hat will expose values the source data has for that table. This is meant to help in the process in understanding the source data and what logic may be required to handle the data in the ETL. In the example below <em>ndcnum</em> is selected and raw NDC codes are displayed starting with most frequent (note that in the WhiteRabbit scan a “Min cell count” could have been selected and values smaller than that count will not show).</p>
 <p><img src="images/rabbitinahat-fieldex.png" /></p>
 <p>Continue this process until all source columns necessary in all mapped tables have been mapped to the corresponding CDM column. Not all columns must be mapped into a CDM column and not all CDM columns require a mapping. One source column may supply information to multiple CDM columns and one CDM column can receive information from multiple columns.</p>
+<p>Sidenote: fields with a <code>*</code> in front of their name are considered required fields. For source fields this means that this field was always populated when running the WhiteRabbit scans.</p>
 </div>
 <div id="output-generation" class="section level2">
 <h2>Output generation</h2>

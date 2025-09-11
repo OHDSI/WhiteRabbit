@@ -329,8 +329,7 @@ public class SourceDataScan implements ScanParameters {
 			overviewHeader.addAll(Arrays.asList(
 					ScanFieldName.N_ROWS_CHECKED,
 					ScanFieldName.FRACTION_EMPTY,
-					ScanFieldName.UNIQUE_COUNT,
-					ScanFieldName.FRACTION_UNIQUE
+					ScanFieldName.UNIQUE_COUNT
 			));
 			if (calculateNumericStats) {
 				overviewHeader.addAll(Arrays.asList(
@@ -363,12 +362,10 @@ public class SourceDataScan implements ScanParameters {
 
 				if (scanValues) {
 					Long uniqueCount = fieldInfo.uniqueCount;
-					Double fractionUnique = fieldInfo.getFractionUnique();
 					values.addAll(Arrays.asList(
 							fieldInfo.nProcessed,
 							fieldInfo.getFractionEmpty(),
-							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
-							fieldInfo.hasValuesTrimmed() ? String.format(Locale.ENGLISH, "<= %.3f", fractionUnique) : fractionUnique
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount
 					));
 					if (calculateNumericStats) {
 						values.addAll(Arrays.asList(

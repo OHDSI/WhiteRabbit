@@ -26,8 +26,6 @@ import java.util.List;
 import org.ohdsi.databases.configuration.*;
 import org.ohdsi.utilities.collections.Pair;
 import org.ohdsi.utilities.files.IniFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration.*;
 
@@ -36,11 +34,11 @@ import static org.ohdsi.databases.SnowflakeHandler.SnowflakeConfiguration.*;
  *
  * It is implemented as a Singleton, using the enum pattern es described here: https://www.baeldung.com/java-singleton
  */
-public enum SnowflakeHandler implements StorageHandler {
+public enum SnowflakeHandler implements JdbcStorageHandler {
     INSTANCE();
     public static final String WR_USE_SNOWFLAKE_JDBC_METADATA = "WR_USE_SNOWFLAKE_METADATA";
 
-    DBConfiguration configuration = new SnowflakeConfiguration();
+    ScanConfiguration configuration = new SnowflakeConfiguration();
     private DBConnection snowflakeConnection = null;
 
     private final DbType dbType = DbType.SNOWFLAKE;
@@ -62,7 +60,7 @@ public enum SnowflakeHandler implements StorageHandler {
     }
 
     @Override
-    public StorageHandler getInstance(DbSettings dbSettings) {
+    public JdbcStorageHandler getInstance(DbSettings dbSettings) {
         if (snowflakeConnection == null) {
             snowflakeConnection = connectToSnowflake(dbSettings);
         }
@@ -157,9 +155,9 @@ public enum SnowflakeHandler implements StorageHandler {
     }
 
     @Override
-    public void checkInitialised() throws DBConfigurationException {
+    public void checkInitialised() throws ScanConfigurationException {
         if (this.snowflakeConnection == null) {
-            throw new DBConfigurationException("Snowflake DB/connection was not initialized");
+            throw new ScanConfigurationException("Snowflake DB/connection was not initialized");
         }
     }
 
@@ -190,11 +188,12 @@ public enum SnowflakeHandler implements StorageHandler {
         }
     }
 
-    public DBConfiguration getDBConfiguration() {
+    public ScanConfiguration getScanConfiguration() {
 
         return this.configuration;
     }
-    public static class SnowflakeConfiguration extends DBConfiguration {
+
+    public static class SnowflakeConfiguration extends ScanConfiguration {
         public static final String SNOWFLAKE_ACCOUNT = "SNOWFLAKE_ACCOUNT";
         public static final String TOOLTIP_SNOWFLAKE_ACCOUNT = "Account for the Snowflake instance";
         public static final String SNOWFLAKE_USER = "SNOWFLAKE_USER";

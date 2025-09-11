@@ -35,7 +35,7 @@ import java.util.List;
  * The latter one instantiates a java.sql.Connection instance itself.
  * The constructors of DBConnection ensure that one of the following is true:
  *  - a java.sql.Connection implementing object is provided, and used it its methods
- *  - a StorageHandler implementing object is provided, and used to create a java.sql.Connection interface
+ *  - a JdbcStorageHandler implementing object is provided, and used to create a java.sql.Connection interface
  *  - if neither of the above is valid at construction, a RuntimeException is thrown
  *
  * DBConnection provides a partial subset of the java.sql.Connection interface, just enough to satisfy the
@@ -47,7 +47,7 @@ public class DBConnection {
     private final Connection connection;
     private final DbType dbType;
     private boolean verbose;
-    private final StorageHandler connectorInterface;
+    private final JdbcStorageHandler connectorInterface;
     private static DecimalFormat decimalFormat		= new DecimalFormat("#.#");
 
 
@@ -58,7 +58,7 @@ public class DBConnection {
         this.verbose = verbose;
     }
 
-    public DBConnection(StorageHandler connectorInterface, DbType dbType, boolean verbose) {
+    public DBConnection(JdbcStorageHandler connectorInterface, DbType dbType, boolean verbose) {
         this.connectorInterface = connectorInterface;
         connectorInterface.checkInitialised();
         this.connection = connectorInterface.getDBConnection().getConnection();
@@ -70,7 +70,7 @@ public class DBConnection {
         return this.connection;
     }
 
-    public StorageHandler getStorageHandler() {
+    public JdbcStorageHandler getStorageHandler() {
         this.connectorInterface.checkInitialised();
         return this.connectorInterface;
     }

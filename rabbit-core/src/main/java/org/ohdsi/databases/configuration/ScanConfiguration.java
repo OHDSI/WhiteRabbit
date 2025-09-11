@@ -23,7 +23,13 @@ import org.ohdsi.utilities.files.IniFile;
 import java.io.PrintStream;
 import java.util.*;
 
-public class DBConfiguration {
+/**
+ * Configuration for a database scan.
+ *
+ * This class defines the common configuration for a database scan. It defines the parameters that are used to scan a
+ * database. It serves as the base class for the configuration of specific database types.
+ */
+public abstract class ScanConfiguration {
     public static final String DATA_TYPE_FIELD = "DATA_TYPE";
     public static final String DELIMITER_FIELD = "DELIMITER";
     public static final String TABLES_TO_SCAN_FIELD = "TABLES_TO_SCAN";
@@ -36,11 +42,7 @@ public class DBConfiguration {
     public static final String ERROR_DUPLICATE_DEFINITIONS_FOR_FIELD = "Multiple definitions for field ";
     protected ConfigurationFields configurationFields;
 
-    private DBConfiguration() {
-    }
-
-
-    public DBConfiguration(ConfigurationField... fields) {
+    public ScanConfiguration(ConfigurationField... fields) {
         this.checkForDuplicates(fields);
         this.configurationFields = new ConfigurationFields(fields);
     }
@@ -105,20 +107,20 @@ public class DBConfiguration {
     }
 
     public DbSettings toDbSettings(ValidationFeedback feedback) {
-        throw new DBConfigurationException("Should be implemented by inheriting classes");
+        throw new ScanConfigurationException("Should be implemented by inheriting classes");
     }
 
     private void checkForDuplicates(ConfigurationField... fields) {
         Set<String> names = new HashSet<>();
         for (ConfigurationField field : fields) {
             if (names.contains(field.name)) {
-                throw new DBConfigurationException(ERROR_DUPLICATE_DEFINITIONS_FOR_FIELD + field.name);
+                throw new ScanConfigurationException(ERROR_DUPLICATE_DEFINITIONS_FOR_FIELD + field.name);
             }
             names.add(field.name);
         }
     }
 
-    public ValidationFeedback loadAndValidateConfiguration(IniFile iniFile) throws DBConfigurationException {
+    public ValidationFeedback loadAndValidateConfiguration(IniFile iniFile) throws ScanConfigurationException {
         for (ConfigurationField field : this.getFields()) {
             field.setValue(iniFile.get(field.name));
         }

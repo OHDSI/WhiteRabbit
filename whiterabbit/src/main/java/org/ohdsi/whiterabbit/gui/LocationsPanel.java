@@ -18,7 +18,7 @@
 package org.ohdsi.whiterabbit.gui;
 
 import org.ohdsi.databases.configuration.DbType;
-import org.ohdsi.databases.configuration.DBConfiguration;
+import org.ohdsi.databases.configuration.ScanConfiguration;
 import org.ohdsi.whiterabbit.PanelsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,7 +176,7 @@ public class LocationsPanel extends JPanel {
     }
 
     private void createDatabaseFields() {
-        DBConfiguration currentConfiguration = this.currentDbType.getStorageHandler().getDBConfiguration();
+        ScanConfiguration currentConfiguration = this.currentDbType.getStorageHandler().getScanConfiguration();
         currentConfiguration.getFields().forEach(f -> {
             sourcePanel.addReplacable(new JLabel(f.label));
             JTextField field = new JTextField(f.getValueOrDefault());

@@ -17,7 +17,6 @@
  ******************************************************************************/
 package org.ohdsi.utilities;
 
-import org.ohdsi.utilities.collections.CountingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,14 +24,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.zip.DataFormatException;
 
 public class StringUtilities {
@@ -49,7 +42,34 @@ public class StringUtilities {
 	public static long		MISSING_DATE	= -999999;
 	
 	private static Calendar	calendar		= new GregorianCalendar();
-	
+
+	private static List<String> dateFormats = generateDateFormats();
+
+	private static List<String> generateDateFormats(){
+		List<String> formats = new ArrayList<>();
+		String[] yearFormats = new String[]{"yy", "yyyy"};
+		String[] monthFormats = new String[]{"M", "MM"};
+		String[] dayFormats = new String[]{"d", "dd"};
+
+		String[] separatorFormats = new String[]{"/", ".", "-", " "};
+
+		for (String sep : separatorFormats){
+			for (String year : yearFormats){
+				for (String month : monthFormats){
+					for (String day : dayFormats){
+						// YMD
+						formats.add(year + sep + month + sep + day);
+						//DMY
+						formats.add(day + sep + month + sep + year);
+						//MDY
+						formats.add(month + sep + day + sep + year);
+					}
+				}
+			}
+		}
+		return formats;
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String joinSorted(Collection<? extends Comparable> s, String delimiter) {
 		List list = new ArrayList(s);
@@ -837,39 +857,15 @@ public class StringUtilities {
 			return text;
 		}
 	}
-	
+
+
 	public static boolean isDate(String string) {
-		if (string.length() == 10) {
-			if ((string.charAt(4) == '-' || string.charAt(4) == '/') || (string.charAt(4) == string.charAt(7)))
-				try {
-					int year = Integer.parseInt(string.substring(0, 4));
-					if (year < 1700 || year > 2200)
-						return false;
-					int month = Integer.parseInt(string.substring(5, 7));
-					if (month < 1 || month > 12)
-						return false;
-					int day = Integer.parseInt(string.substring(8, 10));
-					if (day < 1 || day > 31)
-						return false;
-					return true;
-				} catch (Exception e) {
-					return false;
-				}
-		} else if (string.length() == 8) {
-			if ((string.charAt(2) == '-' || string.charAt(5) == '/') || (string.charAt(2) == string.charAt(5)))
-				try {
-					Integer.parseInt(string.substring(6, 8));
-					int month = Integer.parseInt(string.substring(0, 2));
-					if (month < 1 || month > 12)
-						return false;
-					int day = Integer.parseInt(string.substring(3, 5));
-					if (day < 1 || day > 31)
-						return false;
-					return true;
-				} catch (Exception e) {
-					return false;
-				}
-			
+		for (String dateFormat : dateFormats){
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(dateFormat);
+			try {
+				dateFormatter.parse(string);
+				return true;
+			} catch (Exception ignored){}
 		}
 		return false;
 	}

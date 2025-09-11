@@ -113,7 +113,7 @@ public class ETLWordDocumentGenerator {
 		createDocumentParagraph(document, targetTable.getComment());
 		
 		for (ItemToItemMap tableToTableMap : etl.getTableToTableMapping().getSourceToTargetMaps())
-			if (tableToTableMap.getTargetItem() == targetTable) {
+			if (tableToTableMap.getTargetItem() == targetTable && etl.isSelectedTable(tableToTableMap.getSourceItem())) {
 				Table sourceTable = (Table) tableToTableMap.getSourceItem();
 				Mapping<Field> fieldtoFieldMapping = etl.getFieldToFieldMapping(sourceTable, targetTable);
 				
@@ -149,7 +149,15 @@ public class ETLWordDocumentGenerator {
 				int rowNr = 1;
 				for (MappableItem targetField : fieldtoFieldMapping.getTargetItems()) {
 					XWPFTableRow row = table.getRow(rowNr++);
-					row.getCell(0).setText(targetField.getName());
+
+					// Check if the field is non-nullable and prepend an asterisk if true
+					String fieldName = targetField.getName();
+					for (Field field : targetTable.getFields()) {
+						if (field.getName().equals(fieldName) && !field.isNullable()) {
+							fieldName = "*" + fieldName;
+							break;
+						}
+					}
 					
 					StringBuilder source = new StringBuilder();
 					StringBuilder logic = new StringBuilder();
@@ -176,6 +184,15 @@ public class ETLWordDocumentGenerator {
 								comment.append("\n");
 							comment.append(field.getComment().trim());
 						}
+					}
+
+					// Grey out the font if source field, logic, and comment are all empty
+					if (source.toString().trim().isEmpty() && logic.toString().trim().isEmpty() && comment.toString().trim().isEmpty()) {
+						XWPFRun runGrey = row.getCell(0).getParagraphs().get(0).createRun();
+						runGrey.setColor("999999");
+						runGrey.setText(fieldName);
+					} else {
+						row.getCell(0).setText(fieldName);
 					}
 					
 					createCellParagraph(row.getCell(1), source.toString());

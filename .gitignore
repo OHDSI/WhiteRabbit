@@ -22,7 +22,9 @@ Try*
 .DS_Store
 data/
 
-# contains authentication data for a Snowflake instance
+# contains authentication data for a Snowflake test instance
 snowflake.env
-# contains authentication data for a BigQuery instance
+# contains authentication data for a BigQuery test instance
 bigquery.env
+# contains authentication data for a Databricks test instance
+databricks.env

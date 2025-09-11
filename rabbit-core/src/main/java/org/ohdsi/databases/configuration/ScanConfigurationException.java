@@ -17,8 +17,8 @@
  ******************************************************************************/
 package org.ohdsi.databases.configuration;
 
-public class DBConfigurationException extends RuntimeException {
-    public DBConfigurationException(String s) {
+public class ScanConfigurationException extends RuntimeException {
+    public ScanConfigurationException(String s) {
         super(s);
     }
 }
