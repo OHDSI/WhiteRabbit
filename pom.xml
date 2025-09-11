@@ -398,7 +398,22 @@
         </resources>
     </build>
 
-    <dependencyManagement>
+	<!-- exclude "old" dependencies globally -->
+	<dependencies>
+		<dependency>
+			<artifactId>commons-io</artifactId>
+			<groupId>commons-io</groupId>
+			<version>2.13.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<artifactId>commons-io</artifactId>
+			<groupId>commons-io</groupId>
+			<version>2.20.0</version>
+		</dependency>
+	</dependencies>
+
+  <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
