@@ -24,7 +24,7 @@
     <groupId>org.ohdsi</groupId>
     <artifactId>leporidae</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <modules>
         <module>rabbitinahat</module>
         <module>whiterabbit</module>
@@ -400,6 +400,10 @@
 
 	<!-- exclude "old" dependencies globally -->
 	<dependencies>
+		<!-- The "provided" for commons-io 2.13.0 below combined with a regular dependency for 2.20.0 is actually a trick to
+			prevent from being dragged in through other dependencies. This prevents us from having to add exclusions all
+			over the place.  Unfortunately maven has no sense of efficiency or humor at all
+			and will complain about it -->
 		<dependency>
 			<artifactId>commons-io</artifactId>
 			<groupId>commons-io</groupId>
