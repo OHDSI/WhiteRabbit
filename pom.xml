@@ -17,7 +17,8 @@
 
         <versions-rules>file:///${project.basedir}/maven-version-rules.xml</versions-rules>
 
-        <apache-poi.version>5.3.0</apache-poi.version>
+        <apache-poi.version>5.4.1</apache-poi.version>
+        <testcontainers.version>1.21.3</testcontainers.version>
     </properties>
 
     <modelVersion>4.0.0</modelVersion>
@@ -264,9 +265,10 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>12.1.0</version>
+                <version>12.1.6</version>
                 <configuration>
                     <failBuildOnCVSS>8</failBuildOnCVSS>
+		    <nvdApiKey>b6d411fe-b994-4c97-be2a-8e9f24e994b6</nvdApiKey>
                     <suppressionFiles>
                         <!--suppressionFile>http://example.org/suppression.xml</suppressionFile-->
                         <suppressionFile>project-suppression.xml</suppressionFile>
@@ -417,27 +419,27 @@
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
-                <version>19.23.0.0</version>
+                <version>19.28.0.0</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>sqljdbc4</artifactId>
-                <version>4.0</version>
+                <version>4.2</version>
             </dependency>
             <dependency>
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-j</artifactId>
-                <version>8.3.0</version>
+                <version>8.4.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>3.25.5</version>
+                <version>3.25.8</version>
             </dependency>
             <dependency>
                 <groupId>org.dom4j</groupId>
                 <artifactId>dom4j</artifactId>
-                <version>2.1.4</version>
+                <version>2.1.5</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -465,12 +467,12 @@
             <dependency>
                 <groupId>org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
-                <version>5.2.2</version>
+                <version>5.3.0</version>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.7.4</version>
+                <version>42.7.8</version>
             </dependency>
             <dependency>
                 <groupId>com.cedarsoftware</groupId>
@@ -480,7 +482,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-csv</artifactId>
-                <version>1.12.0</version>
+                <version>1.14.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
@@ -490,7 +492,7 @@
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.3.0</version>
+                <version>1.3.5</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -500,7 +502,7 @@
             <dependency>
                 <groupId>com.healthmarketscience.jackcess</groupId>
                 <artifactId>jackcess</artifactId>
-                <version>4.0.7</version>
+                <version>4.0.8</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.ucanaccess</groupId>
@@ -516,7 +518,7 @@
             <dependency>
                 <groupId>com.amazon.redshift</groupId>
                 <artifactId>redshift-jdbc42</artifactId>
-                <version>2.1.0.30</version>
+                <version>2.1.0.34</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
             <dependency>
@@ -540,7 +542,7 @@
             <dependency>
                 <groupId>net.snowflake</groupId>
                 <artifactId>snowflake-jdbc</artifactId>
-                <version>3.23.1</version>
+                <version>3.27.0</version>
             </dependency>
             <dependency>
                 <groupId>com.databricks</groupId>
@@ -550,7 +552,7 @@
             <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-core_2.13</artifactId>
-                <version>3.5.5</version>
+                <version>3.5.7</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -560,7 +562,7 @@
             <dependency>
                 <groupId>one.util</groupId>
                 <artifactId>streamex</artifactId>
-                <version>0.8.3</version>
+                <version>0.8.4</version>
             </dependency>
             <dependency>
                 <groupId>org.ohdsi</groupId>
@@ -570,7 +572,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>2.0.16</version>
+                <version>2.0.17</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.testcontainers/testcontainers -->
             <dependency>
@@ -594,28 +596,28 @@
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>1.20.3</version>
+                <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>1.20.3</version>
+                <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>mysql</artifactId>
-                <version>1.20.3</version>
+                <version>${testcontainers.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.testcontainers/oracle-xe -->
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>oracle-xe</artifactId>
-                <version>1.20.3</version>
+                <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>mssqlserver</artifactId>
-                <version>1.20.3</version>
+                <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>
@@ -643,20 +645,20 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
-                <version>2.24.3</version>
+                <version>2.25.2</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>2.24.1</version>
+                <version>2.25.2</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.26.3</version>
+                <version>3.27.6</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-antrun-plugin -->
             <dependency>
