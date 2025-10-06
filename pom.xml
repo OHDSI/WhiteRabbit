@@ -268,7 +268,7 @@
                 <version>12.1.6</version>
                 <configuration>
                     <failBuildOnCVSS>8</failBuildOnCVSS>
-		    <nvdApiKey>b6d411fe-b994-4c97-be2a-8e9f24e994b6</nvdApiKey>
+		    <nvdApiKey>${nvdApiKey}</nvdApiKey>
                     <suppressionFiles>
                         <!--suppressionFile>http://example.org/suppression.xml</suppressionFile-->
                         <suppressionFile>project-suppression.xml</suppressionFile>
@@ -622,7 +622,7 @@
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml-lite</artifactId>
-                <version>5.3.0</version>
+                <version>5.4.1</version>
             </dependency>
             <dependency>
                 <groupId>com.github.caciocavallosilano</groupId>
