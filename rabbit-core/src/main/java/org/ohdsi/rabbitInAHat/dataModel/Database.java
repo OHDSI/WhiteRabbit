@@ -39,7 +39,7 @@ public class Database implements Serializable {
 		, CDMV52("CDMV5.2.csv")
 		, CDMV53("CDMV5.3.csv")
 		, CDMV54("CDMV5.4.csv")
-		, CDMV60("CDMV6.0.csv")
+		, CDMV54("CDMV5.5.csv")
 		;
 
 		private final String fileName;
