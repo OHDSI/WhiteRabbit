@@ -267,7 +267,6 @@ public class RabbitInAHatMain implements ResizeListener {
 		cdmOptions.put(ACTION_SET_TARGET_V52, CDMVersion.CDMV52);
 		cdmOptions.put(ACTION_SET_TARGET_V53, CDMVersion.CDMV53);
 		cdmOptions.put(ACTION_SET_TARGET_V54, CDMVersion.CDMV54);
-		cdmOptions.put(ACTION_SET_TARGET_V60, CDMVersion.CDMV60);
 
 		JRadioButtonMenuItem targetCDM;
 		ButtonGroup targetGroup = new ButtonGroup();
