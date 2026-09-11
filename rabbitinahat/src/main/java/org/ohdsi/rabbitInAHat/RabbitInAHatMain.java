@@ -75,7 +75,7 @@ public class RabbitInAHatMain implements ResizeListener {
 	public final static String 		ACTION_SET_TARGET_V52 = "CDM v5.2";
 	public final static String 		ACTION_SET_TARGET_V53 = "CDM v5.3";
 	public final static String 		ACTION_SET_TARGET_V54 = "CDM v5.4";
-	public final static String		ACTION_SET_TARGET_V60 = "CDM v6.0-beta";
+	public final static String 		ACTION_SET_TARGET_V55 = "CDM v5.5";
 	public final static String		ACTION_ADD_STEM_TABLE				= "Add stem table";
 	public final static String		ACTION_REMOVE_STEM_TABLE			= "Remove stem table";
 	public final static String 		ACTION_HIDE_TABLES					= "Hide unwanted tables";
@@ -263,7 +263,6 @@ public class RabbitInAHatMain implements ResizeListener {
 		cdmOptions.put(ACTION_SET_TARGET_V52, CDMVersion.CDMV52);
 		cdmOptions.put(ACTION_SET_TARGET_V53, CDMVersion.CDMV53);
 		cdmOptions.put(ACTION_SET_TARGET_V54, CDMVersion.CDMV54);
-		cdmOptions.put(ACTION_SET_TARGET_V60, CDMVersion.CDMV60);
 
 		JRadioButtonMenuItem targetCDM;
 		ButtonGroup targetGroup = new ButtonGroup();
