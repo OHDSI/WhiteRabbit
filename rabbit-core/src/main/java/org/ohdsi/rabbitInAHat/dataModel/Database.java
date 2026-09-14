@@ -25,6 +25,7 @@ import java.util.*;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.input.BOMInputStream;
 import org.ohdsi.utilities.ScanFieldName;
 import org.ohdsi.utilities.ScanSheetName;
 import org.ohdsi.utilities.files.QuickAndDirtyXlsxReader;
@@ -54,8 +55,20 @@ public class Database implements Serializable {
 	private String				dbName				= "";
 	private static final String	CONCEPT_ID_HINTS_FILE_NAME = "CDMConceptIDHints.csv";
 	public String 				conceptIdHintsVocabularyVersion;
+	private List<Integer>		selectedIndices;
 
 	public List<Table> getTables() {
+		if(selectedIndices != null){
+			List<Table> maskedTables = new ArrayList<>();
+            for (Integer selectedIndex : selectedIndices) {
+                maskedTables.add(tables.get(selectedIndex));
+            }
+			return maskedTables;
+		}
+		return tables;
+	}
+
+	public List<Table> getUnmaskedTables() {
 		return tables;
 	}
 
@@ -78,14 +91,31 @@ public class Database implements Serializable {
 		return dbName;
 	}
 
-	public static Database generateCDMModel(CDMVersion cdmVersion) {
+	public void setSelectedIndices(List<Integer> tableMask) {
+		this.selectedIndices = tableMask;
+	}
+
+	public List<Integer> getSelectedIndices() {
+		if(selectedIndices == null){
+			selectedIndices = new ArrayList<>();
+			for(int i = 0; i < tables.size(); i++){
+				selectedIndices.add(i);
+			}
+		}
+		return selectedIndices;
+	}
+
+	public static Database generateCDMModel(CDMVersion cdmVersion) throws IOException {
 		return Database.generateModelFromCSV(Database.class.getResourceAsStream(cdmVersion.fileName), cdmVersion.fileName);
 	}
 
-	public static Database generateModelFromCSV(InputStream stream, String dbName) {
+	public static Database generateModelFromCSV(InputStream stream, String dbName) throws IOException {
 		Database database = new Database();
 
 		database.dbName = dbName.substring(0, dbName.lastIndexOf("."));
+
+		// wrap the stream with a BOM handling inputstream
+		stream = BOMInputStream.builder().setInputStream(stream).get();
 
 		Map<String, Table> nameToTable = new HashMap<>();
 		try {
@@ -179,7 +209,6 @@ public class Database implements Serializable {
 				field.setDescription(row.getStringByHeaderName(ScanFieldName.DESCRIPTION));
 				field.setFractionEmpty(row.getDoubleByHeaderName(ScanFieldName.FRACTION_EMPTY));
 				field.setUniqueCount(row.getIntByHeaderName(ScanFieldName.UNIQUE_COUNT));
-				field.setFractionUnique(row.getDoubleByHeaderName(ScanFieldName.FRACTION_UNIQUE));
 				field.setValueCounts(getValueCounts(workbook, tableName, fieldName));
 
 				table.getFields().add(field);

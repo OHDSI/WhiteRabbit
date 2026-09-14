@@ -133,6 +133,9 @@ Continue this process until all source columns necessary in all mapped tables ha
 Not all columns must be mapped into a CDM column and not all CDM columns require a mapping.
 One source column may supply information to multiple CDM columns and one CDM column can receive information from multiple columns.
 
+Sidenote: fields with a `*` in front of their name are considered required fields. 
+For source fields this means that this field was always populated when running the WhiteRabbit scans.
+
 ## Output generation
 
 ### Generating an ETL Document

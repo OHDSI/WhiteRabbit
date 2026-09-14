@@ -1,0 +1,8 @@
+<!-- Ignore versions with alpha, beta, rc, m, ea -->
+<ruleset xmlns="http://maven.apache.org/VERSION/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/VERSION/1.0.0 http://maven.apache.org/xsd/version-rules-1.0.0.xsd">
+    <ignoreVersions>
+        <ignoreVersion type="regex">(?i).*[-_\.](alpha|b|beta|rc|m|ea|does-not-exist)[-_\.]?[0-9]*</ignoreVersion>
+    </ignoreVersions>
+</ruleset>

@@ -43,7 +43,7 @@ public class ETL implements Serializable {
 
 	private Database								sourceDb					= new Database();
 	private Database								cdmDb						= new Database();
-	private final List<ItemToItemMap>						tableToTableMaps			= new ArrayList<>();
+	private List<ItemToItemMap>						tableToTableMaps			= new ArrayList<>();
 	private final Map<ItemToItemMap, List<ItemToItemMap>>	tableMapToFieldToFieldMaps	= new HashMap<>();
 	private transient String						filename					= null;
 	private static final long						serialVersionUID			= 8987388381751618498L;
@@ -112,6 +112,7 @@ public class ETL implements Serializable {
 		List<ItemToItemMap> fieldToFieldMaps = tableMapToFieldToFieldMaps.computeIfAbsent(key, k -> new ArrayList<>());
 		return new Mapping<>(sourceTable.getFields(), targetTable.getFields(), fieldToFieldMaps);
 	}
+
 
 	public String getFilename() {
 		return filename;
@@ -245,5 +246,15 @@ public class ETL implements Serializable {
 			}
 		}
 		return result;
+	}
+
+	public boolean isSelectedTable(MappableItem item) {
+		List<Integer> indices = sourceDb.getSelectedIndices();
+		for(int i : indices){
+			if(sourceDb.getUnmaskedTables().get(i) == item){
+				return true;
+			}
+		}
+		return false;
 	}
 }

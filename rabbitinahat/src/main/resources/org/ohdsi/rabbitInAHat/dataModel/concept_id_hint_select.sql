@@ -261,7 +261,7 @@ WITH concept_hints AS (
            concept_class_id,
            standard_concept
     FROM @vocab.concept_ancestor
-        JOIN vocab.concept ON concept_id = descendant_concept_id
+        JOIN @vocab.concept ON concept_id = descendant_concept_id
     WHERE ancestor_concept_id = 4182347  -- World languages
       AND invalid_reason IS NULL
     UNION ALL

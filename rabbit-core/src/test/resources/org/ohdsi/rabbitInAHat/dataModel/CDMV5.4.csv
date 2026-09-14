@@ -1,0 +1,384 @@
+table,field,required,type,description,schema
+PERSON,person_id,Yes,INTEGER,It is assumed that every person with a different unique identifier is in fact a different person and should be treated independently.,cdm
+PERSON,gender_concept_id,Yes,INTEGER,This field is meant to capture the biological sex at birth of the Person. This field should not be used to study gender identity issues.,cdm
+PERSON,year_of_birth,Yes,INTEGER,Compute age using year_of_birth.,cdm
+PERSON,month_of_birth,No,INTEGER,,cdm
+PERSON,day_of_birth,No,INTEGER,,cdm
+PERSON,birth_datetime,No,DATETIME,,cdm
+PERSON,race_concept_id,Yes,INTEGER,This field captures race or ethnic background of the person.,cdm
+PERSON,ethnicity_concept_id,Yes,INTEGER,"This field captures Ethnicity as defined by the Office of Management and Budget (OMB) of the US Government: it distinguishes only between ""Hispanic"" and ""Not Hispanic"". Races and ethnic backgrounds are not stored here.",cdm
+PERSON,location_id,No,INTEGER,The location refers to the physical address of the person. This field should capture the last known location of the person. ,cdm
+PERSON,provider_id,No,INTEGER,The Provider refers to the last known primary care provider (General Practitioner).,cdm
+PERSON,care_site_id,No,INTEGER,The Care Site refers to where the Provider typically provides the primary care.,cdm
+PERSON,person_source_value,No,CHARACTER VARYING,Use this field to link back to persons in the source data. This is typically used for error checking of ETL logic.,cdm
+PERSON,gender_source_value,No,CHARACTER VARYING,This field is used to store the biological sex of the person from the source data. It is not intended for use in standard analytics but for reference only.,cdm
+PERSON,gender_source_concept_id,No,INTEGER,"Due to the small number of options, this tends to be zero.",cdm
+PERSON,race_source_value,No,CHARACTER VARYING,This field is used to store the race of the person from the source data. It is not intended for use in standard analytics but for reference only.,cdm
+PERSON,race_source_concept_id,No,INTEGER,"Due to the small number of options, this tends to be zero.",cdm
+PERSON,ethnicity_source_value,No,CHARACTER VARYING,This field is used to store the ethnicity of the person from the source data. It is not intended for use in standard analytics but for reference only.,cdm
+PERSON,ethnicity_source_concept_id,No,INTEGER,"Due to the small number of options, this tends to be zero.",cdm
+OBSERVATION_PERIOD,observation_period_id,Yes,INTEGER,A Person can have multiple discrete Observation Periods which are identified by the Observation_Period_Id.,cdm
+OBSERVATION_PERIOD,person_id,Yes,INTEGER,The Person ID of the PERSON record for which the Observation Period is recorded.,cdm
+OBSERVATION_PERIOD,observation_period_start_date,Yes,DATE,Use this date to determine the start date of the Observation Period.,cdm
+OBSERVATION_PERIOD,observation_period_end_date,Yes,DATE,Use this date to determine the end date of the period for which we can assume that all events for a Person are recorded.,cdm
+OBSERVATION_PERIOD,period_type_concept_id,Yes,INTEGER,"This field can be used to determine the provenance of the Observation Period as in whether the period was determined from an insurance enrollment file, EHR healthcare encounters, or other sources.",cdm
+VISIT_OCCURRENCE,visit_occurrence_id,Yes,INTEGER,Use this to identify unique interactions between a person and the health care system. This identifier links across the other CDM event tables to associate events with a visit.,cdm
+VISIT_OCCURRENCE,person_id,Yes,INTEGER,,cdm
+VISIT_OCCURRENCE,visit_concept_id,Yes,INTEGER,"This field contains a concept id representing the kind of visit, like inpatient or outpatient. All concepts in this field should be standard and belong to the Visit domain.",cdm
+VISIT_OCCURRENCE,visit_start_date,Yes,DATE,"For inpatient visits, the start date is typically the admission date. For outpatient visits the start date and end date will be the same.",cdm
+VISIT_OCCURRENCE,visit_start_datetime,No,DATETIME,,cdm
+VISIT_OCCURRENCE,visit_end_date,Yes,DATE,"For inpatient visits the end date is typically the discharge date.  If a Person is still an inpatient in the hospital at the time of the data extract and does not have a visit_end_date, then set the visit_end_date to the date of the data pull.",cdm
+VISIT_OCCURRENCE,visit_end_datetime,No,DATETIME,"If a Person is still an inpatient in the hospital at the time of the data extract and does not have a visit_end_datetime, then set the visit_end_datetime to the datetime of the data pull.",cdm
+VISIT_OCCURRENCE,visit_type_concept_id,Yes,INTEGER,"Use this field to understand the provenance of the visit record, or where the record comes from.",cdm
+VISIT_OCCURRENCE,provider_id,No,INTEGER,"There will only be one provider per visit record and the ETL document should clearly state how they were chosen (attending, admitting, etc.). If there are multiple providers associated with a visit in the source, this can be reflected in the event tables (CONDITION_OCCURRENCE, PROCEDURE_OCCURRENCE, etc.) or in the VISIT_DETAIL table.",cdm
+VISIT_OCCURRENCE,care_site_id,No,INTEGER,This field provides information about the Care Site where the Visit took place.,cdm
+VISIT_OCCURRENCE,visit_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the kind of visit that took place (inpatient, outpatient, emergency, etc.)",cdm
+VISIT_OCCURRENCE,visit_source_concept_id,No,INTEGER,,cdm
+VISIT_OCCURRENCE,admitted_from_concept_id,No,INTEGER,"Use this field to determine where the patient was admitted from. This concept is part of the visit domain and can indicate if a patient was admitted to the hospital from a long-term care facility, for example.",cdm
+VISIT_OCCURRENCE,admitted_from_source_value,No,CHARACTER VARYING,,cdm
+VISIT_OCCURRENCE,discharged_to_concept_id,No,INTEGER,"Use this field to determine where the patient was discharged to after a visit. This concept is part of the visit domain and can indicate if a patient was transferred to another hospital or sent to a long-term care facility, for example.  It is assumed that a person is discharged to home therefore there is not a standard concept id for ""home"".  Use concept id = 0 when a person is discharged to home.",cdm
+VISIT_OCCURRENCE,discharged_to_source_value,No,CHARACTER VARYING,,cdm
+VISIT_OCCURRENCE,preceding_visit_occurrence_id,No,INTEGER,Use this field to find the visit that occurred for the person prior to the given visit. There could be a few days or a few years in between.,cdm
+VISIT_DETAIL,visit_detail_id,Yes,INTEGER,Use this to identify unique interactions between a person and the health care system. This identifier links across the other CDM event tables to associate events with a visit detail.,cdm
+VISIT_DETAIL,person_id,Yes,INTEGER,,cdm
+VISIT_DETAIL,visit_detail_concept_id,Yes,INTEGER,"This field contains a concept id representing the kind of visit detail, like inpatient or outpatient. All concepts in this field should be standard and belong to the Visit domain.",cdm
+VISIT_DETAIL,visit_detail_start_date,Yes,DATE,This is the date of the start of the encounter. This may or may not be equal to the date of the Visit the Visit Detail is associated with.,cdm
+VISIT_DETAIL,visit_detail_start_datetime,No,DATETIME,,cdm
+VISIT_DETAIL,visit_detail_end_date,Yes,DATE,"This the end date of the patient-provider interaction.  If a Person is still an inpatient in the hospital at the time of the data extract and does not have a visit_end_date, then set the visit_end_date to the date of the data pull.",cdm
+VISIT_DETAIL,visit_detail_end_datetime,No,DATETIME,"If a Person is still an inpatient in the hospital at the time of the data extract and does not have a visit_end_datetime, then set the visit_end_datetime to the datetime of the data pull.",cdm
+VISIT_DETAIL,visit_detail_type_concept_id,Yes,INTEGER,"Use this field to understand the provenance of the visit detail record, or where the record comes from.",cdm
+VISIT_DETAIL,provider_id,No,INTEGER,"There will only be one provider per  **visit** record and the ETL document should clearly state how they were chosen (attending, admitting, etc.). This is a typical reason for leveraging the VISIT_DETAIL table as even though each VISIT_DETAIL record can only have one provider, there is no limit to the number of VISIT_DETAIL records that can be associated to a VISIT_OCCURRENCE record.",cdm
+VISIT_DETAIL,care_site_id,No,INTEGER,This field provides information about the Care Site where the Visit Detail took place.,cdm
+VISIT_DETAIL,visit_detail_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the kind of visit detail that took place (inpatient, outpatient, emergency, etc.)",cdm
+VISIT_DETAIL,visit_detail_source_concept_id,No,INTEGER,,cdm
+VISIT_DETAIL,admitted_from_concept_id,No,INTEGER,"Use this field to determine where the patient was admitted from. This concept is part of the visit domain and can indicate if a patient was admitted to the hospital from a long-term care facility, for example.",cdm
+VISIT_DETAIL,admitted_from_source_value,No,CHARACTER VARYING,,cdm
+VISIT_DETAIL,discharged_to_source_value,No,CHARACTER VARYING,,cdm
+VISIT_DETAIL,discharged_to_concept_id,No,INTEGER,"Use this field to determine where the patient was discharged to after a visit. This concept is part of the visit domain and can indicate if a patient was transferred to another hospital or sent to a long-term care facility, for example.  It is assumed that a person is discharged to home therefore there is not a standard concept id for ""home"".  Use concept id = 0 when a person is discharged to home.",cdm
+VISIT_DETAIL,preceding_visit_detail_id,No,INTEGER,Use this field to find the visit detail that occurred for the person prior to the given visit detail record. There could be a few days or a few years in between.,cdm
+VISIT_DETAIL,parent_visit_detail_id,No,INTEGER,Use this field to find the visit detail that subsumes the given visit detail record. This is used in the case that a visit detail record needs to be nested beyond the VISIT_OCCURRENCE/VISIT_DETAIL relationship.,cdm
+VISIT_DETAIL,visit_occurrence_id,Yes,INTEGER,Use this field to link the VISIT_DETAIL record to its VISIT_OCCURRENCE.,cdm
+CONDITION_OCCURRENCE,condition_occurrence_id,Yes,INTEGER,The unique key given to a condition record for a person. Refer to the ETL for how duplicate conditions during the same visit were handled.,cdm
+CONDITION_OCCURRENCE,person_id,Yes,INTEGER,The PERSON_ID of the PERSON for whom the condition is recorded.,cdm
+CONDITION_OCCURRENCE,condition_concept_id,Yes,INTEGER,"The CONDITION_CONCEPT_ID field is recommended for primary use in analyses, and must be used for network studies. This is the standard concept mapped from the source value which represents a condition",cdm
+CONDITION_OCCURRENCE,condition_start_date,Yes,DATE,Use this date to determine the start date of the condition,cdm
+CONDITION_OCCURRENCE,condition_start_datetime,No,DATETIME,,cdm
+CONDITION_OCCURRENCE,condition_end_date,No,DATE,Use this date to determine the end date of the condition,cdm
+CONDITION_OCCURRENCE,condition_end_datetime,No,DATETIME,,cdm
+CONDITION_OCCURRENCE,condition_type_concept_id,Yes,INTEGER,"This field can be used to determine the provenance of the Condition record, as in whether the condition was from an EHR system, insurance claim, registry, or other sources.",cdm
+CONDITION_OCCURRENCE,condition_status_concept_id,No,INTEGER,"This concept represents the point during the visit the diagnosis was given (admitting diagnosis, final diagnosis), whether the diagnosis was determined due to laboratory findings, if the diagnosis was exclusionary, or if it was a preliminary diagnosis, among others. ",cdm
+CONDITION_OCCURRENCE,stop_reason,No,CHARACTER VARYING,The Stop Reason indicates why a Condition is no longer valid with respect to the purpose within the source data. Note that a Stop Reason does not necessarily imply that the condition is no longer occurring.,cdm
+CONDITION_OCCURRENCE,provider_id,No,INTEGER,"The provider associated with condition record, e.g. the provider who made the diagnosis or the provider who recorded the symptom.",cdm
+CONDITION_OCCURRENCE,visit_occurrence_id,No,INTEGER,The visit during which the condition occurred.,cdm
+CONDITION_OCCURRENCE,visit_detail_id,No,INTEGER,"The VISIT_DETAIL record during which the condition occurred. For example, if the person was in the ICU at the time of the diagnosis the VISIT_OCCURRENCE record would reflect the overall hospital stay and the VISIT_DETAIL record would reflect the ICU stay during the hospital visit.",cdm
+CONDITION_OCCURRENCE,condition_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the condition that occurred. For example, this could be an ICD10 or Read code.",cdm
+CONDITION_OCCURRENCE,condition_source_concept_id,No,INTEGER,"This is the concept representing the condition source value and may not necessarily be standard. This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Condition necessary for a given analytic use case. Consider using CONDITION_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.",cdm
+CONDITION_OCCURRENCE,condition_status_source_value,No,CHARACTER VARYING,This field houses the verbatim value from the source data representing the condition status.,cdm
+DRUG_EXPOSURE,drug_exposure_id,Yes,INTEGER,The unique key given to records of drug dispensings or administrations for a person. Refer to the ETL for how duplicate drugs during the same visit were handled.,cdm
+DRUG_EXPOSURE,person_id,Yes,INTEGER,The PERSON_ID of the PERSON for whom the drug dispensing or administration is recorded. This may be a system generated code.,cdm
+DRUG_EXPOSURE,drug_concept_id,Yes,INTEGER,"The DRUG_CONCEPT_ID field is recommended for primary use in analyses, and must be used for network studies. This is the standard concept mapped from the source concept id which represents a drug product or molecule otherwise introduced to the body. The drug concepts can have a varying degree of information about drug strength and dose. This information is relevant in the context of quantity and administration information in the subsequent fields plus strength information from the DRUG_STRENGTH table, provided as part of the standard vocabulary download.",cdm
+DRUG_EXPOSURE,drug_exposure_start_date,Yes,DATE,Use this date to determine the start date of the drug record.,cdm
+DRUG_EXPOSURE,drug_exposure_start_datetime,No,DATETIME,,cdm
+DRUG_EXPOSURE,drug_exposure_end_date,Yes,DATE,The DRUG_EXPOSURE_END_DATE denotes the day the drug exposure ended for the patient.,cdm
+DRUG_EXPOSURE,drug_exposure_end_datetime,No,DATETIME,,cdm
+DRUG_EXPOSURE,verbatim_end_date,No,DATE,"This is the end date of the drug exposure as it appears in the source data, if it is given",cdm
+DRUG_EXPOSURE,drug_type_concept_id,Yes,INTEGER,"You can use the TYPE_CONCEPT_ID to delineate between prescriptions written vs. prescriptions dispensed vs. medication history vs. patient-reported exposure, etc.",cdm
+DRUG_EXPOSURE,stop_reason,No,CHARACTER VARYING,"The reason a person stopped a medication as it is represented in the source. Reasons include regimen completed, changed, removed, etc. This field will be retired in v6.0.",cdm
+DRUG_EXPOSURE,refills,No,INTEGER,This is only filled in when the record is coming from a prescription written this field is meant to represent intended refills at time of the prescription.,cdm
+DRUG_EXPOSURE,quantity,No,FLOAT,,cdm
+DRUG_EXPOSURE,days_supply,No,INTEGER,,cdm
+DRUG_EXPOSURE,sig,No,CHARACTER VARYING,This is the verbatim instruction for the drug as written by the provider.,cdm
+DRUG_EXPOSURE,route_concept_id,No,INTEGER,,cdm
+DRUG_EXPOSURE,lot_number,No,CHARACTER VARYING,,cdm
+DRUG_EXPOSURE,provider_id,No,INTEGER,"The Provider associated with drug record, e.g. the provider who wrote the prescription or the provider who administered the drug.",cdm
+DRUG_EXPOSURE,visit_occurrence_id,No,INTEGER,"The Visit during which the drug was prescribed, administered or dispensed.",cdm
+DRUG_EXPOSURE,visit_detail_id,No,INTEGER,"The VISIT_DETAIL record during which the drug exposure occurred. For example, if the person was in the ICU at the time of the drug administration the VISIT_OCCURRENCE record would reflect the overall hospital stay and the VISIT_DETAIL record would reflect the ICU stay during the hospital visit.",cdm
+DRUG_EXPOSURE,drug_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the drug exposure that occurred. For example, this could be an NDC or Gemscript code.",cdm
+DRUG_EXPOSURE,drug_source_concept_id,No,INTEGER,"This is the concept representing the drug source value and may not necessarily be standard. This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Drug necessary for a given analytic use case. Consider using DRUG_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.",cdm
+DRUG_EXPOSURE,route_source_value,No,CHARACTER VARYING,This field houses the verbatim value from the source data representing the drug route.,cdm
+DRUG_EXPOSURE,dose_unit_source_value,No,CHARACTER VARYING,This field houses the verbatim value from the source data representing the dose unit of the drug given.,cdm
+PROCEDURE_OCCURRENCE,procedure_occurrence_id,Yes,INTEGER,The unique key given to a procedure record for a person. Refer to the ETL for how duplicate procedures during the same visit were handled.,cdm
+PROCEDURE_OCCURRENCE,person_id,Yes,INTEGER,The PERSON_ID of the PERSON for whom the procedure is recorded. This may be a system generated code.,cdm
+PROCEDURE_OCCURRENCE,procedure_concept_id,Yes,INTEGER,"The PROCEDURE_CONCEPT_ID field is recommended for primary use in analyses, and must be used for network studies. This is the standard concept mapped from the source value which represents a procedure",cdm
+PROCEDURE_OCCURRENCE,procedure_date,Yes,DATE,Use this date to determine the date the procedure started.,cdm
+PROCEDURE_OCCURRENCE,procedure_datetime,No,DATETIME,,cdm
+PROCEDURE_OCCURRENCE,procedure_end_date,No,DATE,Use this field to house the date that the procedure ended. ,cdm
+PROCEDURE_OCCURRENCE,procedure_end_datetime,No,DATETIME,Use this field to house the datetime that the procedure ended. ,cdm
+PROCEDURE_OCCURRENCE,procedure_type_concept_id,Yes,INTEGER,"This field can be used to determine the provenance of the Procedure record, as in whether the procedure was from an EHR system, insurance claim, registry, or other sources.",cdm
+PROCEDURE_OCCURRENCE,modifier_concept_id,No,INTEGER,The modifiers are intended to give additional information about the procedure but as of now the vocabulary is under review.,cdm
+PROCEDURE_OCCURRENCE,quantity,No,INTEGER,"If the quantity value is omitted, a single procedure is assumed.",cdm
+PROCEDURE_OCCURRENCE,provider_id,No,INTEGER,"The provider associated with the procedure record, e.g. the provider who performed the Procedure.",cdm
+PROCEDURE_OCCURRENCE,visit_occurrence_id,No,INTEGER,The visit during which the procedure occurred.,cdm
+PROCEDURE_OCCURRENCE,visit_detail_id,No,INTEGER,"The VISIT_DETAIL record during which the Procedure occurred. For example, if the Person was in the ICU at the time of the Procedure the VISIT_OCCURRENCE record would reflect the overall hospital stay and the VISIT_DETAIL record would reflect the ICU stay during the hospital visit.",cdm
+PROCEDURE_OCCURRENCE,procedure_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the procedure that occurred. For example, this could be an CPT4 or OPCS4 code.",cdm
+PROCEDURE_OCCURRENCE,procedure_source_concept_id,No,INTEGER,"This is the concept representing the procedure source value and may not necessarily be standard. This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Procedure necessary for a given analytic use case. Consider using PROCEDURE_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.",cdm
+PROCEDURE_OCCURRENCE,modifier_source_value,No,CHARACTER VARYING,,cdm
+DEVICE_EXPOSURE,device_exposure_id,Yes,INTEGER,The unique key given to records a person's exposure to a foreign physical object or instrument.,cdm
+DEVICE_EXPOSURE,person_id,Yes,INTEGER,,cdm
+DEVICE_EXPOSURE,device_concept_id,Yes,INTEGER,"The DEVICE_CONCEPT_ID field is recommended for primary use in analyses, and must be used for network studies. This is the standard concept mapped from the source concept id which represents a foreign object or instrument the person was exposed to. ",cdm
+DEVICE_EXPOSURE,device_exposure_start_date,Yes,DATE,Use this date to determine the start date of the device record.,cdm
+DEVICE_EXPOSURE,device_exposure_start_datetime,No,DATETIME,,cdm
+DEVICE_EXPOSURE,device_exposure_end_date,No,DATE,"The DEVICE_EXPOSURE_END_DATE denotes the day the device exposure ended for the patient, if given.",cdm
+DEVICE_EXPOSURE,device_exposure_end_datetime,No,DATETIME,,cdm
+DEVICE_EXPOSURE,device_type_concept_id,Yes,INTEGER,"You can use the TYPE_CONCEPT_ID to denote the provenance of the record, as in whether the record is from administrative claims or EHR. ",cdm
+DEVICE_EXPOSURE,unique_device_id,No,CHARACTER VARYING,"This is the Unique Device Identification (UDI-DI) number for devices regulated by the FDA, if given. ",cdm
+DEVICE_EXPOSURE,production_id,No,CHARACTER VARYING,This is the Production Identifier (UDI-PI) portion of the Unique Device Identification.,cdm
+DEVICE_EXPOSURE,quantity,No,INTEGER,,cdm
+DEVICE_EXPOSURE,provider_id,No,INTEGER,"The Provider associated with device record, e.g. the provider who wrote the prescription or the provider who implanted the device.",cdm
+DEVICE_EXPOSURE,visit_occurrence_id,No,INTEGER,The Visit during which the device was prescribed or given.,cdm
+DEVICE_EXPOSURE,visit_detail_id,No,INTEGER,The Visit Detail during which the device was prescribed or given.,cdm
+DEVICE_EXPOSURE,device_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the device exposure that occurred. For example, this could be an NDC or Gemscript code.",cdm
+DEVICE_EXPOSURE,device_source_concept_id,No,INTEGER,"This is the concept representing the device source value and may not necessarily be standard. This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Device necessary for a given analytic use case. Consider using DEVICE_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.",cdm
+DEVICE_EXPOSURE,unit_concept_id,No,INTEGER,UNIT_SOURCE_VALUES should be mapped to a Standard Concept in the Unit domain that best represents the unit as given in the source data. ,cdm
+DEVICE_EXPOSURE,unit_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the unit of the Device. For example, blood transfusions are considered devices and can be given in mL quantities. ",cdm
+DEVICE_EXPOSURE,unit_source_concept_id,No,INTEGER,"This is the concept representing the UNIT_SOURCE_VALUE and may not necessarily be standard. This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Unit necessary for a given analytic use case. Consider using UNIT_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.",cdm
+MEASUREMENT,measurement_id,Yes,INTEGER,The unique key given to a Measurement record for a Person. Refer to the ETL for how duplicate Measurements during the same Visit were handled.,cdm
+MEASUREMENT,person_id,Yes,INTEGER,The PERSON_ID of the Person for whom the Measurement is recorded. This may be a system generated code.,cdm
+MEASUREMENT,measurement_concept_id,Yes,INTEGER,"The MEASUREMENT_CONCEPT_ID field is recommended for primary use in analyses, and must be used for network studies.",cdm
+MEASUREMENT,measurement_date,Yes,DATE,Use this date to determine the date of the measurement.,cdm
+MEASUREMENT,measurement_datetime,No,DATETIME,,cdm
+MEASUREMENT,measurement_time,No,CHARACTER VARYING,,cdm
+MEASUREMENT,measurement_type_concept_id,Yes,INTEGER,"This field can be used to determine the provenance of the Measurement record, as in whether the measurement was from an EHR system, insurance claim, registry, or other sources.",cdm
+MEASUREMENT,operator_concept_id,No,INTEGER,"The meaning of Concept [4172703](https://athena.ohdsi.org/search-terms/terms/4172703) for '=' is identical to omission of a OPERATOR_CONCEPT_ID value. Since the use of this field is rare, it's important when devising analyses to not to forget testing for the content of this field for values different from =.",cdm
+MEASUREMENT,value_as_number,No,FLOAT,"This is the numerical value of the Result of the Measurement, if available. Note that measurements such as blood pressures will be split into their component parts i.e. one record for systolic, one record for diastolic.",cdm
+MEASUREMENT,value_as_concept_id,No,INTEGER,If the raw data gives a categorial result for measurements those values are captured and mapped to standard concepts in the 'Meas Value' domain.,cdm
+MEASUREMENT,unit_concept_id,No,INTEGER,"There is currently no recommended unit for individual measurements, i.e. it is not mandatory to represent Hemoglobin a1C measurements as a percentage. UNIT_SOURCE_VALUES should be mapped to a Standard Concept in the Unit domain that best represents the unit as given in the source data.",cdm
+MEASUREMENT,range_low,No,FLOAT,Ranges have the same unit as the VALUE_AS_NUMBER. These ranges are provided by the source and should remain NULL if not given.,cdm
+MEASUREMENT,range_high,No,FLOAT,Ranges have the same unit as the VALUE_AS_NUMBER. These ranges are provided by the source and should remain NULL if not given.,cdm
+MEASUREMENT,provider_id,No,INTEGER,"The provider associated with measurement record, e.g. the provider who ordered the test or the provider who recorded the result.",cdm
+MEASUREMENT,visit_occurrence_id,No,INTEGER,The visit during which the Measurement occurred.,cdm
+MEASUREMENT,visit_detail_id,No,INTEGER,"The VISIT_DETAIL record during which the Measurement occurred. For example, if the Person was in the ICU at the time the VISIT_OCCURRENCE record would reflect the overall hospital stay and the VISIT_DETAIL record would reflect the ICU stay during the hospital visit.",cdm
+MEASUREMENT,measurement_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the Measurement that occurred. For example, this could be an ICD10 or Read code.",cdm
+MEASUREMENT,measurement_source_concept_id,No,INTEGER,"This is the concept representing the MEASUREMENT_SOURCE_VALUE and may not necessarily be standard. This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Measurement necessary for a given analytic use case. Consider using MEASUREMENT_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.",cdm
+MEASUREMENT,unit_source_value,No,CHARACTER VARYING,This field houses the verbatim value from the source data representing the unit of the Measurement that occurred. ,cdm
+MEASUREMENT,unit_source_concept_id,No,INTEGER,"""This is the concept representing the UNIT_SOURCE_VALUE and may not necessarily be standard. This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Measurement necessary for a given analytic use case. Consider using UNIT_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.""",cdm
+MEASUREMENT,value_source_value,No,CHARACTER VARYING,This field houses the verbatim result value of the Measurement from the source data . ,cdm
+MEASUREMENT,measurement_event_id,No,INTEGER,"If the Measurement record is related to another record in the database, this field is the primary key of the linked record. ",cdm
+MEASUREMENT,meas_event_field_concept_id,No,INTEGER,"If the Measurement record is related to another record in the database, this field is the CONCEPT_ID that identifies which table the primary key of the linked record came from. ",cdm
+OBSERVATION,observation_id,Yes,INTEGER,The unique key given to an Observation record for a Person. Refer to the ETL for how duplicate Observations during the same Visit were handled.,cdm
+OBSERVATION,person_id,Yes,INTEGER,The PERSON_ID of the Person for whom the Observation is recorded. This may be a system generated code.,cdm
+OBSERVATION,observation_concept_id,Yes,INTEGER,"The OBSERVATION_CONCEPT_ID field is recommended for primary use in analyses, and must be used for network studies.",cdm
+OBSERVATION,observation_date,Yes,DATE,"The date of the Observation. Depending on what the Observation represents this could be the date of a lab test, the date of a survey, or the date a patient's family history was taken. ",cdm
+OBSERVATION,observation_datetime,No,DATETIME,,cdm
+OBSERVATION,observation_type_concept_id,Yes,INTEGER,"This field can be used to determine the provenance of the Observation record, as in whether the measurement was from an EHR system, insurance claim, registry, or other sources.",cdm
+OBSERVATION,value_as_number,No,FLOAT,"This is the numerical value of the Result of the Observation, if applicable and available. It is not expected that all Observations will have numeric results, rather, this field is here to house values should they exist. ",cdm
+OBSERVATION,value_as_string,No,CHARACTER VARYING,"This is the categorical value of the Result of the Observation, if applicable and available. ",cdm
+OBSERVATION,value_as_concept_id,No,INTEGER,"It is possible that some records destined for the Observation table have two clinical ideas represented in one source code. This is common with ICD10 codes that describe a family history of some Condition, for example. In OMOP the Vocabulary breaks these two clinical ideas into two codes; one becomes the OBSERVATION_CONCEPT_ID and the other becomes the VALUE_AS_CONCEPT_ID. It is important when using the Observation table to keep this possibility in mind and to examine the VALUE_AS_CONCEPT_ID field for relevant information.",cdm
+OBSERVATION,qualifier_concept_id,No,INTEGER,"This field contains all attributes specifying the clinical fact further, such as as degrees, severities, drug-drug interaction alerts etc.",cdm
+OBSERVATION,unit_concept_id,No,INTEGER,There is currently no recommended unit for individual observation concepts. UNIT_SOURCE_VALUES should be mapped to a Standard Concept in the Unit domain that best represents the unit as given in the source data.,cdm
+OBSERVATION,provider_id,No,INTEGER,"The provider associated with the observation record, e.g. the provider who ordered the test or the provider who recorded the result.",cdm
+OBSERVATION,visit_occurrence_id,No,INTEGER,The visit during which the Observation occurred.,cdm
+OBSERVATION,visit_detail_id,No,INTEGER,"The VISIT_DETAIL record during which the Observation occurred. For example, if the Person was in the ICU at the time the VISIT_OCCURRENCE record would reflect the overall hospital stay and the VISIT_DETAIL record would reflect the ICU stay during the hospital visit.",cdm
+OBSERVATION,observation_source_value,No,CHARACTER VARYING,"This field houses the verbatim value from the source data representing the Observation that occurred. For example, this could be an ICD10 or Read code.",cdm
+OBSERVATION,observation_source_concept_id,No,INTEGER,"This is the concept representing the OBSERVATION_SOURCE_VALUE and may not necessarily be standard. This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Observation necessary for a given analytic use case. Consider using OBSERVATION_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.",cdm
+OBSERVATION,unit_source_value,No,CHARACTER VARYING,This field houses the verbatim value from the source data representing the unit of the Observation that occurred. ,cdm
+OBSERVATION,qualifier_source_value,No,CHARACTER VARYING,This field houses the verbatim value from the source data representing the qualifier of the Observation that occurred. ,cdm
+OBSERVATION,value_source_value,No,CHARACTER VARYING,This field houses the verbatim result value of the Observation from the source data.  Do not get confused with the Observation_source_value which captures source value of the observation mapped to observation_concept_id. This field is the observation result value from the source.,cdm
+OBSERVATION,observation_event_id,No,INTEGER,"If the Observation record is related to another record in the database, this field is the primary key of the linked record. ",cdm
+OBSERVATION,obs_event_field_concept_id,No,INTEGER,"If the Observation record is related to another record in the database, this field is the CONCEPT_ID that identifies which table the primary key of the linked record came from. ",cdm
+DEATH,person_id,Yes,INTEGER,,cdm
+DEATH,death_date,Yes,DATE,The date the person was deceased.,cdm
+DEATH,death_datetime,No,DATETIME,,cdm
+DEATH,death_type_concept_id,No,INTEGER,"This is the provenance of the death record, i.e., where it came from. It is possible that an administrative claims database would source death information from a government file so do not assume the Death Type is the same as the Visit Type, etc.",cdm
+DEATH,cause_concept_id,No,INTEGER,"This is the Standard Concept representing the Person's cause of death, if available.",cdm
+DEATH,cause_source_value,No,CHARACTER VARYING,,cdm
+DEATH,cause_source_concept_id,No,INTEGER,,cdm
+NOTE,note_id,Yes,INTEGER,A unique identifier for each note.,cdm
+NOTE,person_id,Yes,INTEGER,,cdm
+NOTE,note_date,Yes,DATE,The date the note was recorded.,cdm
+NOTE,note_datetime,No,DATETIME,,cdm
+NOTE,note_type_concept_id,Yes,INTEGER,The provenance of the note. Most likely this will be EHR. ,cdm
+NOTE,note_class_concept_id,Yes,INTEGER,"A Standard Concept Id representing the HL7 LOINC Document Type Vocabulary classification of the note.",cdm
+NOTE,note_title,No,CHARACTER VARYING,The title of the note.,cdm
+NOTE,note_text,Yes,CHARACTER VARYING,The content of the note.,cdm
+NOTE,encoding_concept_id,Yes,INTEGER,This is the Concept representing the character encoding type. ,cdm
+NOTE,language_concept_id,Yes,INTEGER,The language of the note. ,cdm
+NOTE,provider_id,No,INTEGER,The Provider who wrote the note.,cdm
+NOTE,visit_occurrence_id,No,INTEGER,The Visit during which the note was written. ,cdm
+NOTE,visit_detail_id,No,INTEGER,The Visit Detail during which the note was written.,cdm
+NOTE,note_source_value,No,CHARACTER VARYING,,cdm
+NOTE,note_event_id,No,INTEGER,"If the Note record is related to another record in the database, this field is the primary key of the linked record. ",cdm
+NOTE,note_event_field_concept_id,No,INTEGER,"If the Note record is related to another record in the database, this field is the CONCEPT_ID that identifies which table the primary key of the linked record came from. ",cdm
+NOTE_NLP,note_nlp_id,Yes,INTEGER,A unique identifier for the NLP record.,cdm
+NOTE_NLP,note_id,Yes,INTEGER,This is the NOTE_ID for the NOTE record the NLP record is associated to.,cdm
+NOTE_NLP,section_concept_id,No,INTEGER,,cdm
+NOTE_NLP,snippet,No,CHARACTER VARYING,A small window of text surrounding the term,cdm
+NOTE_NLP,"""offset""",No,CHARACTER VARYING,Character offset of the extracted term in the input note,cdm
+NOTE_NLP,lexical_variant,Yes,CHARACTER VARYING,Raw text extracted from the NLP tool.,cdm
+NOTE_NLP,note_nlp_concept_id,No,INTEGER,,cdm
+NOTE_NLP,note_nlp_source_concept_id,No,INTEGER,,cdm
+NOTE_NLP,nlp_system,No,CHARACTER VARYING,,cdm
+NOTE_NLP,nlp_date,Yes,DATE,The date of the note processing.,cdm
+NOTE_NLP,nlp_datetime,No,DATETIME,The date and time of the note processing.,cdm
+NOTE_NLP,term_exists,No,CHARACTER VARYING,,cdm
+NOTE_NLP,term_temporal,No,CHARACTER VARYING,,cdm
+NOTE_NLP,term_modifiers,No,CHARACTER VARYING,,cdm
+SPECIMEN,specimen_id,Yes,INTEGER,Unique identifier for each specimen.,cdm
+SPECIMEN,person_id,Yes,INTEGER,The person from whom the specimen is collected.,cdm
+SPECIMEN,specimen_concept_id,Yes,INTEGER,,cdm
+SPECIMEN,specimen_type_concept_id,Yes,INTEGER,,cdm
+SPECIMEN,specimen_date,Yes,DATE,The date the specimen was collected.,cdm
+SPECIMEN,specimen_datetime,No,DATETIME,,cdm
+SPECIMEN,quantity,No,FLOAT,The amount of specimen collected from the person.,cdm
+SPECIMEN,unit_concept_id,No,INTEGER,The unit for the quantity of the specimen.,cdm
+SPECIMEN,anatomic_site_concept_id,No,INTEGER,This is the site on the body where the specimen is from.,cdm
+SPECIMEN,disease_status_concept_id,No,INTEGER,,cdm
+SPECIMEN,specimen_source_id,No,CHARACTER VARYING,This is the identifier for the specimen from the source system. ,cdm
+SPECIMEN,specimen_source_value,No,CHARACTER VARYING,,cdm
+SPECIMEN,unit_source_value,No,CHARACTER VARYING,,cdm
+SPECIMEN,anatomic_site_source_value,No,CHARACTER VARYING,,cdm
+SPECIMEN,disease_status_source_value,No,CHARACTER VARYING,,cdm
+FACT_RELATIONSHIP,domain_concept_id_1,Yes,INTEGER,,cdm
+FACT_RELATIONSHIP,fact_id_1,Yes,INTEGER,,cdm
+FACT_RELATIONSHIP,domain_concept_id_2,Yes,INTEGER,,cdm
+FACT_RELATIONSHIP,fact_id_2,Yes,INTEGER,,cdm
+FACT_RELATIONSHIP,relationship_concept_id,Yes,INTEGER,,cdm
+LOCATION,location_id,Yes,INTEGER,The unique key given to a unique Location.,cdm
+LOCATION,address_1,No,CHARACTER VARYING,This is the first line of the address.,cdm
+LOCATION,address_2,No,CHARACTER VARYING,This is the second line of the address,cdm
+LOCATION,city,No,CHARACTER VARYING,,cdm
+LOCATION,state,No,CHARACTER VARYING,,cdm
+LOCATION,zip,No,CHARACTER VARYING,,cdm
+LOCATION,county,No,CHARACTER VARYING,,cdm
+LOCATION,location_source_value,No,CHARACTER VARYING,,cdm
+LOCATION,country_concept_id,No,INTEGER,The Concept Id representing the country. Values should conform to the [Geography](https://athena.ohdsi.org/search-terms/terms?domain=Geography&standardConcept=Standard&page=1&pageSize=15&query=&boosts) domain.,cdm
+LOCATION,country_source_value,No,CHARACTER VARYING,The name of the country.,cdm
+LOCATION,latitude,No,FLOAT,,cdm
+LOCATION,longitude,No,FLOAT,,cdm
+CARE_SITE,care_site_id,Yes,INTEGER,,cdm
+CARE_SITE,care_site_name,No,CHARACTER VARYING,The name of the care_site as it appears in the source data,cdm
+CARE_SITE,place_of_service_concept_id,No,INTEGER,"This is a high-level way of characterizing a Care Site. Typically, however, Care Sites can provide care in multiple settings (inpatient, outpatient, etc.) and this granularity should be reflected in the visit.",cdm
+CARE_SITE,location_id,No,INTEGER,The location_id from the LOCATION table representing the physical location of the care_site.,cdm
+CARE_SITE,care_site_source_value,No,CHARACTER VARYING,The identifier of the care_site as it appears in the source data. This could be an identifier separate from the name of the care_site.,cdm
+CARE_SITE,place_of_service_source_value,No,CHARACTER VARYING,,cdm
+PROVIDER,provider_id,Yes,INTEGER,It is assumed that every provider with a different unique identifier is in fact a different person and should be treated independently.,cdm
+PROVIDER,provider_name,No,CHARACTER VARYING,,cdm
+PROVIDER,npi,No,CHARACTER VARYING,This is the National Provider Number issued to health care providers in the US by the Centers for Medicare and Medicaid Services (CMS).,cdm
+PROVIDER,dea,No,CHARACTER VARYING,"This is the identifier issued by the DEA, a US federal agency, that allows a provider to write prescriptions for controlled substances.",cdm
+PROVIDER,specialty_concept_id,No,INTEGER,"This field either represents the most common specialty that occurs in the data or the most specific concept that represents all specialties listed, should the provider have more than one. This includes physician specialties such as internal medicine, emergency medicine, etc. and allied health professionals such as nurses, midwives, and pharmacists.",cdm
+PROVIDER,care_site_id,No,INTEGER,This is the CARE_SITE_ID for the location that the provider primarily practices in.,cdm
+PROVIDER,year_of_birth,No,INTEGER,,cdm
+PROVIDER,gender_concept_id,No,INTEGER,This field represents the recorded gender of the provider in the source data.,cdm
+PROVIDER,provider_source_value,No,CHARACTER VARYING,Use this field to link back to providers in the source data. This is typically used for error checking of ETL logic.,cdm
+PROVIDER,specialty_source_value,No,CHARACTER VARYING,"This is the kind of provider or specialty as it appears in the source data. This includes physician specialties such as internal medicine, emergency medicine, etc. and allied health professionals such as nurses, midwives, and pharmacists.",cdm
+PROVIDER,specialty_source_concept_id,No,INTEGER,This is often zero as many sites use proprietary codes to store physician speciality.,cdm
+PROVIDER,gender_source_value,No,CHARACTER VARYING,This is provider's gender as it appears in the source data.,cdm
+PROVIDER,gender_source_concept_id,No,INTEGER,This is often zero as many sites use proprietary codes to store provider gender.,cdm
+PAYER_PLAN_PERIOD,payer_plan_period_id,Yes,INTEGER,"A unique identifier for each unique combination of a Person, Payer, Plan, and Period of time.",cdm
+PAYER_PLAN_PERIOD,person_id,Yes,INTEGER,The Person covered by the Plan.,cdm
+PAYER_PLAN_PERIOD,payer_plan_period_start_date,Yes,DATE,Start date of Plan coverage.,cdm
+PAYER_PLAN_PERIOD,payer_plan_period_end_date,Yes,DATE,End date of Plan coverage.,cdm
+PAYER_PLAN_PERIOD,payer_concept_id,No,INTEGER,This field represents the organization who reimburses the provider which administers care to the Person.,cdm
+PAYER_PLAN_PERIOD,payer_source_value,No,CHARACTER VARYING,This is the Payer as it appears in the source data.,cdm
+PAYER_PLAN_PERIOD,payer_source_concept_id,No,INTEGER,,cdm
+PAYER_PLAN_PERIOD,plan_concept_id,No,INTEGER,This field represents the specific health benefit Plan the Person is enrolled in.,cdm
+PAYER_PLAN_PERIOD,plan_source_value,No,CHARACTER VARYING,This is the health benefit Plan of the Person as it appears in the source data.,cdm
+PAYER_PLAN_PERIOD,plan_source_concept_id,No,INTEGER,,cdm
+PAYER_PLAN_PERIOD,sponsor_concept_id,No,INTEGER,"This field represents the sponsor of the Plan who finances the Plan. This includes self-insured, small group health plan and large group health plan.",cdm
+PAYER_PLAN_PERIOD,sponsor_source_value,No,CHARACTER VARYING,The Plan sponsor as it appears in the source data.,cdm
+PAYER_PLAN_PERIOD,sponsor_source_concept_id,No,INTEGER,,cdm
+PAYER_PLAN_PERIOD,family_source_value,No,CHARACTER VARYING,The common identifier for all people (often a family) that covered by the same policy.,cdm
+PAYER_PLAN_PERIOD,stop_reason_concept_id,No,INTEGER,"This field represents the reason the Person left the Plan, if known.",cdm
+PAYER_PLAN_PERIOD,stop_reason_source_value,No,CHARACTER VARYING,The Plan stop reason as it appears in the source data.,cdm
+PAYER_PLAN_PERIOD,stop_reason_source_concept_id,No,INTEGER,,cdm
+COST,cost_id,Yes,INTEGER,,cdm
+COST,cost_event_id,Yes,INTEGER,,cdm
+COST,cost_domain_id,Yes,CHARACTER VARYING,,cdm
+COST,cost_type_concept_id,Yes,INTEGER,,cdm
+COST,currency_concept_id,No,INTEGER,,cdm
+COST,total_charge,No,FLOAT,,cdm
+COST,total_cost,No,FLOAT,,cdm
+COST,total_paid,No,FLOAT,,cdm
+COST,paid_by_payer,No,FLOAT,,cdm
+COST,paid_by_patient,No,FLOAT,,cdm
+COST,paid_patient_copay,No,FLOAT,,cdm
+COST,paid_patient_coinsurance,No,FLOAT,,cdm
+COST,paid_patient_deductible,No,FLOAT,,cdm
+COST,paid_by_primary,No,FLOAT,,cdm
+COST,paid_ingredient_cost,No,FLOAT,,cdm
+COST,paid_dispensing_fee,No,FLOAT,,cdm
+COST,payer_plan_period_id,No,INTEGER,,cdm
+COST,amount_allowed,No,FLOAT,,cdm
+COST,revenue_code_concept_id,No,INTEGER,,cdm
+COST,revenue_code_source_value,No,CHARACTER VARYING,Revenue codes are a method to charge for a class of procedures and conditions in the U.S. hospital system.,cdm
+COST,drg_concept_id,No,INTEGER,,cdm
+COST,drg_source_value,No,CHARACTER VARYING,Diagnosis Related Groups are US codes used to classify hospital cases into one of approximately 500 groups.,cdm
+DRUG_ERA,drug_era_id,Yes,INTEGER,,cdm
+DRUG_ERA,person_id,Yes,INTEGER,,cdm
+DRUG_ERA,drug_concept_id,Yes,INTEGER,The Concept Id representing the specific drug ingredient.,cdm
+DRUG_ERA,drug_era_start_date,Yes,DATETIME,,cdm
+DRUG_ERA,drug_era_end_date,Yes,DATETIME,,cdm
+DRUG_ERA,drug_exposure_count,No,INTEGER,,cdm
+DRUG_ERA,gap_days,No,INTEGER,,cdm
+DOSE_ERA,dose_era_id,Yes,INTEGER,,cdm
+DOSE_ERA,person_id,Yes,INTEGER,,cdm
+DOSE_ERA,drug_concept_id,Yes,INTEGER,The Concept Id representing the specific drug ingredient.,cdm
+DOSE_ERA,unit_concept_id,Yes,INTEGER,The Concept Id representing the unit of the specific drug ingredient.,cdm
+DOSE_ERA,dose_value,Yes,FLOAT,The numeric value of the dosage of the drug_ingredient.,cdm
+DOSE_ERA,dose_era_start_date,Yes,DATETIME,"The date the Person started on the specific dosage, with at least 31 days since any prior exposure.",cdm
+DOSE_ERA,dose_era_end_date,Yes,DATETIME,,cdm
+CONDITION_ERA,condition_era_id,Yes,INTEGER,,cdm
+CONDITION_ERA,person_id,Yes,INTEGER,,cdm
+CONDITION_ERA,condition_concept_id,Yes,INTEGER,The Concept Id representing the Condition.,cdm
+CONDITION_ERA,condition_era_start_date,Yes,DATETIME,"The start date for the Condition Era
+constructed from the individual
+instances of Condition Occurrences.
+It is the start date of the very first
+chronologically recorded instance of
+the condition with at least 31 days since any prior record of the same Condition.",cdm
+CONDITION_ERA,condition_era_end_date,Yes,DATETIME,"The end date for the Condition Era
+constructed from the individual
+instances of Condition Occurrences.
+It is the end date of the final
+continuously recorded instance of the
+Condition.",cdm
+CONDITION_ERA,condition_occurrence_count,No,INTEGER,"The number of individual Condition
+Occurrences used to construct the
+condition era.",cdm
+EPISODE,episode_id,Yes,bigint,A unique identifier for each Episode.,cdm
+EPISODE,person_id,Yes,bigint,The PERSON_ID of the PERSON for whom the episode is recorded.,cdm
+EPISODE,episode_concept_id,Yes,INTEGER,"The EPISODE_CONCEPT_ID represents the kind abstraction related to the disease phase, outcome or treatment.",cdm
+EPISODE,episode_start_date,Yes,DATE,The date when the Episode beings. ,cdm
+EPISODE,episode_start_datetime,No,DATETIME,The date and time when the Episode begins.,cdm
+EPISODE,episode_end_date,No,DATE,The date when the instance of the Episode is considered to have ended.,cdm
+EPISODE,episode_end_datetime,No,DATETIME,The date when the instance of the Episode is considered to have ended.,cdm
+EPISODE,episode_parent_id,No,INTEGER,Use this field to find the Episode that subsumes the given Episode record. This is used in the case that an Episode are nested into each other.,cdm
+EPISODE,episode_number,No,INTEGER,"For sequences of episodes, this is used to indicate the order the episodes occurred. For example, lines of treatment could be indicated here. ",cdm
+EPISODE,episode_object_concept_id,Yes,INTEGER,"A Standard Concept representing the disease phase, outcome, or other abstraction of which the episode consists.  For example, if the EPISODE_CONCEPT_ID is [treatment regimen](https://athena.ohdsi.org/search-terms/terms/32531) then the EPISODE_OBJECT_CONCEPT_ID should contain the chemotherapy regimen concept, like [Afatinib monotherapy](https://athena.ohdsi.org/search-terms/terms/35804392).",cdm
+EPISODE,episode_type_concept_id,Yes,INTEGER,"This field can be used to determine the provenance of the Episode record, as in whether the episode was from an EHR system, insurance claim, registry, or other sources.",cdm
+EPISODE,episode_source_value,No,CHARACTER VARYING,The source code for the Episdoe as it appears in the source data. This code is mapped to a Standard Condition Concept in the Standardized Vocabularies and the original code is stored here for reference.,cdm
+EPISODE,episode_source_concept_id,No,INTEGER,A foreign key to a Episode Concept that refers to the code used in the source.,cdm
+EPISODE_EVENT,episode_id,Yes,INTEGER,Use this field to link the EPISODE_EVENT record to its EPISODE.,cdm
+EPISODE_EVENT,event_id,Yes,INTEGER,"This field is the primary key of the linked record in the database. For example, if the Episode Event is a Condition Occurrence, then the CONDITION_OCCURRENCE_ID of the linked record goes in this field. ",cdm
+EPISODE_EVENT,episode_event_field_concept_id,Yes,INTEGER,This field is the CONCEPT_ID that identifies which table the primary key of the linked record came from. ,cdm
+METADATA,metadata_id,Yes,INTEGER,The unique key given to a Metadata record.,cdm
+METADATA,metadata_concept_id,Yes,INTEGER,,cdm
+METADATA,metadata_type_concept_id,Yes,INTEGER,,cdm
+METADATA,name,Yes,CHARACTER VARYING,,cdm
+METADATA,value_as_string,No,CHARACTER VARYING,,cdm
+METADATA,value_as_concept_id,No,INTEGER,,cdm
+METADATA,value_as_number,No,FLOAT,"This is the numerical value of the result of the Metadata, if applicable and available. It is not expected that all Metadata will have numeric results, rather, this field is here to house values should they exist. ",cdm
+METADATA,metadata_date,No,DATE,,cdm
+METADATA,metadata_datetime,No,DATETIME,,cdm
+CDM_SOURCE,cdm_source_name,Yes,CHARACTER VARYING,The name of the CDM instance.,cdm
+CDM_SOURCE,cdm_source_abbreviation,Yes,CHARACTER VARYING,The abbreviation of the CDM instance.,cdm
+CDM_SOURCE,cdm_holder,Yes,CHARACTER VARYING,The holder of the CDM instance.,cdm
+CDM_SOURCE,source_description,No,CHARACTER VARYING,The description of the CDM instance.,cdm
+CDM_SOURCE,source_documentation_reference,No,CHARACTER VARYING,,cdm
+CDM_SOURCE,cdm_etl_reference,No,CHARACTER VARYING,,cdm
+CDM_SOURCE,source_release_date,Yes,DATE,The release date of the source data.,cdm
+CDM_SOURCE,cdm_release_date,Yes,DATE,The release data of the CDM instance.,cdm
+CDM_SOURCE,cdm_version,No,CHARACTER VARYING,,cdm
+CDM_SOURCE,cdm_version_concept_id,Yes,INTEGER,The Concept Id representing the version of the CDM.,cdm
+CDM_SOURCE,vocabulary_version,Yes,CHARACTER VARYING,,cdm
+COHORT,cohort_definition_id,Yes,INTEGER,,results
+COHORT,subject_id,Yes,INTEGER,,results
+COHORT,cohort_start_date,Yes,DATE,,results
+COHORT,cohort_end_date,Yes,DATE,,results
+COHORT_DEFINITION,cohort_definition_id,Yes,INTEGER,"This is the identifier given to the cohort, usually by the ATLAS application",results
+COHORT_DEFINITION,cohort_definition_name,Yes,CHARACTER VARYING,A short description of the cohort,results
+COHORT_DEFINITION,cohort_definition_description,No,CHARACTER VARYING,A complete description of the cohort.,results
+COHORT_DEFINITION,definition_type_concept_id,Yes,INTEGER,Type defining what kind of Cohort Definition the record represents and how the syntax may be executed.,results
+COHORT_DEFINITION,cohort_definition_syntax,No,CHARACTER VARYING,Syntax or code to operationalize the Cohort Definition.,results
+COHORT_DEFINITION,subject_concept_id,Yes,INTEGER,"This field contains a Concept that represents the domain of the subjects that are members of the cohort (e.g., Person, Provider, Visit).",results
+COHORT_DEFINITION,cohort_initiation_date,No,DATE,A date to indicate when the Cohort was initiated in the COHORT table.,results

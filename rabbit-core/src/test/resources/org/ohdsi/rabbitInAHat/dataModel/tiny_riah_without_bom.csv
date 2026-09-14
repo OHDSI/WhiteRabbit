@@ -1,0 +1,2 @@
+table,field,required,type,description,schema
+PERSON,person_id,Yes,Integer,PK; Patient ID,cdm

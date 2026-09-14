@@ -17,6 +17,8 @@
  ******************************************************************************/
 package org.ohdsi.utilities.files;
 
+import org.apache.commons.io.input.BOMInputStream;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -46,11 +48,11 @@ public class ReadTextFile implements Iterable<String>{
   public ReadTextFile(String filename) {
     this.filename = filename;
     try {
-      FileInputStream inputStream = new FileInputStream(filename);
+      InputStream inputStream = BOMInputStream.builder().setInputStream(new FileInputStream(filename)).get();
       bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
     } catch (FileNotFoundException e) {
       e.printStackTrace();
-    } catch (UnsupportedEncodingException e) {
+    } catch (IOException e) {
       System.err.println("Computer does not support UTF-8 encoding");
       e.printStackTrace();
     }

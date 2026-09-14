@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.HyperlinkEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.csv.CSVFormat;
@@ -164,13 +165,13 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 			dbSettings = dbType.getStorageHandler().getDbSettings(iniFile, null, System.out);
 		} else {
 			dbSettings = new DbSettings();
-			if (iniFile.get(DBConfiguration.DATA_TYPE_FIELD).equalsIgnoreCase(DELIMITED_TEXT_FILES)) {
+			if (iniFile.get(ScanConfiguration.DATA_TYPE_FIELD).equalsIgnoreCase(DELIMITED_TEXT_FILES)) {
 				dbSettings.sourceType = DbSettings.SourceType.CSV_FILES;
 				if (iniFile.get("DELIMITER").equalsIgnoreCase("tab"))
 					dbSettings.delimiter = '\t';
 				else
 					dbSettings.delimiter = iniFile.get("DELIMITER").charAt(0);
-			} else if (iniFile.get(DBConfiguration.DATA_TYPE_FIELD).equalsIgnoreCase(DbType.SAS7BDAT.label())) {
+			} else if (iniFile.get(ScanConfiguration.DATA_TYPE_FIELD).equalsIgnoreCase(DbType.SAS7BDAT.label())) {
 				dbSettings.sourceType = DbSettings.SourceType.SAS_FILES;
 			} else {
 				dbSettings.sourceType = DbSettings.SourceType.DATABASE;
@@ -768,7 +769,7 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 		if (dbSettings != null) {
 			testConnection(dbSettings, feedback);
 		} else {
-			throw new DBConfigurationException("Source database settings were not initialized");
+			throw new ScanConfigurationException("Source database settings were not initialized");
 		}
 	}
 
@@ -802,7 +803,7 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 			    connection = new RichConnection(dbSettings);
 			} catch (Exception e) {
 				String message = "Could not connect: " + e.getMessage();
-				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(frame, makeHtmlPanel(message), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			try {
@@ -811,7 +812,7 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 					throw new RuntimeException("Unable to retrieve table names for database " + dbSettings.database);
 			} catch (Exception e) {
 				String message = "Could not connect to database: " + e.getMessage();
-				JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(frame, makeHtmlPanel(message), "Error connecting to server", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
@@ -819,6 +820,31 @@ public class WhiteRabbitMain implements ActionListener, PanelsManager {
 			String message = "Successfully connected to " + dbSettings.database + " on server " + dbSettings.server;
 			JOptionPane.showMessageDialog(frame, StringUtilities.wordWrap(message, 80), LABEL_CONNECTION_SUCCESSFUL, JOptionPane.INFORMATION_MESSAGE);
 		}
+	}
+
+	private JTextPane makeHtmlPanel(String text) {
+		JTextPane textPane = new JTextPane();
+		textPane.setContentType("text/html"); // let the text pane know this is what you want
+		textPane.setText("<html>" + StringUtilities.wordWrap(text.replace("\n", "<br>"), 80) + "</html>");
+		textPane.setEditable(false); // as before
+		textPane.setBackground(null); // this is the same as a JLabel
+		textPane.setBorder(null); // remove the border
+
+		// if a url seems present in the text, add a handler for clicking it
+		if (text.toLowerCase().contains("<a") && text.toLowerCase().contains("href")) {
+			textPane.addHyperlinkListener(e -> {
+				if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
+					Desktop desktop = Desktop.getDesktop();
+					try {
+						desktop.browse(e.getURL().toURI());
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			});
+		}
+
+		return textPane;
 	}
 
 	private boolean feedbackBlocksContinuation(ValidationFeedback feedback) {
