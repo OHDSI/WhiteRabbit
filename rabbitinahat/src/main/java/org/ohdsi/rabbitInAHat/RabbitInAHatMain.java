@@ -141,7 +141,7 @@ public class RabbitInAHatMain implements ResizeListener {
 		frame.setJMenuBar(createMenuBar());
 
 		ETL etl = new ETL();
-		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV54));
+		etl.setTargetDatabase(Database.generateCDMModel(CDMVersion.CDMV55));
 
 		ObjectExchange.etl = etl;
 
@@ -267,12 +267,13 @@ public class RabbitInAHatMain implements ResizeListener {
 		cdmOptions.put(ACTION_SET_TARGET_V52, CDMVersion.CDMV52);
 		cdmOptions.put(ACTION_SET_TARGET_V53, CDMVersion.CDMV53);
 		cdmOptions.put(ACTION_SET_TARGET_V54, CDMVersion.CDMV54);
+		cdmOptions.put(ACTION_SET_TARGET_V55, CDMVersion.CDMV55);
 
 		JRadioButtonMenuItem targetCDM;
 		ButtonGroup targetGroup = new ButtonGroup();
 		for (String optionName : cdmOptions.keySet()) {
 			targetCDM = new JRadioButtonMenuItem(optionName);
-			if (optionName.equals(ACTION_SET_TARGET_V54)) {
+			if (optionName.equals(ACTION_SET_TARGET_V55)) {
 				targetCDM.setSelected(true);
 			}
 			targetGroup.add(targetCDM);
