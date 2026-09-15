@@ -84,7 +84,7 @@ Use the “Pick Folder” button to navigate in your local environment where you
 
 Here you can specify the location of the source data.
 The following source types are supported:
-   delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure.
+   delimited text files, SAS files, MySQL, SQL Server, Oracle, PostgreSQL, Microsoft Access, Amazon RedShift, PDW, Teradata, Google BigQuery, Azure, Snowflake, Databricks.
 Below are connection instructions for each data type of data source.
 Once you have entered the necessary information, the “Test connection” button can ensure a connection can be made.
 
@@ -133,6 +133,12 @@ When the SQL Server JDBC drivers are installed, you can also use Windows authent
 
 #### Google BigQuery
 
+If you want to use a BigQuery instance as the source database, after installing WhiteRabbit, you will need to download
+a zip file with the BigQuery JDBC driver, and unzip it in de `repo` directory of the WhiteRabbit installation.
+The latest version tested with WhiteRabbit is 1.5.2.1005 .
+
+The zip file can be downloaded [here](https://storage.googleapis.com/simba-bq-release/jdbc/SimbaJDBCDriverforGoogleBigQuery42_1.5.2.1005.zip).
+
 Google BigQuery (GBQ) supports two different connection/authentication methods: application default credentials and service account authentication.
 The former method is considered more secure because it writes auditing events to stackdriver.
 The specific method used is determined by the arguments provided to the configuration panel as described below.
@@ -160,6 +166,42 @@ Authentication via service account credentials:
   * _**User name:**_ name of the user used to log into the server
   * _**Password:**_ password for the supplied user name
 
+#### Snowflake
+
+  * _**Account:**_ the account name for your Snowflake instance
+  * _**User:**_ user name to be used for the Snowflake instance
+  * _**Password:**_ password for the above user
+  * _**Warehouse:**_ warehouse within the Snowflake instance
+  * _**Database:**_ database to be used within the warehouse
+  * _**Schema:**_ schema to be used within the database
+  * _**Authentication method:**_ authentication method to be used. Currently only the value 'externalbrowser' is supported
+
+Please note that the fields _**Password**_ and _**Authentication method**_ are mutually exclusive: for only one of these fields
+a value should be supplied. A warning will be given when a value is supplied for both fields.
+
+#### Databricks
+
+Please see [this page](https://docs.databricks.com/aws/en/integrations/compute-details) for information on some of the parameters needed to connect to Databricks.
+For a Personal Access Token, see [this page](https://docs.databricks.com/dev-tools/api/latest/authentication.html#generate-a-token).
+
+  * _**Server:**_ the server address string 
+  * _**HTTP path:**_ HTTP path to the Databricks workspace (e.g. "/sql/protocolv1/o/1234567890123456/0123-456789-abcde1234567890")
+  * _**Catalog:**_ the catalog to be used
+  * _**Schema:**_ the schema to be used
+  * _**Authentication method:**_ the text "browser" if you want to used the browser for authentication, or empty if you want to use a personal access token.
+  * _**Personal Access Token:**_ Personal Access Token (PAT) to be used for authentication
+
+Please note that the fields _**Authentication method**_ and _**Personal Access Token**_ are mutually exclusive: for only one of these fields
+a value should be supplied. A warning will be given when a value is supplied for both fields.
+
+#### Teradata
+
+If you want to use a Teradata instance as the source database, after installing WhiteRabbit, you will need to download
+a zip file with the Teradata JDBC driver, and unzip it in de `repo` directory of the WhiteRabbit installation.
+The latest version tested with WhiteRabbit is 20.00.00.16 .
+
+The zip file can be downloaded [here](https://downloads.teradata.com/download/connectivity/jdbc-driver).
+
 ## Scanning a Database
 
 ### Performing the Scan
@@ -185,8 +227,9 @@ Once all settings are completed, press the ‘Scan tables’ button. After the s
 
 For various reasons one could prefer to run WhiteRabbit from the command line.
 This is possible by specifying all the options one would normally select in the user interface in an .ini file.
-An example ini file can be found in the [iniFileExamples folder](https://github.com/OHDSI/WhiteRabbit/blob/master/iniFileExamples/WhiteRabbit.ini).
-Then, we can reference the ini file when calling WhiteRabbit from the command line:
+Example ini files can be found in the [iniFileExamples folder](https://github.com/OHDSI/WhiteRabbit/blob/master/iniFileExamples/WhiteRabbit.ini). `WhiteRabbit.ini` is a generic example, and there
+are also one or more database specific examples (e.g. `Snowflake.ini`)
+Then, we can reference the ini file when calling WhiteRabbit from the command line, e.g.:
 
 **Windows**
 

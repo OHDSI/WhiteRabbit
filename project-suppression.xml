@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+   <suppress>
+      <!-- Motivation: jackson-databind comes as a transitive dependency of apache avro, which is version locked due to Java 8 compatibility
+           The CVE states that external access is needed for an exploit (https://nvd.nist.gov/vuln/detail/cve-2023-35116),
+           which is not possible according to the vendor, and in any case not an issue for the Rabbit tools, as these
+           are assumed to be running in a safe environment
+           PLEASE NOTE: this exclusion should be reassessed once apache avro is upgraded to a newer version than 1.11.4 -->
+      <!-- exclude>com.fasterxml.jackson.core:jackson-databind</exclude-->
+      <notes><![CDATA[
+      file name: jackson-databind-2.14.3.jar
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
+      <cpe>cpe:/a:fasterxml:jackson-databind</cpe>
+   </suppress>
+</suppressions>

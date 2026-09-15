@@ -48,7 +48,7 @@ class TestSourceDataScanSasIniFile {
         URL referenceScanReport = TestSourceDataScanSasIniFile.class.getClassLoader().getResource("scan_data/ScanReport-reference-v0.10.7-sas.xlsx");
         assertNotNull(iniTemplate);
         String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
-        content = content.replaceAll("%WORKING_FOLDER%", tempDir.toString());
+        content = content.replace("%WORKING_FOLDER%", tempDir.toString());
         FileUtils.copyDirectory(
                 new File(Objects.requireNonNull(TestSourceDataScanSasIniFile.class.getClassLoader().getResource("examples/wr_input_sas")).toURI()),
                 tempDir.toFile());

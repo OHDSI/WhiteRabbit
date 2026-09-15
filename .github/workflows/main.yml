@@ -1,6 +1,9 @@
 # Continuous integration, including test and integration test
 name: CI
 
+env:
+  SKIP_ORACLE_TESTS: true
+
 # Run in master and dev branches and in all pull requests to those branches
 on:
   push:
@@ -30,4 +33,4 @@ jobs:
 
       # Gradle check
       - name: Check
-        run: mvn test
+        run: mvn verify

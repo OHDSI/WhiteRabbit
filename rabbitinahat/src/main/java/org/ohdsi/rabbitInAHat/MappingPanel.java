@@ -166,11 +166,13 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 		cdmComponents.clear();
 		arrows.clear();
 		for (MappableItem item : mapping.getSourceItems()) {
-			if (!showOnlyConnectedItems || isConnected(item)) {
-				if (item.isStem())
-					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
-				else
-					sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0)));
+			if (ObjectExchange.etl.isSelectedTable(item)) {
+				if (!showOnlyConnectedItems || isConnected(item)) {
+					if (item.isStem())
+						sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(160, 0, 160)));
+					else
+						sourceComponents.add(new LabeledRectangle(0, 400, ITEM_WIDTH, ITEM_HEIGHT, item, new Color(255, 128, 0)));
+				}
 			}
 		}
 		for (MappableItem item : mapping.getTargetItems()) {
@@ -182,9 +184,11 @@ public class MappingPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 		}
 		for (ItemToItemMap map : mapping.getSourceToTargetMaps()) {
-			Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents),
-					map);
-			arrows.add(component);
+			if (ObjectExchange.etl.isSelectedTable(map.getSourceItem())) {
+				Arrow component = new Arrow(getComponentWithItem(map.getSourceItem(), sourceComponents), getComponentWithItem(map.getTargetItem(), cdmComponents),
+						map);
+				arrows.add(component);
+			}
 		}
 		layoutItems();
 		repaint();

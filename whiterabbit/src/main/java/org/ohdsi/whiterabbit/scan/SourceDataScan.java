@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.epam.parso.Column;
@@ -73,6 +74,12 @@ public class SourceDataScan implements ScanParameters {
 	private LocalDateTime startTimeStamp;
 
 	static final String poiTmpPath;
+
+	/*
+	 * Supplier for the tableToFieldInfos Map. TreeMap, combined with Table implementing Comparable, enforces a consistent
+	 * ordering by table in the reports
+	 */
+	private Supplier<Map<Table, List<FieldInfo>>> mapSupplier = TreeMap::new;
 
 	static {
 		try {
@@ -136,7 +143,7 @@ public class SourceDataScan implements ScanParameters {
 		sourceType = dbSettings.sourceType;
 		dbType = dbSettings.dbType;
 
-		tableToFieldInfos = new HashMap<>();
+		tableToFieldInfos = mapSupplier.get();
 		StringUtilities.outputWithTime("Started new scan of " + dbSettings.tables.size() + " tables...");
 		if (sourceType == DbSettings.SourceType.CSV_FILES) {
 			if (!scanValues)
@@ -235,7 +242,8 @@ public class SourceDataScan implements ScanParameters {
 			tableToFieldInfos = dbSettings.tables.stream()
 					.collect(Collectors.toMap(
 							Table::new,
-							table -> processDatabaseTable(table, connection, dbSettings.database)
+							table -> processDatabaseTable(table, connection, dbSettings.database),
+							(o1, o2) -> o1, mapSupplier
 					));
 		}
 	}
@@ -278,6 +286,7 @@ public class SourceDataScan implements ScanParameters {
 
 		int i = 0;
 		indexedTableNameLookup = new HashMap<>();
+		assert isSorted(new ArrayList<>(tableToFieldInfos.keySet()), Table::compareTo);
 		for (Table table : tableToFieldInfos.keySet()) {
 			String tableNameIndexed = Table.indexTableNameForSheet(table.getName(), i);
 			indexedTableNameLookup.put(table.getName(), tableNameIndexed);
@@ -296,7 +305,7 @@ public class SourceDataScan implements ScanParameters {
 		try (FileOutputStream out = new FileOutputStream(new File(filename))) {
 			workbook.write(out);
 			out.close();
-			StringUtilities.outputWithTime("Scan report generated: " + filename);
+			StringUtilities.outputWithTime("Scan report generated: " + Paths.get(filename).toAbsolutePath().toString());
 		} catch (IOException ex) {
 			throw new RuntimeException(ex.getMessage());
 		}
@@ -320,8 +329,7 @@ public class SourceDataScan implements ScanParameters {
 			overviewHeader.addAll(Arrays.asList(
 					ScanFieldName.N_ROWS_CHECKED,
 					ScanFieldName.FRACTION_EMPTY,
-					ScanFieldName.UNIQUE_COUNT,
-					ScanFieldName.FRACTION_UNIQUE
+					ScanFieldName.UNIQUE_COUNT
 			));
 			if (calculateNumericStats) {
 				overviewHeader.addAll(Arrays.asList(
@@ -354,12 +362,10 @@ public class SourceDataScan implements ScanParameters {
 
 				if (scanValues) {
 					Long uniqueCount = fieldInfo.uniqueCount;
-					Double fractionUnique = fieldInfo.getFractionUnique();
 					values.addAll(Arrays.asList(
 							fieldInfo.nProcessed,
 							fieldInfo.getFractionEmpty(),
-							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount,
-							fieldInfo.hasValuesTrimmed() ? String.format(Locale.ENGLISH, "<= %.3f", fractionUnique) : fractionUnique
+							fieldInfo.hasValuesTrimmed() ? String.format("<= %d", uniqueCount) : uniqueCount
 					));
 					if (calculateNumericStats) {
 						values.addAll(Arrays.asList(
@@ -644,5 +650,22 @@ public class SourceDataScan implements ScanParameters {
 				cell.setCellStyle(style);
 			}
 		}
+	}
+
+	private static boolean isSorted(List<Table> tables, Comparator<Table> tableComparator) {
+		if (tables.isEmpty() || tables.size() == 1) {
+			return true;
+		}
+
+		Iterator<Table> iter = tables.iterator();
+		Table current, previous = iter.next();
+		while (iter.hasNext()) {
+			current = iter.next();
+			if (tableComparator.compare(previous, current) > 0) {
+				return false;
+			}
+			previous = current;
+		}
+		return true;
 	}
 }

@@ -44,7 +44,7 @@ public class ConfigurationFields {
             return field.get();
         }
 
-        throw new DBConfigurationException(String.format("No ConfigurationField object found for field name '%s'", fieldName));
+        throw new ScanConfigurationException(String.format("No ConfigurationField object found for field name '%s'", fieldName));
     }
 
     public String getValue(String fieldName) {

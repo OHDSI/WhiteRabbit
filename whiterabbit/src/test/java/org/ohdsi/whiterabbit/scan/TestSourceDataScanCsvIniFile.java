@@ -50,7 +50,7 @@ class TestSourceDataScanCsvIniFile {
         Path costCsv = Paths.get(TestSourceDataScanCsvIniFile.class.getClassLoader().getResource("scan_data/cost-header.csv").toURI());
         assertNotNull(iniTemplate);
         String content = new String(Files.readAllBytes(Paths.get(iniTemplate.toURI())), charset);
-        content = content.replaceAll("%WORKING_FOLDER%", tempDir.toString());
+        content = content.replace("%WORKING_FOLDER%", tempDir.toString());
         Files.write(iniFile, content.getBytes(charset));
         Files.copy(personCsv, tempDir.resolve("person.csv"));
         Files.copy(costCsv, tempDir.resolve("cost.csv"));
