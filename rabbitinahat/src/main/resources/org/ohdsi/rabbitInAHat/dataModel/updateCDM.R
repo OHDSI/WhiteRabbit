@@ -20,7 +20,20 @@ cdmSpecs |>
     description = userGuidance.x,
     schema = schema
   ) |>
-  write.csv(
-    'rabbitinahat/src/main/resources/org/ohdsi/rabbitInAHat/dataModel/CDMV5.5.csv',
-    row.names = FALSE
+  mutate(
+    table = str_to_upper(table),
+    field = str_to_lower(field),
+    required = case_when(
+      str_to_lower(required) %in% c("yes", "true") ~ "Yes",
+      str_to_lower(required) %in% c("no", "false") ~ "No",
+      TRUE ~ required
+    ),
+    type = str_to_upper(type),
+    schema = str_to_lower(schema)
+  ) |>
+  write_csv(
+    "CDMV5.5.csv",
+    na = "",
+    quote = "needed",
+    eol = "\r\n"
   )
