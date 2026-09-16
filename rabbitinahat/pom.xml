@@ -78,7 +78,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.5.6</version>
                 <configuration>
                     <systemPropertyVariables>
                         <propertyName>propertyValue</propertyName>
@@ -178,7 +178,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.9.0</version>
+                        <version>1.12.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
