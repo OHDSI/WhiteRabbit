@@ -7,7 +7,7 @@
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.release>8</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <skipTests>false</skipTests>
@@ -468,11 +468,10 @@
                 <artifactId>poi-excelant</artifactId>
                 <version>${apache-poi.version}</version>
             </dependency>
-            <!-- Note: Apache xmlbeans v4.x and v5.x is incompatible with Apache poi v4-->
             <dependency>
                 <groupId>org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
-                <version>5.4.0</version>
+                <version>5.4.1</version>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
@@ -523,13 +522,13 @@
             <dependency>
                 <groupId>com.amazon.redshift</groupId>
                 <artifactId>redshift-jdbc42</artifactId>
-                <version>2.2.8</version>
+                <version>2.2.9</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
             <dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
-		        <version>1.11.4</version>	<!-- PLEASE NOTE: avro 1.12.0 is not Java 8 compatible -->
+		<version>1.11.4</version>	<!-- PLEASE NOTE: avro 1.12.0 is not Java 8 compatible -->
             </dependency>
             <dependency>
                 <groupId>com.epam</groupId>
@@ -577,7 +576,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>2.0.19</version>
+                <version>2.0.20</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.testcontainers/testcontainers -->
             <dependency>
