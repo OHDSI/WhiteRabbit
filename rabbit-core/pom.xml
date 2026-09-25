@@ -56,10 +56,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
         </dependency>
@@ -193,24 +189,7 @@
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>databricks-jdbc</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.spark</groupId>
-                    <artifactId>spark-core_2.13</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-	<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-core -->
-	<dependency>
-	    <groupId>org.apache.spark</groupId>
-	    <artifactId>spark-core_2.13</artifactId>
-	    <exclusions>
-	        <exclusion>
-	            <groupId>org.apache.logging.log4j</groupId>
-	            <artifactId>log4j-slf4j2-impl</artifactId>
-	        </exclusion>
-	    </exclusions>
-	</dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
