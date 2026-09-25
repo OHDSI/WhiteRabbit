@@ -4,28 +4,26 @@
 # this script can be used to prepare a databricks instance for use with the integration tests of WhiteRabbit
 #
 # prerequisites:
-# - a Databricks instance with a catalog/schema with write permissions
+# - a Databricks instance with a catalog/schema with write permissions (wr_test is assumed as the name for both)
 # - a Personal Access Token for the Databricks instance
 #	(see https://docs.databricks.com/aws/en/dev-tools/auth/pat)
 # - databricks cli installed
 #	(see: https://docs.databricks.com/aws/en/dev-tools/cli/install)
-# - dbsqlcli installed
-#	(see https://docs.databricks.com/aws/en/dev-tools/databricks-sql-cli)
-#
 
 #
 # copy the local testfiles to the databricks instance
 #
-databricks fs mkdir dbfs:/tmp/whiterabbit_test
-databricks fs cp cost-no-header.csv  dbfs:/tmp/whiterabbit_test/
-databricks fs cp person-no-header.csv  dbfs:/tmp/whiterabbit_test/
+databricks fs cp cost-no-header.csv  dbfs:/Volumes/wr_test/wr_test/wr_test
+databricks fs cp person-no-header.csv  dbfs:/Volumes/wr_test/wr_test/wr_test
 
 #
-# create the tables for the test data; might ask the user to confirm destuctive operations (drop the tables)
+# Excute the sql scripts below by copying them in an SQL window in your Databricks environment and execute them
 #
-dbsqlcli -e create_data_databricks.sql
-
+# To (re)create the tables:
 #
-# insert the data from the files in the databricks instance
+#   create_data_databricks.sql
 #
-dbsqlcli -e insert_data_databricks.sql
+#
+# To insert the uploaded csv's into the tables:
+#
+#   insert_data_databricks.sql
