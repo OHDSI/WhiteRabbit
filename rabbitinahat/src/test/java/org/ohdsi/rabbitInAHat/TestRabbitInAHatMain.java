@@ -66,6 +66,9 @@ public class TestRabbitInAHatMain {
     @BeforeEach
     public void setUp() {
         String[] args = {};
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            System.setProperty("test.donotsetsystemlookandfeel", "true");
+        }
         RabbitInAHatMain rabbitInAHatMain = GuiActionRunner.execute(() -> new RabbitInAHatMain(args));
         window = new FrameFixture(rabbitInAHatMain.getFrame());
         window.splitPane("splitpane").target().setDividerLocation(WIDTH / 2);
