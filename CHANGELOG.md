@@ -6,3 +6,7 @@
 - Support for Databricks
 - Dropped support for Java/JDK versions < 17
 - Updated dependencies
+
+### 1.1.0
+
+No changelog was maintained until version 1 1.0
