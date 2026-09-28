@@ -1,4 +1,5 @@
-SELECT vocabulary_version from @vocab.vocabulary WHERE vocabulary_id = 'None';
+SELECT vocabulary_version 
+from @vocab.vocabulary WHERE vocabulary_id = 'None';
 
 WITH concept_hints AS (
     SELECT 'person'            AS omop_cdm_table,
@@ -279,5 +280,5 @@ WITH concept_hints AS (
 )
 SELECT *
 FROM concept_hints
-ORDER BY omop_cdm_table, omop_cdm_field, standard_concept, concept_name, domain_id, concept_class_id, vocabulary_id, concept_id ASC
+ORDER BY omop_cdm_table, omop_cdm_field, concept_id ASC
 ;
