@@ -37,6 +37,14 @@ class TestSnowflakeHandler {
     Logger logger = LoggerFactory.getLogger(TestSnowflakeHandler.class);
 
     @Test
+    void testRowSampleQueryUsesLimitNullForAllRows() {
+        assertTrue(SnowflakeHandler.INSTANCE.getRowSampleQuery("MY_TABLE", 1000, -1)
+                .contains("LIMIT NULL"));
+        assertTrue(SnowflakeHandler.INSTANCE.getRowSampleQuery("MY_TABLE", 1000, 100000)
+                .contains("LIMIT 100000"));
+    }
+
+    @Test
     void testPrintIniFileTemplate() throws IOException {
         String output;
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); PrintStream printStream = new PrintStream(outputStream)) {

@@ -108,7 +108,9 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
     }
 
     public String getRowSampleQuery(String tableName, long rowCount, long sampleSize) {
-        return String.format("SELECT * FROM %s ORDER BY RANDOM() LIMIT %s", resolveTableName(tableName), sampleSize);
+        // -1 means all rows; Snowflake rejects LIMIT -1
+        String limit = sampleSize == -1 ? "NULL" : Long.toString(sampleSize);
+        return String.format("SELECT * FROM %s ORDER BY RANDOM() LIMIT %s", resolveTableName(tableName), limit);
     }
 
     private String resolveTableName(String tableName) {
