@@ -65,6 +65,8 @@ class TestSnowflakeHandler {
         assertFalse(feedback.hasWarnings());
         assertTrue(feedback.hasErrors());
         assertEquals(6,feedback.getErrors().size());
+        assertTrue(feedback.getErrors().containsKey(SnowflakeConfiguration.ERROR_MUST_SET_ONE_AUTH_METHOD),
+                "there should be an error indicating that one of password, authenticator, or private key file must be specified");
 
         // fill in all required fields, verify no errors
         iniFile.set(SnowflakeConfiguration.SNOWFLAKE_ACCOUNT, "some-account");
@@ -85,7 +87,7 @@ class TestSnowflakeHandler {
         assertFalse(feedback.hasWarnings());
         assertTrue(feedback.hasErrors());
         assertEquals(2,feedback.getErrors().size());
-        assertTrue(feedback.getErrors().containsKey(SnowflakeConfiguration.ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR),
+        assertTrue(feedback.getErrors().containsKey(SnowflakeConfiguration.ERROR_MUST_SET_ONLY_ONE_AUTH_METHOD),
                 "there should be an error indicating that both password and authenticator were set");
         assertEquals(1,
                 (int) new ArrayList<>(feedback.getErrors().keySet()).stream().filter(k -> k.startsWith(SnowflakeConfiguration.ERROR_VALUE_CAN_ONLY_BE_ONE_OF)).count(),
@@ -102,5 +104,13 @@ class TestSnowflakeHandler {
         feedback = snowflakeConfiguration.loadAndValidateConfiguration(iniFile);
         assertFalse(feedback.hasWarnings());
         assertFalse(feedback.hasErrors());
+
+        iniFile.set(SnowflakeConfiguration.SNOWFLAKE_PASSWORD, "some-password");
+        feedback = snowflakeConfiguration.loadAndValidateConfiguration(iniFile);
+        assertFalse(feedback.hasWarnings());
+        assertTrue(feedback.hasErrors());
+        assertEquals(1, feedback.getErrors().size());
+        assertTrue(feedback.getErrors().containsKey(SnowflakeConfiguration.ERROR_MUST_SET_ONLY_ONE_AUTH_METHOD),
+                "there should be an error indicating that both password and private key file were set");
     }
 }

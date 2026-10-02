@@ -214,8 +214,10 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
         public static final String SNOWFLAKE_WAREHOUSE = "SNOWFLAKE_WAREHOUSE";
         public static final String SNOWFLAKE_DATABASE = "SNOWFLAKE_DATABASE";
         public static final String SNOWFLAKE_SCHEMA = "SNOWFLAKE_SCHEMA";
-        public static final String ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR = "Either password or authenticator must be specified for Snowflake";
-        public static final String ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR = "Specify only one of password or authenticator Snowflake";
+        public static final String ERROR_MUST_SET_ONE_AUTH_METHOD =
+                "One of password, authenticator, or private key file must be specified for Snowflake";
+        public static final String ERROR_MUST_SET_ONLY_ONE_AUTH_METHOD =
+                "Specify only one of password, authenticator, or private key file for Snowflake";
         public static final String ERROR_VALUE_CAN_ONLY_BE_ONE_OF = "Error can only be one of ";
         public SnowflakeConfiguration() {
             super(
@@ -277,10 +279,10 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
                         "Private key password",
                         "Passphrase for the private key file, if the key is encrypted")
             );
-            this.configurationFields.addValidator(new PasswordXORAuthenticatorValidator());
+            this.configurationFields.addValidator(new ExactlyOneAuthMethodValidator());
         }
 
-        static class PasswordXORAuthenticatorValidator implements ConfigurationValidator {
+        static class ExactlyOneAuthMethodValidator implements ConfigurationValidator {
 
             @Override
             public ValidationFeedback validate(ConfigurationFields fields) {
@@ -290,18 +292,18 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
                 boolean hasPrivateKeyFile = StringUtils.isNotEmpty(fields.getValue(SNOWFLAKE_PRIVATE_KEY_FILE));
                 int authMethodCount = (hasPassword ? 1 : 0) + (hasAuthenticator ? 1 : 0) + (hasPrivateKeyFile ? 1 : 0);
                 if (authMethodCount == 0) {
-                    feedback.addError(ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR, fields.get(SNOWFLAKE_PASSWORD));
-                    feedback.addError(ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR, fields.get(SNOWFLAKE_AUTHENTICATOR));
-                    feedback.addError(ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR, fields.get(SNOWFLAKE_PRIVATE_KEY_FILE));
+                    feedback.addError(ERROR_MUST_SET_ONE_AUTH_METHOD, fields.get(SNOWFLAKE_PASSWORD));
+                    feedback.addError(ERROR_MUST_SET_ONE_AUTH_METHOD, fields.get(SNOWFLAKE_AUTHENTICATOR));
+                    feedback.addError(ERROR_MUST_SET_ONE_AUTH_METHOD, fields.get(SNOWFLAKE_PRIVATE_KEY_FILE));
                 } else if (authMethodCount > 1) {
                     if (hasPassword) {
-                        feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(SNOWFLAKE_PASSWORD));
+                        feedback.addError(ERROR_MUST_SET_ONLY_ONE_AUTH_METHOD, fields.get(SNOWFLAKE_PASSWORD));
                     }
                     if (hasAuthenticator) {
-                        feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(SNOWFLAKE_AUTHENTICATOR));
+                        feedback.addError(ERROR_MUST_SET_ONLY_ONE_AUTH_METHOD, fields.get(SNOWFLAKE_AUTHENTICATOR));
                     }
                     if (hasPrivateKeyFile) {
-                        feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(SNOWFLAKE_PRIVATE_KEY_FILE));
+                        feedback.addError(ERROR_MUST_SET_ONLY_ONE_AUTH_METHOD, fields.get(SNOWFLAKE_PRIVATE_KEY_FILE));
                     }
                 }
 
