@@ -26,7 +26,9 @@
                 <artifactId>appassembler-maven-plugin</artifactId>
                 <configuration>
                     <assembleDirectory>${project.parent.basedir}/dist</assembleDirectory>
-                    <extraJvmArguments>-Xmx1200m</extraJvmArguments>
+                    <!-- add-opens required for Snowflake JDBC on JDK 16+;
+                         see community.snowflake.com JDBC Driver Compatibility Issue With JDK 16 and Later -->
+                    <extraJvmArguments>-Xmx1200m --add-opens=java.base/java.nio=ALL-UNNAMED</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>org.ohdsi.whiterabbit.WhiteRabbitMain</mainClass>

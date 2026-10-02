@@ -19,6 +19,9 @@ package org.ohdsi.databases;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
@@ -171,7 +174,14 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException("Cannot find JDBC driver. Make sure the file snowflake-jdbc-x.xx.xx.jar is in the path: " + ex.getMessage());
         }
-        String url = buildUrl(dbSettings.server, dbSettings.domain, dbSettings.user, dbSettings.password, INSTANCE.configuration.getValue(SNOWFLAKE_AUTHENTICATOR));
+        String url = buildUrl(
+                dbSettings.server,
+                dbSettings.domain,
+                dbSettings.user,
+                dbSettings.password,
+                INSTANCE.configuration.getValue(SNOWFLAKE_AUTHENTICATOR),
+                INSTANCE.configuration.getValue(SNOWFLAKE_PRIVATE_KEY_FILE),
+                INSTANCE.configuration.getValue(SNOWFLAKE_PRIVATE_KEY_PWD));
         try {
             return new DBConnection(DriverManager.getConnection(url), DbType.SNOWFLAKE, false);
         } catch (SQLException ex) {
@@ -199,6 +209,8 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
         public static final String SNOWFLAKE_USER = "SNOWFLAKE_USER";
         public static final String SNOWFLAKE_PASSWORD = "SNOWFLAKE_PASSWORD";
         public static final String SNOWFLAKE_AUTHENTICATOR = "SNOWFLAKE_AUTHENTICATOR";
+        public static final String SNOWFLAKE_PRIVATE_KEY_FILE = "SNOWFLAKE_PRIVATE_KEY_FILE";
+        public static final String SNOWFLAKE_PRIVATE_KEY_PWD = "SNOWFLAKE_PRIVATE_KEY_PWD";
         public static final String SNOWFLAKE_WAREHOUSE = "SNOWFLAKE_WAREHOUSE";
         public static final String SNOWFLAKE_DATABASE = "SNOWFLAKE_DATABASE";
         public static final String SNOWFLAKE_SCHEMA = "SNOWFLAKE_SCHEMA";
@@ -255,7 +267,15 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
                                 }
                                 return feedback;
                             }
-                        })
+                        }),
+                ConfigurationField.create(
+                        SNOWFLAKE_PRIVATE_KEY_FILE,
+                        "Private key file",
+                        "Path to PKCS#8 private key file (.p8) for Snowflake key-pair authentication"),
+                ConfigurationField.create(
+                        SNOWFLAKE_PRIVATE_KEY_PWD,
+                        "Private key password",
+                        "Passphrase for the private key file, if the key is encrypted")
             );
             this.configurationFields.addValidator(new PasswordXORAuthenticatorValidator());
         }
@@ -265,14 +285,24 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
             @Override
             public ValidationFeedback validate(ConfigurationFields fields) {
                 ValidationFeedback feedback = new ValidationFeedback();
-                String password = fields.getValue(SNOWFLAKE_PASSWORD);
-                String authenticator = fields.getValue(SNOWFLAKE_AUTHENTICATOR);
-                if (StringUtils.isEmpty(password) && StringUtils.isEmpty(authenticator)) {
+                boolean hasPassword = StringUtils.isNotEmpty(fields.getValue(SNOWFLAKE_PASSWORD));
+                boolean hasAuthenticator = StringUtils.isNotEmpty(fields.getValue(SNOWFLAKE_AUTHENTICATOR));
+                boolean hasPrivateKeyFile = StringUtils.isNotEmpty(fields.getValue(SNOWFLAKE_PRIVATE_KEY_FILE));
+                int authMethodCount = (hasPassword ? 1 : 0) + (hasAuthenticator ? 1 : 0) + (hasPrivateKeyFile ? 1 : 0);
+                if (authMethodCount == 0) {
                     feedback.addError(ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR, fields.get(SNOWFLAKE_PASSWORD));
                     feedback.addError(ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR, fields.get(SNOWFLAKE_AUTHENTICATOR));
-                } else if (!StringUtils.isEmpty(password) && !StringUtils.isEmpty(authenticator)) {
-                    feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(SNOWFLAKE_PASSWORD));
-                    feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(SNOWFLAKE_AUTHENTICATOR));
+                    feedback.addError(ERROR_MUST_SET_PASSWORD_OR_AUTHENTICATOR, fields.get(SNOWFLAKE_PRIVATE_KEY_FILE));
+                } else if (authMethodCount > 1) {
+                    if (hasPassword) {
+                        feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(SNOWFLAKE_PASSWORD));
+                    }
+                    if (hasAuthenticator) {
+                        feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(SNOWFLAKE_AUTHENTICATOR));
+                    }
+                    if (hasPrivateKeyFile) {
+                        feedback.addError(ERROR_MUST_NOT_SET_PASSWORD_AND_AUTHENTICATOR, fields.get(SNOWFLAKE_PRIVATE_KEY_FILE));
+                    }
                 }
 
                 return feedback;
@@ -285,7 +315,8 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
 
     }
 
-    private static String buildUrl(String server, String schema, String user, String password, String authenticator) {
+    private static String buildUrl(String server, String schema, String user, String password,
+                                   String authenticator, String privateKeyFile, String privateKeyPwd) {
         final String jdbcPrefix = "jdbc:snowflake://";
         String url = (!server.startsWith(jdbcPrefix) ? jdbcPrefix : "") + server;
         if (!url.contains("?")) {
@@ -299,12 +330,26 @@ public enum SnowflakeHandler implements JdbcStorageHandler {
         url = appendParameterIfSet(url, "user", user);
         if (!StringUtils.isEmpty(authenticator)) {
             url = appendParameterIfSet(url, "authenticator", authenticator);
+        } else if (!StringUtils.isEmpty(privateKeyFile)) {
+            url = appendParameterIfSet(url, "private_key_file", urlEncode(privateKeyFile));
+            if (!StringUtils.isEmpty(privateKeyPwd)) {
+                url = appendParameterIfSet(url, "private_key_pwd", urlEncode(privateKeyPwd));
+            }
         } else {
             url = appendParameterIfSet(url, "password", password);
         }
 
         return url;
     }
+
+    private static String urlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static String appendParameterIfSet(String url, String name, String value) {
         if (!StringUtils.isEmpty(value)) {
             return String.format("%s%s%s=%s", url, (url.endsWith("?") ? "" : "&"), name, value);

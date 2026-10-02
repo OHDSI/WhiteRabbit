@@ -96,5 +96,11 @@ class TestSnowflakeHandler {
         feedback = snowflakeConfiguration.loadAndValidateConfiguration(iniFile);
         assertFalse(feedback.hasWarnings());
         assertFalse(feedback.hasErrors());
+
+        iniFile.set(SnowflakeConfiguration.SNOWFLAKE_AUTHENTICATOR, null);
+        iniFile.set(SnowflakeConfiguration.SNOWFLAKE_PRIVATE_KEY_FILE, "/path/to/rsa_key.p8");
+        feedback = snowflakeConfiguration.loadAndValidateConfiguration(iniFile);
+        assertFalse(feedback.hasWarnings());
+        assertFalse(feedback.hasErrors());
     }
 }
