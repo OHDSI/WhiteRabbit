@@ -136,7 +136,7 @@ public class RabbitInAHatMain implements ResizeListener {
 
 		frame = new JFrame("Rabbit in a Hat");
 
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				doAskIfSavedBeforeExit();
