@@ -20,22 +20,28 @@ package org.ohdsi.rabbitInAHat;
 import com.github.caciocavallosilano.cacio.ctc.junit.CacioTest;
 import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.ComponentDragAndDrop;
+import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.finder.JFileChooserFinder;
+import org.assertj.swing.finder.WindowFinder;
 import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JFileChooserFixture;
+import org.assertj.swing.fixture.JOptionPaneFixture;
 import org.assertj.swing.timing.Condition;
 import org.junit.jupiter.api.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import javax.swing.SwingUtilities;
 
 import static org.assertj.swing.timing.Pause.pause;
 import static org.assertj.swing.timing.Timeout.timeout;
@@ -119,6 +125,57 @@ public class TestRabbitInAHatMain {
         verifyTableMapping(tablesPanel, "medications.csv", "drug_exposure");
         verifyTableMapping(tablesPanel, "encounters.csv", "observation_period");
         verifyTableMapping(tablesPanel, "encounters.csv", "visit_occurrence");
+    }
+
+    private void requestWindowClose() {
+        SwingUtilities.invokeLater(() -> window.target().dispatchEvent(
+            new WindowEvent(window.target(), WindowEvent.WINDOW_CLOSING)
+        ));
+    }
+
+    @GUITest
+    @Test
+    public void windowCloseIfYes() {
+        // The application should close when "Yes" is selected in the "Do you want to exit?" pop-up
+        // open "Do you want to exit?" pop-up
+        requestWindowClose();
+
+        // clicking "Yes" should close application
+        window.optionPane().buttonWithText("Yes").click();
+
+        assertFalse(window.target().isActive());
+    }
+
+    @GUITest
+    @Test
+    public void windowStaysOpenIfNo() {
+        // The application should remain open, but pop-up window should close when "No" is selected in the "Do you want to exit" pop-up
+        // open "Do you want to exit?" pop-up
+        requestWindowClose();
+
+        // clicking "No" should close pop-up, but keep application open
+        JOptionPaneFixture prompt = window.optionPane();
+        prompt.buttonWithText("No").click();
+
+        assertTrue(window.target().isActive());
+        assertFalse(prompt.target().isShowing());
+    }
+
+    @GUITest
+    @Test 
+    public void windowStaysOpenIfPopupClosed() {
+        // The application should remain open, but "Do you want to exit?" pop-up should close when close button is pressed on pop-up
+        // open "Do you want to exit?" pop-up
+        requestWindowClose();
+
+        JOptionPaneFixture optionPane = window.optionPane();
+        Dialog dialog = (Dialog) SwingUtilities.getWindowAncestor(optionPane.target());
+        DialogFixture prompt = new DialogFixture(window.robot(), dialog);
+
+        prompt.close();
+
+        assertTrue(window.target().isShowing());
+        assertFalse(prompt.target().isShowing());
     }
 
     @GUITest
