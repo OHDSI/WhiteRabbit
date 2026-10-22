@@ -27,6 +27,7 @@ import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JFileChooserFixture;
 import org.assertj.swing.timing.Condition;
 import org.junit.jupiter.api.*;
+import org.ohdsi.rabbitInAHat.dataModel.Table;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -119,6 +120,49 @@ public class TestRabbitInAHatMain {
         verifyTableMapping(tablesPanel, "medications.csv", "drug_exposure");
         verifyTableMapping(tablesPanel, "encounters.csv", "observation_period");
         verifyTableMapping(tablesPanel, "encounters.csv", "visit_occurrence");
+    }
+
+    @Test
+    public void fieldMappingShowsAndMapsSourceFields() throws URISyntaxException {
+        openETLSpecs("scan/etl-specs.json.gz");
+        MappingPanel tablesPanel = getTablesPanel();
+        Arrow tableMapping = findMapping(tablesPanel.getArrows(), "conditions.csv", "condition_occurrence");
+        Table sourceTable = (Table) tableMapping.getSource().getItem();
+        Table targetTable = (Table) tableMapping.getTarget().getItem();
+        MappingPanel fieldsPanel = tablesPanel.getSlaveMappingPanel();
+
+        fieldsPanel.setMapping(ObjectExchange.etl.getFieldToFieldMapping(sourceTable, targetTable));
+
+        List<LabeledRectangle> sourceFields = fieldsPanel.getVisibleSourceComponents();
+        List<LabeledRectangle> targetFields = fieldsPanel.getVisibleTargetComponents();
+        assertFalse("There should be source fields", sourceFields.isEmpty());
+        assertFalse("There should be target fields", targetFields.isEmpty());
+
+        LabeledRectangle unmappedSourceField = null;
+        LabeledRectangle unmappedTargetField = null;
+        for (LabeledRectangle sourceField : sourceFields) {
+            for (LabeledRectangle targetField : targetFields) {
+                boolean mappingExists = fieldsPanel.getArrows().stream().anyMatch(mapping ->
+                        mapping.getSource().getItem() == sourceField.getItem() &&
+                                mapping.getTarget().getItem() == targetField.getItem());
+                if (!mappingExists) {
+                    unmappedSourceField = sourceField;
+                    unmappedTargetField = targetField;
+                    break;
+                }
+            }
+            if (unmappedSourceField != null) {
+                break;
+            }
+        }
+        assertNotNull("There should be an unmapped field pair", unmappedSourceField);
+
+        int existingMappings = fieldsPanel.getArrows().size();
+        unmappedSourceField.setSelected(true);
+        unmappedTargetField.setSelected(true);
+        fieldsPanel.makeMapSelectedSourceAndTarget();
+
+        assertEquals("Selected fields should create a mapping", existingMappings + 1, fieldsPanel.getArrows().size());
     }
 
     @GUITest
